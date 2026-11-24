@@ -368,7 +368,7 @@
       scope.querySelectorAll("[data-select-item]").forEach(other => other.classList.toggle("selected", other === button));
       const fields = {
         title: "[data-selection-title]", meta: "[data-selection-meta]",
-        description: "[data-selection-description]", content: "[data-selection-content]", visual: "[data-selection-visual]"
+        kicker: "[data-selection-kicker]", status: "[data-selection-status]", description: "[data-selection-description]", content: "[data-selection-content]", visual: "[data-selection-visual]"
       };
       for (const [key, selector] of Object.entries(fields)) {
         const node = target.querySelector(selector);
