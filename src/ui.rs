@@ -44,7 +44,7 @@ impl Plugin for UiPlugin {
             .init_resource::<inventory::InventoryViewModel>()
             .init_resource::<PopupConfirmRequested>()
             .configure_sets(Update, (UiSet::Input, UiSet::Projection).chain())
-            .add_systems(OnEnter(AppState::InGame), game_ui_scene().spawn())
+            .add_systems(OnEnter(AppState::InGame), game_ui_scene.spawn())
             .add_systems(
                 Update,
                 handle_ui_input
@@ -647,7 +647,7 @@ fn item_icon(path: &'static str) -> impl Scene {
             width: px(32),
             height: px(32),
         }
-        template(|ctx| {
+        template(move |ctx| {
             Ok(ImageNode::new(ctx.resource::<AssetServer>().load(path)))
         })
     }
