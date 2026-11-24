@@ -363,10 +363,12 @@
     const selected = scope.querySelector("[data-filter-value].active");
     const category = selected ? selected.dataset.filterValue : "all";
     const search = (scope.querySelector("[data-filter-search]")?.value || "").trim().toLowerCase();
+    let visibleCount = 0;
     scope.querySelectorAll("[data-filter-item]").forEach(item => {
       const categoryMatch = category === "all" || item.dataset.category === category;
       const searchMatch = !search || (item.dataset.search || item.textContent).toLowerCase().includes(search);
       item.hidden = !(categoryMatch && searchMatch);
+      if (!item.hidden) visibleCount += 1;
       if (item.hidden && item.classList.contains("selected")) {
         item.classList.remove("selected");
         item.setAttribute("aria-pressed", "false");
@@ -374,6 +376,10 @@
         if (panel) closeDetail(panel);
       }
     });
+    const count = scope.querySelector("[data-filter-count]");
+    if (count) count.textContent = visibleCount + " matching items";
+    const empty = scope.querySelector("[data-filter-empty]");
+    if (empty) empty.hidden = visibleCount !== 0;
   }
   document.querySelectorAll("[data-filter-scope]").forEach(scope => {
     scope.querySelectorAll("[data-filter-value]").forEach(button => {
@@ -407,10 +413,12 @@
     panel.closest(".inventory-layout, .workshop-layout")?.classList.remove("has-open-detail");
     panel.closest(".map-layout")?.classList.remove("has-open-detail");
     const scope = panel.closest("[data-selection-scope]") || document;
+    const trigger = scope.querySelector('[aria-pressed="true"]');
     scope.querySelectorAll("[data-select-item], [data-map-place]").forEach(item => {
       item.classList.remove("selected");
       item.setAttribute("aria-pressed", "false");
     });
+    if (trigger && !trigger.hidden) trigger.focus({ preventScroll: true });
   }
 
   document.querySelectorAll("[data-detail-close]").forEach(button => {
