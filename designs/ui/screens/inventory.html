@@ -45,7 +45,7 @@
         <label class="search-wrap"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.3"/><path d="m16 16 4 4"/></svg><input class="search-input" type="search" placeholder="Search inventory" aria-label="Search inventory" data-filter-search></label>
       </div>
       <div class="item-grid">
-        <button class="item-tile selectable selected" type="button" data-filter-item data-category="equipment" data-search="iron longsword weapon" data-select-item data-selection-target="#inventory-detail" data-item-title="Iron longsword" data-item-meta="Weapon · One-handed · 3.2 kg" data-item-description="A serviceable guild issue blade. The edge has been sharpened recently; the leather wrap is worn but secure." data-item-facts="Condition|Good;Value|24 crowns;Durability|81 / 100" data-item-visual="⚔">
+        <button class="item-tile selectable" type="button" data-filter-item data-category="equipment" data-search="iron longsword weapon" data-select-item data-selection-target="#inventory-detail" data-item-title="Iron longsword" data-item-meta="Weapon · One-handed · 3.2 kg" data-item-description="A serviceable guild issue blade. The edge has been sharpened recently; the leather wrap is worn but secure." data-item-facts="Condition|Good;Value|24 crowns;Durability|81 / 100" data-item-visual="⚔">
           <span class="item-visual">⚔</span><span><span class="item-name">Iron longsword</span><span class="item-quantity">1 · Equipped</span></span>
         </button>
         <button class="item-tile selectable" type="button" data-filter-item data-category="equipment" data-search="round shield iron" data-select-item data-selection-target="#inventory-detail" data-item-title="Round shield" data-item-meta="Off-hand · 4.8 kg" data-item-description="A small iron-rimmed shield with a repaired central boss. It is heavy, but the straps are intact." data-item-facts="Condition|Worn;Value|16 crowns;Durability|69 / 100" data-item-visual="◉">
@@ -73,8 +73,8 @@
     </div>
     <footer class="panel-head"><span class="panel-heading-side">Showing 8 of 18 carried items</span><span class="panel-heading-side">Sort: Recent</span></footer>
   </section>
-  <aside class="panel" id="inventory-detail" aria-live="polite">
-    <header class="panel-head"><h2>Item details</h2><span class="panel-heading-side">Selected</span></header>
+  <aside class="panel" id="inventory-detail" aria-live="polite" data-detail-panel hidden>
+    <header class="panel-head"><h2>Item details</h2><button class="detail-close" type="button" data-detail-close aria-label="Close item details">×</button></header>
     <div class="panel-body">
       <span class="item-visual item-detail-visual" data-selection-visual>⚔</span>
       <h2 class="selection-title" data-selection-title>Iron longsword</h2>
