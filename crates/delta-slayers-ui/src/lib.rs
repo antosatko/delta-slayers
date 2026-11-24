@@ -9,6 +9,6 @@ mod widgets;
 
 pub use theme::{SlateButtonTone, SlatePlugin, SlateStatus, SlateTheme};
 pub use widgets::{
-    action_button, badge, item_tile, page_header, panel, reference_term, section_header,
+    action_button, badge, item_tile, page_header, panel, reference_term, root, section_header,
     stat_bar, SlateIcon,
 };
