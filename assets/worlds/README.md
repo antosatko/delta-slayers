@@ -19,16 +19,23 @@ Add these components to Blender Objects (or Empties where appropriate):
 
 | Component type path | Use |
 | --- | --- |
-| `delta_slayers::gameplay::zones::TriggerZone` | Interaction / fast-travel zone. Choose `kind` and set `radius` in world units. |
+| `delta_slayers::gameplay::zones::TriggerBox` | Oriented interaction / fast-travel volume. Choose `kind`; the object's transform defines its bounds. |
 | `delta_slayers::gameplay::spawning::SpawnPoint` | Spawn location. Choose `kind`; for Player points, a higher `priority` wins. |
 | `delta_slayers::gameplay::billboard::Billboard` | Makes a flat object face the player camera horizontally. |
 
-### Zones
+### Trigger boxes
 
-Place a TriggerZone on an object or Empty at the center of the area. The current
-zone detector uses a spherical distance check from that object's world-space
-origin. Available kinds are `Shop` and `Guild`, which map to the existing UI
-panels and fast-travel buttons.
+Create a default Blender cube and attach a TriggerBox component to the cube
+object. Resize it in Object Mode to define the volume; its location, rotation,
+and scale are all respected, including when nested under other transformed
+objects. Keep the cube's scale unapplied so it is exported as a node transform.
+The default cube's local bounds are -1 to 1 on each axis, so a scale of 1
+produces a 2-by-2-by-2 world-unit trigger.
+
+Give the cube a transparent material so it does not obstruct the level view.
+The trigger test uses the transformed cube bounds, not the rendered material.
+Available kinds are `Shop` and `Guild`, which map to the existing UI panels
+and fast-travel buttons.
 
 The current UI and visited-zone model treats each kind as one destination. The
 component API can be extended with stable zone IDs before adding multiple
@@ -55,3 +62,9 @@ available as authoring metadata but do not spawn entities yet.
   supports mesh and material components, but those are not needed here.
 - Keep the root scene hierarchy and transforms intact; gameplay queries use
   world-space transforms so nested objects are supported.
+
+### Migrating existing files
+
+`TriggerZone` was replaced by `TriggerBox`. Fetch the updated remote type
+registry in Skein, remove old TriggerZone components from the Blender objects,
+and add TriggerBox components to the intended cube objects. Re-export the GLB.

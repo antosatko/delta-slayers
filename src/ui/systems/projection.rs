@@ -6,7 +6,7 @@ use bevy::{
 use crate::{
     gameplay::{
         player::Player,
-        zones::{NearbyZone, TriggerZone, VisitedZones, ZoneKind},
+        zones::{NearbyZone, TriggerBox, VisitedZones, ZoneKind},
     },
     ui::{
         components::{
@@ -124,7 +124,7 @@ pub fn sync_cursor(ui: Res<UiStack>, mut cursor: Single<&mut CursorOptions, With
 
 pub fn update_minimap(
     player: Query<&Transform, With<Player>>,
-    zones: Query<(&GlobalTransform, &TriggerZone)>,
+    zones: Query<(&GlobalTransform, &TriggerBox)>,
     mut dots: Query<(&MinimapZoneDot, &mut Node, &mut Visibility)>,
 ) {
     let Ok(player_transform) = player.single() else {

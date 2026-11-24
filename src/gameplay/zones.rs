@@ -12,22 +12,21 @@ pub enum ZoneKind {
     Guild,
 }
 
-/// Authored on a Blender object or Empty to make it an interaction zone.
+/// Authored on a Blender cube to define an oriented interaction volume.
 ///
-/// `radius` is measured in world units from the object's world-space origin.
+/// The default Blender cube has local bounds from -1.0 to 1.0 on each axis.
+/// Its world transform (including rotation and scale) defines the trigger box.
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component, Default)]
 #[type_path = "delta_slayers::gameplay::zones"]
-pub struct TriggerZone {
+pub struct TriggerBox {
     pub kind: ZoneKind,
-    pub radius: f32,
 }
 
-impl Default for TriggerZone {
+impl Default for TriggerBox {
     fn default() -> Self {
         Self {
             kind: ZoneKind::Shop,
-            radius: 2.5,
         }
     }
 }
@@ -41,11 +40,11 @@ pub struct VisitedZones(pub std::collections::HashSet<ZoneKind>);
 #[derive(Resource, Default)]
 pub struct FastTravelRequest(pub Option<ZoneKind>);
 
-/// Detects authored zones in world space, including zones nested under
-/// transformed glTF objects.
+/// Detects authored trigger boxes in world space, including rotated and
+/// scaled boxes nested under transformed glTF objects.
 pub fn zone_detection_system(
     player_q: Query<&Transform, With<Player>>,
-    zones: Query<(&GlobalTransform, &TriggerZone)>,
+    zones: Query<(&GlobalTransform, &TriggerBox)>,
     mut nearby: ResMut<NearbyZone>,
     mut visited: ResMut<VisitedZones>,
 ) {
@@ -56,7 +55,12 @@ pub fn zone_detection_system(
 
     let mut found = None;
     for (zone_transform, zone) in &zones {
-        if player_pos.distance(zone_transform.translation()) <= zone.radius {
+        let local_player_pos = zone_transform
+            .affine()
+            .inverse()
+            .transform_point3(player_pos);
+
+        if local_player_pos.abs().cmple(Vec3::ONE).all() {
             found = Some(zone.kind);
             break;
         }

@@ -64,17 +64,21 @@ player does not query incomplete glTF hierarchies.
 
 Current authored components:
 
-- `TriggerZone`: interaction category and spherical radius. Detection uses the
-  component-bearing entity's world-space origin.
+- `TriggerBox`: interaction category and oriented box volume. The component
+  belongs on a default Blender cube; its full world transform defines the
+  bounds, with the default cube's local extents of -1 to 1 on each axis.
 - `SpawnPoint`: spawn role and priority. The highest-priority Player point
   supplies the initial camera position and orientation; saved player positions
   take precedence.
 - `Billboard`: camera-facing behavior for flat world objects.
 
-The current `ZoneKind`, visited-zone resource, and UI buttons assume one
-destination per kind. Add stable zone IDs and data-driven destination UI before
-authoring multiple destinations of the same kind. Enemy and NPC spawn point
-kinds are metadata only until their runtime spawn systems are implemented.
+The TriggerZone-to-TriggerBox rename is a reflected authoring API break.
+Existing Blender files must replace the old component using the refreshed
+Skein type registry and re-export their GLB. The current `ZoneKind`, visited-zone
+resource, and UI buttons assume one destination per kind. Add stable zone IDs
+and data-driven destination UI before authoring multiple destinations of the
+same kind. Enemy and NPC spawn point kinds are metadata only until their runtime
+spawn systems are implemented.
 
 See `assets/worlds/README.md` for the Blender workflow and component schema.
 
@@ -185,5 +189,5 @@ only change state; projection systems control Visibility.
 ## Deliberately out of scope
 
 Do not introduce a generic UI framework, message bus abstraction, service
-locator, or large plugin hierarchy without concrete pressure for one. Use Bevy
-resources, observers, system sets, and BSN scenes directly.
+locator, or large plugin hierarchy without concrete pressure for one. Use
+Bevy resources, observers, system sets, and BSN scenes directly.

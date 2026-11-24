@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     app::state::AppState,
-    gameplay::{persistence::save_game, player::Player, zones::{FastTravelRequest, TriggerZone, VisitedZones}},
+    gameplay::{persistence::save_game, player::Player, zones::{FastTravelRequest, TriggerBox, VisitedZones}},
     ui::stack::UiStack,
 };
 
@@ -10,7 +10,7 @@ pub(super) fn fast_travel(
     mut request: ResMut<FastTravelRequest>,
     mut queries: ParamSet<(
         Query<&mut Transform, With<Player>>,
-        Query<(&GlobalTransform, &TriggerZone)>,
+        Query<(&GlobalTransform, &TriggerBox)>,
     )>,
 ) {
     let Some(kind) = request.0.take() else {

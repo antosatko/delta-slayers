@@ -33,6 +33,9 @@ Read DESIGN.md before making architectural changes.
 - glTF world entities can be nested; systems that consume authored points or
   zones should query GlobalTransform when world-space position is required.
 - Keep the procedural world as a fallback until the Blender export is present.
+- TriggerBox is authored on a default Blender cube. Its local bounds are
+  [-1, 1] on each axis; use the object's location, rotation, and unapplied
+  scale to define the world-space volume.
 
 ## Architecture
 
@@ -46,8 +49,7 @@ Read DESIGN.md before making architectural changes.
 - Projection systems own synchronization from state/ViewModel to UI.
 - UI requests gameplay actions through request resources such as
   FastTravelRequest; gameplay systems carry them out.
-- Preserve explicit system ordering using UiSet::Input and
-  UiSet::Projection when introducing UI-related systems.
+- Preserve explicit system ordering using UiSet::Input and UiSet::Projection when introducing UI-related systems.
 
 ## Code quality
 
