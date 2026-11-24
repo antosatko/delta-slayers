@@ -219,6 +219,8 @@
       related.hidden = true;
     }
 
+    const parentId = state.history[state.history.length - 1];
+    back.textContent = parentId ? "Back to " + entries[parentId].title : "Back";
     back.hidden = state.history.length === 0;
     card.hidden = false;
     positionCard(state);
