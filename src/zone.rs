@@ -2,8 +2,9 @@ use bevy::prelude::*;
 
 use crate::player::Player;
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Hash, Default)]
 pub enum ZoneKind {
+    #[default]
     Shop,
     Guild,
 }
