@@ -44,7 +44,7 @@ own gameplay rules or construct gameplay entities.
 
 The project uses [Bevy Skein](https://bevy-skein.netlify.app/) to author
 gameplay components in Blender and export them through glTF. The main level is
-loaded automatically from `assets/worlds/overworld.glb` when that file exists;
+loaded automatically from `assets/worlds/town-map.glb` when that file exists;
 otherwise, the procedural test world remains active.
 
 See [assets/worlds/README.md](assets/worlds/README.md) for the component
