@@ -26,7 +26,6 @@ fn main() {
         .add_plugins((
             menu::MenuPlugin,
             transitions::TransitionsPlugin,
-            ui::UiPlugin,
             game::GamePlugin,
         ))
         .run();
