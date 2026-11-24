@@ -1,32 +1,36 @@
-# UI design explorations
+# UI design
 
-Open `index.html` in a browser to compare the three directions. Each concept is a
-standalone HTML page with its own CSS theme and no external font, image, or
-JavaScript dependencies.
+Open index.html in a browser. The current primary direction is the revised
+Field Folio prototype in field-folio/.
 
-## Concepts
+## Field Folio — revision 2
 
-1. **Field Folio** — warm editorial document / travel journal. It treats
-   contracts and codex entries like readable records.
-2. **Surveyor Console** — restrained dark utility interface, closer to a
-   professional field instrument than a fantasy prop.
-3. **Ash Archive** — atmospheric, darker literary direction with a gothic
-   character, while keeping the actual reading surface bright and legible.
+This pass keeps the original reading layout: a narrow navigation rail, a
+single main reading surface, and a compact contract summary beside it. The
+palette moves to warm charcoal and muted olive so it can sit comfortably in a
+dark game without taking on the gothic styling of the earlier Archive draft.
 
-All three deliberately use the same content and information hierarchy so the
-visual treatment can be compared without content changes. Each includes
-visible section borders, a narrow reading measure, inline SVG symbols, and
-contextual definitions. Definitions appear on hover and keyboard focus; click
-or tap pins them open, and Escape closes them. The accept / journal buttons
-only demonstrate feedback in this static prototype; they are not connected to
-game state.
+The visual language is deliberately reduced:
 
-## Design intent
+- One system sans-serif family throughout.
+- One clear page title; section headings are plain and consistent.
+- No decorative icons, monospaced labels, numbered section furniture, stamps,
+  or ornamental borders.
+- Borders separate the reading surface and summary groups; nested cards and
+  drop shadows are removed.
+- Colour is restrained to the background, text, borders, and one muted accent.
+- Contextual terms remain underlined and offer optional definitions on hover,
+  keyboard focus, or click/tap. Escape closes them.
+- The demo actions only display preview feedback and do not change game state.
 
-The target is a player who is willing to read. The interface should make that
-reading comfortable and navigable without constantly competing for attention.
-Use decoration around the content, not behind it. Make the important
-distinctions visible through labels, borders, icons, and text — never colour
-alone.
+The content is unchanged from the first prototype to make the visual revision
+easy to judge. The earlier Surveyor Console and Ash Archive drafts remain
+available from the index for reference, but are not presented as active
+directions.
 
-The concepts are directions for discussion, not a final component library.
+## Research
+
+The sources and accessibility notes behind the first pass remain in
+research.md. They are reference guidance, not evidence that any one theme is
+best for this game. Test the final interface at actual game resolution and
+with the input methods the game supports.
