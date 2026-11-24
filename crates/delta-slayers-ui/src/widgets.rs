@@ -111,23 +111,25 @@ pub fn page_header(eyebrow: &'static str, title: &'static str, subtitle: &'stati
         template(|ctx| {
             Ok(BorderColor::all(ctx.resource::<SlateTheme>().line))
         })
-        Text(eyebrow)
-        TextFont { font_size: px(12) }
-        template(|ctx| {
-            Ok(TextColor(ctx.resource::<SlateTheme>().accent))
-        })
-        --
-        Text(title)
-        TextFont { font_size: px(30) }
-        template(|ctx| {
-            Ok(TextColor(ctx.resource::<SlateTheme>().ink))
-        })
-        --
-        Text(subtitle)
-        TextFont { font_size: px(14) }
-        template(|ctx| {
-            Ok(TextColor(ctx.resource::<SlateTheme>().muted))
-        })
+        Children [
+            Text(eyebrow)
+            TextFont { font_size: px(12) }
+            template(|ctx| {
+                Ok(TextColor(ctx.resource::<SlateTheme>().accent))
+            })
+            --
+            Text(title)
+            TextFont { font_size: px(30) }
+            template(|ctx| {
+                Ok(TextColor(ctx.resource::<SlateTheme>().ink))
+            })
+            --
+            Text(subtitle)
+            TextFont { font_size: px(14) }
+            template(|ctx| {
+                Ok(TextColor(ctx.resource::<SlateTheme>().muted))
+            })
+        ]
     }
 }
 
@@ -141,13 +143,15 @@ pub fn section_header(icon: SlateIcon, title: &'static str) -> impl Scene {
             align_items: AlignItems::Center,
             column_gap: px(9),
         }
-        @glyph(icon, 19.0)
-        --
-        Text(title)
-        TextFont { font_size: px(16) }
-        template(|ctx| {
-            Ok(TextColor(ctx.resource::<SlateTheme>().ink))
-        })
+        Children [
+            @glyph(icon, 19.0)
+            --
+            Text(title)
+            TextFont { font_size: px(16) }
+            template(|ctx| {
+                Ok(TextColor(ctx.resource::<SlateTheme>().ink))
+            })
+        ]
     }
 }
 
@@ -308,25 +312,27 @@ pub fn item_tile(
             let theme = ctx.resource::<SlateTheme>();
             Ok(BorderColor::all(if selected { theme.accent } else { theme.line }))
         })
-        @glyph(icon, 24.0)
-        --
-        Node {
-            width: percent(100),
-            flex_direction: FlexDirection::Column,
-            row_gap: px(2),
-        }
         Children [
-            Text(label)
-            TextFont { font_size: px(12) }
-            template(|ctx| {
-                Ok(TextColor(ctx.resource::<SlateTheme>().ink))
-            })
+            @glyph(icon, 24.0)
             --
-            Text(quantity)
-            TextFont { font_size: px(10) }
-            template(|ctx| {
-                Ok(TextColor(ctx.resource::<SlateTheme>().muted))
-            })
+            Node {
+                width: percent(100),
+                flex_direction: FlexDirection::Column,
+                row_gap: px(2),
+            }
+            Children [
+                Text(label)
+                TextFont { font_size: px(12) }
+                template(|ctx| {
+                    Ok(TextColor(ctx.resource::<SlateTheme>().ink))
+                })
+                --
+                Text(quantity)
+                TextFont { font_size: px(10) }
+                template(|ctx| {
+                    Ok(TextColor(ctx.resource::<SlateTheme>().muted))
+                })
+            ]
         ]
     }
 }
@@ -401,8 +407,9 @@ pub fn reference_term(
 }
 
 fn glyph(icon: SlateIcon, size: f32) -> impl Scene {
+    let glyph = icon.glyph();
     bsn! {
-        Text(icon.glyph())
+        Text(glyph)
         TextFont { font_size: px(size) }
         template(|ctx| {
             Ok(TextColor(ctx.resource::<SlateTheme>().accent))
