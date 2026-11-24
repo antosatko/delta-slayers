@@ -3,14 +3,14 @@
   --surface: #242b30;
   --surface-alt: #2b343a;
   --surface-raised: #333e45;
-  --ink: #e9eef0;
-  --muted: #bdc9ce;
-  --subtle: #9eafb7;
-  --accent: #9eb9c7;
+  --ink: #f3f6f7;
+  --muted: #d0dbe0;
+  --subtle: #b4c3ca;
+  --accent: #b9d1dc;
   --accent-soft: #35454d;
-  --secondary: #b5c8d0;
-  --line: #53636b;
-  --line-strong: #71858e;
+  --secondary: #cbdde4;
+  --line: #60737c;
+  --line-strong: #8298a2;
   --shadow: 0 16px 42px rgb(0 0 0 / 24%);
 }
 
@@ -18,4 +18,4 @@
 .reference-card { background: #20292e; }
 .term:hover,
 .reference-inline:hover,
-.reference-related-list button:hover { color: #c9e0e8; }
+.reference-related-list button:hover { color: #e0f0f5; }
