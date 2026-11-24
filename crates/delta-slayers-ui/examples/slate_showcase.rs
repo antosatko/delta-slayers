@@ -160,10 +160,10 @@ fn sidebar() -> impl Scene {
             padding: UiRect::all(px(10)),
             flex_direction: FlexDirection::Column,
             row_gap: px(4),
-            border: UiRect::right(px(1)),
+            border_radius: BorderRadius::all(px(7)),
         }
         template(|ctx| Ok(BackgroundColor(ctx.resource::<SlateTheme>().panel_alt)))
-        template(|ctx| Ok(BorderColor::all(ctx.resource::<SlateTheme>().line)))
+        BoxShadow([ShadowStyle { color: Color::srgba(0.0, 0.0, 0.0, 0.14), x_offset: px(0), y_offset: px(2), spread_radius: px(0), blur_radius: px(8) }])
         Children [
             Text("DELTA SLAYERS")
             TextFont { font_size: px(15) }
@@ -196,13 +196,12 @@ fn nav_item(icon: SlateIcon, label: &'static str, active: bool) -> impl Scene {
             flex_direction: FlexDirection::Row,
             align_items: AlignItems::Center,
             column_gap: px(8),
-            border: UiRect::all(if active { px(1) } else { px(0) }),
+            border_radius: BorderRadius::all(px(5)),
         }
         template(move |ctx| {
             let theme = ctx.resource::<SlateTheme>();
             Ok(BackgroundColor(if active { theme.panel } else { Color::NONE }))
         })
-        template(|ctx| Ok(BorderColor::all(ctx.resource::<SlateTheme>().line)))
         Children [
             Text(icon_glyph)
             TextFont { font_size: px(17) }
