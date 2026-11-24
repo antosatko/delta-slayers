@@ -3,7 +3,7 @@ use bevy::{
     prelude::*,
 };
 
-use crate::state::CursorGrabbed;
+use crate::ui_stack::UiStack;
 
 #[derive(Component)]
 pub struct Player {
@@ -14,9 +14,9 @@ pub struct Player {
 pub fn player_look(
     mut query: Query<(&mut Player, &mut Transform)>,
     mouse_motion: Res<AccumulatedMouseMotion>,
-    cursor_grabbed: Res<CursorGrabbed>,
+    ui: Res<UiStack>,
 ) {
-    if !cursor_grabbed.0 {
+    if !ui.cursor_grabbed() {
         return;
     }
     for (mut player, mut transform) in &mut query {
