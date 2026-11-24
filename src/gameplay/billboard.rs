@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 
-#[derive(Component)]
+#[derive(Component, Reflect, Default)]
+#[reflect(Component, Default)]
+#[type_path = "delta_slayers::gameplay::billboard"]
 pub struct Billboard;
 
 pub fn billboard_system(

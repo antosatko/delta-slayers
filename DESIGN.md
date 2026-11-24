@@ -48,6 +48,35 @@ responsibility-focused area that owns the feature.
 
 Gameplay setup must not spawn UI. UI setup must not own gameplay-world entities.
 
+## Blender-authored world data
+
+Bevy Skein is installed through `SkeinPlugin`. Gameplay components exposed to
+Blender derive `Reflect`, reflect `Component` data, and are registered in the
+app's type registry. Keep these types as stable authoring APIs: renaming a type,
+field, or enum variant can invalidate data already stored in a `.blend` or
+exported glTF file.
+
+The main world export is `assets/worlds/overworld.glb`. If it exists, gameplay
+loads scene 0 through `WorldAssetRoot`; otherwise, the procedural test world
+is retained. The world-ready event gates initial spawn-point selection so the
+player does not query incomplete glTF hierarchies.
+
+Current authored components:
+
+- `TriggerZone`: interaction category and spherical radius. Detection uses the
+  component-bearing entity's world-space origin.
+- `SpawnPoint`: spawn role and priority. The highest-priority Player point
+  supplies the initial camera position and orientation; saved player positions
+  take precedence.
+- `Billboard`: camera-facing behavior for flat world objects.
+
+The current `ZoneKind`, visited-zone resource, and UI buttons assume one
+destination per kind. Add stable zone IDs and data-driven destination UI before
+authoring multiple destinations of the same kind. Enemy and NPC spawn point
+kinds are metadata only until their runtime spawn systems are implemented.
+
+See `assets/worlds/README.md` for the Blender workflow and component schema.
+
 ## MVVM in an ECS
 
 MVVM is a separation of responsibilities, not a framework layered on top of

@@ -24,6 +24,16 @@ Read DESIGN.md before making architectural changes.
 - Do not move gameplay data into UI modules to make it easier for a screen to
   access. UI should depend on gameplay models, not the reverse.
 
+## Blender / Skein authoring
+
+- Use reflected components as a stable authoring API for Skein.
+- When changing reflected type names, field names, or enum variants, document
+  migration implications for existing Blender files and exported glTF.
+- Keep level-authored markers in gameplay modules, not UI modules.
+- glTF world entities can be nested; systems that consume authored points or
+  zones should query GlobalTransform when world-space position is required.
+- Keep the procedural world as a fallback until the Blender export is present.
+
 ## Architecture
 
 - Follow the MVVM separation described in DESIGN.md.

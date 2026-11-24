@@ -10,7 +10,7 @@ pub(super) fn fast_travel(
     mut request: ResMut<FastTravelRequest>,
     mut queries: ParamSet<(
         Query<&mut Transform, With<Player>>,
-        Query<(&Transform, &TriggerZone)>,
+        Query<(&GlobalTransform, &TriggerZone)>,
     )>,
 ) {
     let Some(kind) = request.0.take() else {
@@ -22,7 +22,7 @@ pub(super) fn fast_travel(
         zones
             .iter()
             .find(|(_, zone)| zone.kind == kind)
-            .map(|(transform, _)| transform.translation)
+            .map(|(transform, _)| transform.translation())
     };
 
     if let Some(position) = destination {

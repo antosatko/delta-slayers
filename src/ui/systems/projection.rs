@@ -123,18 +123,18 @@ pub fn sync_cursor(ui: Res<UiStack>, mut cursor: Single<&mut CursorOptions, With
 }
 
 pub fn update_minimap(
-    player: Query<&Transform, With<Player>>,
-    zones: Query<(&Transform, &TriggerZone)>,
+    player: Query<&GlobalTransform, With<Player>>,
+    zones: Query<(&GlobalTransform, &TriggerZone)>,
     mut dots: Query<(&MinimapZoneDot, &mut Node, &mut Visibility)>,
 ) {
     let Ok(player_transform) = player.single() else {
         return;
     };
 
-    let player_position = player_transform.translation;
+    let player_position = player_transform.translation();
     let zone_positions: Vec<(ZoneKind, Vec3)> = zones
         .iter()
-        .map(|(transform, zone)| (zone.kind, transform.translation))
+        .map(|(transform, zone)| (zone.kind, transform.translation()))
         .collect();
 
     for (dot, mut node, mut visibility) in &mut dots {

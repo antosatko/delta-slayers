@@ -40,6 +40,16 @@ The source is grouped by responsibility rather than by individual file type:
 Gameplay data is authoritative. The UI reads it and sends requests; it does not
 own gameplay rules or construct gameplay entities.
 
+## Blender level authoring
+
+The project uses [Bevy Skein](https://bevy-skein.netlify.app/) to author
+gameplay components in Blender and export them through glTF. The main level is
+loaded automatically from `assets/worlds/overworld.glb` when that file exists;
+otherwise, the procedural test world remains active.
+
+See [assets/worlds/README.md](assets/worlds/README.md) for the component
+reference, spawn-point rules, and export workflow.
+
 ## Tech stack
 
 - [Rust](https://www.rust-lang.org/)

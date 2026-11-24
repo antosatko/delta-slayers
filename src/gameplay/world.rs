@@ -2,6 +2,8 @@ use bevy::{
     asset::RenderAssetUsages,
     prelude::*,
     render::render_resource::{Extent3d, TextureDimension, TextureFormat},
+    gltf::GltfAssetLabel,
+    world_serialization::{WorldAssetRoot, WorldInstanceReady},
 };
 
 use crate::{
@@ -10,6 +12,7 @@ use crate::{
         billboard::Billboard,
         persistence::load_game,
         player::Player,
+        spawning::{SpawnPoint, WorldStartup},
         zones::{FastTravelRequest, NearbyZone, TriggerZone, VisitedZones, ZoneKind},
     },
     ui::stack::UiStack,
@@ -24,12 +27,20 @@ pub(super) fn setup_game(
     mut request: ResMut<FastTravelRequest>,
     mut visited: ResMut<VisitedZones>,
     mut ui_state: ResMut<UiStack>,
+    asset_server: Res<AssetServer>,
+    mut startup: ResMut<WorldStartup>,
 ) {
     nearby.0 = None;
     ui_state.reset();
     request.0 = None;
 
     let (saved_pos, saved_yaw, saved_pitch, saved_visited) = load_game();
+    startup.has_saved_position = saved_pos != Vec3::ZERO;
+    startup.spawn_point_applied = startup.has_saved_position;
+
+    const WORLD_SCENE_PATH: &str = "worlds/overworld.glb";
+    let has_blender_world = std::path::Path::new("assets/worlds/overworld.glb").is_file();
+    startup.scene_ready = !has_blender_world;
     visited.0 = saved_visited;
 
     commands.spawn((
@@ -43,6 +54,19 @@ pub(super) fn setup_game(
         DespawnOnExit::<AppState>(AppState::InGame),
     ));
 
+    if has_blender_world {
+        commands
+            .spawn((
+                WorldAssetRoot(
+                    asset_server.load(
+                        GltfAssetLabel::Scene(0).from_asset(WORLD_SCENE_PATH),
+                    ),
+                ),
+                DespawnOnExit::<AppState>(AppState::InGame),
+            ))
+            .observe(world_instance_ready);
+    } else {
+        // Until a Blender export is present, keep a small procedural test level.
     let ground_mesh = meshes.add(Plane3d::new(Vec3::Y, Vec2::splat(50.0)));
     let ground_material = materials.add(StandardMaterial {
         base_color: Color::srgb(0.35, 0.72, 0.32),
@@ -175,4 +199,19 @@ pub(super) fn setup_game(
             DespawnOnExit::<AppState>(AppState::InGame),
         ));
     }
+        // The fallback spawn point exercises the same spawn-point path as a
+        // Blender-authored Empty.
+        commands.spawn((
+            Transform::default(),
+            SpawnPoint::default(),
+            DespawnOnExit::<AppState>(AppState::InGame),
+        ));
+    }
+}
+
+fn world_instance_ready(
+    _event: On<WorldInstanceReady>,
+    mut startup: ResMut<WorldStartup>,
+) {
+    startup.scene_ready = true;
 }

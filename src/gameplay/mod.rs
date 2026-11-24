@@ -1,5 +1,6 @@
 mod billboard;
 mod persistence;
+mod spawning;
 mod systems;
 mod world;
 
@@ -15,11 +16,23 @@ pub struct GameplayPlugin;
 
 impl Plugin for GameplayPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<zones::NearbyZone>()
+        app.register_type::<zones::ZoneKind>()
+            .register_type::<zones::TriggerZone>()
+            .register_type::<spawning::SpawnPointKind>()
+            .register_type::<spawning::SpawnPoint>()
+            .register_type::<billboard::Billboard>()
+            .init_resource::<spawning::WorldStartup>()
+            .init_resource::<zones::NearbyZone>()
             .init_resource::<zones::VisitedZones>()
             .init_resource::<zones::FastTravelRequest>()
             .init_resource::<inventory::InventoryModel>()
             .add_systems(OnEnter(AppState::InGame), world::setup_game)
+            .add_systems(
+                Update,
+                spawning::apply_player_spawn_point
+                    .before(player::player_look)
+                    .run_if(in_state(AppState::InGame)),
+            )
             .add_systems(
                 Update,
                 (
