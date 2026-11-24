@@ -341,6 +341,14 @@
     }
   });
   document.addEventListener("keydown", event => {
+    if (event.key === "Escape") {
+      const openDetail = document.querySelector("[data-detail-panel]:not([hidden])");
+      if (openDetail) {
+        closeDetail(openDetail);
+        event.preventDefault();
+        return;
+      }
+    }
     if (event.key !== "Escape" || !activeState) return;
     const state = activeState;
     if (state.history.length) goBack(state);
@@ -359,6 +367,12 @@
       const categoryMatch = category === "all" || item.dataset.category === category;
       const searchMatch = !search || (item.dataset.search || item.textContent).toLowerCase().includes(search);
       item.hidden = !(categoryMatch && searchMatch);
+      if (item.hidden && item.classList.contains("selected")) {
+        item.classList.remove("selected");
+        item.setAttribute("aria-pressed", "false");
+        const panel = document.querySelector(item.dataset.selectionTarget);
+        if (panel) closeDetail(panel);
+      }
     });
   }
   document.querySelectorAll("[data-filter-scope]").forEach(scope => {
@@ -387,12 +401,35 @@
     });
   });
 
+  function closeDetail(panel) {
+    if (!panel) return;
+    panel.hidden = true;
+    panel.closest(".inventory-layout, .workshop-layout")?.classList.remove("has-open-detail");
+    panel.closest(".map-layout")?.classList.remove("has-open-detail");
+    const scope = panel.closest("[data-selection-scope]") || document;
+    scope.querySelectorAll("[data-select-item], [data-map-place]").forEach(item => {
+      item.classList.remove("selected");
+      item.setAttribute("aria-pressed", "false");
+    });
+  }
+
+  document.querySelectorAll("[data-detail-close]").forEach(button => {
+    button.addEventListener("click", () => closeDetail(button.closest("[data-detail-panel]")));
+  });
+
   document.querySelectorAll("[data-select-item]").forEach(button => {
+    button.setAttribute("aria-pressed", "false");
     button.addEventListener("click", () => {
       const target = document.querySelector(button.dataset.selectionTarget);
       if (!target) return;
       const scope = button.closest("[data-selection-scope]") || document;
-      scope.querySelectorAll("[data-select-item]").forEach(other => other.classList.toggle("selected", other === button));
+      scope.querySelectorAll("[data-select-item]").forEach(other => {
+        const selected = other === button;
+        other.classList.toggle("selected", selected);
+        other.setAttribute("aria-pressed", String(selected));
+      });
+      target.hidden = false;
+      target.closest(".inventory-layout, .workshop-layout")?.classList.add("has-open-detail");
       const fields = {
         title: "[data-selection-title]", meta: "[data-selection-meta]",
         kicker: "[data-selection-kicker]", status: "[data-selection-status]", description: "[data-selection-description]", content: "[data-selection-content]", visual: "[data-selection-visual]"
@@ -418,10 +455,17 @@
   });
 
   document.querySelectorAll("[data-map-place]").forEach(button => {
+    button.setAttribute("aria-pressed", "false");
     button.addEventListener("click", () => {
       const target = document.querySelector(button.dataset.mapTarget);
       if (!target) return;
-      document.querySelectorAll("[data-map-place]").forEach(other => other.classList.toggle("selected", other === button));
+      document.querySelectorAll("[data-map-place]").forEach(other => {
+        const selected = other === button;
+        other.classList.toggle("selected", selected);
+        other.setAttribute("aria-pressed", String(selected));
+      });
+      target.hidden = false;
+      target.closest(".map-layout")?.classList.add("has-open-detail");
       target.querySelector("[data-place-title]").textContent = button.dataset.placeTitle;
       target.querySelector("[data-place-description]").textContent = button.dataset.placeDescription;
       target.querySelector("[data-place-status]").textContent = button.dataset.placeStatus || "Mapped";
