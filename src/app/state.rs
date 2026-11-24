@@ -8,5 +8,6 @@ pub enum AppState {
     Load,
     Settings,
     Credits,
+    Loading,
     InGame,
 }
