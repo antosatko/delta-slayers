@@ -24,10 +24,22 @@ impl Plugin for UiPlugin {
             .init_resource::<components::PopupConfirmRequested>()
             .configure_sets(Update, (UiSet::Input, UiSet::Projection).chain())
             .add_systems(OnEnter(AppState::MainMenu), screens::menu::scene.spawn())
-            .add_systems(OnEnter(AppState::Continue), screens::placeholders::continue_screen.spawn())
-            .add_systems(OnEnter(AppState::Load), screens::placeholders::load_screen.spawn())
-            .add_systems(OnEnter(AppState::Settings), screens::placeholders::settings_screen.spawn())
-            .add_systems(OnEnter(AppState::Credits), screens::placeholders::credits_screen.spawn())
+            .add_systems(
+                OnEnter(AppState::Continue),
+                screens::placeholders::continue_screen.spawn(),
+            )
+            .add_systems(
+                OnEnter(AppState::Load),
+                screens::placeholders::load_screen.spawn(),
+            )
+            .add_systems(
+                OnEnter(AppState::Settings),
+                screens::placeholders::settings_screen.spawn(),
+            )
+            .add_systems(
+                OnEnter(AppState::Credits),
+                screens::placeholders::credits_screen.spawn(),
+            )
             .add_systems(OnEnter(AppState::InGame), screens::gameplay::scene.spawn())
             .add_systems(
                 Update,

@@ -1,15 +1,24 @@
-use bevy::{prelude::*, window::{CursorGrabMode, CursorOptions, PrimaryWindow}};
+use bevy::{
+    prelude::*,
+    window::{CursorGrabMode, CursorOptions, PrimaryWindow},
+};
 
 use crate::{
-    gameplay::{player::Player, zones::{NearbyZone, TriggerZone, VisitedZones, ZoneKind}},
+    gameplay::{
+        player::Player,
+        zones::{NearbyZone, TriggerZone, VisitedZones, ZoneKind},
+    },
     ui::{
-        components::{FastTravelButton, FastTravelMenu, InventoryMenuModal, MinimapZoneDot, PanelRoot, PauseOverlay, PopupRoot},
+        components::{
+            FastTravelButton, FastTravelMenu, InventoryMenuModal, MinimapZoneDot, PanelRoot,
+            PauseOverlay, PopupRoot,
+        },
         inventory::InventoryRoot,
         stack::UiStack,
     },
 };
 
-pub(super) fn panel_visibility_system(ui: Res<UiStack>, mut panels: Query<(&PanelRoot, &mut Visibility)>) {
+pub fn panel_visibility_system(ui: Res<UiStack>, mut panels: Query<(&PanelRoot, &mut Visibility)>) {
     let active = ui.active_panel();
     for (panel, mut visibility) in &mut panels {
         *visibility = if active == Some(panel.0) {
@@ -20,7 +29,7 @@ pub(super) fn panel_visibility_system(ui: Res<UiStack>, mut panels: Query<(&Pane
     }
 }
 
-pub(super) fn popup_visibility_system(
+pub fn popup_visibility_system(
     nearby: Res<NearbyZone>,
     ui: Res<UiStack>,
     mut popups: Query<&mut Visibility, With<PopupRoot>>,
@@ -37,7 +46,7 @@ pub(super) fn popup_visibility_system(
     }
 }
 
-pub(super) fn fast_travel_menu_visibility_system(
+pub fn fast_travel_menu_visibility_system(
     ui: Res<UiStack>,
     mut menus: Query<&mut Visibility, With<FastTravelMenu>>,
 ) {
@@ -50,7 +59,7 @@ pub(super) fn fast_travel_menu_visibility_system(
     }
 }
 
-pub(super) fn fast_travel_button_visibility_system(
+pub fn fast_travel_button_visibility_system(
     ui: Res<UiStack>,
     visited: Res<VisitedZones>,
     mut buttons: Query<(&FastTravelButton, &mut Visibility)>,
@@ -64,7 +73,7 @@ pub(super) fn fast_travel_button_visibility_system(
     }
 }
 
-pub(super) fn inventory_visibility_system(
+pub fn inventory_visibility_system(
     ui: Res<UiStack>,
     mut roots: Query<&mut Visibility, With<InventoryRoot>>,
 ) {
@@ -77,7 +86,7 @@ pub(super) fn inventory_visibility_system(
     }
 }
 
-pub(super) fn inventory_menu_visibility_system(
+pub fn inventory_menu_visibility_system(
     ui: Res<UiStack>,
     mut menus: Query<&mut Visibility, With<InventoryMenuModal>>,
 ) {
@@ -90,7 +99,7 @@ pub(super) fn inventory_menu_visibility_system(
     }
 }
 
-pub(super) fn pause_overlay_visibility_system(
+pub fn pause_overlay_visibility_system(
     ui: Res<UiStack>,
     mut overlays: Query<&mut Visibility, With<PauseOverlay>>,
 ) {
@@ -103,7 +112,7 @@ pub(super) fn pause_overlay_visibility_system(
     }
 }
 
-pub(super) fn sync_cursor(ui: Res<UiStack>, mut cursor: Single<&mut CursorOptions, With<PrimaryWindow>>) {
+pub fn sync_cursor(ui: Res<UiStack>, mut cursor: Single<&mut CursorOptions, With<PrimaryWindow>>) {
     let grabbed = ui.cursor_grabbed();
     cursor.visible = !grabbed;
     cursor.grab_mode = if grabbed {
@@ -113,7 +122,7 @@ pub(super) fn sync_cursor(ui: Res<UiStack>, mut cursor: Single<&mut CursorOption
     };
 }
 
-pub(super) fn update_minimap(
+pub fn update_minimap(
     player: Query<&Transform, With<Player>>,
     zones: Query<(&Transform, &TriggerZone)>,
     mut dots: Query<(&MinimapZoneDot, &mut Node, &mut Visibility)>,

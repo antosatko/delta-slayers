@@ -2,10 +2,13 @@ use bevy::prelude::*;
 
 use crate::{
     gameplay::zones::NearbyZone,
-    ui::{components::PopupConfirmRequested, stack::{UiLayer, UiStack}},
+    ui::{
+        components::PopupConfirmRequested,
+        stack::{UiLayer, UiStack},
+    },
 };
 
-pub(super) fn handle_ui_input(
+pub fn handle_ui_input(
     keys: Res<ButtonInput<KeyCode>>,
     mouse: Res<ButtonInput<MouseButton>>,
     nearby: Res<NearbyZone>,
