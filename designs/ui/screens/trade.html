@@ -17,13 +17,13 @@
     <div class="app-layout">
       <nav class="rail" aria-label="Main navigation">
         <p class="rail-caption">Guild office</p>
-        <a class="nav-item" href="contract.html"><span>Contracts</span><span class="nav-count">4</span></a>
-        <a class="nav-item" href="inventory.html"><span>Inventory</span></a>
-        <a class="nav-item" href="character.html"><span>Character</span></a>
-        <a class="nav-item" href="journal.html"><span>Journal</span><span class="nav-count">3</span></a>
-        <a class="nav-item" href="map.html"><span>Map</span></a>
-        <a class="nav-item active" href="trade.html" aria-current="page"><span>Trade</span></a>
-        <a class="nav-item" href="workshop.html"><span>Workshop</span></a>
+        <a class="nav-item" href="contract.html"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.75h7l4 4v12.5H7z"/><path d="M14 3.75v4h4M10 12h5M10 15.5h5"/></svg><span class="nav-label">Contracts</span><span class="nav-count">4</span></a>
+        <a class="nav-item" href="inventory.html"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.5 12 4l8 4.5-8 4.5z"/><path d="M4 8.5V17l8 4 8-4V8.5M12 13v8"/></svg><span class="nav-label">Inventory</span></a>
+        <a class="nav-item" href="character.html"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.25"/><path d="M5 20c.5-3.5 2.8-5.25 7-5.25s6.5 1.75 7 5.25"/></svg><span class="nav-label">Character</span></a>
+        <a class="nav-item" href="journal.html"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h13v16H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="M8.5 8h7M8.5 12h7M8.5 16h5"/></svg><span class="nav-label">Journal</span><span class="nav-count">3</span></a>
+        <a class="nav-item" href="map.html"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3.5 6 5-2 7 2 5-2v14l-5 2-7-2-5 2z"/><path d="M8.5 4v14M15.5 6v14"/></svg><span class="nav-label">Map</span></a>
+        <a class="nav-item active" href="trade.html" aria-current="page"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h14M14 4l4 4-4 4M20 16H6M10 12l-4 4 4 4"/></svg><span class="nav-label">Trade</span></a>
+        <a class="nav-item" href="workshop.html"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 5.5 18.5 10 9 19.5a2.1 2.1 0 0 1-3-3z"/><path d="m12.5 7 4.5-4.5 4.5 4.5L17 11.5M5 4l4 4M4 5l4 4"/></svg><span class="nav-label">Workshop</span></a>
         <div class="rail-note"><strong>Greybridge Chapter</strong>North road, river quarter</div>
       </nav>
       <main class="workspace">
@@ -35,7 +35,7 @@
   <section class="panel">
     <header class="panel-head"><h2>Provisioner stock</h2><span class="panel-heading-side">Merchant</span></header>
     <div class="trade-items">
-      <div class="trade-row"><div><strong>Healing draught</strong><small>Restores health · 3 in stock</small></div><div><strong>18 cr</strong><button class="button" type="button" data-trade-add data-trade-name="Healing draught" data-trade-price="18">Add</button></div></div>
+      <div class="trade-row"><div><strong>Healing draught</strong><small>Restores health · 3 in stock</small></div><div><strong>18 cr</strong><button class="button" type="button" data-trade-add data-trade-name="Healing draught" data-trade-price="18"><svg class="ui-icon button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Add</span></button></div></div>
       <div class="trade-row"><div><strong>Lantern oil</strong><small>Burns for several hours · 6 in stock</small></div><div><strong>7 cr</strong><button class="button" type="button" data-trade-add data-trade-name="Lantern oil" data-trade-price="7">Add</button></div></div>
       <div class="trade-row"><div><strong>Rope, 10 m</strong><small>Utility · 4 in stock</small></div><div><strong>12 cr</strong><button class="button" type="button" data-trade-add data-trade-name="Rope, 10 m" data-trade-price="12">Add</button></div></div>
       <div class="trade-row"><div><strong>Travel rations</strong><small>One day · 8 in stock</small></div><div><strong>9 cr</strong><button class="button" type="button" data-trade-add data-trade-name="Travel rations" data-trade-price="9">Add</button></div></div>
@@ -47,12 +47,12 @@
     <div class="cart-list" data-trade-cart aria-live="polite"></div>
     <p class="empty-state" data-cart-empty>Your basket is empty.</p>
     <div class="trade-total"><span>Purchase total</span><strong data-cart-total>0 crowns</strong></div>
-    <div class="panel-body" data-action-scope><div class="action-row" style="margin:0;padding:0;border:0"><button class="button primary" type="button" data-demo-action="Trade confirmed in this preview only.">Confirm trade</button><button class="button" type="button" data-trade-clear>Clear</button></div><p class="action-feedback" data-action-feedback role="status" aria-live="polite"></p></div>
+    <div class="panel-body" data-action-scope><div class="action-row" style="margin:0;padding:0;border:0"><button class="button primary" type="button" data-demo-action="Trade confirmed in this preview only."><svg class="ui-icon button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg><span>Confirm trade</span></button><button class="button" type="button" data-trade-clear><svg class="ui-icon button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M9 7V4h6v3M7 7l1 13h8l1-13"/></svg><span>Clear</span></button></div><p class="action-feedback" data-action-feedback role="status" aria-live="polite"></p></div>
   </section>
   <section class="panel">
     <header class="panel-head"><h2>Your goods</h2><span class="panel-heading-side">Offer for sale</span></header>
     <div class="trade-items">
-      <div class="trade-row"><div><strong>Iron ore × 5</strong><small>Material · Common</small></div><div><strong>3 cr</strong><button class="button" type="button" data-demo-action="Iron ore added to the offer preview.">Offer</button></div></div>
+      <div class="trade-row"><div><strong>Iron ore × 5</strong><small>Material · Common</small></div><div><strong>3 cr</strong><button class="button" type="button" data-demo-action="Iron ore added to the offer preview."><svg class="ui-icon button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h16M6 8v10h12V8M9 12h6M12 3v5"/></svg><span>Offer</span></button></div></div>
       <div class="trade-row"><div><strong>Old silver ring</strong><small>Trinket · Unidentified</small></div><div><strong>16 cr</strong><button class="button" type="button" data-demo-action="Silver ring added to the offer preview.">Offer</button></div></div>
       <div class="trade-row"><div><strong>Worn boots</strong><small>Equipment · Poor condition</small></div><div><strong>4 cr</strong><button class="button" type="button" data-demo-action="Worn boots added to the offer preview.">Offer</button></div></div>
     </div>
