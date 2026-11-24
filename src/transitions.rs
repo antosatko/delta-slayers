@@ -11,21 +11,37 @@ impl Plugin for TransitionsPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             OnEnter(AppState::Continue),
-            placeholder_screen(AppState::Continue, "Continue").spawn(),
+            continue_screen.spawn(),
         )
         .add_systems(
             OnEnter(AppState::Load),
-            placeholder_screen(AppState::Load, "Load Game").spawn(),
+            load_screen.spawn(),
         )
         .add_systems(
             OnEnter(AppState::Settings),
-            placeholder_screen(AppState::Settings, "Settings").spawn(),
+            settings_screen.spawn(),
         )
         .add_systems(
             OnEnter(AppState::Credits),
-            placeholder_screen(AppState::Credits, "Credits").spawn(),
+            credits_screen.spawn(),
         );
     }
+}
+
+fn continue_screen() -> impl SceneList {
+    placeholder_screen(AppState::Continue, "Continue")
+}
+
+fn load_screen() -> impl SceneList {
+    placeholder_screen(AppState::Load, "Load Game")
+}
+
+fn settings_screen() -> impl SceneList {
+    placeholder_screen(AppState::Settings, "Settings")
+}
+
+fn credits_screen() -> impl SceneList {
+    placeholder_screen(AppState::Credits, "Credits")
 }
 
 fn placeholder_screen(state: AppState, title: &'static str) -> impl SceneList {
