@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#181818">
+  <title>Field Folio — Delta Slayers UI concept</title>
+  <link rel="stylesheet" href="../base.css">
+  <link rel="stylesheet" href="../field-folio.css">
+  <script src="../interaction.js" defer></script>
+</head>
+<body class="theme-folio">
+  <div class="game-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">DS</div>
+        <div class="brand-copy">
+          <strong>DELTA SLAYERS</strong>
+          <small>GUILD RECORDS · 01</small>
+        </div>
+      </div>
+      <div class="top-meta">
+        <span>THE GREY MARCHES</span>
+        <span>DAY 214 · LATE AUTUMN</span>
+      </div>
+    </header>
+
+    <div class="layout">
+      <nav class="rail" aria-label="Main navigation">
+        <div class="rail-label">Records</div>
+        <a class="nav-item active" href="#contract" aria-current="page"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h12v15H6a3 3 0 0 1-3-3V7a3 3 0 0 1 4-3Z"/><path d="M7 4v12a3 3 0 0 0 3 3M10 8h6m-6 3h6m-6 3h4"/></svg><span>Contracts</span><span class="nav-count">04</span></a>
+        <a class="nav-item" href="#journal"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5c3.1-.9 5.8-.4 8 1.5v13c-2.2-1.9-4.9-2.4-8-1.5z"/><path d="M20 5.5c-3.1-.9-5.8-.4-8 1.5v13c2.2-1.9 4.9-2.4 8-1.5z"/><path d="M7 9h2M7 12h2m6-3h2m-2 3h2"/></svg><span>Journal</span></a>
+        <a class="nav-item" href="#codex"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Codex</span></a>
+        <a class="nav-item" href="#inventory"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l1 12H4z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span>Inventory</span></a>
+        <div class="rail-note">
+          <strong>Greybridge Chapter</strong>
+          Guild office<br>
+          North road, river quarter
+        </div>
+      </nav>
+
+      <main class="content" id="contract">
+        <div class="crumbs" aria-label="Breadcrumb">
+          <span>GUILD</span><span class="slash">/</span><span>CONTRACTS</span><span class="slash">/</span><span class="current">CONTRACT 018</span>
+        </div>
+
+        <section class="title-row" aria-labelledby="contract-title">
+          <div>
+            <div class="eyebrow">Guild contract · investigation</div>
+            <h1 id="contract-title">The bell beneath the mill</h1>
+            <p class="subtitle">A missing miller, an old debt, and a bell that rings long after the village has gone to sleep.</p>
+          </div>
+          <div class="contract-stamp" aria-label="Contract number 018">
+            <strong>018</strong>
+            <span>OPEN FILE</span>
+          </div>
+        </section>
+
+        <div class="content-grid">
+          <article class="reading-panel" aria-label="Contract description">
+            <section class="reading-section">
+              <div class="section-kicker"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5c3.1-.9 5.8-.4 8 1.5v13c-2.2-1.9-4.9-2.4-8-1.5z"/><path d="M20 5.5c-3.1-.9-5.8-.4-8 1.5v13c2.2-1.9 4.9-2.4 8-1.5z"/><path d="M7 9h2M7 12h2m6-3h2m-2 3h2"/></svg><span class="section-number">01</span><span>The matter at hand</span><span class="section-line"></span></div>
+              <p>The mill's bell has rung at the wrong hour for nine nights. At first, Greybridge blamed a cracked clapper or a drunk watchman. Then the miller stopped answering the door. The guild sent two apprentices to investigate; one returned with the bell's rope tied around his wrist and no memory of the walk home.</p>
+              <p>The old watercourse runs beneath the west foundation. The villagers call what moves there a <button class="term" type="button" data-tip aria-expanded="false" aria-describedby="tip-brine-wight"><span>brine-wight</span><span class="tooltip" role="tooltip" id="tip-brine-wight">A name used along the coast for something that returns from the water. Whether it describes a creature, a person, or a local superstition is not established.</span></button>, though the word is older than the village and may describe a debt rather than a creature.</p>
+            </section>
+
+            <section class="reading-section">
+              <div class="section-kicker"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span class="section-number">02</span><span>What is known</span><span class="section-line"></span></div>
+              <p>The bell was cast before the bridge had a name. It was rung to mark a <button class="term" type="button" data-tip aria-expanded="false" aria-describedby="tip-tithe"><span>tithe</span><span class="tooltip" role="tooltip" id="tip-tithe">A portion of a harvest or income traditionally paid to an institution or authority. In Greybridge, the guild collected it in grain.</span></button> — a portion paid to the guild each harvest. Records suggest the miller found a second inscription beneath the lip: a name scratched away, and a date belonging to the famine winter.</p>
+              <blockquote class="quote">
+                “Do not ring the bell. Do not follow any voice that answers from below the floorboards. If the miller is alive, bring him back. If he is not, bring the ledger.”
+                <cite>— Mara Venn, senior clerk</cite>
+              </blockquote>
+            </section>
+
+            <section class="reading-section">
+              <div class="section-kicker"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 20 6v5c0 5.2-3.2 8.2-8 10-4.8-1.8-8-4.8-8-10V6z"/><path d="m9 12 2 2 4-4"/></svg><span class="section-number">03</span><span>Terms of the contract</span><span class="section-line"></span></div>
+              <p>Establish what happened at the mill and identify the source of the ringing. Recover the miller's ledger if it can be done without endangering the party. Do not destroy the bell or alter the foundation before the guild has inspected it.</p>
+              <p>The guild will pay for a complete account. It cannot promise that the truth will be pleasant, nor that every name in the ledger should be read aloud.</p>
+            </section>
+          </article>
+
+          <aside class="detail-column" aria-label="Contract summary">
+            <section class="info-card">
+              <header class="detail-heading"><span>Contract details</span><span class="status-chip">AVAILABLE</span></header>
+              <dl class="facts">
+                <div class="fact-row"><dt class="fact-label"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>Location</dt><dd class="fact-value">Greybridge</dd></div>
+                <div class="fact-row"><dt class="fact-label"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 20 6v5c0 5.2-3.2 8.2-8 10-4.8-1.8-8-4.8-8-10V6z"/><path d="m9 12 2 2 4-4"/></svg>Risk</dt><dd class="fact-value">Unverified</dd></div>
+                <div class="fact-row"><dt class="fact-label"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 15.5A8 8 0 0 1 8.5 4.5 8.5 8.5 0 1 0 19.5 15.5Z"/><path d="M16 3v3m-1.5-1.5h3"/></svg>Timing</dt><dd class="fact-value">After sundown</dd></div>
+                <div class="fact-row"><dt class="fact-label"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h12v15H6a3 3 0 0 1-3-3V7a3 3 0 0 1 4-3Z"/><path d="M7 4v12a3 3 0 0 0 3 3M10 8h6m-6 3h6m-6 3h4"/></svg>Client</dt><dd class="fact-value subdued">Guild office</dd></div>
+              </dl>
+            </section>
+
+            <section class="objectives-card">
+              <header class="detail-heading"><span>Objectives</span><span class="contract-code">0 / 3</span></header>
+              <ul class="objective-list">
+                <li><span class="check-icon" aria-hidden="true">1</span><span>Inspect the old mill</span></li>
+                <li><span class="check-icon" aria-hidden="true">2</span><span>Find the miller's ledger</span></li>
+                <li><span class="check-icon" aria-hidden="true">3</span><span>Report to the guild</span></li>
+              </ul>
+            </section>
+
+            <section class="reward-card">
+              <header class="detail-heading"><span>Expected payment</span></header>
+              <div class="reward-body">
+                <div class="reward-amount"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15 8.5c-.6-.7-1.6-1-2.8-1-1.5 0-2.6.7-2.6 1.8 0 3 5.5 1.3 5.5 4.3 0 1.2-1.2 2-2.9 2-1.1 0-2.2-.4-3-1.2M12 5.8v12.4"/></svg><strong>38</strong><span>crowns</span></div>
+                <p>Plus reasonable expenses, upon delivery of a written report. Exceptional findings may be valued separately.</p>
+              </div>
+            </section>
+          </aside>
+        </div>
+
+        <div class="action-row">
+          <button class="action primary" type="button" data-demo-action="Contract accepted — preview interaction only.">Accept contract</button>
+          <button class="action secondary" type="button" data-demo-action="Contract saved to your journal — preview interaction only.">Keep in journal</button>
+          <p class="action-feedback" id="action-feedback" role="status" aria-live="polite">Reading copy · Contract not yet accepted.</p>
+        </div>
+
+        <footer class="footer">
+          <div class="footer-left"><span class="keycap">ESC</span><span class="footer-note">Return to the previous screen</span></div>
+          <span class="footer-note">GUILD ARCHIVE · GREYBRIDGE · FILE 018</span>
+        </footer>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
