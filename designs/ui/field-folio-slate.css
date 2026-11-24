@@ -14,7 +14,12 @@
   --shadow: 0 16px 42px rgb(0 0 0 / 24%);
 }
 
-/* Palette-only overrides: layout, spacing, typography and interaction stay unchanged. */
+/* Palette overrides. */
+.action.primary:hover {
+  background: #d0e2e9;
+  filter: none;
+}
+
 .reference-card { background: #20292e; }
 .term:hover,
 .reference-inline:hover,
