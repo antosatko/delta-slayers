@@ -911,3 +911,41 @@ h1 { font-size:clamp(1.65rem,2.5vw,2.2rem); }
   .resource-strip { padding-inline: 10px; }
   .trade-tabs { padding-inline: 10px; }
 }
+
+
+/* One item presentation across inventory, equipment, trade, and crafting. */
+.item-display {
+  min-width: 0; display: flex; align-items: center; gap: 10px; padding: 6px;
+  border: 0; border-radius: 6px; background: transparent; color: var(--ink);
+  text-align: left; text-decoration: none; cursor: pointer;
+}
+.item-display:hover, .item-display:focus-visible { background: var(--surface-raised); }
+.item-image {
+  flex: 0 0 46px; width: 46px; height: 46px; display: grid; place-items: center;
+  border-radius: 6px; background: linear-gradient(145deg, var(--surface-raised), var(--surface-deep));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 5%), 0 2px 5px rgb(0 0 0 / 14%);
+  color: var(--accent); font-size: 1.45rem; line-height: 1;
+}
+.item-caption { min-width: 0; display: flex; flex-direction: column; gap: 2px; align-items: flex-start; }
+.item-caption .item-name { max-width: 100%; }
+.item-caption .item-quantity { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.item-tile { justify-content: flex-start; align-items: center; min-height: 72px; padding: 8px; gap: 10px; }
+.item-tile .item-image { flex-basis: 48px; width: 48px; height: 48px; }
+.trade-row > .item-display { width: 100%; min-height: 60px; }
+.recipe-button.item-display { width: 100%; min-height: 66px; }
+.recipe-copy { display: contents; }
+.resource-cell.item-display { width: 100%; justify-content: flex-start; padding: 7px; background: var(--surface-alt); }
+.resource-cell.item-display .item-image { flex-basis: 38px; width: 38px; height: 38px; font-size: 1.15rem; }
+.resource-cell.item-display .item-caption { flex: 1; }
+.resource-cell.item-display .item-quantity { color: var(--ink); font-size: .9rem; font-weight: 650; }
+.equipment-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 12px; }
+.equipment-item { min-width: 0; }
+.equipment-slot { display: block; margin: 0 0 3px 7px; color: var(--muted); font-size: .72rem; }
+.equipment-item .item-display { width: 100%; background: var(--surface-alt); }
+.equipment-item .item-image { flex-basis: 40px; width: 40px; height: 40px; font-size: 1.15rem; }
+.item-display:focus-visible { outline-offset: 2px; }
+@media (max-width: 520px) {
+  .item-image { flex-basis: 40px; width: 40px; height: 40px; }
+  .item-tile { min-height: 62px; }
+  .equipment-grid { grid-template-columns: minmax(0, 1fr); }
+}
