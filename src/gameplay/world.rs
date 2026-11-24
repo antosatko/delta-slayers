@@ -75,12 +75,6 @@ pub(super) fn setup_game(
         .observe(world_instance_ready);
 }
 
-fn world_instance_ready(
-    _event: On<WorldInstanceReady>,
-    mut startup: ResMut<WorldStartup>,
-    mut next_state: ResMut<NextState<AppState>>,
-) {
+fn world_instance_ready(_event: On<WorldInstanceReady>, mut startup: ResMut<WorldStartup>) {
     startup.scene_ready = true;
-    info!("World scene is ready; entering gameplay");
-    next_state.set(AppState::InGame);
 }

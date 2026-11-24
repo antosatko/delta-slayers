@@ -6,10 +6,8 @@ Export the main Blender scene to:
 assets/worlds/town-map.glb
 ```
 
-The game loads scene 0 from this file while `AppState::Loading` is active. The
-loading screen remains visible until Bevy reports that the world instance is
-ready, then the app transitions to `AppState::InGame`. The local GLB is
-required; there is no procedural fallback.
+The game automatically loads scene 0 from this file when it exists. If it is
+absent, the small procedural test world is used instead.
 
 ## Authoring components
 

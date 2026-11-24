@@ -61,5 +61,5 @@ impl Plugin for GameplayPlugin {
 }
 
 fn gameplay_input_enabled(ui_state: Res<UiStack>) -> bool {
-    !ui_state.paused() && !ui_state.inventory_open()
+    !ui_state.paused() && !ui_state.inventory_open() && !ui_state.game_menu_open()
 }

@@ -11,7 +11,7 @@ pub(super) struct FastTravelButton(pub(super) ZoneKind);
 #[derive(Component, Default, Clone)]
 pub(super) struct FastTravelMenu;
 #[derive(Component, Default, Clone)]
-pub(super) struct InventoryMenuModal;
+pub(super) struct GameMenuModal;
 #[derive(Component, Default, Clone)]
 pub(super) struct PauseOverlay;
 #[derive(Component, Default, Clone)]

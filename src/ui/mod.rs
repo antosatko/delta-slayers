@@ -56,7 +56,7 @@ impl Plugin for UiPlugin {
                     systems::fast_travel_menu_visibility_system,
                     systems::fast_travel_button_visibility_system,
                     systems::inventory_visibility_system,
-                    systems::inventory_menu_visibility_system,
+                    systems::game_menu_visibility_system,
                     systems::pause_overlay_visibility_system,
                     systems::sync_cursor,
                     systems::update_minimap,

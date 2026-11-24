@@ -10,7 +10,7 @@ use crate::{
     },
     ui::{
         components::{
-            FastTravelButton, FastTravelMenu, InventoryMenuModal, MinimapZoneDot, PanelRoot,
+            FastTravelButton, FastTravelMenu, GameMenuModal, MinimapZoneDot, PanelRoot,
             PauseOverlay, PopupRoot,
         },
         inventory::InventoryRoot,
@@ -34,8 +34,11 @@ pub fn popup_visibility_system(
     ui: Res<UiStack>,
     mut popups: Query<&mut Visibility, With<PopupRoot>>,
 ) {
-    let visible =
-        nearby.0.is_some() && ui.active_panel().is_none() && !ui.inventory_open() && !ui.paused();
+    let visible = nearby.0.is_some()
+        && ui.active_panel().is_none()
+        && !ui.inventory_open()
+        && !ui.paused()
+        && !ui.game_menu_open();
 
     for mut visibility in &mut popups {
         *visibility = if visible {
@@ -86,12 +89,12 @@ pub fn inventory_visibility_system(
     }
 }
 
-pub fn inventory_menu_visibility_system(
+pub fn game_menu_visibility_system(
     ui: Res<UiStack>,
-    mut menus: Query<&mut Visibility, With<InventoryMenuModal>>,
+    mut menus: Query<&mut Visibility, With<GameMenuModal>>,
 ) {
     for mut visibility in &mut menus {
-        *visibility = if ui.inventory_menu_open() {
+        *visibility = if ui.game_menu_open() {
             Visibility::Visible
         } else {
             Visibility::Hidden

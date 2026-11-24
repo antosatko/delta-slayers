@@ -8,7 +8,7 @@ pub enum UiLayer {
     Pause,
     Panel(ZoneKind),
     Inventory,
-    InventoryMenu,
+    GameMenu,
 }
 
 #[derive(Resource, Debug)]
@@ -39,8 +39,8 @@ impl UiStack {
         self.contains(UiLayer::Inventory)
     }
 
-    pub fn inventory_menu_open(&self) -> bool {
-        self.contains(UiLayer::InventoryMenu)
+    pub fn game_menu_open(&self) -> bool {
+        self.contains(UiLayer::GameMenu)
     }
 
     pub fn paused(&self) -> bool {

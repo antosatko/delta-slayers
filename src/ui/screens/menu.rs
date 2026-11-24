@@ -34,7 +34,7 @@ fn main_menu() -> impl Scene {
 
             --
 
-            @menu_button("Play", AppState::Loading)
+            @menu_button("Play", AppState::InGame)
 
             --
 

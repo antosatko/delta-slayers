@@ -4,7 +4,7 @@ use crate::{
     app::state::AppState,
     gameplay::zones::{FastTravelRequest, ZoneKind},
     ui::{
-        components::{FastTravelButton, FastTravelMenu, InventoryMenuModal, MinimapZoneDot, PanelRoot, PauseOverlay, PopupConfirmRequested, PopupRoot},
+        components::{FastTravelButton, FastTravelMenu, GameMenuModal, MinimapZoneDot, PanelRoot, PauseOverlay, PopupConfirmRequested, PopupRoot},
         inventory::{CurrencyLabel, InventoryRoot},
         stack::{UiLayer, UiStack},
     },
@@ -31,6 +31,8 @@ pub(in crate::ui) fn scene() -> impl SceneList {
         @minimap()
         --
         @inventory_scene()
+        --
+        @game_menu_modal()
         --
         @pause_overlay()
     }
@@ -248,8 +250,6 @@ fn inventory_scene() -> impl Scene {
             @inventory_items()
             --
             @inventory_top_bar()
-            --
-            @inventory_menu_modal()
         ]
     }
 }
@@ -276,10 +276,10 @@ fn inventory_top_bar() -> impl Scene {
             }
             BackgroundColor(Color::srgb(0.3, 0.3, 0.35))
             on(|_activate: On<Activate>, mut ui: ResMut<UiStack>| {
-                if ui.inventory_menu_open() {
-                    ui.remove(UiLayer::InventoryMenu);
+                if ui.game_menu_open() {
+                    ui.remove(UiLayer::GameMenu);
                 } else {
-                    ui.push(UiLayer::InventoryMenu);
+                    ui.push(UiLayer::GameMenu);
                 }
             })
             Children [
@@ -293,9 +293,8 @@ fn inventory_top_bar() -> impl Scene {
     }
 }
 
-/// Sibling of the top bar and inventory contents, not a child of the top bar.
-/// This gives the 600px overlay the correct containing block.
-fn inventory_menu_modal() -> impl Scene {
+/// Root-level overlay so it can be opened directly with Escape, without the inventory.
+fn game_menu_modal() -> impl Scene {
     bsn! {
         Node {
             position_type: PositionType::Absolute,
@@ -308,7 +307,7 @@ fn inventory_menu_modal() -> impl Scene {
         }
         BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 0.6))
         bevy::ui::GlobalZIndex(20)
-        InventoryMenuModal
+        GameMenuModal
         Visibility::Hidden
         Children [
             Node {
@@ -327,26 +326,26 @@ fn inventory_menu_modal() -> impl Scene {
                 }
                 TextColor(Color::WHITE)
                 --
-                @inventory_menu_action("Continue", InventoryMenuAction::Continue)
+                @game_menu_action("Continue", GameMenuAction::Continue)
                 --
-                @inventory_menu_action("Exit to Main", InventoryMenuAction::ExitToMain)
+                @game_menu_action("Exit to Main", GameMenuAction::ExitToMain)
                 --
-                @inventory_menu_action("Exit to Desktop", InventoryMenuAction::ExitToDesktop)
+                @game_menu_action("Exit to Desktop", GameMenuAction::ExitToDesktop)
                 --
-                @inventory_menu_action("Cancel", InventoryMenuAction::Continue)
+                @game_menu_action("Cancel", GameMenuAction::Continue)
             ]
         ]
     }
 }
 
 #[derive(Clone, Copy)]
-enum InventoryMenuAction {
+enum GameMenuAction {
     Continue,
     ExitToMain,
     ExitToDesktop,
 }
 
-fn inventory_menu_action(label: &'static str, action: InventoryMenuAction) -> impl Scene {
+fn game_menu_action(label: &'static str, action: GameMenuAction) -> impl Scene {
     bsn! {
         Button
         Node {
@@ -358,14 +357,14 @@ fn inventory_menu_action(label: &'static str, action: InventoryMenuAction) -> im
         }
         BackgroundColor(Color::srgb(0.25, 0.25, 0.3))
         on(move |_activate: On<Activate>, mut ui: ResMut<UiStack>, mut next: ResMut<NextState<AppState>>, mut exit: MessageWriter<AppExit>| {
-            ui.remove(UiLayer::InventoryMenu);
+            ui.remove(UiLayer::GameMenu);
             match action {
-                InventoryMenuAction::Continue => {}
-                InventoryMenuAction::ExitToMain => {
+                GameMenuAction::Continue => {}
+                GameMenuAction::ExitToMain => {
                     ui.reset();
                     next.set(AppState::MainMenu);
                 }
-                InventoryMenuAction::ExitToDesktop => {
+                GameMenuAction::ExitToDesktop => {
                     exit.write(AppExit::Success);
                 }
             }

@@ -127,7 +127,7 @@ Current layers:
 - Pause
 - Panel(ZoneKind)
 - Inventory
-- InventoryMenu (nested above inventory)
+- GameMenu (independent overlay, also accessible while inventory is open)
 
 Cursor capture preference is stored alongside navigation state. The effective
 cursor mode is derived from whether the stack is empty and whether the player
@@ -142,16 +142,13 @@ System ordering is explicit:
 
 This prevents stale visibility and multiple systems fighting over cursor state.
 
-## Inventory menu layout
+## In-game menu overlay
 
-The inventory menu overlay is a sibling of the inventory top bar and content,
-inside the inventory root. It must not be parented under the 32-pixel top-bar
-node: a 600-pixel modal needs the inventory root as its containing block.
-This keeps layout, z-order, and hit-testing predictable.
-
-The menu open state is represented by UiLayer::InventoryMenu. The menu button,
-Escape, and right click all use the same navigation stack. Button observers
-only change state; projection systems control Visibility.
+The in-game menu is a root-level BSN scene, independent of the inventory
+hierarchy. Escape opens it directly when no other overlay is active; Escape or
+right click closes the topmost layer. The inventory's Menu button opens the
+same layer, preserving the inventory underneath it. Its open state is
+represented by UiLayer::GameMenu, and a projection system controls Visibility.
 
 ## BSN conventions
 

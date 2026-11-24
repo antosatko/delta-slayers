@@ -71,7 +71,7 @@ frequent breaking changes. **Project abandonment is very likely.**
 - Right click — toggle cursor capture / open inventory / close topmost UI
 - `E` — confirm interaction prompts
 - `P` — pause
-- `Esc` — close UI or release cursor
+- `Esc` — open the in-game menu, or close the topmost overlay
 - `Backspace` — close UI or return to main menu
 
 ## Running

@@ -18,7 +18,7 @@ Read DESIGN.md before making architectural changes.
 - Put application setup and top-level states in `app/`.
 - Put authoritative gameplay models, simulation, world setup, and persistence
   in `gameplay/`.
-- Put UI navigation, BSN scenes, input, and projection in `ui/`.
+- Put UI navigation, BSN scenes, input, and presentation projection in `ui/`.
 - Keep screen definitions in `ui/screens/` and state-to-view systems in
   `ui/systems/`.
 - Do not move gameplay data into UI modules to make it easier for a screen to
@@ -32,6 +32,7 @@ Read DESIGN.md before making architectural changes.
 - Keep level-authored markers in gameplay modules, not UI modules.
 - glTF world entities can be nested; systems that consume authored points or
   zones should query GlobalTransform when world-space position is required.
+- Keep the procedural world as a fallback until the Blender export is present.
 - TriggerBox is authored on a default Blender cube. Its local bounds are
   [-1, 1] on each axis; use the object's location, rotation, and unapplied
   scale to define the world-space volume.
