@@ -311,14 +311,23 @@
         }
       }, 0);
     });
-    trigger.addEventListener("click", () => {
+    trigger.addEventListener("keydown", (event) => {
+      if (event.key !== "Tab" || event.shiftKey || activeState !== state || card.hidden) return;
+      const firstControl = card.querySelector("button:not([hidden])");
+      if (firstControl) {
+        event.preventDefault();
+        firstControl.focus();
+      }
+    });
+
+    trigger.addEventListener("click", (event) => {
       if (activeState === state && !card.hidden && state.pinned) {
         closeState(state, false, true);
         return;
       }
       openState(state, true);
       state.pinned = true;
-      title.focus({ preventScroll: true });
+      if (event.detail === 0) title.focus({ preventScroll: true });
     });
   }
 
@@ -369,6 +378,26 @@
     if (activeState && event.target !== activeState.trigger && !card.contains(event.target)) {
       closeState(activeState, false, false);
     }
+  });
+
+  card.addEventListener("keydown", (event) => {
+    if (event.key === "Tab" && event.shiftKey) {
+      const firstControl = card.querySelector("button:not([hidden])");
+      if (event.target === title || event.target === firstControl) {
+        event.preventDefault();
+        if (activeState) activeState.trigger.focus();
+        return;
+      }
+    }
+    if (event.key !== "Escape" || !activeState) return;
+    const state = activeState;
+    if (state.history.length > 0) {
+      goBack(state);
+    } else {
+      closeState(state, true, true);
+    }
+    event.preventDefault();
+    event.stopPropagation();
   });
 
   document.addEventListener("keydown", (event) => {
