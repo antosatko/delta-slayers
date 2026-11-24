@@ -5,4 +5,4 @@ edition = "2024"
 publish = false
 
 [dependencies]
-bevy = "0.20.1"
+bevy = { workspace = true }
