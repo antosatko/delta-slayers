@@ -1,7 +1,7 @@
 use bevy::{
     prelude::*,
     ui_widgets::{Activate, Button},
-    window::{CursorGrabMode, CursorOptions},
+    window::{CursorGrabMode, CursorOptions, PrimaryWindow},
 };
 
 use crate::{
@@ -136,7 +136,11 @@ fn shop_panel() -> impl Scene {
 }
 
 fn guild_panel() -> impl Scene {
-    panel(ZoneKind::Guild, "Guild", Color::srgba(0.15, 0.12, 0.08, 0.92))
+    panel(
+        ZoneKind::Guild,
+        "Guild",
+        Color::srgba(0.15, 0.12, 0.08, 0.92),
+    )
 }
 
 fn interaction_prompt() -> impl Scene {
@@ -769,10 +773,7 @@ pub fn handle_ui_input(
     }
 }
 
-fn panel_visibility_system(
-    ui: Res<UiStack>,
-    mut panels: Query<(&PanelRoot, &mut Visibility)>,
-) {
+fn panel_visibility_system(ui: Res<UiStack>, mut panels: Query<(&PanelRoot, &mut Visibility)>) {
     let active = ui.active_panel();
     for (panel, mut visibility) in &mut panels {
         *visibility = if active == Some(panel.0) {
@@ -788,10 +789,8 @@ fn popup_visibility_system(
     ui: Res<UiStack>,
     mut popups: Query<&mut Visibility, With<PopupRoot>>,
 ) {
-    let visible = nearby.0.is_some()
-        && ui.active_panel().is_none()
-        && !ui.inventory_open()
-        && !ui.paused();
+    let visible =
+        nearby.0.is_some() && ui.active_panel().is_none() && !ui.inventory_open() && !ui.paused();
 
     for mut visibility in &mut popups {
         *visibility = if visible {
@@ -868,10 +867,7 @@ fn pause_overlay_visibility_system(
     }
 }
 
-fn sync_cursor(
-    ui: Res<UiStack>,
-    mut cursor: Single<&mut CursorOptions, With<PrimaryWindow>>,
-) {
+fn sync_cursor(ui: Res<UiStack>, mut cursor: Single<&mut CursorOptions, With<PrimaryWindow>>) {
     let grabbed = ui.cursor_grabbed();
     cursor.visible = !grabbed;
     cursor.grab_mode = if grabbed {
