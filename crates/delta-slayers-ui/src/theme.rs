@@ -1,7 +1,7 @@
 use bevy::{prelude::*, ui::Pressed};
 
-/// Slate palette. Replace this resource before spawning scenes to customise the
-/// visual system without changing individual widgets.
+/// Shared Slate palette. Surfaces are distinguished primarily by value and elevation,
+/// not by outlines.
 #[derive(Resource, Clone, Debug)]
 pub struct SlateTheme {
     pub page: Color,
@@ -76,7 +76,6 @@ impl SlateTheme {
     }
 }
 
-/// Visual treatment for action buttons.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum SlateButtonTone {
     Primary,
@@ -86,7 +85,6 @@ pub enum SlateButtonTone {
     Danger,
 }
 
-/// Semantic colour for badges and value indicators.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum SlateStatus {
     #[default]
@@ -102,7 +100,6 @@ pub(crate) struct SlateButtonStyle {
     pub selected: bool,
 }
 
-/// Installs the palette and the small behaviours shared by Slate widgets.
 pub struct SlatePlugin;
 
 impl Plugin for SlatePlugin {
@@ -119,19 +116,13 @@ fn update_button_styles(
         Option<&Pressed>,
         &SlateButtonStyle,
         &mut BackgroundColor,
-        &mut BorderColor,
     )>,
 ) {
-    for (hovered, pressed, style, mut background, mut border) in &mut buttons {
+    for (hovered, pressed, style, mut background) in &mut buttons {
         *background = BackgroundColor(if style.selected {
             theme.panel_raised
         } else {
             theme.button_background(style.tone, hovered.get(), pressed.is_some())
-        });
-        *border = BorderColor::all(if style.selected || hovered.get() {
-            theme.accent
-        } else {
-            theme.line
         });
     }
 }
