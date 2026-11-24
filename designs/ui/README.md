@@ -52,3 +52,21 @@ The example data lives in interaction.js. It is sample lore for the
 prototype. Its optional structured facts are designed to support different
 kinds of information, including gameplay statistics, item properties,
 requirements, effects, resistances, and historical details.
+
+
+## Reference cards
+
+The Field Folio contract demonstrates the expanded reference interaction.
+Hover or focus brine-wight or tithe to open a card. Click the term to pin
+the card open. The card includes an icon, title, category, description,
+optional fact rows, and links to related entries.
+
+Selecting a linked entry navigates inside the same card. The Back control
+returns to the previous entry; Escape moves back through the history and
+closes the card at its starting entry. Only one card is open at a time. This
+is deliberately a navigable reference graph, not a stack of nested popups.
+
+The example data lives in interaction.js. It is sample lore for the
+prototype. Its optional structured facts are designed to support different
+kinds of information, including gameplay statistics, item properties,
+requirements, effects, resistances, and historical details.

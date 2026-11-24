@@ -17,11 +17,7 @@
         ]
       ],
       factsTitle: "Field record",
-      facts: [
-        ["Reports", "2"],
-        ["Classification", "Disputed"],
-        ["Threat", "Unknown"]
-      ],
+      facts: [["Reports", "2"], ["Classification", "Disputed"], ["Threat", "Unknown"]],
       related: ["wight", "brine", "west-watercourse"]
     },
     "tithe": {
@@ -29,23 +25,15 @@
       category: "Guild custom · Payment",
       icon: "ledger",
       description: [
+        [{ text: "A portion of a harvest or income paid to an institution or authority. The amount and form depend on the local agreement." }],
         [
-          { text: "A portion of a harvest or income paid to an institution or authority. The amount and form depend on the local agreement." }
-        ],
-        [
-          { text: "In Greybridge, the " },
-          { ref: "guild", label: "guild" },
+          { text: "In Greybridge, the " }, { ref: "guild", label: "guild" },
           { text: " collected its tithe in grain. The old records become unclear around the " },
-          { ref: "famine-winter", label: "famine winter" },
-          { text: "." }
+          { ref: "famine-winter", label: "famine winter" }, { text: "." }
         ]
       ],
       factsTitle: "Local record",
-      facts: [
-        ["Usual payment", "Harvest goods"],
-        ["Recorded form", "Grain"],
-        ["Rate", "Not recorded"]
-      ],
+      facts: [["Usual payment", "Harvest goods"], ["Recorded form", "Grain"], ["Rate", "Not recorded"]],
       related: ["guild", "famine-winter"]
     },
     "wight": {
@@ -53,21 +41,14 @@
       category: "Bestiary term · Classification",
       icon: "spectre",
       description: [
+        [{ text: "A term used for a person or creature believed to persist after death. It describes a broad category, not a reliable account of a particular being." }],
         [
-          { text: "A term used for a person or creature believed to persist after death. It describes a broad category, not a reliable account of a particular being." }
-        ],
-        [
-          { text: "The word alone does not establish whether a " },
-          { ref: "brine-wight", label: "brine-wight" },
+          { text: "The word alone does not establish whether a " }, { ref: "brine-wight", label: "brine-wight" },
           { text: " is undead, or even whether it is a creature." }
         ]
       ],
       factsTitle: "Known properties",
-      facts: [
-        ["Origin", "Death or burial rites"],
-        ["Behaviour", "Varies by account"],
-        ["Weakness", "Not established"]
-      ],
+      facts: [["Origin", "Death or burial rites"], ["Behaviour", "Varies by account"], ["Weakness", "Not established"]],
       related: ["brine", "brine-wight"]
     },
     "brine": {
@@ -75,21 +56,14 @@
       category: "Material · Water",
       icon: "water",
       description: [
+        [{ text: "Water containing a high concentration of dissolved salt. In coastal records, the word is also used for the pools left behind by a receding tide." }],
         [
-          { text: "Water containing a high concentration of dissolved salt. In coastal records, the word is also used for the pools left behind by a receding tide." }
-        ],
-        [
-          { text: "The old " },
-          { ref: "west-watercourse", label: "watercourse" },
+          { text: "The old " }, { ref: "west-watercourse", label: "watercourse" },
           { text: " is fresh on most maps, though the miller's notes mention a taste of salt." }
         ]
       ],
       factsTitle: "Reference",
-      facts: [
-        ["Composition", "Salt water"],
-        ["Common source", "Coastal pools"],
-        ["Mill sample", "Not collected"]
-      ],
+      facts: [["Composition", "Salt water"], ["Common source", "Coastal pools"], ["Mill sample", "Not collected"]],
       related: ["west-watercourse", "brine-wight"]
     },
     "west-watercourse": {
@@ -97,21 +71,14 @@
       category: "Location · Greybridge",
       icon: "water",
       description: [
+        [{ text: "An older channel that runs beneath the west foundation of the mill. It predates the current stonework and is no longer shown on the public village plan." }],
         [
-          { text: "An older channel that runs beneath the west foundation of the mill. It predates the current stonework and is no longer shown on the public village plan." }
-        ],
-        [
-          { text: "The miller's reference to " },
-          { ref: "brine", label: "brine" },
+          { text: "The miller's reference to " }, { ref: "brine", label: "brine" },
           { text: " has not been confirmed by a sample or inspection." }
         ]
       ],
       factsTitle: "Survey notes",
-      facts: [
-        ["Known entrance", "Not established"],
-        ["Last inspection", "Unknown"],
-        ["Current flow", "Unsurveyed"]
-      ],
+      facts: [["Known entrance", "Not established"], ["Last inspection", "Unknown"], ["Current flow", "Unsurveyed"]],
       related: ["brine", "brine-wight"]
     },
     "guild": {
@@ -119,23 +86,15 @@
       category: "Institution · Local chapter",
       icon: "guild",
       description: [
+        [{ text: "The local chapter handles contracts, arbitration, and records for the surrounding settlements. Its authority comes from a series of agreements with the villages, not from a single charter." }],
         [
-          { text: "The local chapter handles contracts, arbitration, and records for the surrounding settlements. Its authority comes from a series of agreements with the villages, not from a single charter." }
-        ],
-        [
-          { text: "Its collection of the " },
-          { ref: "tithe", label: "tithe" },
-          { text: " was altered after the " },
-          { ref: "famine-winter", label: "famine winter" },
+          { text: "Its collection of the " }, { ref: "tithe", label: "tithe" },
+          { text: " was altered after the " }, { ref: "famine-winter", label: "famine winter" },
           { text: ", though the surviving ledger is incomplete." }
         ]
       ],
       factsTitle: "Chapter record",
-      facts: [
-        ["Office", "North road, Greybridge"],
-        ["Current clerk", "Mara Venn"],
-        ["Ledger status", "Incomplete"]
-      ],
+      facts: [["Office", "North road, Greybridge"], ["Current clerk", "Mara Venn"], ["Ledger status", "Incomplete"]],
       related: ["tithe", "famine-winter"]
     },
     "famine-winter": {
@@ -143,21 +102,14 @@
       category: "Historical event · Greybridge",
       icon: "harvest",
       description: [
-        [
-          { text: "The name given to a season of crop failure and food shortage remembered in the older village records. The surviving accounts disagree about its exact duration." }
-        ],
+        [{ text: "The name given to a season of crop failure and food shortage remembered in the older village records. The surviving accounts disagree about its exact duration." }],
         [
           { text: "The mill bell bears a date associated with this period. The inscription may connect the miller's ledger to the changes in the " },
-          { ref: "tithe", label: "guild tithe" },
-          { text: "." }
+          { ref: "tithe", label: "guild tithe" }, { text: "." }
         ]
       ],
       factsTitle: "Historical record",
-      facts: [
-        ["Date", "Inscription incomplete"],
-        ["Cause", "Not established"],
-        ["Recorded impact", "Crop failure"]
-      ],
+      facts: [["Date", "Inscription incomplete"], ["Cause", "Not established"], ["Recorded impact", "Crop failure"]],
       related: ["guild", "tithe"]
     }
   };
@@ -170,7 +122,18 @@
     harvest: '<path d="M12 21V4M12 9c-3 0-5-2-5-5 3 0 5 2 5 5zM12 13c3 0 5-2 5-5-3 0-5 2-5 5zM12 17c-3 0-5-2-5-5 3 0 5 2 5 5z"/>'
   };
 
-  const anchors = [...document.querySelectorAll("[data-reference-anchor]")];
+  const card = document.querySelector("[data-reference-card]");
+  const title = card.querySelector("[data-reference-title]");
+  const category = card.querySelector("[data-reference-category]");
+  const icon = card.querySelector("[data-reference-icon]");
+  const description = card.querySelector("[data-reference-description]");
+  const facts = card.querySelector("[data-reference-facts]");
+  const factsTitle = card.querySelector("[data-reference-facts-title]");
+  const factsList = card.querySelector("[data-reference-facts-list]");
+  const related = card.querySelector("[data-reference-related]");
+  const relatedList = card.querySelector("[data-reference-related-list]");
+  const back = card.querySelector("[data-reference-back]");
+  const triggers = [...document.querySelectorAll("[data-entry-trigger]")];
   let activeState = null;
 
   function makeElement(tag, className, text) {
@@ -188,24 +151,21 @@
   }
 
   function positionCard(state) {
-    const triggerRect = state.trigger.getBoundingClientRect();
-    const card = state.card;
+    const rect = state.trigger.getBoundingClientRect();
     const margin = 12;
     const width = card.offsetWidth;
     const height = card.offsetHeight;
-    const left = Math.max(margin, Math.min(triggerRect.left, window.innerWidth - width - margin));
-    let top = triggerRect.bottom + 8;
-
-    if (top + height > window.innerHeight - margin && triggerRect.top > height + 8) {
-      top = triggerRect.top - height - 8;
+    const left = Math.max(margin, Math.min(rect.left, window.innerWidth - width - margin));
+    let top = rect.bottom + 8;
+    if (top + height > window.innerHeight - margin && rect.top > height + 8) {
+      top = rect.top - height - 8;
     }
     top = Math.max(margin, Math.min(top, window.innerHeight - height - margin));
-
     card.style.left = left + "px";
     card.style.top = top + "px";
   }
 
-  function appendSegments(parent, segments) {
+  function appendParagraph(segments) {
     const paragraph = makeElement("p", "reference-paragraph");
     for (const segment of segments) {
       if (typeof segment === "string" || segment.text !== undefined) {
@@ -217,58 +177,56 @@
         paragraph.append(link);
       }
     }
-    parent.append(paragraph);
+    description.append(paragraph);
   }
 
   function renderEntry(state, entryId, focusTitle) {
     const entry = entries[entryId];
     if (!entry) return;
-
     state.currentId = entryId;
-    state.title.textContent = entry.title;
-    state.category.textContent = entry.category;
-    state.icon.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' + (icons[entry.icon] || icons.ledger) + '</svg>';
+    title.textContent = entry.title;
+    category.textContent = entry.category;
+    icon.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' + (icons[entry.icon] || icons.ledger) + '</svg>';
 
-    state.description.replaceChildren();
-    entry.description.forEach((paragraph) => appendSegments(state.description, paragraph));
+    description.replaceChildren();
+    entry.description.forEach(appendParagraph);
 
-    state.factsList.replaceChildren();
+    factsList.replaceChildren();
     if (entry.facts && entry.facts.length > 0) {
-      state.facts.hidden = false;
-      state.factsTitle.textContent = entry.factsTitle || "Details";
+      facts.hidden = false;
+      factsTitle.textContent = entry.factsTitle || "Details";
       for (const [label, value] of entry.facts) {
         const row = makeElement("div", "reference-fact");
         row.append(makeElement("dt", "", label), makeElement("dd", "", value));
-        state.factsList.append(row);
+        factsList.append(row);
       }
     } else {
-      state.facts.hidden = true;
+      facts.hidden = true;
     }
 
-    state.relatedList.replaceChildren();
+    relatedList.replaceChildren();
     if (entry.related && entry.related.length > 0) {
-      state.related.hidden = false;
+      related.hidden = false;
       for (const relatedId of entry.related) {
         if (!entries[relatedId]) continue;
         const link = makeElement("button", "", entries[relatedId].title);
         link.type = "button";
         link.dataset.entryRef = relatedId;
-        state.relatedList.append(link);
+        relatedList.append(link);
       }
     } else {
-      state.related.hidden = true;
+      related.hidden = true;
     }
 
-    state.back.hidden = state.history.length === 0;
-    state.card.hidden = false;
+    back.hidden = state.history.length === 0;
+    card.hidden = false;
     positionCard(state);
-
-    if (focusTitle) state.title.focus({ preventScroll: true });
+    if (focusTitle) title.focus({ preventScroll: true });
   }
 
   function closeState(state, restoreFocus, suppressFocus) {
     cancelClose(state);
-    state.card.hidden = true;
+    card.hidden = true;
     state.trigger.setAttribute("aria-expanded", "false");
     state.pinned = false;
     state.history.length = 0;
@@ -287,7 +245,7 @@
       state.history.length = 0;
       renderEntry(state, state.currentId, false);
     } else {
-      state.card.hidden = false;
+      card.hidden = false;
       positionCard(state);
     }
     state.pinned = state.pinned || Boolean(pin);
@@ -297,7 +255,7 @@
   function scheduleClose(state) {
     cancelClose(state);
     state.closeTimer = setTimeout(() => {
-      const focusInside = state.anchor.contains(document.activeElement);
+      const focusInside = document.activeElement === state.trigger || card.contains(document.activeElement);
       if (!state.pinned && !state.pointerOnTrigger && !state.pointerOnCard && !focusInside) {
         closeState(state, false, false);
       }
@@ -320,22 +278,9 @@
     state.trigger.setAttribute("aria-expanded", "true");
   }
 
-  for (const anchor of anchors) {
+  for (const trigger of triggers) {
     const state = {
-      anchor,
-      trigger: anchor.querySelector("[data-entry-trigger]"),
-      card: anchor.querySelector("[data-reference-card]"),
-      icon: anchor.querySelector("[data-reference-icon]"),
-      title: anchor.querySelector("[data-reference-title]"),
-      category: anchor.querySelector("[data-reference-category]"),
-      description: anchor.querySelector("[data-reference-description]"),
-      facts: anchor.querySelector("[data-reference-facts]"),
-      factsTitle: anchor.querySelector("[data-reference-facts-title]"),
-      factsList: anchor.querySelector("[data-reference-facts-list]"),
-      related: anchor.querySelector("[data-reference-related]"),
-      relatedList: anchor.querySelector("[data-reference-related-list]"),
-      back: anchor.querySelector("[data-reference-back]"),
-      close: anchor.querySelector("[data-reference-close]"),
+      trigger,
       currentId: null,
       history: [],
       pinned: false,
@@ -345,78 +290,76 @@
       closeTimer: null
     };
 
-    state.trigger.addEventListener("pointerenter", () => {
+    trigger.addEventListener("pointerenter", () => {
       state.pointerOnTrigger = true;
       if (!state.dismissed) openState(state, false);
     });
-
-    state.trigger.addEventListener("pointerleave", () => {
+    trigger.addEventListener("pointerleave", () => {
       state.pointerOnTrigger = false;
       scheduleClose(state);
     });
-
-    state.card.addEventListener("pointerenter", () => {
-      state.pointerOnCard = true;
-      cancelClose(state);
-    });
-
-    state.card.addEventListener("pointerleave", () => {
-      state.pointerOnCard = false;
-      scheduleClose(state);
-    });
-
-    anchor.addEventListener("focusin", () => {
+    trigger.addEventListener("focus", () => {
       if (!state.dismissed) openState(state, false);
     });
-
-    anchor.addEventListener("focusout", () => {
-      setTimeout(() => {
-        if (!anchor.contains(document.activeElement)) {
-          state.dismissed = false;
-          scheduleClose(state);
-        }
-      }, 0);
-    });
-
-    state.trigger.addEventListener("click", () => {
-      if (activeState === state && !state.card.hidden && state.pinned) {
+    trigger.addEventListener("click", () => {
+      if (activeState === state && !card.hidden && state.pinned) {
         closeState(state, false, true);
         return;
       }
       openState(state, true);
       state.pinned = true;
-      state.title.focus({ preventScroll: true });
-    });
-
-    state.card.addEventListener("click", (event) => {
-      const reference = event.target.closest("[data-entry-ref]");
-      if (reference && state.card.contains(reference)) {
-        navigate(state, reference.dataset.entryRef);
-        return;
-      }
-      if (event.target.closest("[data-reference-back]")) {
-        goBack(state);
-        return;
-      }
-      if (event.target.closest("[data-reference-close]")) {
-        closeState(state, true, true);
-      }
-    });
-
-    state.card.addEventListener("keydown", (event) => {
-      if (event.key !== "Escape") return;
-      event.preventDefault();
-      event.stopPropagation();
-      if (state.history.length > 0) {
-        goBack(state);
-      } else {
-        closeState(state, true, true);
-      }
+      title.focus({ preventScroll: true });
     });
   }
 
+  card.addEventListener("pointerenter", () => {
+    if (activeState) {
+      activeState.pointerOnCard = true;
+      cancelClose(activeState);
+    }
+  });
+  card.addEventListener("pointerleave", () => {
+    if (activeState) {
+      activeState.pointerOnCard = false;
+      scheduleClose(activeState);
+    }
+  });
+
+  card.addEventListener("click", (event) => {
+    const reference = event.target.closest("[data-entry-ref]");
+    if (reference && card.contains(reference)) {
+      navigate(activeState, reference.dataset.entryRef);
+      return;
+    }
+    if (event.target.closest("[data-reference-back]")) {
+      if (activeState) goBack(activeState);
+      return;
+    }
+    if (event.target.closest("[data-reference-close]") && activeState) {
+      closeState(activeState, true, true);
+    }
+  });
+
+  document.addEventListener("focusin", (event) => {
+    if (activeState && (event.target === activeState.trigger || card.contains(event.target))) {
+      cancelClose(activeState);
+      return;
+    }
+    const trigger = event.target.closest && event.target.closest("[data-entry-trigger]");
+    if (trigger) {
+      const state = activeState && activeState.trigger === trigger
+        ? activeState
+        : { trigger, currentId: null, history: [], pinned: false, dismissed: false, pointerOnTrigger: false, pointerOnCard: false, closeTimer: null };
+      if (!state.dismissed) openState(state, false);
+    } else if (activeState) {
+      const state = activeState;
+      state.dismissed = false;
+      scheduleClose(state);
+    }
+  });
+
   document.addEventListener("pointerdown", (event) => {
-    if (activeState && !activeState.anchor.contains(event.target)) {
+    if (activeState && event.target !== activeState.trigger && !card.contains(event.target)) {
       closeState(activeState, false, false);
     }
   });
@@ -430,13 +373,14 @@
       closeState(state, true, true);
     }
     event.preventDefault();
+    event.stopPropagation();
   });
 
   window.addEventListener("resize", () => {
-    if (activeState && !activeState.card.hidden) positionCard(activeState);
+    if (activeState && !card.hidden) positionCard(activeState);
   });
   window.addEventListener("scroll", () => {
-    if (activeState && !activeState.card.hidden) positionCard(activeState);
+    if (activeState && !card.hidden) positionCard(activeState);
   }, true);
 
   document.querySelectorAll("[data-demo-action]").forEach((button) => {
