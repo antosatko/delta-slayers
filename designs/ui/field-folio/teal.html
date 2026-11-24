@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#252a24">
+  <title>Field Folio — Deep Teal palette</title>
+  <link rel="stylesheet" href="../base.css">
+  <link rel="stylesheet" href="../field-folio.css">
+  <link rel="stylesheet" href="../field-folio-teal.css">
+  <script src="../interaction.js" defer></script>
+</head>
+<body class="theme-folio">
+  <div class="game-shell">
+    <header class="topbar">
+      <a class="brand" href="#contract">Delta Slayers</a>
+      <div class="top-meta">
+        <span>Greybridge</span>
+        <span>Late autumn · Day 214</span>
+      </div>
+    </header>
+
+    <div class="layout">
+      <nav class="rail" aria-label="Main navigation">
+        <a class="nav-item active" href="#contract" aria-current="page">
+          <span>Contracts</span><span class="nav-count">4</span>
+        </a>
+        <a class="nav-item" href="#journal">Journal</a>
+        <a class="nav-item" href="#codex">Codex</a>
+        <a class="nav-item" href="#inventory">Inventory</a>
+        <div class="rail-note">
+          <strong>Greybridge Chapter</strong>
+          Guild office<br>
+          North road, river quarter
+        </div>
+      </nav>
+
+      <main class="content" id="contract">
+        <section class="title-row" aria-labelledby="contract-title">
+          <div class="title-copy">
+            <p class="eyebrow">Contract · Investigation</p>
+            <h1 id="contract-title">The bell beneath the mill</h1>
+            <p class="subtitle">A missing miller, an old debt, and a bell that rings long after the village has gone to sleep.</p>
+          </div>
+          <span class="contract-number" aria-label="Contract 018">018</span>
+        </section>
+
+        <div class="content-grid">
+          <article class="reading-panel" aria-label="Contract description">
+            <section class="reading-section">
+              <h2>The matter at hand</h2>
+              <p>The mill's bell has rung at the wrong hour for nine nights. At first, Greybridge blamed a cracked clapper or a drunk watchman. Then the miller stopped answering the door. The guild sent two apprentices to investigate; one returned with the bell's rope tied around his wrist and no memory of the walk home.</p>
+              <p>The old watercourse runs beneath the west foundation. The villagers call what moves there a <span class="reference-anchor"><button class="term" type="button" data-entry-trigger="brine-wight" aria-controls="reference-card" aria-haspopup="dialog" aria-expanded="false" aria-describedby="reference-description">brine-wight</button></span>, though the word is older than the village and may describe a debt rather than a creature.</p>
+            </section>
+
+            <section class="reading-section">
+              <h2>What is known</h2>
+              <p>The bell was cast before the bridge had a name. It was rung to mark a <span class="reference-anchor"><button class="term" type="button" data-entry-trigger="tithe" aria-controls="reference-card" aria-haspopup="dialog" aria-expanded="false" aria-describedby="reference-description">tithe</button></span> — a portion paid to the guild each harvest. Records suggest the miller found a second inscription beneath the lip: a name scratched away, and a date belonging to the famine winter.</p>
+              <blockquote class="quote">
+                “Do not ring the bell. Do not follow any voice that answers from below the floorboards. If the miller is alive, bring him back. If he is not, bring the ledger.”
+                <cite>Mara Venn, senior clerk</cite>
+              </blockquote>
+            </section>
+
+            <section class="reading-section">
+              <h2>Terms of the contract</h2>
+              <p>Establish what happened at the mill and identify the source of the ringing. Recover the miller's ledger if it can be done without endangering the party. Do not destroy the bell or alter the foundation before the guild has inspected it.</p>
+              <p>The guild will pay for a complete account. It cannot promise that the truth will be pleasant, nor that every name in the ledger should be read aloud.</p>
+            </section>
+          </article>
+
+          <aside class="summary-panel" aria-label="Contract summary">
+            <section class="summary-section">
+              <header class="detail-heading">
+                <h2>Contract details</h2>
+                <span class="status-chip">Available</span>
+              </header>
+              <dl class="facts">
+                <div class="fact-row"><dt class="fact-label">Location</dt><dd class="fact-value">Greybridge</dd></div>
+                <div class="fact-row"><dt class="fact-label">Risk</dt><dd class="fact-value">Unverified</dd></div>
+                <div class="fact-row"><dt class="fact-label">Timing</dt><dd class="fact-value">After sundown</dd></div>
+                <div class="fact-row"><dt class="fact-label">Client</dt><dd class="fact-value subdued">Guild office</dd></div>
+              </dl>
+            </section>
+
+            <section class="summary-section">
+              <header class="detail-heading"><h2>Objectives</h2><span class="objective-count">0 of 3</span></header>
+              <ol class="objective-list">
+                <li>Inspect the old mill</li>
+                <li>Find the miller's ledger</li>
+                <li>Report to the guild</li>
+              </ol>
+            </section>
+
+            <section class="summary-section">
+              <h2 class="detail-heading standalone-heading">Expected payment</h2>
+              <div class="reward-body">
+                <p class="reward-amount"><strong>38</strong><span>crowns</span></p>
+                <p>Plus reasonable expenses, upon delivery of a written report. Exceptional findings may be valued separately.</p>
+              </div>
+            </section>
+          </aside>
+        </div>
+
+        <div class="action-row">
+          <button class="action primary" type="button" data-demo-action="Contract accepted — preview interaction only.">Accept contract</button>
+          <button class="action secondary" type="button" data-demo-action="Contract saved to your journal — preview interaction only.">Keep in journal</button>
+          <p class="action-feedback" id="action-feedback" role="status" aria-live="polite">Preview only. These actions do not change game state.</p>
+        </div>
+
+        <footer class="footer">
+          <div class="footer-left"><span class="keycap">Esc</span><span class="footer-note">Return to the previous screen</span></div>
+          <span class="footer-note">Greybridge Chapter</span>
+        </footer>
+      </main>
+    </div>
+  </div>
+
+  <section class="reference-card" id="reference-card" data-reference-card role="dialog" aria-modal="false" aria-labelledby="reference-title" hidden>
+    <header class="reference-card-header">
+      <button class="reference-back" type="button" data-reference-back aria-label="Go back" title="Go back" hidden>
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5M7.5 10H17"/></svg>
+      </button>
+      <span class="reference-icon" data-reference-icon aria-hidden="true"></span>
+      <div class="reference-heading">
+        <p class="reference-category" data-reference-category></p>
+        <h3 class="reference-title" data-reference-title tabindex="-1"></h3>
+      </div>
+      <button class="reference-close" type="button" data-reference-close aria-label="Close reference" title="Close">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg>
+      </button>
+    </header>
+    <div class="reference-content">
+      <div class="reference-description" id="reference-description" data-reference-description></div>
+      <section class="reference-facts" data-reference-facts hidden>
+        <h4 data-reference-facts-title>Record</h4>
+        <dl data-reference-facts-list></dl>
+      </section>
+      <section class="reference-related" data-reference-related hidden>
+        <h4>Related</h4>
+        <div class="reference-related-list" data-reference-related-list></div>
+      </section>
+    </div>
+  </section>
+
+</body>
+</html>

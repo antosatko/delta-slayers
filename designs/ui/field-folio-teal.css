@@ -1,0 +1,21 @@
+:root {
+  --page: #192120;
+  --surface: #222c2a;
+  --surface-alt: #293532;
+  --surface-raised: #303d39;
+  --ink: #e6eeea;
+  --muted: #bdcbc5;
+  --subtle: #9cafa7;
+  --accent: #8fbdb0;
+  --accent-soft: #30443e;
+  --secondary: #b0d0c5;
+  --line: #4e665d;
+  --line-strong: #6d897d;
+  --shadow: 0 16px 42px rgb(0 0 0 / 24%);
+}
+
+/* Palette-only overrides: layout, spacing, typography and interaction stay unchanged. */
+.reference-card { background: #1e2926; }
+.term:hover,
+.reference-inline:hover,
+.reference-related-list button:hover { color: #b5ded0; }
