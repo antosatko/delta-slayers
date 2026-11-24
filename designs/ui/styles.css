@@ -762,3 +762,34 @@ h1 { font-size:clamp(1.65rem,2.5vw,2.2rem); }
     transition: background-color 120ms ease, box-shadow 120ms ease;
   }
 }
+
+
+/* Progressive disclosure and interaction feedback */
+.detail-close {
+  width: 30px; height: 30px; display: grid; place-items: center;
+  padding: 0; border: 0; border-radius: 5px;
+  background: var(--surface-alt); color: var(--muted);
+  font-size: 1.25rem; line-height: 1; cursor: pointer;
+}
+.detail-close:hover { background: var(--surface-raised); color: var(--ink); }
+.item-tile, .recipe-button, .map-marker, .filter-button, .tab-button {
+  transition: background-color 140ms ease, box-shadow 140ms ease, color 140ms ease, transform 140ms ease;
+}
+.item-tile:active, .recipe-button:active, .map-marker:active { transform: translateY(1px); }
+.item-tile[aria-pressed="true"], .recipe-button[aria-pressed="true"],
+.map-marker[aria-pressed="true"] { box-shadow: inset 3px 0 var(--accent); }
+.inventory-layout:not(.has-open-detail) { grid-template-columns: minmax(0, 1fr); }
+.map-layout:not(.has-open-detail) { grid-template-columns: minmax(0, 1fr); }
+.workshop-layout:not(.has-open-detail) { grid-template-columns: minmax(220px, 280px) minmax(0, 1fr); }
+[data-detail-panel]:not([hidden]) { animation: detail-arrive 160ms ease-out both; }
+@keyframes detail-arrive {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (max-width: 1120px) {
+  .workshop-layout:not(.has-open-detail) { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-detail-panel]:not([hidden]) { animation: none; }
+  .item-tile, .recipe-button, .map-marker, .filter-button, .tab-button { transition: none; }
+}
