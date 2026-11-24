@@ -51,6 +51,21 @@ GLB is required; the game no longer creates a procedural test world.
 See [assets/worlds/README.md](assets/worlds/README.md) for the component
 reference, spawn-point rules, and export workflow.
 
+## Reusable UI library
+
+The Slate UI components live in the workspace crate `crates/delta-slayers-ui`.
+It provides a shared theme and composable BSN scenes for panels, headings,
+buttons, badges, item tiles, resource bars, and delayed reference popovers.
+
+Run the standalone component showcase:
+
+```sh
+cargo run -p delta-slayers-ui --example slate_showcase
+```
+
+See [the crate README](crates/delta-slayers-ui/README.md) for its public API
+and composition examples.
+
 ## Tech stack
 
 - [Rust](https://www.rust-lang.org/)
