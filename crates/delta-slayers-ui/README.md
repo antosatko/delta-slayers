@@ -3,6 +3,10 @@
 Game-specific Bevy UI primitives that implement the Slate visual language used
 by Delta Slayers.
 
+## Visual direction
+
+Slate uses restrained visual hierarchy: one primary action per context, quieter secondary controls, spacing to group related content, and consistent treatment for equivalent controls. Ordinary panels and controls do not need decorative borders. Surface depth is communicated with subtle elevation and soft shadows; accent and semantic colours are reserved for meaningful states.
+
 ## Use
 
 Add the plugin once:
