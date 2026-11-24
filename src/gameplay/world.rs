@@ -38,8 +38,8 @@ pub(super) fn setup_game(
     startup.has_saved_position = saved_pos != Vec3::ZERO;
     startup.spawn_point_applied = startup.has_saved_position;
 
-    const WORLD_SCENE_PATH: &str = "worlds/overworld.glb";
-    let has_blender_world = std::path::Path::new("assets/worlds/overworld.glb").is_file();
+    const WORLD_SCENE_PATH: &str = "worlds/town-map.glb";
+    let has_blender_world = std::path::Path::new("assets/worlds/town-map.glb").is_file();
     startup.scene_ready = !has_blender_world;
     visited.0 = saved_visited;
 
