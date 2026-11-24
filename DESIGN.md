@@ -152,6 +152,10 @@ right click closes the topmost layer. The inventory's Menu button opens the
 same layer, preserving the inventory underneath it. Its open state is
 represented by UiLayer::GameMenu, and a projection system controls Visibility.
 
+## Visual hierarchy and Slate UI principles
+
+The interface should have a small number of deliberate attention anchors. Avoid giving every panel, control, label, and status the same visual weight. Use spacing and grouping before adding separators; reserve the strongest contrast and filled treatment for the current primary action or selected state. Keep secondary actions quieter, use semantic colours only where they communicate meaning, and avoid decorative borders around ordinary surfaces. Distinguish layered surfaces with restrained elevation and soft shadows rather than outlining every container. Use consistent styling for equivalent controls and keep related information close together. Hover references should be discoverable but should not compete with the main task until the user deliberately pauses over them.
+
 ## Reusable Slate UI library
 
 The workspace crate `delta-slayers-ui` contains the reusable presentation
@@ -160,7 +164,8 @@ layer. It is deliberately game-specific rather than a generic widget framework.
 - `SlatePlugin` registers the `SlateTheme` resource and the small systems used
   for button hover states and delayed reference cards.
 - `SlateTheme` is the single palette source. Replace or mutate the resource to
-  customise colours across widgets.
+  customise colours across widgets. Surface hierarchy relies on tonal steps,
+  spacing, and restrained shadows rather than decorative outlines.
 - `action_button`, `panel`, `page_header`, `section_header`, `badge`,
   `stat_bar`, and `item_tile` are composable BSN scenes.
 - `reference_term` is a hoverable text control whose information card opens
