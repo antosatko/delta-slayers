@@ -54,7 +54,7 @@ pub fn panel(width: Val) -> impl Scene {
             border_radius: BorderRadius::all(px(7)),
         }
         template(|ctx| Ok(BackgroundColor(ctx.resource::<SlateTheme>().panel)))
-        Shadow([
+        BoxShadow([
             ShadowStyle {
                 color: Color::srgba(0.0, 0.0, 0.0, 0.16),
                 x_offset: px(0),
@@ -258,7 +258,7 @@ pub fn reference_term(
             bevy::ui::GlobalZIndex(100)
             Visibility::Hidden
             template(|ctx| Ok(BackgroundColor(ctx.resource::<SlateTheme>().panel_raised)))
-            Shadow([
+            BoxShadow([
                 ShadowStyle {
                     color: Color::srgba(0.0, 0.0, 0.0, 0.24),
                     x_offset: px(0),
