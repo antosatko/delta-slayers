@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::zone::ZoneKind;
+use crate::gameplay::zones::ZoneKind;
 
 /// Overlay navigation is the single source of truth for in-game UI state.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]

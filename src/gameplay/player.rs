@@ -3,7 +3,7 @@ use bevy::{
     prelude::*,
 };
 
-use crate::ui_stack::UiStack;
+use crate::ui::stack::UiStack;
 
 #[derive(Component)]
 pub struct Player {

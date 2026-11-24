@@ -26,6 +26,20 @@ Current features:
 - Minimap and cursor toggle
 - Save/load of player position and visited zones
 
+## Source layout
+
+The source is grouped by responsibility rather than by individual file type:
+
+- `app/` owns application startup and top-level application states.
+- `gameplay/` owns gameplay data, world setup, simulation systems, and
+  persistence. Its modules are split by domain (player, zones, inventory).
+- `ui/` owns overlay navigation, BSN screens, input handling, and projection
+  systems. Screen definitions live in `ui/screens/`; systems that synchronize
+  state into presentation components live in `ui/systems/`.
+
+Gameplay data is authoritative. The UI reads it and sends requests; it does not
+own gameplay rules or construct gameplay entities.
+
 ## Tech stack
 
 - [Rust](https://www.rust-lang.org/)

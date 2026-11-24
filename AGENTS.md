@@ -12,6 +12,18 @@ Read DESIGN.md before making architectural changes.
   ChildSpawnerCommands, children!, or manual entity construction.
 - World/gameplay entities may still be spawned imperatively from gameplay setup.
 
+## Source structure
+
+- Keep `main.rs` limited to declaring root modules and starting the app.
+- Put application setup and top-level states in `app/`.
+- Put authoritative gameplay models, simulation, world setup, and persistence
+  in `gameplay/`.
+- Put UI navigation, BSN scenes, input, and presentation projection in `ui/`.
+- Keep screen definitions in `ui/screens/` and state-to-view systems in
+  `ui/systems/`.
+- Do not move gameplay data into UI modules to make it easier for a screen to
+  access. UI should depend on gameplay models, not the reverse.
+
 ## Architecture
 
 - Follow the MVVM separation described in DESIGN.md.

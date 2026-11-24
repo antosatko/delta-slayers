@@ -1,46 +1,20 @@
-use bevy::{
-    prelude::*,
-    ui_widgets::{Activate, Button},
-};
+use bevy::{prelude::*, ui_widgets::{Activate, Button}};
 
-use crate::state::AppState;
+use crate::app::state::AppState;
 
-pub struct TransitionsPlugin;
-
-impl Plugin for TransitionsPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_systems(
-            OnEnter(AppState::Continue),
-            continue_screen.spawn(),
-        )
-        .add_systems(
-            OnEnter(AppState::Load),
-            load_screen.spawn(),
-        )
-        .add_systems(
-            OnEnter(AppState::Settings),
-            settings_screen.spawn(),
-        )
-        .add_systems(
-            OnEnter(AppState::Credits),
-            credits_screen.spawn(),
-        );
-    }
-}
-
-fn continue_screen() -> impl SceneList {
+pub(in crate::ui) fn continue_screen() -> impl SceneList {
     placeholder_screen(AppState::Continue, "Continue")
 }
 
-fn load_screen() -> impl SceneList {
+pub(in crate::ui) fn load_screen() -> impl SceneList {
     placeholder_screen(AppState::Load, "Load Game")
 }
 
-fn settings_screen() -> impl SceneList {
+pub(in crate::ui) fn settings_screen() -> impl SceneList {
     placeholder_screen(AppState::Settings, "Settings")
 }
 
-fn credits_screen() -> impl SceneList {
+pub(in crate::ui) fn credits_screen() -> impl SceneList {
     placeholder_screen(AppState::Credits, "Credits")
 }
 

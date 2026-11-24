@@ -1,19 +1,8 @@
-use bevy::{
-    prelude::*,
-    ui_widgets::{Activate, Button},
-};
+use bevy::{prelude::*, ui_widgets::{Activate, Button}};
 
-use crate::state::AppState;
+use crate::app::state::AppState;
 
-pub struct MenuPlugin;
-
-impl Plugin for MenuPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(AppState::MainMenu), setup_menu.spawn());
-    }
-}
-
-fn setup_menu() -> impl SceneList {
+pub(in crate::ui) fn scene() -> impl SceneList {
     bsn_list! {
         Camera2d
         DespawnOnExit::<AppState>(AppState::MainMenu)
