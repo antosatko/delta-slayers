@@ -368,7 +368,7 @@
       scope.querySelectorAll("[data-select-item]").forEach(other => other.classList.toggle("selected", other === button));
       const fields = {
         title: "[data-selection-title]", meta: "[data-selection-meta]",
-        description: "[data-selection-description]", visual: "[data-selection-visual]"
+        description: "[data-selection-description]", content: "[data-selection-content]", visual: "[data-selection-visual]"
       };
       for (const [key, selector] of Object.entries(fields)) {
         const node = target.querySelector(selector);
@@ -376,7 +376,18 @@
         if (key === "visual") node.textContent = button.dataset.itemVisual || "•";
         else node.textContent = button.dataset["item" + key[0].toUpperCase() + key.slice(1)] || "";
       }
-    });
+      const factsNode = target.querySelector("[data-selection-facts]");
+      if (factsNode) {
+        factsNode.replaceChildren();
+        const pairs = (button.dataset.itemFacts || "").split(";").filter(Boolean);
+        for (const pair of pairs) {
+          const separator = pair.indexOf("|");
+          if (separator < 0) continue;
+          const row = el("div", "fact-row");
+          row.append(el("dt", "", pair.slice(0, separator)), el("dd", "", pair.slice(separator + 1)));
+          factsNode.append(row);
+        }
+      }    });
   });
 
   document.querySelectorAll("[data-map-place]").forEach(button => {
