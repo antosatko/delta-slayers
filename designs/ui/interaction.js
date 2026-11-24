@@ -220,7 +220,9 @@
     }
 
     const parentId = state.history[state.history.length - 1];
-    back.textContent = parentId ? "Back to " + entries[parentId].title : "Back";
+    const backLabel = parentId ? "Return to " + entries[parentId].title : "Go back";
+    back.setAttribute("aria-label", backLabel);
+    back.title = backLabel;
     back.hidden = state.history.length === 0;
     card.hidden = false;
     positionCard(state);
