@@ -79,6 +79,7 @@ fn game_ui_scene() -> impl SceneList {
         Camera {
             order: 1,
         }
+        IsDefaultUiCamera
         DespawnOnExit::<AppState>(AppState::InGame)
         --
         @shop_panel()
@@ -867,7 +868,10 @@ fn pause_overlay_visibility_system(
     }
 }
 
-fn sync_cursor(ui: Res<UiStack>, mut cursor: Single<&mut CursorOptions>) {
+fn sync_cursor(
+    ui: Res<UiStack>,
+    mut cursor: Single<&mut CursorOptions, With<PrimaryWindow>>,
+) {
     let grabbed = ui.cursor_grabbed();
     cursor.visible = !grabbed;
     cursor.grab_mode = if grabbed {
