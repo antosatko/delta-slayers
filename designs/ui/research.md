@@ -101,3 +101,59 @@ These sources do not prove that a particular font, dark theme, ornamental
 border, or tooltip density is best for adult fantasy players. That is a matter
 for prototype comparison and play-testing. The three visual directions are
 intentionally hypotheses, not research-backed winners.
+
+
+### 7. Use a reference card when the content becomes interactive
+
+A conventional tooltip is appropriate for a short, non-interactive explanation.
+The WAI-ARIA Authoring Practices tooltip pattern states that tooltip widgets do
+not receive focus; content that contains focusable elements should use a
+non-modal dialog pattern instead. Carbon makes a similar distinction between
+brief tooltips and interactive popovers, and advises against nesting popovers
+because it creates confusing interaction and accessibility problems.
+
+For this prototype, the larger hover surface is therefore treated as a
+non-modal reference card rather than a tooltip. It may contain prose, a
+structured facts section, and links to other entries.
+
+Sources:
+- [WAI-ARIA Authoring Practices — Tooltip Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/)
+- [Carbon Design System — Popover guidelines](https://www.carbondesignsystem.com/building-blocks/core/components/popover/guidelines)
+- [Carbon Design System — Toggletip guidelines](https://www.carbondesignsystem.com/building-blocks/core/components/toggletip/guidelines)
+
+### 8. Make references recursive without nesting popups
+
+Each reference entry can link to other entries, and those entries can link
+back or onward. The prototype keeps one card open and navigates its contents
+to the selected entry. A Back action walks the history stack. This gives the
+content a recursive graph without stacking multiple overlapping popovers.
+
+The content model is intentionally simple:
+
+- title, category, and icon identify the entry.
+- description is one or more paragraphs; paragraphs can contain links to
+  other entries.
+- factsTitle and facts provide an optional structured second section.
+  The same structure can represent creature attributes, item statistics,
+  requirements, effects, resistances, crafting data, or lore metadata.
+- related provides optional links to other entries.
+
+The current examples use only narrative and investigation records. They do not
+introduce unconfirmed combat statistics into the fictional contract.
+
+Interaction rules in the prototype:
+- Hover or keyboard focus opens the card.
+- Clicking the term pins the card open so the player can move into it.
+- The pointer can move from the term onto the card without closing it.
+- Selecting a linked term opens that entry in the same card and records the
+  previous entry.
+- Back moves one step up the path; Escape moves back, then closes at the root.
+- A single card is visible at a time.
+
+WCAG 2.2 Success Criterion 1.4.13 requires content shown on hover or focus to
+be dismissible, hoverable, and persistent. The card follows those principles.
+The HTML prototype uses a non-modal dialog role because its contents contain
+interactive links; final Bevy UI input and controller focus handling still
+need to be implemented and tested in game.
+
+Source: [W3C — Understanding WCAG 2.2 SC 1.4.13](https://www.w3.org/WAI/WCAG22/Understanding/content-on-hover-or-focus.html)
