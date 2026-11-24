@@ -1,7 +1,5 @@
 use bevy::prelude::*;
 
-use bevy::prelude::*;
-
 #[derive(Resource, Default)]
 pub struct CursorGrabbed(pub bool);
 
