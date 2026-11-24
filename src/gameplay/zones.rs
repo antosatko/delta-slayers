@@ -44,7 +44,7 @@ pub struct FastTravelRequest(pub Option<ZoneKind>);
 /// Detects authored zones in world space, including zones nested under
 /// transformed glTF objects.
 pub fn zone_detection_system(
-    player_q: Query<&GlobalTransform, With<Player>>,
+    player_q: Query<&Transform, With<Player>>,
     zones: Query<(&GlobalTransform, &TriggerZone)>,
     mut nearby: ResMut<NearbyZone>,
     mut visited: ResMut<VisitedZones>,
@@ -52,7 +52,7 @@ pub fn zone_detection_system(
     let Ok(player_transform) = player_q.single() else {
         return;
     };
-    let player_pos = player_transform.translation();
+    let player_pos = player_transform.translation;
 
     let mut found = None;
     for (zone_transform, zone) in &zones {
