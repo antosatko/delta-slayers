@@ -24,6 +24,8 @@ Within those areas:
 
 | Module | Responsibility |
 | --- | --- |
+| `app/mod.rs` | Application startup and plugin composition |
+| `app/state.rs` | Top-level application states |
 | `gameplay/player.rs` | Player component, movement, and look |
 | `gameplay/zones.rs` | Zone types, proximity detection, visited-zone data, and travel requests |
 | `gameplay/inventory.rs` | Authoritative inventory data |
@@ -130,6 +132,7 @@ only change state; projection systems control Visibility.
 
 ## State ownership
 
+- `AppState` owns top-level application navigation.
 - UiStack owns overlay navigation and cursor preference.
 - InventoryModel owns currency, item, and equipment data.
 - InventoryViewModel owns derived display values.
