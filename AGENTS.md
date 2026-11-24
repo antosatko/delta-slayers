@@ -1,0 +1,49 @@
+# Agent instructions
+
+Read DESIGN.md before making architectural changes.
+
+## Project constraints
+
+- Rust 2024, Bevy 0.20.1.
+- All game UI must be authored with Bevy Scene Notation (BSN).
+- Use current BSN syntax: @scene() for scene composition and -- between
+  sibling entities in Children [ ... ] and bsn_list! { ... }.
+- Do not generate UI trees with Commands::spawn, with_children,
+  ChildSpawnerCommands, children!, or manual entity construction.
+- World/gameplay entities may still be spawned imperatively from gameplay setup.
+
+## Architecture
+
+- Follow the MVVM separation described in DESIGN.md.
+- Keep gameplay/domain state out of UI components.
+- Keep display-only derived values in a ViewModel resource.
+- UiStack is the single source of truth for in-game overlay navigation. Never
+  add a second boolean for a state already represented by a UI layer.
+- UI observers should mutate state or enqueue requests, not edit Visibility,
+  CursorOptions, layout, or text components directly.
+- Projection systems own synchronization from state/ViewModel to UI.
+- UI requests gameplay actions through request resources such as
+  FastTravelRequest; gameplay systems carry them out.
+- Preserve explicit system ordering using UiSet::Input and
+  UiSet::Projection when introducing UI-related systems.
+
+## Code quality
+
+- Prefer small, cohesive systems and scene functions over a monolithic module.
+- Avoid hidden ordering assumptions and duplicated sources of truth.
+- Do not swallow new errors with unwrap() unless the invariant is explicit
+  and local.
+- Do not add dependencies without a concrete requirement.
+- Keep comments factual and useful.
+- Update DESIGN.md when architecture or conventions change.
+
+## Verification
+
+Run:
+
+    cargo fmt --check
+    cargo check
+    cargo test
+
+Report commands that could not be run and distinguish verified results from
+reasoned expectations.
