@@ -534,3 +534,7 @@ h1 { font-size:clamp(1.65rem,2.5vw,2.2rem); }
   .map-stage { min-height:360px; }
 }
 @media (prefers-reduced-motion:reduce) { .reference-card { scroll-behavior:auto; } }
+
+.recipe-copy { display:flex; align-items:center; gap:8px; min-width:0; }
+.recipe-icon { width:18px; height:18px; flex:0 0 18px; color:var(--accent); }
+.detail-icon { width:22px; height:22px; flex:0 0 22px; }
