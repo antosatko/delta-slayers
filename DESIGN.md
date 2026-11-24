@@ -27,6 +27,7 @@ Within those areas:
 | `app/mod.rs` | Application startup and plugin composition |
 | `app/state.rs` | Top-level application states |
 | `gameplay/player.rs` | Player component, movement, and look |
+| `gameplay/spawning.rs` | Reflected spawn-point authoring types and initial player spawn selection |
 | `gameplay/zones.rs` | Zone types, proximity detection, visited-zone data, and travel requests |
 | `gameplay/inventory.rs` | Authoritative inventory data |
 | `gameplay/world.rs` | In-game world and player setup |
