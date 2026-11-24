@@ -70,7 +70,8 @@
     ledger: '<path d="M6 4h12v16H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="M8 8h7M8 12h7M8 16h4"/>',
     water: '<path d="M12 3c-2.5 3.5-6 7.4-6 11a6 6 0 0 0 12 0c0-3.6-3.5-7.5-6-11z"/><path d="M8.5 15c.5 1.3 1.6 2 3 2"/>',
     guild: '<path d="M12 3 20 6v5c0 5-3.2 8-8 10-4.8-2-8-5-8-10V6z"/><path d="M9 10h6M9 13h6"/>',
-    harvest: '<path d="M12 21V4M12 9c-3 0-5-2-5-5 3 0 5 2 5 5zM12 13c3 0 5-2 5-5-3 0-5 2-5 5zM12 17c-3 0-5-2-5-5 3 0 5 2 5 5z"/>'
+    harvest: '<path d="M12 21V4M12 9c-3 0-5-2-5-5 3 0 5 2 5 5zM12 13c3 0 5-2 5-5-3 0-5 2-5 5zM12 17c-3 0-5-2-5-5 3 0 5 2 5 5z"/>',
+    item: '<path d="M5 7.5 12 4l7 3.5-7 3.5z"/><path d="M5 7.5V17l7 3 7-3V7.5M12 11v9"/>'
   };
 
   function el(tag, className, text) {
@@ -270,6 +271,26 @@
     renderEntry(state, previous, true);
     state.trigger.setAttribute("aria-expanded", "true");
   }
+
+  // Item inspection reuses the reference card, including its 600 ms hover delay.
+  document.querySelectorAll("[data-item-inspect]").forEach(trigger => {
+    const itemId = "item-" + (trigger.dataset.itemKey || trigger.dataset.itemTitle || trigger.textContent)
+      .toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    trigger.dataset.entryTrigger = itemId;
+    const facts = (trigger.dataset.itemFacts || "").split(";").filter(Boolean).map(pair => {
+      const separator = pair.indexOf("|");
+      return separator < 0 ? [pair, ""] : [pair.slice(0, separator), pair.slice(separator + 1)];
+    });
+    entries[itemId] = {
+      title: trigger.dataset.itemTitle || trigger.textContent.trim(),
+      category: trigger.dataset.itemMeta || "Item",
+      icon: "item",
+      description: [[{ text: trigger.dataset.itemDescription || "No further information is available." }]],
+      factsTitle: "Item details",
+      facts,
+      related: []
+    };
+  });
 
   const triggers = [...document.querySelectorAll("[data-entry-trigger]")];
   for (const trigger of triggers) {
