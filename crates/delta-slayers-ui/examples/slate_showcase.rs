@@ -11,7 +11,7 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_plugins(SlatePlugin)
-        .add_systems(Startup, scene().spawn())
+        .add_systems(Startup, scene.spawn())
         .run();
 }
 
@@ -187,6 +187,7 @@ fn sidebar() -> impl Scene {
 }
 
 fn nav_item(icon: SlateIcon, label: &'static str, active: bool) -> impl Scene {
+    let icon_glyph = icon.glyph();
     bsn! {
         Node {
             width: percent(100),
@@ -202,12 +203,14 @@ fn nav_item(icon: SlateIcon, label: &'static str, active: bool) -> impl Scene {
             Ok(BackgroundColor(if active { theme.panel } else { Color::NONE }))
         })
         template(|ctx| Ok(BorderColor::all(ctx.resource::<SlateTheme>().line)))
-        Text(icon.glyph())
-        TextFont { font_size: px(17) }
-        template(|ctx| Ok(TextColor(ctx.resource::<SlateTheme>().accent)))
-        --
-        Text(label)
-        TextFont { font_size: px(13) }
-        template(|ctx| Ok(TextColor(ctx.resource::<SlateTheme>().muted)))
+        Children [
+            Text(icon_glyph)
+            TextFont { font_size: px(17) }
+            template(|ctx| Ok(TextColor(ctx.resource::<SlateTheme>().accent)))
+            --
+            Text(label)
+            TextFont { font_size: px(13) }
+            template(|ctx| Ok(TextColor(ctx.resource::<SlateTheme>().muted)))
+        ]
     }
 }
