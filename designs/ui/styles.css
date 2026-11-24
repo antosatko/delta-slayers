@@ -812,3 +812,102 @@ h1 { font-size:clamp(1.65rem,2.5vw,2.2rem); }
 @media (max-width: 520px) {
   .app-shell { width: calc(100% - 10px); }
 }
+
+
+/* Shared screen rhythm and task-oriented layouts */
+.page-heading { align-items: center; margin-bottom: 20px; }
+.page-heading > div { min-width: 0; }
+.page-subtitle { max-width: 62ch; }
+.panel-head { min-height: 44px; padding: 12px 16px 8px; }
+.panel-body { padding: 14px 16px 16px; }
+.trade-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 290px;
+  gap: 16px;
+  align-items: start;
+}
+.trade-market, .trade-receipt { min-width: 0; }
+.trade-tabs { display: flex; gap: 6px; padding: 0 16px 10px; }
+.trade-tabs .tab-button { min-width: 112px; }
+.trade-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 11px 16px;
+  border-bottom: 1px solid rgb(255 255 255 / 6%);
+}
+.trade-row:last-child { border-bottom: 0; }
+.trade-row > div:first-child { min-width: 0; }
+.trade-row strong { display: block; font-size: .88rem; font-weight: 620; }
+.trade-row small { display: block; margin-top: 2px; color: var(--muted); font-size: .77rem; }
+.trade-price { display: flex; align-items: center; gap: 12px; }
+.trade-price > strong { min-width: 42px; text-align: right; font-variant-numeric: tabular-nums; }
+.trade-price .button { min-width: 62px; min-height: 31px; padding: 5px 9px; font-size: .78rem; }
+.cart-list { padding: 4px 16px; }
+.cart-line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgb(255 255 255 / 6%);
+  font-size: .82rem;
+}
+.cart-line button { padding: 4px 7px; border: 0; border-radius: 4px; background: var(--surface-alt); color: var(--muted); font-size: .72rem; cursor: pointer; }
+.cart-line button:hover { color: var(--ink); background: var(--surface-raised); }
+.trade-total { margin-top: 8px; padding: 14px 16px; background: var(--surface-deep); }
+.trade-total strong { font-size: 1.2rem; }
+.trade-actions { display: grid; gap: 8px; }
+.trade-actions .button { width: 100%; justify-content: center; }
+.trade-actions .action-feedback { margin: 0; }
+.trade-balance { display: flex; justify-content: space-between; gap: 8px; margin: 8px 0 0; padding-top: 10px; border-top: 1px solid rgb(255 255 255 / 6%); color: var(--muted); font-size: .78rem; }
+.trade-balance strong { color: var(--ink); font-variant-numeric: tabular-nums; }
+.workshop-resources { margin-bottom: 16px; }
+.resource-strip { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; padding: 4px 16px 16px; }
+.resource-cell { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 0; padding: 9px 10px; border-radius: 6px; background: var(--surface-alt); }
+.resource-cell span { overflow: hidden; color: var(--muted); font-size: .76rem; text-overflow: ellipsis; white-space: nowrap; }
+.resource-cell strong { color: var(--ink); font-size: .92rem; font-variant-numeric: tabular-nums; }
+.workshop-layout {
+  display: grid;
+  grid-template-columns: minmax(245px, 300px) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+.workshop-layout:not(.has-open-detail) { grid-template-columns: minmax(0, 1fr); }
+.workshop-layout .panel { min-width: 0; }
+.recipe-list { display: grid; gap: 3px; padding: 7px; }
+.recipe-button {
+  width: 100%;
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 11px;
+  text-align: left;
+}
+.recipe-copy { display: flex; align-items: center; gap: 11px; min-width: 0; }
+.recipe-copy > span { min-width: 0; }
+.recipe-icon { flex: 0 0 18px; width: 18px; height: 18px; color: var(--accent); }
+.recipe-button strong { display: block; overflow: hidden; font-size: .85rem; font-weight: 620; text-overflow: ellipsis; white-space: nowrap; }
+.recipe-button small { display: block; margin-top: 2px; color: var(--muted); font-size: .74rem; }
+.workshop-detail .panel-body { padding: 18px; }
+.workshop-ingredients-heading { margin-top: 20px; }
+.workshop-ingredients { padding: 0; }
+@media (max-width: 1120px) {
+  .trade-layout { grid-template-columns: minmax(0, 1fr) 270px; }
+  .resource-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .workshop-layout.has-open-detail { grid-template-columns: minmax(220px, 270px) minmax(0, 1fr); }
+}
+@media (max-width: 820px) {
+  .trade-layout, .workshop-layout, .workshop-layout.has-open-detail { grid-template-columns: minmax(0, 1fr); }
+  .trade-receipt { grid-row: 1; }
+  .resource-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 520px) {
+  .trade-row { gap: 8px; padding: 10px 12px; }
+  .trade-price { gap: 7px; }
+  .resource-strip { padding-inline: 10px; }
+  .trade-tabs { padding-inline: 10px; }
+}
