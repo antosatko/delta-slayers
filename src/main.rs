@@ -23,6 +23,7 @@ fn main() {
             ..default()
         })
         .init_state::<AppState>()
+        .init_resource::<ui_stack::UiStack>()
         .add_plugins((
             menu::MenuPlugin,
             transitions::TransitionsPlugin,
