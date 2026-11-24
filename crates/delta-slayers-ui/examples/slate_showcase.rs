@@ -36,7 +36,6 @@ fn showcase() -> impl Scene {
                 padding: UiRect::axes(px(24), px(20)),
                 flex_direction: FlexDirection::Column,
                 row_gap: px(14),
-                overflow: Overflow::clip_y(),
             }
             Children [
                 @page_header(

@@ -99,6 +99,7 @@ pub enum SlateStatus {
 #[derive(Component, Clone, Copy, Debug, Default)]
 pub(crate) struct SlateButtonStyle {
     pub tone: SlateButtonTone,
+    pub selected: bool,
 }
 
 /// Installs the palette and the small behaviours shared by Slate widgets.
@@ -122,12 +123,12 @@ fn update_button_styles(
     )>,
 ) {
     for (hovered, pressed, style, mut background, mut border) in &mut buttons {
-        *background = BackgroundColor(theme.button_background(
-            style.tone,
-            hovered.get(),
-            pressed.is_some(),
-        ));
-        *border = BorderColor::all(if hovered.get() {
+        *background = BackgroundColor(if style.selected {
+            theme.panel_raised
+        } else {
+            theme.button_background(style.tone, hovered.get(), pressed.is_some())
+        });
+        *border = BorderColor::all(if style.selected || hovered.get() {
             theme.accent
         } else {
             theme.line

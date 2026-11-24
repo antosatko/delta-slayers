@@ -70,8 +70,7 @@ pub fn root() -> impl Scene {
         Node {
             width: percent(100),
             height: percent(100),
-            flex_direction: FlexDirection::Column,
-            overflow: Overflow::clip(),
+            flex_direction: FlexDirection::Row,
         }
         template(|ctx| {
             Ok(BackgroundColor(ctx.resource::<SlateTheme>().page))
@@ -162,7 +161,7 @@ pub fn action_button(
     bsn! {
         Button
         Hovered(false)
-        SlateButtonStyle { tone }
+        SlateButtonStyle { tone, selected: false }
         Node {
             min_height: px(38),
             padding: UiRect::axes(px(12), px(7)),
@@ -173,7 +172,7 @@ pub fn action_button(
             border: UiRect::all(px(1)),
             border_radius: BorderRadius::all(px(3)),
         }
-        template(|ctx| {
+        template(move |ctx| {
             let theme = ctx.resource::<SlateTheme>();
             Ok(BackgroundColor(theme.button_background(tone, false, false)))
         })
@@ -271,7 +270,7 @@ pub fn stat_bar(
                     height: percent(100),
                     border_radius: BorderRadius::all(px(2)),
                 }
-                template(|ctx| {
+                template(move |ctx| {
                     Ok(BackgroundColor(ctx.resource::<SlateTheme>().status_color(status)))
                 })
             ]
@@ -289,7 +288,7 @@ pub fn item_tile(
     bsn! {
         Button
         Hovered(false)
-        SlateButtonStyle { tone: SlateButtonTone::Secondary }
+        SlateButtonStyle { tone: SlateButtonTone::Secondary, selected }
         Node {
             width: px(112),
             min_height: px(104),
@@ -301,7 +300,7 @@ pub fn item_tile(
             border: UiRect::all(px(1)),
             border_radius: BorderRadius::all(px(3)),
         }
-        template(|ctx| {
+        template(move |ctx| {
             let theme = ctx.resource::<SlateTheme>();
             Ok(BackgroundColor(if selected { theme.panel_raised } else { theme.panel_alt }))
         })
