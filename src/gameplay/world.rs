@@ -1,8 +1,8 @@
 use bevy::{
     asset::RenderAssetUsages,
+    gltf::GltfAssetLabel,
     prelude::*,
     render::render_resource::{Extent3d, TextureDimension, TextureFormat},
-    gltf::GltfAssetLabel,
     world_serialization::{WorldAssetRoot, WorldInstanceReady},
 };
 
@@ -61,8 +61,12 @@ pub(super) fn setup_game(
     };
     commands.spawn((
         Camera3d::default(),
-        Transform::from_xyz(spawn_pos.x, spawn_pos.y, spawn_pos.z)
-            .with_rotation(Quat::from_euler(EulerRot::YXZ, saved_yaw, saved_pitch, 0.0)),
+        Transform::from_xyz(spawn_pos.x, spawn_pos.y, spawn_pos.z).with_rotation(Quat::from_euler(
+            EulerRot::YXZ,
+            saved_yaw,
+            saved_pitch,
+            0.0,
+        )),
         Player {
             yaw: saved_yaw,
             pitch: saved_pitch,
@@ -74,9 +78,7 @@ pub(super) fn setup_game(
         commands
             .spawn((
                 WorldAssetRoot(
-                    asset_server.load(
-                        GltfAssetLabel::Scene(0).from_asset(WORLD_SCENE_PATH),
-                    ),
+                    asset_server.load(GltfAssetLabel::Scene(0).from_asset(WORLD_SCENE_PATH)),
                 ),
                 DespawnOnExit::<AppState>(AppState::InGame),
             ))
@@ -210,9 +212,6 @@ pub(super) fn setup_game(
     }
 }
 
-fn world_instance_ready(
-    _event: On<WorldInstanceReady>,
-    mut startup: ResMut<WorldStartup>,
-) {
+fn world_instance_ready(_event: On<WorldInstanceReady>, mut startup: ResMut<WorldStartup>) {
     startup.scene_ready = true;
 }
