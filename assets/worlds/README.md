@@ -3,7 +3,7 @@
 Export the main Blender scene to:
 
 ```text
-assets/worlds/overworld.glb
+assets/worlds/town-map.glb
 ```
 
 The game automatically loads scene 0 from this file when it exists. If it is
