@@ -123,7 +123,7 @@ pub fn sync_cursor(ui: Res<UiStack>, mut cursor: Single<&mut CursorOptions, With
 }
 
 pub fn update_minimap(
-    player: Query<&GlobalTransform, With<Player>>,
+    player: Query<&Transform, With<Player>>,
     zones: Query<(&GlobalTransform, &TriggerZone)>,
     mut dots: Query<(&MinimapZoneDot, &mut Node, &mut Visibility)>,
 ) {
@@ -131,7 +131,7 @@ pub fn update_minimap(
         return;
     };
 
-    let player_position = player_transform.translation();
+    let player_position = player_transform.translation
     let zone_positions: Vec<(ZoneKind, Vec3)> = zones
         .iter()
         .map(|(transform, zone)| (zone.kind, transform.translation()))
