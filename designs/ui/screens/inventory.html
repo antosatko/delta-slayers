@@ -17,13 +17,13 @@
     <div class="app-layout">
       <nav class="rail" aria-label="Main navigation">
         <p class="rail-caption">Guild office</p>
-        <a class="nav-item" href="contract.html"><span>Contracts</span><span class="nav-count">4</span></a>
-        <a class="nav-item active" href="inventory.html" aria-current="page"><span>Inventory</span></a>
-        <a class="nav-item" href="character.html"><span>Character</span></a>
-        <a class="nav-item" href="journal.html"><span>Journal</span><span class="nav-count">3</span></a>
-        <a class="nav-item" href="map.html"><span>Map</span></a>
-        <a class="nav-item" href="trade.html"><span>Trade</span></a>
-        <a class="nav-item" href="workshop.html"><span>Workshop</span></a>
+        <a class="nav-item" href="contract.html"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.75h7l4 4v12.5H7z"/><path d="M14 3.75v4h4M10 12h5M10 15.5h5"/></svg><span class="nav-label">Contracts</span><span class="nav-count">4</span></a>
+        <a class="nav-item active" href="inventory.html" aria-current="page"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.5 12 4l8 4.5-8 4.5z"/><path d="M4 8.5V17l8 4 8-4V8.5M12 13v8"/></svg><span class="nav-label">Inventory</span></a>
+        <a class="nav-item" href="character.html"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.25"/><path d="M5 20c.5-3.5 2.8-5.25 7-5.25s6.5 1.75 7 5.25"/></svg><span class="nav-label">Character</span></a>
+        <a class="nav-item" href="journal.html"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h13v16H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="M8.5 8h7M8.5 12h7M8.5 16h5"/></svg><span class="nav-label">Journal</span><span class="nav-count">3</span></a>
+        <a class="nav-item" href="map.html"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3.5 6 5-2 7 2 5-2v14l-5 2-7-2-5 2z"/><path d="M8.5 4v14M15.5 6v14"/></svg><span class="nav-label">Map</span></a>
+        <a class="nav-item" href="trade.html"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h14M14 4l4 4-4 4M20 16H6M10 12l-4 4 4 4"/></svg><span class="nav-label">Trade</span></a>
+        <a class="nav-item" href="workshop.html"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 5.5 18.5 10 9 19.5a2.1 2.1 0 0 1-3-3z"/><path d="m12.5 7 4.5-4.5 4.5 4.5L17 11.5M5 4l4 4M4 5l4 4"/></svg><span class="nav-label">Workshop</span></a>
         <div class="rail-note"><strong>Greybridge Chapter</strong>North road, river quarter</div>
       </nav>
       <main class="workspace">
@@ -37,12 +37,12 @@
     <div class="panel-body">
       <div class="toolbar">
         <div class="filter-row">
-          <button class="filter-button active" type="button" data-filter-value="all">All</button>
-          <button class="filter-button" type="button" data-filter-value="equipment">Equipment</button>
-          <button class="filter-button" type="button" data-filter-value="consumable">Consumables</button>
-          <button class="filter-button" type="button" data-filter-value="material">Materials</button>
+          <button class="filter-button active" type="button" data-filter-value="all"><svg class="ui-icon filter-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg><span>All</span></button>
+          <button class="filter-button" type="button" data-filter-value="equipment"><svg class="ui-icon filter-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m14 4 6 6-3 3-6-6z"/><path d="m11 7-7 7a2.1 2.1 0 0 0 3 3l7-7M4 20h5"/></svg><span>Equipment</span></button>
+          <button class="filter-button" type="button" data-filter-value="consumable"><svg class="ui-icon filter-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v5l-4 9a3 3 0 0 0 2.7 4h6.6A3 3 0 0 0 18 17l-4-9V3"/><path d="M8 15h8"/></svg><span>Consumables</span></button>
+          <button class="filter-button" type="button" data-filter-value="material"><svg class="ui-icon filter-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9"/></svg><span>Materials</span></button>
         </div>
-        <input class="search-input" type="search" placeholder="Search inventory" aria-label="Search inventory" data-filter-search>
+        <label class="search-wrap"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.3"/><path d="m16 16 4 4"/></svg><input class="search-input" type="search" placeholder="Search inventory" aria-label="Search inventory" data-filter-search></label>
       </div>
       <div class="item-grid">
         <button class="item-tile selectable selected" type="button" data-filter-item data-category="equipment" data-search="iron longsword weapon" data-select-item data-selection-target="#inventory-detail" data-item-title="Iron longsword" data-item-meta="Weapon · One-handed · 3.2 kg" data-item-description="A serviceable guild issue blade. The edge has been sharpened recently; the leather wrap is worn but secure." data-item-facts="Condition|Good;Value|24 crowns;Durability|81 / 100" data-item-visual="⚔">
@@ -86,9 +86,9 @@
         <div class="fact-row"><dt>Durability</dt><dd>81 / 100</dd></div>
       </dl>
       <div class="detail-actions" data-action-scope>
-        <button class="button primary" type="button" data-demo-action="Equipment state changed in this preview only.">Equip</button>
-        <button class="button" type="button" data-demo-action="Item split preview opened.">Split</button>
-        <button class="button" type="button" data-demo-action="Drop action previewed.">Drop</button>
+        <button class="button primary" type="button" data-demo-action="Equipment state changed in this preview only."><svg class="ui-icon button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg><span>Equip</span></button>
+        <button class="button" type="button" data-demo-action="Item split preview opened."><svg class="ui-icon button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5v14M17 5v14M7 12h10"/></svg><span>Split</span></button>
+        <button class="button" type="button" data-demo-action="Drop action previewed."><svg class="ui-icon button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 20h14"/></svg><span>Drop</span></button>
         <p class="action-feedback" data-action-feedback role="status" aria-live="polite"></p>
       </div>
     </div>
