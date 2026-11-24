@@ -922,6 +922,7 @@ h1 { font-size:clamp(1.65rem,2.5vw,2.2rem); }
   color: var(--ink); text-align: left; text-decoration: none; cursor: pointer;
 }
 .item-display:hover, .item-display:focus-visible { background: var(--surface-raised); }
+.item-display.selectable.selected { box-shadow: none !important; background: var(--surface-raised) !important; }
 .item-display .item-image {
   flex: 0 0 34px; width: 34px; height: 34px;
   display: grid; place-items: center; border-radius: 5px;
@@ -942,7 +943,7 @@ h1 { font-size:clamp(1.65rem,2.5vw,2.2rem); }
   color: var(--muted); font-size: .7rem; font-weight: 400;
   text-overflow: ellipsis; white-space: nowrap;
 }
-.item-tile { min-height: 48px; justify-content: flex-start; align-items: center; padding: 5px; gap: 8px; }
+.item-tile { min-height: 48px; flex-direction: row; justify-content: flex-start; align-items: center; padding: 5px; gap: 8px; }
 .item-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
 .trade-row > .item-display { min-height: 48px; }
 .recipe-button.item-display { min-height: 48px; justify-content: flex-start; }
