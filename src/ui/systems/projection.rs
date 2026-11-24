@@ -131,7 +131,7 @@ pub fn update_minimap(
         return;
     };
 
-    let player_position = player_transform.translation
+    let player_position = player_transform.translation;
     let zone_positions: Vec<(ZoneKind, Vec3)> = zones
         .iter()
         .map(|(transform, zone)| (zone.kind, transform.translation()))
