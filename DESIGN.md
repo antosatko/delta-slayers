@@ -57,7 +57,7 @@ app's type registry. Keep these types as stable authoring APIs: renaming a type,
 field, or enum variant can invalidate data already stored in a `.blend` or
 exported glTF file.
 
-The main world export is `assets/worlds/overworld.glb`. If it exists, gameplay
+The main world export is `assets/worlds/town-map.glb`. If it exists, gameplay
 loads scene 0 through `WorldAssetRoot`; otherwise, the procedural test world
 is retained. The world-ready event gates initial spawn-point selection so the
 player does not query incomplete glTF hierarchies.
