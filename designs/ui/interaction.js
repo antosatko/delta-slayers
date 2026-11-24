@@ -88,31 +88,18 @@
     node.setAttribute("aria-describedby", "reference-description");
     node.hidden = true;
     node.dataset.referenceCard = "";
-    node.innerHTML = \`
-      <header class="reference-card-header">
-        <button class="reference-back" type="button" data-reference-back aria-label="Go back" title="Go back" hidden>
-          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5M7.5 10H17"/></svg>
-        </button>
-        <span class="reference-icon" data-reference-icon aria-hidden="true"></span>
-        <div class="reference-heading">
-          <p class="reference-category" data-reference-category></p>
-          <h2 class="reference-title" id="reference-title" data-reference-title tabindex="-1"></h2>
-        </div>
-        <button class="reference-close" type="button" data-reference-close aria-label="Close reference" title="Close">
-          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg>
-        </button>
-      </header>
-      <div class="reference-content">
-        <div class="reference-description" id="reference-description" data-reference-description></div>
-        <section class="reference-facts" data-reference-facts hidden>
-          <h3 data-reference-facts-title>Details</h3>
-          <dl data-reference-facts-list></dl>
-        </section>
-        <section class="reference-related" data-reference-related hidden>
-          <h3>Related</h3>
-          <div class="reference-related-list" data-reference-related-list></div>
-        </section>
-      </div>\`;
+    node.innerHTML =
+      '<header class="reference-card-header">' +
+        '<button class="reference-back" type="button" data-reference-back aria-label="Go back" title="Go back" hidden><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5M7.5 10H17"/></svg></button>' +
+        '<span class="reference-icon" data-reference-icon aria-hidden="true"></span>' +
+        '<div class="reference-heading"><p class="reference-category" data-reference-category></p><h2 class="reference-title" id="reference-title" data-reference-title tabindex="-1"></h2></div>' +
+        '<button class="reference-close" type="button" data-reference-close aria-label="Close reference" title="Close"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg></button>' +
+      '</header>' +
+      '<div class="reference-content">' +
+        '<div class="reference-description" id="reference-description" data-reference-description></div>' +
+        '<section class="reference-facts" data-reference-facts hidden><h3 data-reference-facts-title>Details</h3><dl data-reference-facts-list></dl></section>' +
+        '<section class="reference-related" data-reference-related hidden><h3>Related</h3><div class="reference-related-list" data-reference-related-list></div></section>' +
+      '</div>';
     document.body.append(node);
     return node;
   }
@@ -366,7 +353,7 @@
           other.classList.toggle("active", active);
           other.setAttribute("aria-selected", String(active));
         });
-        document.querySelectorAll('[data-tab-panel="' + name + '"]').forEach(panel => {
+        document.querySelectorAll('[data-tab-panel-group="' + name + '"]').forEach(panel => {
           panel.hidden = panel.dataset.tabPanel !== button.dataset.tab;
         });
       });
@@ -421,7 +408,7 @@
       if (!cart) return;
       const name = button.dataset.tradeName;
       const price = Number(button.dataset.tradePrice);
-      const existing = cart.querySelector('[data-cart-name="' + CSS.escape(name) + '"]');
+      const existing = [...cart.querySelectorAll("[data-cart-name]")].find(row => row.dataset.cartName === name);
       if (existing) existing.dataset.quantity = String(Number(existing.dataset.quantity) + 1);
       else {
         const row = el("div", "cart-line");
