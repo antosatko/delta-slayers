@@ -125,6 +125,23 @@
     }
   }
 
+  const HOVER_OPEN_DELAY = 600;
+
+  function cancelOpen(state) {
+    if (state.openTimer) {
+      clearTimeout(state.openTimer);
+      state.openTimer = null;
+    }
+  }
+
+  function scheduleOpen(state) {
+    cancelOpen(state);
+    state.openTimer = setTimeout(() => {
+      state.openTimer = null;
+      if (state.pointerOnTrigger) openState(state, false);
+    }, HOVER_OPEN_DELAY);
+  }
+
   function positionCard(state, chooseSide = false) {
     const rect = state.trigger.getBoundingClientRect();
     const margin = 12;
@@ -199,6 +216,7 @@
   }
 
   function closeState(state, restoreFocus, suppressFocus) {
+    cancelOpen(state);
     cancelClose(state);
     card.hidden = true;
     state.trigger.setAttribute("aria-expanded", "false");
@@ -212,6 +230,7 @@
   }
 
   function openState(state, pin) {
+    cancelOpen(state);
     if (activeState && activeState !== state) closeState(activeState, false, false);
     activeState = state;
     cancelClose(state);
@@ -256,13 +275,21 @@
   for (const trigger of triggers) {
     const state = {
       trigger, currentId: null, history: [], pinned: false, suppressFocus: false,
-      pointerOnTrigger: false, pointerOnCard: false, closeTimer: null, cardSide: null
+      pointerOnTrigger: false, pointerOnCard: false, openTimer: null, closeTimer: null, cardSide: null
     };
     states.set(trigger, state);
     trigger.setAttribute("aria-haspopup", "dialog");
     trigger.setAttribute("aria-expanded", "false");
-    trigger.addEventListener("pointerenter", () => { state.pointerOnTrigger = true; openState(state, false); });
-    trigger.addEventListener("pointerleave", () => { state.pointerOnTrigger = false; scheduleClose(state); });
+    trigger.addEventListener("pointerenter", event => {
+      if (event.pointerType === "touch") return;
+      state.pointerOnTrigger = true;
+      scheduleOpen(state);
+    });
+    trigger.addEventListener("pointerleave", () => {
+      state.pointerOnTrigger = false;
+      cancelOpen(state);
+      scheduleClose(state);
+    });
     trigger.addEventListener("focus", () => { if (!state.suppressFocus) openState(state, false); });
     trigger.addEventListener("blur", () => {
       setTimeout(() => {

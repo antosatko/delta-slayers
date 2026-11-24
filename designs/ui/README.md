@@ -16,6 +16,6 @@ Open `index.html` in a browser. The prototype uses one visual direction: **Field
 
 - `styles.css` contains the Slate palette, shared layout primitives, responsive rules, and reference-card styling.
 - `interaction.js` contains the shared contextual reference graph and the small interactions used by the screen studies.
-- Reference cards support hover, keyboard focus, click-to-pin, linked entries, Back, Escape, and scrolling content. The card keeps a fixed viewport position while navigating between entries of different lengths.
+- Reference cards open after a 600 ms pointer dwell; leaving the term before the delay cancels the opening. Keyboard focus and click still open immediately. Cards support click-to-pin, linked entries, Back, Escape, and scrolling content. The card keeps a fixed viewport position while navigating between entries of different lengths.
 
-These are layout and interaction studies, not connected game systems. Buttons that would change game state display preview feedback only.
+The shared navigation and frequent controls use inline SVG icons while retaining visible labels. Spacing is intentionally compact to use more of the available screen without compressing long-form reading. These are layout and interaction studies, not connected game systems. Buttons that would change game state display preview feedback only.
