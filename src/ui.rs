@@ -871,7 +871,7 @@ fn sync_cursor(ui: Res<UiStack>, mut cursor: Single<&mut CursorOptions, With<Pri
     let grabbed = ui.cursor_grabbed();
     cursor.visible = !grabbed;
     cursor.grab_mode = if grabbed {
-        CursorGrabMode::Locked
+        CursorGrabMode::Confined
     } else {
         CursorGrabMode::None
     };
