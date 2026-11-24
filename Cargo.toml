@@ -1,9 +1,14 @@
+[workspace]
+members = ["crates/delta-slayers-ui"]
+resolver = "3"
+
 [package]
 name = "delta-slayers"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+delta-slayers-ui = { path = "crates/delta-slayers-ui" }
 bevy = { version = "0.20.1", features = ["dynamic_linking", "bevy_feathers", "webp", "jpeg"] }
 bevy_skein = "0.7.0"
 

@@ -19,6 +19,7 @@ The source tree is organized around three ownership areas:
 | Application | `app/` | Bevy app construction, startup configuration, and top-level `AppState` |
 | Gameplay | `gameplay/` | Domain resources/components, world setup, simulation, and persistence |
 | UI | `ui/` | Overlay navigation, BSN scenes, input, and presentation projection |
+| UI library | `crates/delta-slayers-ui/` | Reusable Slate theme, BSN widgets, and presentation-only behaviours |
 
 Within those areas:
 
@@ -41,6 +42,7 @@ Within those areas:
 | `ui/systems/input.rs` | UI input and navigation actions |
 | `ui/systems/projection.rs` | Visibility, cursor, and minimap projection |
 | `ui/mod.rs` | UI plugin composition and system ordering |
+| `crates/delta-slayers-ui/` | Reusable Slate UI crate; consumed by the game and its standalone showcase example |
 | `gameplay/mod.rs` | Gameplay plugin composition and system ordering |
 
 Keep the root `main.rs` limited to module declarations and starting the app.
@@ -150,6 +152,34 @@ right click closes the topmost layer. The inventory's Menu button opens the
 same layer, preserving the inventory underneath it. Its open state is
 represented by UiLayer::GameMenu, and a projection system controls Visibility.
 
+## Reusable Slate UI library
+
+The workspace crate `delta-slayers-ui` contains the reusable presentation
+layer. It is deliberately game-specific rather than a generic widget framework.
+
+- `SlatePlugin` registers the `SlateTheme` resource and the small systems used
+  for button hover states and delayed reference cards.
+- `SlateTheme` is the single palette source. Replace or mutate the resource to
+  customise colours across widgets.
+- `action_button`, `panel`, `page_header`, `section_header`, `badge`,
+  `stat_bar`, and `item_tile` are composable BSN scenes.
+- `reference_term` is a hoverable text control whose information card opens
+  after a 600 ms dwell. Moving away cancels the delay; the card remains open
+  while the pointer moves from the term onto the card.
+- All controls are still declared with BSN. Library systems only project
+  interaction state into existing components; they do not create or rebuild
+  UI trees.
+
+The crate example is a standalone catalogue of the current visual language:
+
+```sh
+cargo run -p delta-slayers-ui --example slate_showcase
+```
+
+The game imports the crate through the workspace path dependency. The main
+menu is the first integrated screen; game-specific overlay navigation and
+ViewModel projection remain in `src/ui/`.
+
 ## BSN conventions
 
 - Define every UI entity hierarchy with bsn! or bsn_list!.
@@ -187,6 +217,7 @@ represented by UiLayer::GameMenu, and a projection system controls Visibility.
 
 ## Deliberately out of scope
 
-Do not introduce a generic UI framework, message bus abstraction, service
-locator, or large plugin hierarchy without concrete pressure for one. Use
-Bevy resources, observers, system sets, and BSN scenes directly.
+Keep the shared UI crate intentionally small and game-specific. Do not add a
+generic styling DSL, message bus abstraction, service locator, or a large
+plugin hierarchy without concrete pressure for one. Use Bevy resources,
+observers, system sets, and BSN scenes directly.

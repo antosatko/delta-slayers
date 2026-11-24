@@ -1,7 +1,6 @@
 use bevy::{
     picking::hover::Hovered,
     prelude::*,
-    ui::Pressed,
     ui_widgets::Button,
 };
 
@@ -371,7 +370,7 @@ pub fn reference_term(
                 border_radius: BorderRadius::all(px(3)),
             }
             SlateHoverCard
-            GlobalZIndex(100)
+            bevy::ui::GlobalZIndex(100)
             Visibility::Hidden
             template(|ctx| {
                 Ok(BackgroundColor(ctx.resource::<SlateTheme>().panel))

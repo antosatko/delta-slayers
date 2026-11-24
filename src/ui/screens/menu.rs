@@ -1,4 +1,7 @@
-use bevy::{prelude::*, ui_widgets::{Activate, Button}};
+use bevy::{prelude::*, ui_widgets::Activate};
+use delta_slayers_ui::{
+    SlateButtonTone, SlateIcon, SlateTheme, action_button, page_header, panel, section_header,
+};
 
 use crate::app::state::AppState;
 
@@ -16,77 +19,68 @@ fn main_menu() -> impl Scene {
         Node {
             width: percent(100),
             height: percent(100),
-            flex_direction: FlexDirection::Column,
-            align_items: AlignItems::Center,
             justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
         }
-
+        template(|ctx| {
+            Ok(BackgroundColor(ctx.resource::<SlateTheme>().page))
+        })
         DespawnOnExit::<AppState>(AppState::MainMenu)
-
-        BackgroundColor(Color::srgb(0.15, 0.2, 0.35))
-
         Children [
-            Text("DELTA SLAYERS")
-            TextFont {
-                font_size: px(80),
+            Node {
+                width: px(470),
+                max_width: percent(92),
+                flex_direction: FlexDirection::Column,
+                row_gap: px(16),
             }
-            TextColor(Color::WHITE)
-
-            --
-
-            @menu_button("Play", AppState::Loading)
-
-            --
-
-            @menu_button("Continue", AppState::Continue)
-
-            --
-
-            @menu_button("Load", AppState::Load)
-
-            --
-
-            @menu_button("Settings", AppState::Settings)
-
-            --
-
-            @menu_button("Credits", AppState::Credits)
-
-            --
-
-            @menu_button("Exit", AppState::MainMenu)
-            on(|_activate: On<Activate>, mut app_exit: MessageWriter<AppExit>| {
-                app_exit.write(AppExit::Success);
-            })
+            Children [
+                @page_header(
+                    "GREYBRIDGE CHAPTER",
+                    "Delta Slayers",
+                    "A guild contract awaits."
+                )
+                --
+                @panel(percent(100))
+                Children [
+                    @section_header(SlateIcon::Compass, "Continue your journey")
+                    --
+                    @menu_button("Play", SlateIcon::Sword, AppState::Loading, SlateButtonTone::Primary)
+                    --
+                    @menu_button("Continue", SlateIcon::Back, AppState::Continue, SlateButtonTone::Secondary)
+                    --
+                    @menu_button("Load game", SlateIcon::Inventory, AppState::Load, SlateButtonTone::Secondary)
+                    --
+                    @menu_button("Settings", SlateIcon::Settings, AppState::Settings, SlateButtonTone::Secondary)
+                    --
+                    @menu_button("Credits", SlateIcon::Book, AppState::Credits, SlateButtonTone::Ghost)
+                    --
+                    @exit_button()
+                ]
+            ]
         ]
     }
 }
 
-fn menu_button(label: &'static str, target: AppState) -> impl Scene {
+fn menu_button(
+    label: &'static str,
+    icon: SlateIcon,
+    target: AppState,
+    tone: SlateButtonTone,
+) -> impl Scene {
     bsn! {
-        Button
-
-        Node {
-            width: px(260),
-            margin: UiRect::all(px(6)),
-            padding: UiRect::all(px(16)),
-            justify_content: JustifyContent::Center,
-            align_items: AlignItems::Center,
-        }
-
-        BackgroundColor(Color::srgb(0.95, 0.55, 0.2))
-
+        @action_button(label, icon, tone)
         on(move |_activate: On<Activate>, mut next_state: ResMut<NextState<AppState>>| {
             info!("Transition: Moving to {:?}", target);
             next_state.set(target);
         })
+    }
+}
 
-        Children [
-            Text(label)
-            TextFont {
-                font_size: px(30),
-            }
-            TextColor(Color::WHITE)
-        ]
+fn exit_button() -> impl Scene {
+    bsn! {
+        @action_button("Exit", SlateIcon::Close, SlateButtonTone::Danger)
+        on(|_activate: On<Activate>, mut app_exit: MessageWriter<AppExit>| {
+            app_exit.write(AppExit::Success);
+        })
     }
 }
