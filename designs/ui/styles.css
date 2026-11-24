@@ -538,3 +538,227 @@ h1 { font-size:clamp(1.65rem,2.5vw,2.2rem); }
 .recipe-copy { display:flex; align-items:center; gap:8px; min-width:0; }
 .recipe-icon { width:18px; height:18px; flex:0 0 18px; color:var(--accent); }
 .detail-icon { width:22px; height:22px; flex:0 0 22px; }
+
+
+/* --- Quiet hierarchy pass -------------------------------------------------
+   Prefer spacing and tonal grouping over outlined boxes. Reserve stronger
+   contrast for the current task, selected state, and primary action.
+*/
+:root {
+  --line: #46565e;
+  --line-strong: #596c75;
+  --shadow: 0 8px 24px rgb(0 0 0 / 18%);
+}
+.app-shell {
+  border: 0;
+  border-radius: 10px;
+  overflow: clip;
+  box-shadow: var(--shadow);
+}
+.topbar {
+  border-bottom: 0;
+  background: var(--surface);
+}
+.rail {
+  border-right: 0;
+  background: var(--surface-deep);
+  padding-inline: 14px;
+}
+.nav-item {
+  border: 0;
+  border-radius: 6px;
+  padding-inline: 10px;
+}
+.nav-item.active {
+  border: 0;
+  background: var(--surface-raised);
+  box-shadow: inset 3px 0 var(--accent);
+}
+.rail-note {
+  border-top: 0;
+  padding-top: 18px;
+}
+.page-heading {
+  border-bottom: 0;
+  padding-bottom: 8px;
+  margin-bottom: 24px;
+}
+.page-mark {
+  border-left: 0;
+  padding-left: 0;
+}
+.panel {
+  border: 0;
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: 0 3px 12px rgb(0 0 0 / 13%);
+  overflow: clip;
+}
+.panel + .panel { margin-top: 16px; }
+.panel-head {
+  border-bottom: 0;
+  padding: 15px 17px 8px;
+}
+.panel-body { padding: 15px 17px 18px; }
+.pill {
+  border: 0;
+  border-radius: 4px;
+  background: var(--surface-alt);
+  padding-inline: 8px;
+}
+.pill.available, .pill.complete { background: rgb(196 221 207 / 9%); }
+.pill.warning { background: rgb(224 212 173 / 9%); }
+.pill.danger { background: rgb(224 191 192 / 9%); }
+.button {
+  border: 0;
+  border-radius: 5px;
+  background: var(--surface-alt);
+}
+.button:hover { background: var(--surface-raised); }
+.button.primary {
+  border: 0;
+  background: var(--accent);
+  box-shadow: 0 2px 7px rgb(0 0 0 / 14%);
+}
+.button.primary:hover { background: var(--accent-hover); }
+.reading-panel {
+  border-radius: 8px;
+  box-shadow: 0 3px 12px rgb(0 0 0 / 12%);
+}
+.reading-section + .reading-section {
+  border-top: 0;
+  padding-top: 0;
+}
+.quote {
+  border-left: 2px solid var(--accent);
+  border-radius: 0 6px 6px 0;
+}
+.action-row {
+  border-top: 0;
+  padding-top: 5px;
+}
+.page-footer {
+  border-top: 0;
+  padding-top: 8px;
+}
+.keycap {
+  border: 0;
+  border-radius: 4px;
+  background: var(--surface-alt);
+}
+.filter-button {
+  border: 0;
+  border-radius: 5px;
+}
+.filter-button.active {
+  border: 0;
+  background: var(--surface-raised);
+}
+.search-input, .quantity-input {
+  border: 0;
+  border-radius: 5px;
+  background: var(--surface-deep);
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / 18%);
+}
+.selectable.selected {
+  border-color: transparent !important;
+  background: var(--surface-raised) !important;
+  box-shadow: inset 3px 0 var(--accent);
+}
+.item-tile {
+  border: 0;
+  border-radius: 7px;
+  background: var(--surface-alt);
+}
+.item-tile:hover {
+  border: 0;
+  background: var(--surface-raised);
+}
+.item-visual {
+  border: 0;
+  border-radius: 7px;
+  background: var(--surface);
+}
+.portrait-placeholder {
+  border: 0;
+  border-radius: 8px;
+  box-shadow: inset 0 1px 10px rgb(0 0 0 / 16%);
+}
+.identity-meta, .tab-row, .entry-body, .map-legend {
+  border-color: transparent;
+}
+.meter {
+  border: 0;
+  border-radius: 99px;
+}
+.meter span { border-radius: inherit; }
+.stat-cell {
+  border: 0;
+  border-radius: 7px;
+  background: var(--surface-raised);
+}
+.tab-button {
+  border: 0;
+  border-radius: 5px;
+}
+.tab-button.active {
+  border: 0;
+  background: var(--surface-raised);
+}
+.resistance-row {
+  border: 0;
+  border-radius: 5px;
+  background: var(--surface-alt);
+}
+.journal-item {
+  border: 0;
+  border-radius: 6px;
+}
+.journal-item.selected {
+  border: 0;
+  background: var(--surface-raised);
+  box-shadow: inset 3px 0 var(--accent);
+}
+.map-stage {
+  border: 0;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+.map-marker {
+  border: 0;
+  border-radius: 5px;
+  box-shadow: 0 3px 10px rgb(0 0 0 / 20%);
+}
+.map-marker:hover, .map-marker.selected {
+  border: 0;
+  background: var(--surface-raised);
+}
+.trade-row, .cart-line, .ingredient-row {
+  border-color: rgb(255 255 255 / 6%);
+}
+.recipe-button {
+  border: 0;
+  border-radius: 6px;
+}
+.recipe-button.selected {
+  border: 0;
+  background: var(--surface-raised);
+  box-shadow: inset 3px 0 var(--accent);
+}
+.fact-row { border-color: rgb(255 255 255 / 6%); }
+.gallery-header p:not(.eyebrow) { color: var(--muted); }
+.screen-card {
+  border: 0 !important;
+  border-radius: 9px;
+  background: var(--surface);
+  box-shadow: 0 3px 12px rgb(0 0 0 / 13%);
+}
+.screen-card:hover {
+  background: var(--surface-raised);
+  box-shadow: 0 7px 20px rgb(0 0 0 / 19%);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .button, .nav-item, .item-tile, .journal-item, .recipe-button, .screen-card {
+    transition: background-color 120ms ease, box-shadow 120ms ease;
+  }
+}
