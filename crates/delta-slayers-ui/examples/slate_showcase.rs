@@ -197,7 +197,7 @@ fn nav_item(icon: SlateIcon, label: &'static str, active: bool) -> impl Scene {
             column_gap: px(8),
             border: UiRect::all(if active { px(1) } else { px(0) }),
         }
-        template(|ctx| {
+        template(move |ctx| {
             let theme = ctx.resource::<SlateTheme>();
             Ok(BackgroundColor(if active { theme.panel } else { Color::NONE }))
         })

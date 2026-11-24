@@ -184,7 +184,7 @@ pub fn action_button(
             --
             Text(label)
             TextFont { font_size: px(14) }
-            template(|ctx| {
+            template(move |ctx| {
                 Ok(TextColor(ctx.resource::<SlateTheme>().button_foreground(tone)))
             })
         ]
@@ -210,7 +210,7 @@ pub fn badge(label: &'static str, status: SlateStatus) -> impl Scene {
         })
         Text(label)
         TextFont { font_size: px(11) }
-        template(|ctx| {
+        template(move |ctx| {
             Ok(TextColor(ctx.resource::<SlateTheme>().status_color(status)))
         })
     }
@@ -304,7 +304,7 @@ pub fn item_tile(
             let theme = ctx.resource::<SlateTheme>();
             Ok(BackgroundColor(if selected { theme.panel_raised } else { theme.panel_alt }))
         })
-        template(|ctx| {
+        template(move |ctx| {
             let theme = ctx.resource::<SlateTheme>();
             Ok(BorderColor::all(if selected { theme.accent } else { theme.line }))
         })

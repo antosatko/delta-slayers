@@ -136,7 +136,7 @@ fn update_button_styles(
     }
 }
 
-#[derive(Component, Clone, Copy, Debug)]
+#[derive(Component, Clone, Copy, Debug, Default)]
 pub(crate) struct SlateHoverDelay {
     pub delay_seconds: f32,
     pub elapsed_seconds: f32,
