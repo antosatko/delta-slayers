@@ -26,7 +26,7 @@ impl Plugin for GameplayPlugin {
             .init_resource::<zones::VisitedZones>()
             .init_resource::<zones::FastTravelRequest>()
             .init_resource::<inventory::InventoryModel>()
-            .add_systems(OnEnter(AppState::InGame), world::setup_game)
+            .add_systems(OnEnter(AppState::Loading), world::setup_game)
             .add_systems(
                 Update,
                 spawning::apply_player_spawn_point

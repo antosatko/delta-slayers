@@ -18,6 +18,7 @@ billboard entities.
 Current features:
 
 - Main menu with placeholder screens (Continue, Load, Settings, Credits)
+- Loading screen while the Blender-authored world is instantiated
 - First-person walking in 3D space (WASD, mouse look, sprint)
 - 2D billboard entities that face the camera horizontally
 - Trigger zones that open UI popups (Shop, Guild)
@@ -44,8 +45,8 @@ own gameplay rules or construct gameplay entities.
 
 The project uses [Bevy Skein](https://bevy-skein.netlify.app/) to author
 gameplay components in Blender and export them through glTF. The main level is
-loaded automatically from `assets/worlds/town-map.glb` when that file exists;
-otherwise, the procedural test world remains active.
+loaded from `assets/worlds/town-map.glb` during the Loading state. This local
+GLB is required; the game no longer creates a procedural test world.
 
 See [assets/worlds/README.md](assets/worlds/README.md) for the component
 reference, spawn-point rules, and export workflow.

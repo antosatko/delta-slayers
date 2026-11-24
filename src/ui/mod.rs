@@ -40,6 +40,7 @@ impl Plugin for UiPlugin {
                 OnEnter(AppState::Credits),
                 screens::placeholders::credits_screen.spawn(),
             )
+            .add_systems(OnEnter(AppState::Loading), screens::loading::scene.spawn())
             .add_systems(OnEnter(AppState::InGame), screens::gameplay::scene.spawn())
             .add_systems(
                 Update,

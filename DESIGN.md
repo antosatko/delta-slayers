@@ -18,26 +18,26 @@ The source tree is organized around three ownership areas:
 | --- | --- | --- |
 | Application | `app/` | Bevy app construction, startup configuration, and top-level `AppState` |
 | Gameplay | `gameplay/` | Domain resources/components, world setup, simulation, and persistence |
-| UI | `ui/` | Overlay navigation, BSN scenes, UI input, and presentation projection |
+| UI | `ui/` | Overlay navigation, BSN scenes, input, and presentation projection |
 
 Within those areas:
 
 | Module | Responsibility |
 | --- | --- |
 | `app/mod.rs` | Application startup and plugin composition |
-| `app/state.rs` | Top-level application states |
+| `app/state.rs` | Top-level application states, including the Loading transition |
 | `gameplay/player.rs` | Player component, movement, and look |
 | `gameplay/spawning.rs` | Reflected spawn-point authoring types and initial player spawn selection |
 | `gameplay/zones.rs` | Zone types, proximity detection, visited-zone data, and travel requests |
 | `gameplay/inventory.rs` | Authoritative inventory data |
-| `gameplay/world.rs` | In-game world and player setup |
+| `gameplay/world.rs` | In-game world setup and the world-ready transition |
 | `gameplay/systems.rs` | Gameplay actions such as fast travel and returning to the menu |
 | `gameplay/persistence.rs` | Save-file serialization and loading |
 | `gameplay/billboard.rs` | Camera-facing billboard transform |
 | `ui/stack.rs` | UI navigation stack and cursor-capture preference |
 | `ui/components.rs` | UI marker components and UI-only requests |
 | `ui/inventory.rs` | Inventory ViewModel, UI labels, and model-to-view projection |
-| `ui/screens/` | BSN scene definitions for gameplay, main menu, and placeholder screens |
+| `ui/screens/` | BSN scene definitions for loading, gameplay, main menu, and placeholder screens |
 | `ui/systems/input.rs` | UI input and navigation actions |
 | `ui/systems/projection.rs` | Visibility, cursor, and minimap projection |
 | `ui/mod.rs` | UI plugin composition and system ordering |
@@ -57,10 +57,12 @@ app's type registry. Keep these types as stable authoring APIs: renaming a type,
 field, or enum variant can invalidate data already stored in a `.blend` or
 exported glTF file.
 
-The main world export is `assets/worlds/town-map.glb`. If it exists, gameplay
-loads scene 0 through `WorldAssetRoot`; otherwise, the procedural test world
-is retained. The world-ready event gates initial spawn-point selection so the
-player does not query incomplete glTF hierarchies.
+The main world export is `assets/worlds/town-map.glb`. Gameplay loads scene 0
+through `WorldAssetRoot` during `AppState::Loading`. The loading screen is a
+BSN scene owned by `ui/screens/loading.rs`; the `WorldInstanceReady` observer
+advances the app to `AppState::InGame`. World entities are tagged to survive
+the Loading-to-InGame transition and are cleaned up when leaving InGame. The
+GLB is required; there is no procedural world fallback.
 
 Current authored components:
 
@@ -166,7 +168,7 @@ only change state; projection systems control Visibility.
 
 ## State ownership
 
-- `AppState` owns top-level application navigation.
+- `AppState` owns top-level application navigation, including Loading.
 - UiStack owns overlay navigation and cursor preference.
 - InventoryModel owns currency, item, and equipment data.
 - InventoryViewModel owns derived display values.
