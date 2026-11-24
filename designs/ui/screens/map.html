@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1b2024">
+  <title>Village and surrounding roads — Delta Slayers</title>
+  <link rel="stylesheet" href="../styles.css">
+  <script src="../interaction.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="../index.html">Delta Slayers</a>
+      <div class="top-meta"><span>Greybridge</span><span>Late autumn · Day 214</span></div>
+    </header>
+    <div class="app-layout">
+      <nav class="rail" aria-label="Main navigation">
+        <p class="rail-caption">Guild office</p>
+        <a class="nav-item" href="contract.html"><span>Contracts</span><span class="nav-count">4</span></a>
+        <a class="nav-item" href="inventory.html"><span>Inventory</span></a>
+        <a class="nav-item" href="character.html"><span>Character</span></a>
+        <a class="nav-item" href="journal.html"><span>Journal</span><span class="nav-count">3</span></a>
+        <a class="nav-item active" href="map.html" aria-current="page"><span>Map</span></a>
+        <a class="nav-item" href="trade.html"><span>Trade</span></a>
+        <a class="nav-item" href="workshop.html"><span>Workshop</span></a>
+        <div class="rail-note"><strong>Greybridge Chapter</strong>North road, river quarter</div>
+      </nav>
+      <main class="workspace">
+        <header class="page-heading">
+  <div><p class="eyebrow">Map · Greybridge region</p><h1>Village and surrounding roads</h1><p class="page-subtitle">A broad spatial canvas with selectable points and a persistent information panel.</p></div>
+  <span class="page-mark">North ↑</span>
+</header>
+<div class="map-layout">
+  <section class="panel">
+    <div class="map-stage">
+      <svg class="map-art" viewBox="0 0 900 560" preserveAspectRatio="xMidYMid slice" aria-label="Schematic map of Greybridge">
+        <defs><pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse"><path d="M36 0H0V36" fill="none" class="map-gridline"/></pattern></defs>
+        <rect width="900" height="560" fill="url(#grid)"/>
+        <path class="map-water" d="M-40 390 C130 340 175 410 290 342 S470 220 575 268 S740 345 940 240"/>
+        <path class="map-road-edge" d="M-20 120 C150 160 210 230 340 205 S590 120 920 145"/>
+        <path class="map-road" d="M-20 120 C150 160 210 230 340 205 S590 120 920 145"/>
+        <path class="map-road-edge" d="M370 -30 C350 100 415 190 390 300 S350 440 410 600"/>
+        <path class="map-road" d="M370 -30 C350 100 415 190 390 300 S350 440 410 600"/>
+        <path class="map-road-edge" d="M70 500 C200 430 300 450 430 420 S690 400 900 470"/>
+        <path class="map-road" d="M70 500 C200 430 300 450 430 420 S690 400 900 470"/>
+        <g><rect class="map-block" x="94" y="176" width="112" height="75"/><rect class="map-block alt" x="230" y="104" width="80" height="62"/><rect class="map-block" x="465" y="88" width="118" height="76"/><rect class="map-block alt" x="615" y="170" width="105" height="82"/><rect class="map-block" x="475" y="344" width="122" height="70"/><rect class="map-block alt" x="685" y="350" width="110" height="74"/><rect class="map-block" x="165" y="360" width="90" height="58"/></g>
+        <g><text class="map-label" x="100" y="160">WEST FIELDS</text><text class="map-label" x="470" y="70">GREYBRIDGE</text><text class="map-label" x="650" y="150">RIVER QUARTER</text><text class="map-label small" x="520" y="455">SOUTH ROAD</text><text class="map-label small" x="110" y="300">OLD MILL DISTRICT</text></g>
+        <path d="M0 0H900V560H0Z" fill="none" stroke="#60737c" stroke-width="2"/>
+      </svg>
+      <button class="map-marker selected" style="left:47%;top:35%" type="button" data-map-place data-map-target="#map-detail" data-place-title="Guild office" data-place-description="The chapter's local office and records room. Mara Venn handles contracts from the north-facing hall." data-place-status="Safe · Public" data-place-coordinates="Grid C4 · North road">Guild office</button>
+      <button class="map-marker" style="left:19%;top:54%" type="button" data-map-place data-map-target="#map-detail" data-place-title="Old mill" data-place-description="The bell has rung after midnight for nine nights. The miller is missing and the west foundation is unsettled." data-place-status="Contract site · Unverified" data-place-coordinates="Grid A6 · West channel">Old mill</button>
+      <button class="map-marker" style="left:69%;top:46%" type="button" data-map-place data-map-target="#map-detail" data-place-title="River crossing" data-place-description="A stone crossing used by carts entering Greybridge from the eastern settlements. The current is stronger after rain." data-place-status="Passable" data-place-coordinates="Grid E5 · East bank">River crossing</button>
+      <button class="map-marker" style="left:58%;top:76%" type="button" data-map-place data-map-target="#map-detail" data-place-title="South gate" data-place-description="The main road south. A watch post is staffed through the evening and closes the gate at night." data-place-status="Open until dusk" data-place-coordinates="Grid D8 · South road">South gate</button>
+    </div>
+    <div class="map-legend"><span><i class="legend-dot"></i>Selected or known location</span><span>Lines: roads and watercourse</span><span>Grid: local reference</span></div>
+  </section>
+  <aside class="panel" id="map-detail" aria-live="polite">
+    <header class="panel-head"><h2>Location record</h2><span class="pill available" data-place-status>Safe · Public</span></header>
+    <div class="panel-body">
+      <p class="eyebrow">Selected location</p><h2 class="selection-title" data-place-title>Guild office</h2>
+      <p class="selection-description" data-place-description>The chapter's local office and records room. Mara Venn handles contracts from the north-facing hall.</p>
+      <p class="map-coordinates" data-place-coordinates>Grid C4 · North road</p>
+      <div class="action-row" data-action-scope><button class="button primary" type="button" data-demo-action="Route marked in this map preview.">Set destination</button><button class="button" type="button" data-demo-action="Location added to journal preview.">Add note</button><p class="action-feedback" data-action-feedback role="status"></p></div>
+    </div>
+  </aside>
+</div>
+<footer class="page-footer"><span><span class="keycap">Esc</span> Close map</span><span>Schematic layout · Not a navigable world map</span></footer>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

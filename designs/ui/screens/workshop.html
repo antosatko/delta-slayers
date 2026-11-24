@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1b2024">
+  <title>Prepare supplies — Delta Slayers</title>
+  <link rel="stylesheet" href="../styles.css">
+  <script src="../interaction.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="../index.html">Delta Slayers</a>
+      <div class="top-meta"><span>Greybridge</span><span>Late autumn · Day 214</span></div>
+    </header>
+    <div class="app-layout">
+      <nav class="rail" aria-label="Main navigation">
+        <p class="rail-caption">Guild office</p>
+        <a class="nav-item" href="contract.html"><span>Contracts</span><span class="nav-count">4</span></a>
+        <a class="nav-item" href="inventory.html"><span>Inventory</span></a>
+        <a class="nav-item" href="character.html"><span>Character</span></a>
+        <a class="nav-item" href="journal.html"><span>Journal</span><span class="nav-count">3</span></a>
+        <a class="nav-item" href="map.html"><span>Map</span></a>
+        <a class="nav-item" href="trade.html"><span>Trade</span></a>
+        <a class="nav-item active" href="workshop.html" aria-current="page"><span>Workshop</span></a>
+        <div class="rail-note"><strong>Greybridge Chapter</strong>North road, river quarter</div>
+      </nav>
+      <main class="workspace">
+        <header class="page-heading">
+  <div><p class="eyebrow">Workshop · Alchemy and field craft</p><h1>Prepare supplies</h1><p class="page-subtitle">A three-column crafting arrangement with recipe navigation, a detailed recipe view, and resource stock.</p></div>
+  <span class="page-mark">4 recipes</span>
+</header>
+<div class="workshop-layout" data-selection-scope>
+  <section class="panel">
+    <header class="panel-head"><h2>Recipes</h2><span class="panel-heading-side">Known</span></header>
+    <div class="recipe-list">
+      <button class="recipe-button selectable selected" type="button" data-select-item data-selection-target="#recipe-detail" data-item-title="Healing draught" data-item-meta="Alchemy · Consumable · 15 minutes" data-item-description="A concentrated herbal preparation that restores health. Its bitter taste comes from the ground root and the iron-rich water used in the final infusion." data-item-visual="瓶"><span><strong>Healing draught</strong><small>Alchemy · 15 min</small></span><span class="pill available">Ready</span></button>
+      <button class="recipe-button selectable" type="button" data-select-item data-selection-target="#recipe-detail" data-item-title="Stamina tonic" data-item-meta="Alchemy · Consumable · 10 minutes" data-item-description="A warming tonic used to recover strength after exertion. It is easier to prepare but has a shorter shelf life." data-item-visual="◒"><span><strong>Stamina tonic</strong><small>Alchemy · 10 min</small></span><span class="pill available">Ready</span></button>
+      <button class="recipe-button selectable" type="button" data-select-item data-selection-target="#recipe-detail" data-item-title="Reinforced bandage" data-item-meta="Field craft · Medical · 5 minutes" data-item-description="A clean wrap treated with resin. It holds its shape when wet and can be applied without a full medical kit." data-item-visual="▤"><span><strong>Reinforced bandage</strong><small>Field craft · 5 min</small></span><span class="pill warning">Short stock</span></button>
+      <button class="recipe-button selectable" type="button" data-select-item data-selection-target="#recipe-detail" data-item-title="Lantern oil" data-item-meta="Field craft · Utility · 8 minutes" data-item-description="A rendered oil blend suited to enclosed lamps. The mixture burns steadily but produces a little smoke." data-item-visual="◉"><span><strong>Lantern oil</strong><small>Field craft · 8 min</small></span><span class="pill available">Ready</span></button>
+    </div>
+  </section>
+  <section class="panel" id="recipe-detail" aria-live="polite">
+    <header class="panel-head"><h2>Recipe details</h2><span class="panel-heading-side">Selected</span></header>
+    <div class="panel-body">
+      <span class="item-visual item-detail-visual" data-selection-visual>瓶</span>
+      <h2 class="selection-title" data-selection-title>Healing draught</h2>
+      <p class="inline-meta" data-selection-meta>Alchemy · Consumable · 15 minutes</p>
+      <p class="selection-description" data-selection-description>A concentrated herbal preparation that restores health. Its bitter taste comes from the ground root and the iron-rich water used in the final infusion.</p>
+      <h3 class="section-label" style="margin-top:18px">Required ingredients</h3>
+      <div class="ingredient-list">
+        <div class="ingredient-row"><span>Marshroot</span><strong>2 / 5</strong></div><div class="ingredient-row"><span>Clean water</span><strong>8 / 12</strong></div><div class="ingredient-row"><span>Empty vial</span><strong>4 / 7</strong></div>
+      </div>
+      <div class="action-row" data-action-scope><button class="button primary" type="button" data-demo-action="One healing draught crafted in the preview.">Craft one</button><button class="button" type="button" data-demo-action="Batch crafting preview opened.">Craft batch</button><p class="action-feedback" data-action-feedback role="status"></p></div>
+    </div>
+  </section>
+  <aside class="panel">
+    <header class="panel-head"><h2>Available resources</h2><span class="panel-heading-side">Storage</span></header>
+    <div class="panel-body">
+      <div class="fact-list" style="padding:0">
+        <div class="fact-row"><dt>Marshroot</dt><dd>5</dd></div><div class="fact-row"><dt>Clean water</dt><dd>12</dd></div><div class="fact-row"><dt>Empty vial</dt><dd>7</dd></div><div class="fact-row"><dt>Dry herbs</dt><dd>9</dd></div><div class="fact-row"><dt>Resin strip</dt><dd>2</dd></div><div class="fact-row"><dt>Rendered oil</dt><dd>1</dd></div>
+      </div>
+      <p class="panel-note" style="margin-top:12px">Resource counts update only in the final game. These controls demonstrate the intended workspace.</p>
+    </div>
+  </aside>
+</div>
+<footer class="page-footer"><span><span class="keycap">Esc</span> Leave workshop</span><span>Recipe selection updates the central detail view</span></footer>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

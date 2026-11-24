@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1b2024">
+  <title>Field notes and obligations — Delta Slayers</title>
+  <link rel="stylesheet" href="../styles.css">
+  <script src="../interaction.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="../index.html">Delta Slayers</a>
+      <div class="top-meta"><span>Greybridge</span><span>Late autumn · Day 214</span></div>
+    </header>
+    <div class="app-layout">
+      <nav class="rail" aria-label="Main navigation">
+        <p class="rail-caption">Guild office</p>
+        <a class="nav-item" href="contract.html"><span>Contracts</span><span class="nav-count">4</span></a>
+        <a class="nav-item" href="inventory.html"><span>Inventory</span></a>
+        <a class="nav-item" href="character.html"><span>Character</span></a>
+        <a class="nav-item active" href="journal.html" aria-current="page"><span>Journal</span><span class="nav-count">3</span></a>
+        <a class="nav-item" href="map.html"><span>Map</span></a>
+        <a class="nav-item" href="trade.html"><span>Trade</span></a>
+        <a class="nav-item" href="workshop.html"><span>Workshop</span></a>
+        <div class="rail-note"><strong>Greybridge Chapter</strong>North road, river quarter</div>
+      </nav>
+      <main class="workspace">
+        <header class="page-heading">
+  <div><p class="eyebrow">Journal · Active records</p><h1>Field notes and obligations</h1><p class="page-subtitle">A list-and-reader arrangement for long entries, investigation notes, and objectives.</p></div>
+  <span class="page-mark">3 active</span>
+</header>
+<div class="journal-layout">
+  <section class="panel" data-filter-scope data-selection-scope>
+    <header class="panel-head"><h2>Entries</h2><span class="panel-heading-side">Greybridge</span></header>
+    <div class="panel-body" style="padding:8px">
+      <div class="filter-row" style="margin-bottom:8px">
+        <button class="filter-button active" type="button" data-filter-value="all">All</button><button class="filter-button" type="button" data-filter-value="contract">Contracts</button><button class="filter-button" type="button" data-filter-value="clue">Clues</button>
+      </div>
+      <button class="journal-item selectable selected" type="button" data-filter-item data-category="contract" data-select-item data-selection-target="#journal-detail" data-item-title="The bell beneath the mill" data-item-meta="Contract 018 · Updated today" data-item-description="Investigate the mill's night bell, locate the missing miller, and recover the ledger if possible.">
+        <strong>The bell beneath the mill</strong><span>Contract 018 · Today</span>
+      </button>
+      <button class="journal-item selectable" type="button" data-filter-item data-category="clue" data-select-item data-selection-target="#journal-detail" data-item-title="Salt beneath the floor" data-item-meta="Clue · Mill inspection" data-item-description="A damp trace was found below the western foundation. It has a sharp mineral smell and may be connected to the old channel.">
+        <strong>Salt beneath the floor</strong><span>Clue · Mill inspection</span>
+      </button>
+      <button class="journal-item selectable" type="button" data-filter-item data-category="clue" data-select-item data-selection-target="#journal-detail" data-item-title="The apprentice's account" data-item-meta="Witness statement · Filed" data-item-description="The returning apprentice remembers a rope, wet stone, and a voice beneath the mill. The rest of the walk is missing.">
+        <strong>The apprentice's account</strong><span>Witness statement · Filed</span>
+      </button>
+      <button class="journal-item selectable" type="button" data-filter-item data-category="contract" data-select-item data-selection-target="#journal-detail" data-item-title="Missing tools at Harth" data-item-meta="Contract 021 · Unread" data-item-description="A toolshed has been emptied without signs of forced entry. The owner suspects a neighbour, but no evidence supports the claim.">
+        <strong>Missing tools at Harth</strong><span>Contract 021 · Unread</span>
+      </button>
+    </div>
+  </section>
+  <article class="panel" id="journal-detail" aria-live="polite">
+    <header class="panel-head"><div><p class="entry-kicker">Contract · Investigation</p><h2 data-selection-title>The bell beneath the mill</h2></div><span class="pill available">In progress</span></header>
+    <div class="panel-body">
+      <p class="inline-meta" data-selection-meta>Contract 018 · Updated today</p>
+      <p class="entry-summary" data-selection-description>Investigate the mill's night bell, locate the missing miller, and recover the ledger if possible.</p>
+      <div class="entry-body">
+        <p>The mill's bell has rung at the wrong hour for nine nights. The miller has not been seen since the first report. The guild's record mentions an older channel beneath the west wall, though no current survey marks its entrance.</p>
+        <p>The villagers use the term <button class="term" type="button" data-entry-trigger="brine-wight">brine-wight</button>. Treat it as a local description rather than a confirmed classification. The distinction matters: the old records suggest a history of unpaid <button class="term" type="button" data-entry-trigger="tithe">tithes</button> as well as strange sightings.</p>
+      </div>
+      <section class="panel" style="margin-top:18px;background:var(--surface-raised)" data-checklist>
+        <header class="panel-head"><h3>Objectives</h3><span class="panel-heading-side" data-check-count>0 of 3</span></header>
+        <div class="panel-body">
+          <ul class="check-list">
+            <li><label class="check-row"><input type="checkbox">Inspect the old mill</label></li>
+            <li><label class="check-row"><input type="checkbox">Find the miller's ledger</label></li>
+            <li><label class="check-row"><input type="checkbox">Report to Mara Venn</label></li>
+          </ul>
+        </div>
+      </section>
+    </div>
+  </article>
+</div>
+<footer class="page-footer"><span><span class="keycap">Esc</span> Return to previous screen</span><span>Entries can link to interactive reference records</span></footer>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

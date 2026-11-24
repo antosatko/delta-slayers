@@ -3,71 +3,27 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Delta Slayers — UI design</title>
-  <link rel="stylesheet" href="index.css">
+  <meta name="theme-color" content="#1b2024">
+  <title>Delta Slayers — UI prototype</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <main class="index-shell">
-    <header>
-      <p class="eyebrow">Delta Slayers · Interface design</p>
-      <h1>A quieter direction for the game's reading screens</h1>
-      <p class="intro">The revised Field Folio keeps the original layout and reading rhythm, with a darker, more restrained visual treatment. The goal is to make the content feel at home in the game without decorating every part of the interface.</p>
+  <main class="gallery-shell">
+    <header class="gallery-header">
+      <p class="eyebrow">Delta Slayers · Interface prototype</p>
+      <h1>Field Folio</h1>
+      <p>The Slate direction, carried across a wider set of in-game screens. These layouts deliberately vary in density and structure while sharing the same typography, surfaces, borders, navigation, and contextual reference cards.</p>
     </header>
-
-    <a class="design-card folio" href="field-folio/index.html">
-      <div>
-        <span class="card-label">Revision 2</span>
-        <h2>Field Folio</h2>
-        <p>Warm charcoal, muted olive, one typeface, plain section headings and a small number of deliberate borders. The same contract content is used for comparison.</p>
-      </div>
-      <span class="open-link">Open revised design</span>
-    </a>
-
-
-    <section class="palette-studies" aria-labelledby="palette-heading">
-      <h2 id="palette-heading">Field Folio · palette studies</h2>
-      <p>These pages use the same layout, typography, content and interactions. Only the colour palette changes.</p>
-    <a class="design-card folio" href="field-folio/slate.html">
-      <div>
-        <span class="card-label">Palette study</span>
-        <h2>Slate</h2>
-        <p>Cool charcoal with restrained blue-grey accents.</p>
-      </div>
-      <span class="open-link">Open palette</span>
-    </a>
-    <a class="design-card folio" href="field-folio/umber.html">
-      <div>
-        <span class="card-label">Palette study</span>
-        <h2>Umber</h2>
-        <p>Deep brown-grey with worn copper and parchment accents.</p>
-      </div>
-      <span class="open-link">Open palette</span>
-    </a>
-    <a class="design-card folio" href="field-folio/teal.html">
-      <div>
-        <span class="card-label">Palette study</span>
-        <h2>Deep Teal</h2>
-        <p>Dark neutral surfaces with a quiet mineral teal accent.</p>
-      </div>
-      <span class="open-link">Open palette</span>
-    </a>
-    <a class="design-card folio" href="field-folio/wine.html">
-      <div>
-        <span class="card-label">Palette study</span>
-        <h2>Oxblood</h2>
-        <p>Near-black brown with muted wine-red accents, avoiding ornate gothic styling.</p>
-      </div>
-      <span class="open-link">Open palette</span>
-    </a>
-    </section>
-
-    <footer>
-      <span>Earlier drafts, kept for reference:</span>
-      <a href="surveyor-console/index.html">Surveyor Console</a>
-      <a href="ash-archive/index.html">Ash Archive</a>
-      <a href="README.md">Design notes</a>
-      <a href="research.md">Research summary</a>
-    </footer>
+    <nav class="screen-grid" aria-label="Prototype screens">
+      <a class="screen-card" href="screens/contract.html"><div><span>01 · READING</span><h2>Contract details</h2><p>Long-form text, inline references, objectives, and a compact summary column.</p></div><strong>Open screen →</strong></a>
+      <a class="screen-card" href="screens/inventory.html"><div><span>02 · GRID</span><h2>Inventory</h2><p>Item grid, category filters, search, and a persistent selection panel.</p></div><strong>Open screen →</strong></a>
+      <a class="screen-card" href="screens/character.html"><div><span>03 · RECORD</span><h2>Character sheet</h2><p>Identity, resource bars, switchable statistics, equipment, and active effects.</p></div><strong>Open screen →</strong></a>
+      <a class="screen-card" href="screens/journal.html"><div><span>04 · LIST + READER</span><h2>Journal</h2><p>Filterable entries, a long reading surface, interactive terms, and objectives.</p></div><strong>Open screen →</strong></a>
+      <a class="screen-card" href="screens/map.html"><div><span>05 · SPATIAL</span><h2>Regional map</h2><p>Large map canvas, selectable locations, and a fixed information panel.</p></div><strong>Open screen →</strong></a>
+      <a class="screen-card" href="screens/trade.html"><div><span>06 · TRANSACTION</span><h2>Trading</h2><p>Three-pane merchant layout with a working basket and live totals.</p></div><strong>Open screen →</strong></a>
+      <a class="screen-card" href="screens/workshop.html"><div><span>07 · WORKSPACE</span><h2>Workshop</h2><p>Recipe browser, selected recipe details, and resource inventory.</p></div><strong>Open screen →</strong></a>
+    </nav>
+    <footer class="gallery-footer">All actions are local prototype interactions. They do not modify saved game state.</footer>
   </main>
 </body>
 </html>
