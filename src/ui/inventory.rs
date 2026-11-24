@@ -1,21 +1,16 @@
 use bevy::prelude::*;
 
-#[derive(Resource, Clone, Debug, Default)]
-pub struct InventoryModel {
-    pub gold: u32,
-    pub wood: u32,
-    pub stone: u32,
-}
+use crate::gameplay::inventory::InventoryModel;
 
 #[derive(Resource, Clone, Debug, Default)]
-pub struct InventoryViewModel {
-    pub gold_label: String,
-    pub wood_label: String,
-    pub stone_label: String,
+pub(super) struct InventoryViewModel {
+    pub(super) gold_label: String,
+    pub(super) wood_label: String,
+    pub(super) stone_label: String,
 }
 
 #[derive(Component, Clone, Copy, Debug, Default)]
-pub enum CurrencyLabel {
+pub(super) enum CurrencyLabel {
     #[default]
     Gold,
     Wood,
@@ -23,13 +18,13 @@ pub enum CurrencyLabel {
 }
 
 #[derive(Component, Default, Clone)]
-pub struct InventoryRoot;
+pub(super) struct InventoryRoot;
 
 /// Projects domain data into presentation-ready labels. Text components are
 /// updated only when their displayed value differs, so newly spawned BSN
 /// entities receive the current model even if the model itself did not change
 /// during the same frame.
-pub fn sync_inventory_view_model(
+pub(super) fn sync_inventory_view_model(
     model: Res<InventoryModel>,
     mut view_model: ResMut<InventoryViewModel>,
     mut labels: Query<(&CurrencyLabel, &mut Text)>,
@@ -48,7 +43,6 @@ pub fn sync_inventory_view_model(
             CurrencyLabel::Wood => &wood,
             CurrencyLabel::Stone => &stone,
         };
-
         if text.0 != *value {
             text.0.clone_from(value);
         }

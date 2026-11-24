@@ -10,21 +10,41 @@ All game UI is authored with Bevy Scene Notation (BSN). Rust systems may update
 state and project it into components, but they must not construct UI trees
 imperatively.
 
-## Module boundaries
+## Source layout and module boundaries
+
+The source tree is organized around three ownership areas:
+
+| Area | Modules | Responsibility |
+| --- | --- | --- |
+| Application | `app/` | Bevy app construction, startup configuration, and top-level `AppState` |
+| Gameplay | `gameplay/` | Domain resources/components, world setup, simulation, and persistence |
+| UI | `ui/` | Overlay navigation, BSN scenes, UI input, and presentation projection |
+
+Within those areas:
 
 | Module | Responsibility |
 | --- | --- |
-| main.rs | Module declarations and plugin composition |
-| state.rs | Top-level application states |
-| game.rs | In-game world setup, save data, fast-travel execution |
-| player.rs | Player movement and look |
-| zone.rs | Zone model, proximity detection, visited-zone data |
-| billboard.rs | Camera-facing billboard transform |
-| ui_stack.rs | UI navigation stack and cursor-capture preference |
-| ui.rs | BSN views, UI input, presentation projection |
-| inventory.rs | Inventory domain model and inventory view model |
-| menu.rs | Main-menu BSN view |
-| transitions.rs | Placeholder screen BSN views |
+| `app/mod.rs` | Application startup and plugin composition |
+| `app/state.rs` | Top-level application states |
+| `gameplay/player.rs` | Player component, movement, and look |
+| `gameplay/zones.rs` | Zone types, proximity detection, visited-zone data, and travel requests |
+| `gameplay/inventory.rs` | Authoritative inventory data |
+| `gameplay/world.rs` | In-game world and player setup |
+| `gameplay/systems.rs` | Gameplay actions such as fast travel and returning to the menu |
+| `gameplay/persistence.rs` | Save-file serialization and loading |
+| `gameplay/billboard.rs` | Camera-facing billboard transform |
+| `ui/stack.rs` | UI navigation stack and cursor-capture preference |
+| `ui/components.rs` | UI marker components and UI-only requests |
+| `ui/inventory.rs` | Inventory ViewModel, UI labels, and model-to-view projection |
+| `ui/screens/` | BSN scene definitions for gameplay, main menu, and placeholder screens |
+| `ui/systems/input.rs` | UI input and navigation actions |
+| `ui/systems/projection.rs` | Visibility, cursor, and minimap projection |
+| `ui/mod.rs` | UI plugin composition and system ordering |
+| `gameplay/mod.rs` | Gameplay plugin composition and system ordering |
+
+Keep the root `main.rs` limited to module declarations and starting the app.
+Do not add unrelated root-level modules as the project grows; extend the
+responsibility-focused area that owns the feature.
 
 Gameplay setup must not spawn UI. UI setup must not own gameplay-world entities.
 
@@ -38,7 +58,7 @@ Bevy:
 - ViewModel: presentation-ready state derived from the model. InventoryViewModel
   holds display labels for currency values. Add item summaries, equipment
   labels, or sorting state here when a real feature needs them.
-- View: BSN scene functions in ui.rs and menu.rs. A view describes hierarchy,
+- View: BSN scene functions under ui/screens/. A view describes hierarchy,
   layout, styling, assets, and event bindings.
 
 Data flow:
@@ -112,12 +132,13 @@ only change state; projection systems control Visibility.
 
 ## State ownership
 
+- `AppState` owns top-level application navigation.
 - UiStack owns overlay navigation and cursor preference.
 - InventoryModel owns currency, item, and equipment data.
 - InventoryViewModel owns derived display values.
 - NearbyZone and VisitedZones are gameplay facts.
 - FastTravelRequest is the command boundary from UI to gameplay. UI requests a
-  destination; game.rs performs the teleport.
+  destination; gameplay systems perform the teleport.
 - BSN views own layout and styling, never business rules.
 
 ## Adding a feature

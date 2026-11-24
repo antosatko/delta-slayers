@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::player::Player;
+use crate::gameplay::player::Player;
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Hash, Default)]
 pub enum ZoneKind {
@@ -17,9 +17,6 @@ pub struct TriggerZone {
 
 #[derive(Resource, Default)]
 pub struct NearbyZone(pub Option<ZoneKind>);
-
-#[derive(Resource, Default)]
-pub struct ActivePanel(pub Option<ZoneKind>);
 
 #[derive(Resource, Default)]
 pub struct VisitedZones(pub std::collections::HashSet<ZoneKind>);
