@@ -134,6 +134,7 @@
   const relatedList = card.querySelector("[data-reference-related-list]");
   const back = card.querySelector("[data-reference-back]");
   const triggers = [...document.querySelectorAll("[data-entry-trigger]")];
+  const states = new Map();
   let activeState = null;
 
   function makeElement(tag, className, text) {
@@ -231,7 +232,7 @@
     state.pinned = false;
     state.history.length = 0;
     state.currentId = null;
-    if (suppressFocus) state.dismissed = true;
+    if (suppressFocus) state.suppressFocus = true;
     if (activeState === state) activeState = null;
     if (restoreFocus) state.trigger.focus({ preventScroll: true });
   }
@@ -284,22 +285,31 @@
       currentId: null,
       history: [],
       pinned: false,
-      dismissed: false,
+      suppressFocus: false,
       pointerOnTrigger: false,
       pointerOnCard: false,
       closeTimer: null
     };
 
+    states.set(trigger, state);
+
     trigger.addEventListener("pointerenter", () => {
       state.pointerOnTrigger = true;
-      if (!state.dismissed) openState(state, false);
+      openState(state, false);
     });
     trigger.addEventListener("pointerleave", () => {
       state.pointerOnTrigger = false;
       scheduleClose(state);
     });
     trigger.addEventListener("focus", () => {
-      if (!state.dismissed) openState(state, false);
+      if (!state.suppressFocus) openState(state, false);
+    });
+    trigger.addEventListener("blur", () => {
+      setTimeout(() => {
+        if (document.activeElement !== trigger && !card.contains(document.activeElement)) {
+          state.suppressFocus = false;
+        }
+      }, 0);
     });
     trigger.addEventListener("click", () => {
       if (activeState === state && !card.hidden && state.pinned) {
@@ -347,13 +357,10 @@
     }
     const trigger = event.target.closest && event.target.closest("[data-entry-trigger]");
     if (trigger) {
-      const state = activeState && activeState.trigger === trigger
-        ? activeState
-        : { trigger, currentId: null, history: [], pinned: false, dismissed: false, pointerOnTrigger: false, pointerOnCard: false, closeTimer: null };
-      if (!state.dismissed) openState(state, false);
+      const state = states.get(trigger);
+      if (state && !state.suppressFocus) openState(state, false);
     } else if (activeState) {
       const state = activeState;
-      state.dismissed = false;
       scheduleClose(state);
     }
   });
