@@ -7,7 +7,7 @@ use bevy::{
 use crate::{
     app::state::AppState,
     gameplay::{
-        billboard::Billboard,
+        billboard::{Billboard, SquashOnMove},
         persistence::load_game,
         player::{self, GameplayCamera, Player, PlayerVisual},
         spawning::WorldStartup,
@@ -102,6 +102,7 @@ pub(super) fn setup_game(
         Transform::from_translation(spawn_pos + Vec3::Y * 0.8),
         PlayerVisual,
         Billboard,
+        SquashOnMove,
         DespawnOnExit::<AppState>(AppState::InGame),
     ));
 
