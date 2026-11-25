@@ -5,12 +5,13 @@ use bevy::{
 
 use crate::{
     gameplay::{
-        exploration::{ActiveExplorationMap, NearbyExplorationPortal},
+        exploration::ActiveExplorationMap,
         player::Player,
         zones::{NearbyZone, TriggerBox, VisitedZones, ZoneKind},
     },
     ui::{
         components::{
+            ExplorationDebugInfoText, ExplorationDebugPanelRoot, ExplorationDebugPanelState,
             FastTravelButton, FastTravelMenu, GameMenuModal, MinimapZoneDot, PanelRoot,
             PauseOverlay, PopupRoot,
         },
@@ -81,6 +82,55 @@ pub fn fast_travel_button_visibility_system(
             Visibility::Hidden
         };
     }
+}
+
+/// Shows the generated map's actual parameters after entering it in debug builds.
+pub fn exploration_debug_panel_projection(
+    active_map: Res<ActiveExplorationMap>,
+    mut panel_state: ResMut<ExplorationDebugPanelState>,
+    mut was_active: Local<bool>,
+    mut panels: Query<&mut Visibility, With<ExplorationDebugPanelRoot>>,
+    mut labels: Query<&mut Text, With<ExplorationDebugInfoText>>,
+) {
+    let is_active = active_map.0.is_some();
+
+    if is_active && !*was_active {
+        panel_state.visible = cfg!(debug_assertions);
+
+        if let Some(map) = active_map.0 {
+            let config = map.config;
+            let tile_count = 1 + 3 * config.radius * (config.radius + 1);
+            let details = format!(
+                "Seed: {}\\nHex radius: {} ({} tiles)\\nTile size: {:.2}\\nHeight multiplier: {:.2}\\nTerrain frequency: {:.3}\\nBiome scale: {:.3}\\nVegetation density: {:.0}%",
+                map.seed,
+                config.radius,
+                tile_count,
+                config.tile_size,
+                config.height_multiplier,
+                config.terrain_frequency,
+                config.biome_scale,
+                config.vegetation_density * 100.0,
+            );
+
+            for mut label in &mut labels {
+                label.0.clone_from(&details);
+            }
+        }
+    }
+
+    if !is_active {
+        panel_state.visible = false;
+    }
+
+    for mut panel in &mut panels {
+        *panel = if panel_state.visible {
+            Visibility::Visible
+        } else {
+            Visibility::Hidden
+        };
+    }
+
+    *was_active = is_active;
 }
 
 pub fn inventory_visibility_system(
