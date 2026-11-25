@@ -19,7 +19,7 @@ The source tree is organized around three ownership areas:
 | Application | `app/` | Bevy app construction, startup configuration, and top-level `AppState` |
 | Gameplay | `gameplay/` | Domain resources/components, world setup, simulation, and persistence |
 | UI | `ui/` | Overlay navigation, BSN scenes, input, and presentation projection |
-| UI library | `crates/delta-slayers-ui/` | Reusable Slate theme, BSN widgets, and presentation-only behaviours |
+| UI library | `crates/delta-slayers-ui/` | Reusable Carbon theme, BSN widgets, and presentation-only behaviours |
 
 Within those areas:
 
@@ -42,7 +42,7 @@ Within those areas:
 | `ui/systems/input.rs` | UI input and navigation actions |
 | `ui/systems/projection.rs` | Visibility, cursor, and minimap projection |
 | `ui/mod.rs` | UI plugin composition and system ordering |
-| `crates/delta-slayers-ui/` | Reusable Slate UI crate; consumed by the game and its standalone showcase example |
+| `crates/delta-slayers-ui/` | Reusable Carbon UI crate; consumed by the game and its standalone showcase example |
 | `gameplay/mod.rs` | Gameplay plugin composition and system ordering |
 
 Keep the root `main.rs` limited to module declarations and starting the app.
