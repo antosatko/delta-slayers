@@ -69,8 +69,8 @@ bsn! {
 - section_header, action_button, and badge provide common hierarchy and
   action/status treatments.
 - stat_bar displays a value and semantic progress fill.
-- item_tile and item_tile_optional are square, artwork-first item controls. Use the optional variant and pass None for items
-  without a stack quantity.
+- item_tile and item_tile_optional are square, artwork-first item controls.
+  The optional variant accepts None for items without a stack quantity.
 - reference_term opens a contextual information card after a 600 ms hover
   dwell.
 
