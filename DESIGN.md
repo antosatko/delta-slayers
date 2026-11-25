@@ -99,9 +99,13 @@ updates from the cursor until release. A highlighted ground ring and vertical
 beacon mark the endpoint. A new click replaces the destination, and holding
 Shift increases movement speed. WASD and arrow keys also move relative to the
 camera's horizontal heading; direct keyboard movement takes priority and clears
-the clicked destination. The inventory does not pause gameplay: movement and world
-simulation continue behind it, while camera scrolling is reserved for the
-inventory UI. Pause and the game menu still suspend gameplay. Right-click opens
+the clicked destination. Both movement modes share a circular player footprint
+against Blender-authored `MovementBlocker` boxes. Movement advances in small
+steps to prevent tunnelling, and collision correction keeps the player against
+the wall while preserving tangential movement for wall sliding. Blockers affect
+continuous movement, not spawn placement or fast-travel teleports. The inventory
+does not pause gameplay: movement and world simulation continue behind it,
+while camera scrolling is reserved for the inventory UI. Pause and the game menu still suspend gameplay. Right-click opens
 the inventory or dismisses the active overlay.
 Saved positions preserve their full world-space coordinates. Fast travel uses
 the selected trigger box's world-space X/Z position and offsets the exit along
