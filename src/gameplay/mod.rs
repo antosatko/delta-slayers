@@ -1,5 +1,6 @@
 mod billboard;
 mod persistence;
+mod npc;
 mod spawning;
 mod systems;
 mod world;
@@ -61,6 +62,7 @@ impl Plugin for GameplayPlugin {
                 (
                     player::adjust_camera.run_if(camera_input_enabled),
                     player::move_player_to_target.run_if(gameplay_simulation_enabled),
+                    npc::chase_player.run_if(gameplay_simulation_enabled),
                     player::follow_camera,
                     player::draw_move_trajectory.run_if(gameplay_simulation_enabled),
                     player::sync_player_visual,
