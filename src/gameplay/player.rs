@@ -6,6 +6,7 @@ use bevy::{
 use crate::ui::stack::UiStack;
 
 pub const CAMERA_DISTANCE: f32 = 18.0;
+pub const INTERACTION_HEIGHT: f32 = 1.7;
 const CAMERA_TARGET_HEIGHT: f32 = 0.8;
 const PLAYER_VISUAL_HEIGHT: f32 = 0.8;
 
