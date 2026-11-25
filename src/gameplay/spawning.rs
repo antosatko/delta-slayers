@@ -66,6 +66,6 @@ pub(super) fn apply_player_spawn_point(
     };
 
     transform.translation = translation;
-    transform.rotation = Quat::from_euler(EulerRot::YXZ, yaw, player.pitch, 0.0);
+    transform.rotation = Quat::from_rotation_y(yaw);
     player.yaw = yaw;
 }
