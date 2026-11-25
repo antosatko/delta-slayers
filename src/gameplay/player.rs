@@ -16,8 +16,6 @@ const CAMERA_PITCH_SAVE_ADJUSTMENT: f32 = 0.08;
 pub const INTERACTION_HEIGHT: f32 = 1.7;
 const CAMERA_MIN_DISTANCE: f32 = 14.0;
 const CAMERA_MAX_DISTANCE: f32 = 22.0;
-const CAMERA_ZOOM_PER_LINE: f32 = 0.65;
-const CAMERA_PITCH_PER_LINE: f32 = 0.02;
 const CAMERA_TARGET_HEIGHT: f32 = 0.8;
 pub(super) const PLAYER_VISUAL_HEIGHT: f32 = 0.8;
 pub(super) const PLAYER_COLLIDER_RADIUS: f32 = 0.32;
@@ -75,10 +73,10 @@ pub struct Player {
 pub struct MovementBlocker;
 
 #[derive(Component)]
-pub(super) struct GameplayCamera {
-    pub(super) distance: f32,
+pub(crate) struct GameplayCamera {
+    pub(crate) distance: f32,
     /// World-space translation applied to the camera and its look target.
-    pub(super) pan_offset: Vec3,
+    pub(crate) pan_offset: Vec3,
 }
 
 #[derive(Component)]
