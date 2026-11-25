@@ -162,8 +162,11 @@ procedural hex map at runtime. The generated tile heights position imported biom
 biome GLB contains named `tiles` and `objects` collections in the same scene.
 The loader extracts tile roots only from `tiles` and biome-specific spawnable
 object roots only from `objects`, keeping their hierarchies and Skein
-components. Tile meshes use a 5 m source radius and are scaled to the
-configured tile radius. A smoothstep-weighted triangular height field keeps
+components. Prototype extraction preserves the collection root's ancestor
+chain and registers the render, transform, and hierarchy components required
+by Bevy's reflected dynamic-world extraction (`Mesh3d`,
+`MeshMaterial3d<StandardMaterial>`, `Transform`, and `ChildOf`). Tile
+meshes use a 5 m source radius and are scaled to the configured tile radius. A smoothstep-weighted triangular height field keeps
 player and NPC elevation continuous between neighboring hex centers.
 Neighboring tiles can be crossed only when their height difference is within
 the configured maximum jump height; steeper edges receive movement blockers.

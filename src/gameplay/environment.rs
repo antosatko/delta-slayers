@@ -281,9 +281,6 @@ pub(super) fn collect_assets(
 
         let tile_roots = extracted.0;
         let object_roots = extracted.1;
-        let tile_count = tile_roots.len();
-        let object_count = object_roots.len();
-
         let mut tile_count = 0;
         let mut tile_mesh_count = 0;
         for root in tile_roots {
@@ -440,7 +437,15 @@ fn extract_collection_roots(
                 return None;
             }
 
-            let mut hierarchy = vec![collection_root];
+            // Preserve the collection root's ancestors as well. Its ChildOf
+            // reference must not point outside the extracted WorldAsset.
+            let mut hierarchy = Vec::new();
+            let mut ancestor = Some(collection_root);
+            while let Some(entity) = ancestor {
+                hierarchy.push(entity);
+                ancestor = source.world.get::<ChildOf>(entity).map(ChildOf::parent);
+            }
+            hierarchy.reverse();
             collect_hierarchy_entities(&source.world, root, &mut hierarchy);
 
             let world = DynamicWorldBuilder::from_world(&source.world, type_registry)
