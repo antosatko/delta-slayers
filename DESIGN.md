@@ -90,8 +90,8 @@ trajectory. Holding the left button for 300 ms starts periodic destination
 updates from the cursor until release. A highlighted ground ring and vertical
 beacon mark the endpoint. A new click replaces the destination, and holding
 Shift increases movement speed. WASD and arrow keys also move relative to the
-player's heading; direct keyboard movement takes priority and clears the clicked
-destination. The inventory does not pause gameplay: movement and world
+camera's horizontal heading; direct keyboard movement takes priority and clears
+the clicked destination. The inventory does not pause gameplay: movement and world
 simulation continue behind it, while camera scrolling is reserved for the
 inventory UI. Pause and the game menu still suspend gameplay. Right-click opens
 the inventory or dismisses the active overlay.
