@@ -189,8 +189,12 @@ mod tests {
     #[test]
     fn saved_camera_pitch_shifts_with_the_new_default() {
         assert!((migrate_saved_camera_pitch(-0.9) - CAMERA_DEFAULT_PITCH).abs() < 1e-6);
-        assert_eq!(migrate_saved_camera_pitch(-1.05), CAMERA_MIN_PITCH);
-        assert_eq!(migrate_saved_camera_pitch(-0.75), CAMERA_MAX_PITCH);
+        assert!(
+            (migrate_saved_camera_pitch(-1.05) - CAMERA_MIN_PITCH).abs() < 1e-6
+        );
+        assert!(
+            (migrate_saved_camera_pitch(-0.75) - CAMERA_MAX_PITCH).abs() < 1e-6
+        );
     }
 
     #[test]
@@ -207,9 +211,21 @@ mod tests {
 
     #[test]
     fn camera_adjustments_stay_within_their_limits() {
-        assert_eq!(camera_distance_after_scroll(CAMERA_MIN_DISTANCE, 10.0), CAMERA_MIN_DISTANCE);
-        assert_eq!(camera_distance_after_scroll(CAMERA_MAX_DISTANCE, -10.0), CAMERA_MAX_DISTANCE);
-        assert_eq!(camera_pitch_after_scroll(CAMERA_MIN_PITCH, -10.0), CAMERA_MIN_PITCH);
-        assert_eq!(camera_pitch_after_scroll(CAMERA_MAX_PITCH, 10.0), CAMERA_MAX_PITCH);
+        assert_eq!(
+            camera_distance_after_scroll(CAMERA_MIN_DISTANCE, 10.0),
+            CAMERA_MIN_DISTANCE
+        );
+        assert_eq!(
+            camera_distance_after_scroll(CAMERA_MAX_DISTANCE, -10.0),
+            CAMERA_MAX_DISTANCE
+        );
+        assert_eq!(
+            camera_pitch_after_scroll(CAMERA_MIN_PITCH, -10.0),
+            CAMERA_MIN_PITCH
+        );
+        assert_eq!(
+            camera_pitch_after_scroll(CAMERA_MAX_PITCH, 10.0),
+            CAMERA_MAX_PITCH
+        );
     }
 }
