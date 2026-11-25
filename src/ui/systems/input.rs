@@ -34,11 +34,7 @@ pub fn handle_ui_input(
 
     if mouse.just_pressed(MouseButton::Right) {
         if ui.is_empty() {
-            if ui.cursor_capture_requested() {
-                ui.push(UiLayer::Inventory);
-            } else {
-                ui.capture_cursor();
-            }
+            ui.push(UiLayer::Inventory);
         } else {
             ui.pop_top();
         }
@@ -51,9 +47,6 @@ pub fn handle_ui_input(
     if let Some(active) = ui.active_panel() {
         if nearby.0 != Some(active) {
             ui.remove(UiLayer::Panel(active));
-            if ui.is_empty() {
-                ui.capture_cursor();
-            }
         }
     }
 }
