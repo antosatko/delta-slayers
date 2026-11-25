@@ -68,16 +68,10 @@ pub(super) fn chase_player(
 
     for mut npc in &mut npcs {
         let ground_position = npc.translation - Vec3::Y * PLAYER_VISUAL_HEIGHT;
-        let mut offset = player.translation - ground_position;
-        offset.y = 0.0;
-        let distance = offset.length();
-        let remaining_distance = distance - GODO_STOP_DISTANCE;
-        if remaining_distance <= 0.0 || distance <= f32::EPSILON {
+        let movement = chase_step(ground_position, player.translation, delta_secs);
+        if movement == Vec3::ZERO {
             continue;
         }
-
-        let movement_distance = (GODO_CHASE_SPEED * delta_secs).min(remaining_distance);
-        let movement = offset / distance * movement_distance;
         let next_position = player::move_with_collisions(
             ground_position,
             movement,
@@ -94,18 +88,44 @@ pub(super) fn chase_player(
     }
 }
 
+fn chase_step(position: Vec3, target: Vec3, delta_secs: f32) -> Vec3 {
+    if !delta_secs.is_finite() || delta_secs <= 0.0 {
+        return Vec3::ZERO;
+    }
+
+    let mut offset = target - position;
+    offset.y = 0.0;
+    let distance = offset.length();
+    let remaining_distance = distance - GODO_STOP_DISTANCE;
+    if remaining_distance <= 0.0 || distance <= f32::EPSILON {
+        return Vec3::ZERO;
+    }
+
+    offset / distance * (GODO_CHASE_SPEED * delta_secs).min(remaining_distance)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn npc_stops_chasing_inside_its_personal_space() {
-        let distance = GODO_STOP_DISTANCE - 0.1;
-        assert!(distance - GODO_STOP_DISTANCE <= 0.0);
+    fn npc_stops_at_its_personal_space_distance() {
+        let movement = chase_step(Vec3::ZERO, Vec3::X * (GODO_STOP_DISTANCE - 0.1), 1.0);
+        assert_eq!(movement, Vec3::ZERO);
     }
 
     #[test]
-    fn npc_chase_speed_is_slower_than_player_walk_speed() {
-        assert!(GODO_CHASE_SPEED < 5.0);
+    fn npc_chase_step_is_speed_limited_and_horizontal() {
+        let movement = chase_step(Vec3::ZERO, Vec3::new(100.0, 50.0, 0.0), 1.0);
+        assert!((movement.length() - GODO_CHASE_SPEED).abs() < 1e-5);
+        assert_eq!(movement.y, 0.0);
+        assert!(movement.x > 0.0);
+    }
+
+    #[test]
+    fn npc_reaches_but_does_not_cross_its_stop_distance() {
+        let target = Vec3::X * (GODO_STOP_DISTANCE + 0.2);
+        let movement = chase_step(Vec3::ZERO, target, 1.0);
+        assert!((movement.length() - 0.2).abs() < 1e-5);
     }
 }
