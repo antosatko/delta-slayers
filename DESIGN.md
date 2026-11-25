@@ -152,7 +152,9 @@ same map; an empty seed is randomized per visit. Map dimensions, tile size,
 terrain height/frequency, biome scale, and vegetation density are clamped to
 safe runtime ranges. The town scene stays loaded while the generated map is
 placed in a distant world area. Its return beacon restores the town-side
-transform. The current save format stores town state only; using Backspace
+transform. Debug builds show a dismissible settings panel on entry with the
+resolved seed and effective map-generation parameters. The current save format
+stores town state only; using Backspace
 while exploring saves the return anchor so a subsequent Quick Load starts back
 in town rather than at the generated map's world offset.
 
