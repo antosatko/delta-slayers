@@ -149,7 +149,14 @@ pub fn page_header(
                     align_items: AlignItems::Center,
                     border_radius: BorderRadius::all(px(14)),
                 }
-                template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().button_background(CarbonButtonTone::Secondary, false, false))))
+                template(|ctx| {
+                    let theme = ctx.resource::<CarbonTheme>();
+                    Ok(BackgroundColor(theme.button_background(
+                        CarbonButtonTone::Secondary,
+                        false,
+                        false,
+                    )))
+                })
                 Children [
                     Text("?")
                     TextFont { font_size: px(14) }
@@ -220,7 +227,14 @@ pub fn screen_tab(label: &'static str, selected: bool) -> impl Scene {
             align_items: AlignItems::Center,
             border_radius: BorderRadius::all(px(5)),
         }
-        template(move |ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().button_background(CarbonButtonTone::Ghost, false, false))))
+        template(|ctx| {
+            let theme = ctx.resource::<CarbonTheme>();
+            Ok(BackgroundColor(theme.button_background(
+                CarbonButtonTone::Ghost,
+                false,
+                false,
+            )))
+        })
         Children [
             Text(label)
             TextFont { font_size: px(12) }
@@ -271,13 +285,20 @@ pub fn action_button(
             column_gap: px(8),
             border_radius: BorderRadius::all(px(6)),
         }
-        template(move |ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().button_background(tone, false, false))))
+        template(move |ctx| {
+            let theme = ctx.resource::<CarbonTheme>();
+            Ok(BackgroundColor(theme.button_background(tone, false, false)))
+        })
         Children [
             @glyph(icon, 15.0, GlyphTone::Button(tone))
             --
             Text(label)
             TextFont { font_size: px(13) }
-            template(move |ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().button_foreground(tone))))
+            template(move |ctx| {
+                Ok(TextColor(
+                    ctx.resource::<CarbonTheme>().button_foreground(tone),
+                ))
+            })
         ]
     }
 }
@@ -292,7 +313,11 @@ pub fn badge(label: &'static str, status: CarbonStatus) -> impl Scene {
             align_items: AlignItems::Center,
             border_radius: BorderRadius::all(px(5)),
         }
-        template(move |ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().status_background(status))))
+        template(move |ctx| {
+            Ok(BackgroundColor(
+                ctx.resource::<CarbonTheme>().status_background(status),
+            ))
+        })
         Text(label)
         TextFont { font_size: px(10) }
         template(move |ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().status_color(status))))
@@ -345,7 +370,11 @@ pub fn stat_bar(
                     height: percent(100),
                     border_radius: BorderRadius::all(px(3)),
                 }
-                template(move |ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().status_color(status))))
+                template(move |ctx| {
+                    Ok(BackgroundColor(
+                        ctx.resource::<CarbonTheme>().status_color(status),
+                    ))
+                })
             ]
         ]
     }
