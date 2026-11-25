@@ -50,6 +50,8 @@ impl Plugin for GameplayPlugin {
                 (
                     player::player_look.run_if(gameplay_input_enabled),
                     player::player_move.run_if(gameplay_input_enabled),
+                    player::follow_camera,
+                    player::sync_player_visual,
                     billboard::billboard_system,
                     zones::zone_detection_system.run_if(gameplay_input_enabled),
                 )
