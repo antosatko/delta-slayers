@@ -32,7 +32,7 @@ Within those areas:
 | `gameplay/zones.rs` | Town interaction zones, proximity detection, visited-zone data, and fast-travel requests |
 | `gameplay/exploration.rs` | Reflected exploration-portal settings, seeded hex terrain generation, map travel, and terrain elevation sampling |
 | `gameplay/inventory.rs` | Authoritative inventory data |
-| `gameplay/world.rs` | In-game world setup, initial Godo NPC spawn, and the world-ready transition |
+| `gameplay/world.rs` | In-game world setup and the world-ready transition |
 | `gameplay/npc.rs` | NPC movement that reuses the player collision resolver |
 | `gameplay/systems.rs` | Gameplay actions such as fast travel and returning to the menu |
 | `gameplay/persistence.rs` | Save-file serialization and loading |
