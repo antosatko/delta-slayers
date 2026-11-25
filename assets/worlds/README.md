@@ -83,9 +83,12 @@ the `UnreachableTile` gameplay component. The exploration minimap highlights
 those tiles for later use by gameplay systems.
 
 Values outside the runtime ranges are clamped. The reflected
-`vegetation_density` field has been removed and `max_jump_height` added;
-refresh the Skein type registry and re-export existing exploration portal
-objects after updating their components. For a reproducible test map,
+`vegetation_density` field is retained only for compatibility with older
+GLB exports; it is ignored and does not generate vegetation. The new
+`max_jump_height` field defaults to 1.5 m when absent from an older export.
+You can refresh Skein's registry and re-export the portal to configure the
+jump limit explicitly, but this is not required just to keep an existing
+portal working. For a reproducible test map,
 set a seed explicitly; leave it empty when each visit should be different.
 In the setup dialog, **Randomize seed** chooses a fresh explicit seed while
 preserving the other settings; seed 0 continues to generate a new seed on each
