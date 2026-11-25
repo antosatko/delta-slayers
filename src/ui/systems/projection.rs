@@ -12,6 +12,8 @@ use crate::{
     ui::{
         components::{
             ExplorationDebugInfoText, ExplorationDebugPanelRoot, ExplorationDebugPanelState,
+            ExplorationParameterControl, ExplorationSetupRoot, ExplorationSetupTileCountText,
+            ExplorationSetupViewModel,
             FastTravelButton, FastTravelMenu, GameMenuModal, MinimapZoneDot, PanelRoot,
             PauseOverlay, PopupRoot,
         },
@@ -41,7 +43,7 @@ pub fn popup_visibility_system(
         && ui.active_panel().is_none()
         && !ui.inventory_open()
         && !ui.paused()
-        && !ui.game_menu_open();
+        && !ui.game_menu_open()\n        && !ui.exploration_setup_open();
 
     for mut visibility in &mut popups {
         *visibility = if visible {
@@ -131,6 +133,72 @@ pub fn exploration_debug_panel_projection(
     }
 
     *was_active = is_active;
+}
+
+/// Projects the player-facing portal setup modal and synchronizes its Feathers inputs.
+pub fn exploration_setup_projection(
+    ui: Res<UiStack>,
+    view_model: Res<ExplorationSetupViewModel>,
+    mut commands: Commands,
+    mut roots: Query<&mut Visibility, With<ExplorationSetupRoot>>,
+    controls: Query<
+        (Entity, &ExplorationParameterControl, &NumberInputValue),
+        With<FeathersNumberInput>,
+    >,
+    mut summaries: Query<&mut Text, With<ExplorationSetupTileCountText>>,
+) {
+    let visible = ui.exploration_setup_open();
+    for mut root in &mut roots {
+        *root = if visible {
+            Visibility::Visible
+        } else {
+            Visibility::Hidden
+        };
+    }
+
+    let config = view_model.config;
+    let tile_count = 1 + 3 * config.radius * (config.radius + 1);
+    let summary = format!(
+        "{tile_count} hexes · approx. {:.0} world units across",
+        config.radius as f32 * config.tile_size * 3.0
+    );
+    for mut text in &mut summaries {
+        if text.0 != summary {
+            text.0.clone_from(&summary);
+        }
+    }
+
+    if !view_model.is_changed() {
+        return;
+    }
+
+    for (entity, control, current) in &controls {
+        let next = match control {
+            ExplorationParameterControl::Seed => NumberInputValue::I64(
+                config.seed.map_or(0, |seed| seed.min(i64::MAX as u64) as i64),
+            ),
+            ExplorationParameterControl::Radius => {
+                NumberInputValue::I64(config.radius as i64)
+            }
+            ExplorationParameterControl::TileSize => NumberInputValue::F32(config.tile_size),
+            ExplorationParameterControl::HeightMultiplier => {
+                NumberInputValue::F32(config.height_multiplier)
+            }
+            ExplorationParameterControl::TerrainFrequency => {
+                NumberInputValue::F32(config.terrain_frequency)
+            }
+            ExplorationParameterControl::BiomeScale => {
+                NumberInputValue::F32(config.biome_scale)
+            }
+            ExplorationParameterControl::VegetationDensity => {
+                NumberInputValue::F32(config.vegetation_density * 100.0)
+            }
+        };
+
+        if *current != next {
+            commands.entity(entity).insert(next);
+        }
+    }
 }
 
 pub fn inventory_visibility_system(
