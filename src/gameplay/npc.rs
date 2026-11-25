@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 
-use super::player::{
-    self, MovementBlocker, Player, PLAYER_COLLIDER_RADIUS, PLAYER_VISUAL_HEIGHT,
+use super::{
+    player::{self, MovementBlocker, Player, PLAYER_COLLIDER_RADIUS, PLAYER_VISUAL_HEIGHT},
+    spawning::WorldStartup,
 };
 
 const GODO_CHASE_SPEED: f32 = 2.4;
@@ -11,6 +12,42 @@ const GODO_STOP_DISTANCE: f32 = PLAYER_COLLIDER_RADIUS * 2.0 + 0.45;
 /// movement and collision use the corresponding ground position.
 #[derive(Component)]
 pub(super) struct Npc;
+
+/// Spawns Godo beside the player's final initial position. This runs after
+/// authored spawn-point placement, so new games and loaded saves both start
+/// with the NPC nearby.
+pub(super) fn spawn_godo(
+    mut commands: Commands,
+    startup: Res<WorldStartup>,
+    player: Query<&Transform, With<Player>>,
+    existing: Query<(), With<Npc>>,
+    asset_server: Res<AssetServer>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+) {
+    if !startup.spawn_point_applied || !existing.is_empty() {
+        return;
+    }
+    let Ok(player) = player.single() else {
+        return;
+    };
+
+    let material = materials.add(StandardMaterial {
+        base_color_texture: Some(asset_server.load("npc/godo.png")),
+        alpha_mode: AlphaMode::Blend,
+        unlit: true,
+        ..default()
+    });
+    commands.spawn((
+        Mesh3d(meshes.add(Rectangle::new(0.95, 1.68))),
+        MeshMaterial3d(material),
+        Transform::from_translation(player.translation + Vec3::new(3.0, PLAYER_VISUAL_HEIGHT, 3.0)),
+        Npc,
+        super::billboard::Billboard,
+        super::billboard::SquashOnMove,
+        DespawnOnExit::<crate::app::state::AppState>(crate::app::state::AppState::InGame),
+    ));
+}
 
 /// Moves Godo toward the player while respecting the same authored blockers
 /// and collision resolution used by player movement.
