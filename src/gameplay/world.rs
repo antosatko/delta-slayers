@@ -59,7 +59,8 @@ pub(super) fn setup_game(
         DespawnOnExit::<AppState>(AppState::InGame),
     ));
 
-    let spawn_pos = Vec3::new(saved_pos.x, 0.0, saved_pos.z);
+    // Preserve the full saved world position, including its elevation.
+    let spawn_pos = saved_pos;
     let initial_pitch = if startup.has_saved_position {
         player::migrate_saved_camera_pitch(saved_pitch)
     } else {
