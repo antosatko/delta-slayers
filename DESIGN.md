@@ -155,7 +155,10 @@ Current layers:
 
 The gameplay cursor is always visible and ungrabbed. Opening an overlay
 suspends gameplay input without changing cursor mode; UI projection keeps the
-pointer available for interacting with overlay controls.
+pointer available for interacting with overlay controls. UI hit regions expose
+their pointer-over state to movement targeting: clicks over UI do not set a
+destination, and a click that begins over UI remains blocked until release.
+This prevents click-through when an overlay closes during a held click.
 
 System ordering is explicit:
 
