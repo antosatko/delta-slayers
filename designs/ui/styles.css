@@ -969,3 +969,86 @@ h1 { font-size:clamp(1.65rem,2.5vw,2.2rem); }
   .trade-row > .item-display { width: 76px; }
   .item-display .item-name { font-size: .7rem; }
 }
+
+
+/* Compact screen headers: one title row, optional help, and optional page tabs. */
+.page-heading {
+  display: block;
+  margin: 0 0 20px;
+  padding: 0;
+  border: 0;
+}
+.page-heading-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-width: 0;
+  min-height: 34px;
+}
+.page-heading h1 {
+  min-width: 0;
+  margin: 0;
+  font-size: clamp(1.55rem, 2.35vw, 2rem);
+  line-height: 1.15;
+  letter-spacing: -.035em;
+}
+.screen-help {
+  flex: 0 0 26px;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--surface-alt);
+  color: var(--muted);
+  font: inherit;
+  font-size: .88rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: help;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+.screen-help:hover,
+.screen-help:focus-visible {
+  background: var(--surface-raised);
+  color: var(--ink);
+  outline: 2px solid var(--line-strong);
+  outline-offset: 2px;
+}
+.screen-pages {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 9px;
+  min-height: 32px;
+}
+.screen-pages .screen-page {
+  min-height: 31px;
+  padding: 5px 11px 6px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 4px 4px 0 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: .83rem;
+  font-weight: 570;
+  cursor: pointer;
+}
+.screen-pages .screen-page:hover {
+  background: var(--surface-alt);
+  color: var(--ink);
+}
+.screen-pages .screen-page.active {
+  border-bottom-color: var(--accent);
+  background: var(--surface-alt);
+  color: var(--ink);
+}
+@media (max-width: 520px) {
+  .page-heading { margin-bottom: 15px; }
+  .page-heading h1 { font-size: 1.55rem; }
+  .screen-pages { gap: 2px; }
+  .screen-pages .screen-page { padding-inline: 9px; font-size: .8rem; }
+}
