@@ -16,9 +16,3 @@ pub use widgets::{
     reference_term, root, screen_tab, screen_tabs, section_header, stat_bar,
 };
 
-// Compatibility names for call sites that have not migrated from Slate yet.
-pub use theme::CarbonButtonTone as SlateButtonTone;
-pub use theme::CarbonPlugin as SlatePlugin;
-pub use theme::CarbonStatus as SlateStatus;
-pub use theme::CarbonTheme as SlateTheme;
-pub use widgets::CarbonIcon as SlateIcon;
