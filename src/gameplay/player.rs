@@ -20,6 +20,10 @@ const CAMERA_ZOOM_PER_LINE: f32 = 0.65;
 const CAMERA_PITCH_PER_LINE: f32 = 0.02;
 const CAMERA_TARGET_HEIGHT: f32 = 0.8;
 const PLAYER_VISUAL_HEIGHT: f32 = 0.8;
+const PLAYER_COLLIDER_RADIUS: f32 = 0.32;
+const PLAYER_COLLIDER_HEIGHT: f32 = 1.6;
+const MAX_COLLISION_STEP: f32 = 0.1;
+const MAX_COLLISION_RESOLVE_PASSES: usize = 6;
 const PLAYER_WALK_SPEED: f32 = 5.0;
 const PLAYER_SPRINT_SPEED: f32 = 8.0;
 const TRAJECTORY_ARROW_SPACING: f32 = 1.2;
@@ -37,6 +41,15 @@ pub struct Player {
     /// Vertical angle of the follow camera. Negative values look down.
     pub pitch: f32,
 }
+
+/// An invisible, Blender-authored box that blocks player movement.
+///
+/// Attach this to an Empty and use its world transform to size and orient the
+/// box. The collision volume uses local bounds of -1 to 1 on every axis.
+#[derive(Component, Reflect, Default)]
+#[reflect(Component, Default)]
+#[type_path = "delta_slayers::gameplay::player"]
+pub struct MovementBlocker;
 
 #[derive(Component)]
 pub(super) struct GameplayCamera {
@@ -190,6 +203,7 @@ pub(super) fn set_move_target_from_cursor(
 pub(super) fn move_player_to_target(
     mut player: Query<&mut Transform, With<Player>>,
     camera: Query<&Transform, (With<GameplayCamera>, Without<Player>)>,
+    blockers: Query<&GlobalTransform, With<MovementBlocker>>,
     mut target: ResMut<MovementTarget>,
     input: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
@@ -205,34 +219,157 @@ pub(super) fn move_player_to_target(
     } else {
         PLAYER_WALK_SPEED
     };
-    let step = speed * time.delta_secs();
+    let delta_secs = time.delta_secs();
+    if !delta_secs.is_finite() || delta_secs <= 0.0 {
+        return;
+    }
+    let step = speed * delta_secs;
 
-    if let Some(camera_transform) = camera.iter().next() {
+    let movement = if let Some(camera_transform) = camera.iter().next() {
         let camera_forward = camera_transform.forward().as_vec3();
         let camera_forward = Vec3::new(camera_forward.x, 0.0, camera_forward.z);
-        if let Some(direction) = keyboard_movement_direction(&input, camera_forward) {
+        keyboard_movement_direction(&input, camera_forward).map(|direction| {
             target.clear();
-            transform.translation += direction * step;
-            return;
-        }
-    }
+            direction * step
+        })
+    } else {
+        None
+    };
 
-    let Some(destination) = target.destination else {
+    let movement = movement.or_else(|| {
+        let destination = target.destination?;
+        let mut offset = destination - transform.translation;
+        offset.y = 0.0;
+        let distance = offset.length();
+
+        if distance <= 0.03 {
+            target.destination = None;
+            return None;
+        }
+
+        Some(offset / distance * distance.min(step))
+    });
+
+    let Some(movement) = movement else {
         return;
     };
 
-    let mut offset = destination - transform.translation;
-    offset.y = 0.0;
-    let distance = offset.length();
+    let next_position = move_with_collisions(
+        transform.translation,
+        movement,
+        |candidate, intended_movement| {
+            blockers.iter().find_map(|blocker| {
+                let normal = movement_collision_normal(candidate, blocker)?;
+                (intended_movement.dot(normal) < -1e-5).then_some(normal)
+            })
+        },
+    );
 
-    if distance <= step || distance <= 0.03 {
-        transform.translation.x = destination.x;
-        transform.translation.z = destination.z;
-        target.destination = None;
-        return;
+    transform.translation.x = next_position.x;
+    transform.translation.z = next_position.z;
+
+    if let Some(destination) = target.destination {
+        let remaining = Vec2::new(
+            destination.x - transform.translation.x,
+            destination.z - transform.translation.z,
+        );
+        if remaining.length() <= 0.03 {
+            target.destination = None;
+        }
+    }
+}
+
+/// Advances in small increments so a fast frame or sprint cannot tunnel
+/// through a thin authored wall. When a step hits a wall, its inward component
+/// is removed, preserving the tangential part so the player can slide along it.
+fn move_with_collisions(
+    start: Vec3,
+    delta: Vec3,
+    mut collision_normal: impl FnMut(Vec3, Vec3) -> Option<Vec3>,
+) -> Vec3 {
+    let distance = Vec2::new(delta.x, delta.z).length();
+    if !distance.is_finite() || distance <= f32::EPSILON || !delta.is_finite() {
+        return start;
     }
 
-    transform.translation += offset / distance * step;
+    let step_count = (distance / MAX_COLLISION_STEP).ceil().max(1.0) as usize;
+    let step = delta / step_count as f32;
+    let mut position = start;
+
+    for _ in 0..step_count {
+        let mut movement = step;
+        for _ in 0..MAX_COLLISION_RESOLVE_PASSES {
+            if movement.length_squared() <= f32::EPSILON {
+                break;
+            }
+
+            let candidate = position + movement;
+            let Some(normal) = collision_normal(candidate, movement) else {
+                break;
+            };
+
+            movement -= normal * movement.dot(normal);
+        }
+        position += movement;
+    }
+
+    position
+}
+
+/// Returns the outward horizontal contact normal when the player's circular
+/// footprint overlaps an upright, oriented box. Blockers are rotated around Y;
+/// their vertical scale and position determine whether they overlap the body.
+fn movement_collision_normal(
+    player_position: Vec3,
+    blocker: &GlobalTransform,
+) -> Option<Vec3> {
+    let (scale, rotation, translation) = blocker.to_scale_rotation_translation();
+    let half_extents = scale.abs();
+    if !half_extents.is_finite()
+        || half_extents.x <= f32::EPSILON
+        || half_extents.y <= f32::EPSILON
+        || half_extents.z <= f32::EPSILON
+    {
+        return None;
+    }
+
+    let player_center = player_position + Vec3::Y * (PLAYER_COLLIDER_HEIGHT * 0.5);
+    let local_center = rotation.inverse() * (player_center - translation);
+
+    let player_bottom = local_center.y - PLAYER_COLLIDER_HEIGHT * 0.5;
+    let player_top = local_center.y + PLAYER_COLLIDER_HEIGHT * 0.5;
+    if player_top <= -half_extents.y || player_bottom >= half_extents.y {
+        return None;
+    }
+
+    let local_xz = Vec2::new(local_center.x, local_center.z);
+    let closest = local_xz.clamp(
+        Vec2::new(-half_extents.x, -half_extents.z),
+        Vec2::new(half_extents.x, half_extents.z),
+    );
+    let difference = local_xz - closest;
+
+    let local_normal = if difference.length_squared() > 1e-8 {
+        Vec3::new(difference.x, 0.0, difference.y).normalize()
+    } else {
+        // The center is inside the box footprint. Pick its nearest face so
+        // motion toward the interior is blocked while motion out is allowed.
+        let distance_to_x_face = half_extents.x - local_center.x.abs();
+        let distance_to_z_face = half_extents.z - local_center.z.abs();
+        if distance_to_x_face <= distance_to_z_face {
+            Vec3::new(if local_center.x >= 0.0 { 1.0 } else { -1.0 }, 0.0, 0.0)
+        } else {
+            Vec3::new(0.0, 0.0, if local_center.z >= 0.0 { 1.0 } else { -1.0 })
+        }
+    };
+
+    if difference.length_squared() >= PLAYER_COLLIDER_RADIUS * PLAYER_COLLIDER_RADIUS {
+        return None;
+    }
+
+    let world_normal = rotation * local_normal;
+    let horizontal_normal = Vec3::new(world_normal.x, 0.0, world_normal.z).normalize_or_zero();
+    (horizontal_normal != Vec3::ZERO).then_some(horizontal_normal)
 }
 
 fn keyboard_movement_direction(input: &ButtonInput<KeyCode>, camera_forward: Vec3) -> Option<Vec3> {
@@ -502,6 +639,93 @@ mod tests {
         input.press(KeyCode::ArrowDown);
 
         assert!(keyboard_movement_direction(&input, Vec3::NEG_Z).is_none());
+    }
+
+    fn move_against_test_blockers(
+        start: Vec3,
+        delta: Vec3,
+        blockers: &[GlobalTransform],
+    ) -> Vec3 {
+        move_with_collisions(start, delta, |candidate, intended_movement| {
+            blockers.iter().find_map(|blocker| {
+                let normal = movement_collision_normal(candidate, blocker)?;
+                (intended_movement.dot(normal) < -1e-5).then_some(normal)
+            })
+        })
+    }
+
+    #[test]
+    fn movement_stops_at_an_authored_wall() {
+        let blocker = GlobalTransform::from(
+            Transform::from_scale(Vec3::new(0.1, 1.0, 2.0)),
+        );
+
+        let result = move_against_test_blockers(
+            Vec3::new(-2.0, 0.0, 0.0),
+            Vec3::new(4.0, 0.0, 0.0),
+            &[blocker],
+        );
+
+        let wall_edge = -0.1;
+        assert!(result.x >= wall_edge - PLAYER_COLLIDER_RADIUS - 0.02);
+        assert!(result.x <= wall_edge - PLAYER_COLLIDER_RADIUS + 0.02);
+    }
+
+    #[test]
+    fn movement_slides_along_a_wall_instead_of_stopping_completely() {
+        let blocker = GlobalTransform::from(
+            Transform::from_scale(Vec3::new(0.1, 1.0, 4.0)),
+        );
+
+        let result = move_against_test_blockers(
+            Vec3::new(-2.0, 0.0, -2.0),
+            Vec3::new(3.0, 0.0, 4.0),
+            &[blocker],
+        );
+
+        assert!((result.x - (-0.1 - PLAYER_COLLIDER_RADIUS)).abs() < 0.03);
+        assert!(result.z > 1.8);
+    }
+
+    #[test]
+    fn collision_uses_the_blockers_world_rotation() {
+        let blocker = GlobalTransform::from(
+            Transform::from_rotation(Quat::from_rotation_y(std::f32::consts::FRAC_PI_2))
+                .with_scale(Vec3::new(0.1, 1.0, 2.0)),
+        );
+
+        let normal = movement_collision_normal(Vec3::new(0.0, 0.0, 0.3), &blocker)
+            .expect("player footprint overlaps the rotated wall");
+
+        assert!(normal.z > 0.99);
+        assert!(normal.x.abs() < 0.01);
+    }
+
+    #[test]
+    fn collision_does_not_apply_when_the_wall_is_above_the_player() {
+        let blocker = GlobalTransform::from(
+            Transform::from_xyz(0.0, 3.0, 0.0)
+                .with_scale(Vec3::new(1.0, 0.25, 1.0)),
+        );
+
+        assert!(movement_collision_normal(Vec3::ZERO, &blocker).is_none());
+    }
+
+    #[test]
+    fn diagonal_movement_cannot_cut_through_a_wall_corner() {
+        let blocker = GlobalTransform::from(
+            Transform::from_scale(Vec3::new(0.1, 1.0, 0.1)),
+        );
+
+        let result = move_against_test_blockers(
+            Vec3::new(-2.0, 0.0, -2.0),
+            Vec3::new(2.0, 0.0, 2.0),
+            &[blocker],
+        );
+
+        let corner_distance = Vec2::new(result.x - 0.1, result.z - 0.1).length();
+        assert!(corner_distance >= PLAYER_COLLIDER_RADIUS - 0.02);
+        assert!(result.x < 0.1 && result.z < 0.1);
     }
 
     #[test]
