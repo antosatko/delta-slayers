@@ -77,12 +77,14 @@ Current authored components:
 - `Billboard`: camera-facing behavior for flat world objects. The player uses
   the existing full-body character image on an unlit, transparent 3D quad.
 
-The player entity stores its position on the ground. A separate perspective
-camera follows above and behind it; mouse look changes the camera heading and
-overhead angle, while WASD movement remains continuous in world space. The
-player image is rendered on a vertical, camera-facing 3D quad. The town remains
-the existing Blender-authored scene; no hex tiles or procedural terrain are
-introduced by this camera/rendering setup.
+The player entity stores its position on the ground. Zone detection uses a
+separate 1.7-unit interaction probe so existing Blender trigger volumes retain
+their previous behavior. A separate perspective camera follows above and
+behind the player; mouse look changes the camera heading and overhead angle,
+while WASD movement remains continuous in world space. The player image is
+rendered on a vertical, camera-facing 3D quad. The town remains the existing
+Blender-authored scene; no hex tiles or procedural terrain are introduced by
+this camera/rendering setup.
 
 The TriggerZone-to-TriggerBox rename is a reflected authoring API break.
 Existing Blender files must replace the old component using the refreshed
