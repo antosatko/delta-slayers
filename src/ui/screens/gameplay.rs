@@ -1,7 +1,7 @@
 use bevy::{prelude::*, ui_widgets::Activate};
 use delta_slayers_ui::{
     CarbonButtonTone, CarbonIcon, CarbonTheme, action_button, equipment_slot, eyebrow_text,
-    item_art_tile, key_hint, muted_text, page_header, panel, section_header,
+    item_art_tile, key_hint, muted_text, page_header, page_title, panel, section_header,
 };
 
 use crate::{
@@ -70,7 +70,7 @@ fn zone_panel(
         Children [
             @panel(percent(100))
             Children [
-                @page_header(title, "Location", description)
+                @page_title(title)
                 --
                 @section_header(icon, section)
                 --
@@ -333,20 +333,27 @@ fn inventory_scene() -> impl Scene {
                     min_width: px(0),
                     min_height: px(0),
                     overflow: Overflow::scroll(),
-                    flex_direction: FlexDirection::Row,
-                    flex_wrap: FlexWrap::Wrap,
-                    align_content: AlignContent::Start,
-                    align_items: AlignItems::Start,
-                    column_gap: px(14),
-                    row_gap: px(14),
+                    flex_direction: FlexDirection::Column,
                 }
                 Children [
                     Node {
-                        width: px(250),
-                        flex_basis: px(240),
-                        min_width: px(190),
-                        flex_shrink: 1.0,
-                        flex_direction: FlexDirection::Column,
+                        width: percent(100),
+                        min_width: px(0),
+                        flex_direction: FlexDirection::Row,
+                        flex_wrap: FlexWrap::Wrap,
+                        align_content: AlignContent::Start,
+                        align_items: AlignItems::Stretch,
+                        column_gap: px(14),
+                        row_gap: px(14),
+                    }
+                    Children [
+                        Node {
+                            width: px(250),
+                            flex_basis: px(240),
+                            min_width: px(190),
+                            flex_grow: 1.0,
+                            flex_shrink: 1.0,
+                            flex_direction: FlexDirection::Column,
                         row_gap: px(12),
                     }
                     Children [
@@ -355,16 +362,17 @@ fn inventory_scene() -> impl Scene {
                         @resources_panel()
                     ]
                     --
-                    Node {
-                        flex_grow: 1.0,
-                        flex_basis: px(420),
-                        min_width: px(240),
-                        flex_shrink: 1.0,
-                        flex_direction: FlexDirection::Column,
-                        row_gap: px(12),
-                    }
-                    Children [
-                        @inventory_items()
+                        Node {
+                            flex_grow: 1.0,
+                            flex_basis: px(420),
+                            min_width: px(190),
+                            flex_shrink: 1.0,
+                            flex_direction: FlexDirection::Column,
+                            row_gap: px(12),
+                        }
+                        Children [
+                            @inventory_items()
+                        ]
                     ]
                 ]
             ]
@@ -453,9 +461,11 @@ fn inventory_items() -> impl Scene {
             Node {
                 width: percent(100),
                 min_width: px(0),
+                min_height: px(112),
                 flex_direction: FlexDirection::Row,
                 flex_wrap: FlexWrap::Wrap,
                 align_content: AlignContent::Start,
+                align_items: AlignItems::Start,
                 column_gap: px(8),
                 row_gap: px(8),
             }
@@ -502,11 +512,7 @@ fn game_menu_modal() -> impl Scene {
             Children [
                 @panel(percent(100))
                 Children [
-                    @page_header(
-                        "Game menu",
-                        "Paused session",
-                        "Return to the game, change application screens, or exit the application."
-                    )
+                    @page_title("Game menu")
                     --
                     @muted_text("The current session is suspended while this menu is open.", 12.0)
                     --
@@ -583,11 +589,7 @@ fn pause_overlay() -> impl Scene {
             Children [
                 @panel(percent(100))
                 Children [
-                    @page_header(
-                        "Paused",
-                        "Game paused",
-                        "Gameplay input is suspended until you resume the session."
-                    )
+                    @page_title("Paused")
                     --
                     @muted_text("Press P to resume or use the actions below.", 12.0)
                     --
