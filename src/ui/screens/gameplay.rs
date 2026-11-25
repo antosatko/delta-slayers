@@ -748,7 +748,8 @@ fn minimap_exploration_dot(q_offset: i32, r_offset: i32) -> impl Scene {
             height: px(6),
             border_radius: BorderRadius::all(px(3)),
         }
-        MinimapExplorationDot::new(q_offset, r_offset)
+        MinimapExplorationDot(q_offset, r_offset)
+        BackgroundColor(Color::WHITE)
         Visibility::Hidden
     }
 }
