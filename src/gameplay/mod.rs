@@ -100,6 +100,7 @@ impl Plugin for GameplayPlugin {
                 exploration::process_travel_request
                     .after(exploration::detect_portal)
                     .after(UiSet::Input)
+                    .run_if(gameplay_simulation_enabled)
                     .run_if(in_state(AppState::InGame)),
             )
             .add_systems(
