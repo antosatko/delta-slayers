@@ -327,14 +327,9 @@ pub fn item_art_tile(
     asset_path: &'static str,
     label: &'static str,
     quantity: Option<&'static str>,
-    selected: bool,
 ) -> impl Scene {
     let quantity = quantity.unwrap_or("");
     bsn! {
-        Button
-        Hovered(false)
-        CarbonButtonStyle { tone: CarbonButtonTone::Secondary, selected }
-        CarbonSelection { selected }
         Node {
             width: px(112),
             height: px(112),
@@ -346,11 +341,7 @@ pub fn item_art_tile(
             align_items: AlignItems::Center,
             border_radius: BorderRadius::all(px(7)),
         }
-        template(move |ctx| Ok(BackgroundColor(if selected {
-            ctx.resource::<CarbonTheme>().panel_raised
-        } else {
-            ctx.resource::<CarbonTheme>().panel_alt
-        })))
+        template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().panel_alt)))
         Children [
             Node {
                 width: percent(100),
