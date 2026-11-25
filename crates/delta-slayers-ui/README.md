@@ -64,7 +64,8 @@ bsn! {
   behaviour.
 - root and panel provide full-window and raised-surface layout.
 - page_header, screen_tabs, and screen_tab provide title, contextual help,
-  and optional second-row screen navigation.
+  and optional second-row screen navigation. Each tab carries a CarbonTab
+  component; update its selected field to project active-tab styling.
 - section_header, action_button, and badge provide common hierarchy and
   action/status treatments.
 - stat_bar displays a value and semantic progress fill.
