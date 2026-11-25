@@ -200,7 +200,7 @@ fn minimap() -> impl Scene {
             width: px(144),
             height: px(144),
             padding: UiRect::all(px(8)),
-            border_radius: BorderRadius::all(px(9)),
+            border_radius: BorderRadius::all(px(72)),
         }
         template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().panel)))
         bevy::ui::GlobalZIndex(2)
@@ -211,7 +211,7 @@ fn minimap() -> impl Scene {
                 width: px(120),
                 height: px(120),
                 overflow: Overflow::clip(),
-                border_radius: BorderRadius::all(px(5)),
+                border_radius: BorderRadius::all(px(60)),
             }
             template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().surface_deep)))
             Children [
