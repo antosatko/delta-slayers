@@ -157,4 +157,16 @@ mod tests {
         ui.push(UiLayer::GameMenu);
         assert!(!gameplay_simulation_allowed(&ui));
     }
+
+    #[test]
+    fn exploration_setup_suspends_gameplay_until_closed() {
+        let mut ui = UiStack::default();
+        ui.push(UiLayer::ExplorationSetup);
+
+        assert!(ui.exploration_setup_open());
+        assert!(!gameplay_simulation_allowed(&ui));
+
+        ui.remove(UiLayer::ExplorationSetup);
+        assert!(gameplay_simulation_allowed(&ui));
+    }
 }
