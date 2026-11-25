@@ -308,12 +308,8 @@ fn move_with_collisions(
                 break;
             };
 
-            let mut corrected_candidate = candidate + contact.normal * contact.penetration;
+            let corrected_candidate = candidate + contact.normal * contact.penetration;
             movement = corrected_candidate - position;
-            let inward_component = movement.dot(contact.normal);
-            if inward_component < 0.0 {
-                movement -= contact.normal * inward_component;
-            }
         }
         position += movement;
     }
