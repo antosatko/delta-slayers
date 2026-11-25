@@ -19,3 +19,14 @@ pub(super) struct MinimapZoneDot(pub(super) ZoneKind);
 
 #[derive(Resource, Default)]
 pub(super) struct PopupConfirmRequested(pub(super) bool);
+
+#[derive(Resource, Default)]
+pub(super) struct ExplorationDebugPanelState {
+    pub(super) visible: bool,
+}
+
+#[derive(Component, Default, Clone)]
+pub(super) struct ExplorationDebugPanelRoot;
+
+#[derive(Component, Default, Clone)]
+pub(super) struct ExplorationDebugInfoText;
