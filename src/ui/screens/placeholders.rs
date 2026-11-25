@@ -5,14 +5,6 @@ use delta_slayers_ui::{
 
 use crate::app::state::AppState;
 
-pub(in crate::ui) fn continue_screen() -> impl SceneList {
-    placeholder_screen(
-        AppState::Continue,
-        "Continue",
-        "Continuing a saved session is not implemented yet.",
-    )
-}
-
 pub(in crate::ui) fn load_screen() -> impl SceneList {
     placeholder_screen(
         AppState::Load,
