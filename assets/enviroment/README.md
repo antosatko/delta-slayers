@@ -47,8 +47,12 @@ model, not just on one of its mesh children.
 
 Put every interchangeable tile model in the matching biome file's `tiles`
 collection. Keep the source tile radius at 5 m; the generator scales it to
-the configured hex radius. One root model is chosen deterministically for
-each generated tile from the variants in that biome's GLB.
+the fixed rendered hex radius of 6 m. The selected object's root location is
+treated as collection staging placement and reset to the origin when creating
+a prototype; preserve the model's geometry relative to that object origin.
+Root rotation, scale, and descendant transforms are retained. One root model
+is chosen deterministically for each generated tile from the variants in that
+biome's GLB.
 
 Attach `delta_slayers::gameplay::environment::ObjectSpawner` to a tile root
 or to a marker Empty anywhere below that root. The first spawner found in

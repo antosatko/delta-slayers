@@ -60,25 +60,17 @@ fn portal_parameters_are_clamped_to_safe_ranges() {
 }
 
 #[test]
-fn tile_layout_uses_the_full_imported_model_radius() {
-    let config = ExplorationPortal::default();
+fn generated_tiles_always_use_a_six_meter_radius() {
+    for authored_tile_size in [f32::NAN, 2.0, 4.0, 8.0, 12.0] {
+        let config = ExplorationPortal {
+            tile_size: authored_tile_size,
+            ..default()
+        }
+        .sanitized();
 
-    assert_eq!(config.tile_size, 6.0);
-    assert_eq!(hex_layout_radius(config), 6.0);
-
-    let too_small = ExplorationPortal {
-        tile_size: 2.0,
-        ..config
+        assert_eq!(config.tile_size, 6.0);
+        assert_eq!(hex_layout_radius(config), 6.0);
     }
-    .sanitized();
-    let too_large = ExplorationPortal {
-        tile_size: 9.0,
-        ..config
-    }
-    .sanitized();
-
-    assert_eq!(too_small.tile_size, 4.0);
-    assert_eq!(too_large.tile_size, 8.0);
 }
 
 #[test]

@@ -67,17 +67,17 @@ The portal exposes these settings:
 | --- | ---: | ---: | --- |
 | `seed` | empty | any `u64` | A fixed value reproduces the same terrain and biome layout. Empty chooses a new seed on each visit. |
 | `radius` | 12 | 8–32 | Hex radius; the map contains `1 + 3r(r + 1)` tiles. |
-| `tile_size` | 6.0 | 4–8 | Rendered hex-tile radius in meters. The supplied models have a 5 m source radius and are scaled to this value. |
+| `tile_size` | 6.0 | fixed 6.0 | Legacy serialized field; runtime always uses a 6 m rendered tile radius. The supplied models have a 5 m source radius and are scaled to 6 m. |
 | `height_multiplier` | 2.2 | 0–5 | Vertical scale of the terrain. Set to zero for flat terrain. |
 | `terrain_frequency` | 0.045 | 0.01–0.15 | Higher values create smaller, more frequent elevation features. |
 | `biome_scale` | 0.028 | 0.006–0.12 | Controls the size of biome regions. |
 | `max_jump_height` | 1.5 | 0.25–3.5 | Maximum height difference the player can jump between adjacent tiles. |
 
-The `tile_size` field now means rendered radius in meters (default 6, range
-4–8), rather than the previous 1–3 world-unit hex side length. Existing
-Blender-authored values below 4 are clamped to 4 at runtime; update them in the
-Skein component if a different radius is desired. Tile centers use the full
-rendered radius for regular hex spacing. The player and NPC ground height
+Tiles are hexagonal cylinders with a fixed rendered radius of 6 m. The
+legacy `tile_size` field remains in the reflected component so existing
+Blender exports still load, but its authored value is ignored. Tile models use
+a 5 m source radius and are scaled to 6 m; tile centers use that same 6 m
+radius for regular hex spacing. The player and NPC ground height
 uses smoothstep-weighted interpolation over the triangular grid between tile
 centers. Adjacent tiles can be crossed only when their height difference does
 not exceed `max_jump_height`; steeper edges receive movement blockers. A
@@ -103,7 +103,7 @@ the named collection hierarchy described in [the environment asset workflow]
 biome's eligible spawnable objects. The loader splits those collection roots
 into separate reusable prototypes while preserving Skein components and
 nested mesh hierarchies. Tile models are scaled from a 5 m source radius to
-the selected tile radius and arranged at regular hex spacing. Grassland,
+the fixed 6 m tile radius and arranged at regular hex spacing. Grassland,
 woodland, dryland, and highland regions control tile tinting.
 
 The shared `objects` collection in `assets/enviroment/general.glb` supplies

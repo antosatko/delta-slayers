@@ -105,7 +105,6 @@ pub(super) enum ExplorationParameterControl {
     #[default]
     Seed,
     Radius,
-    TileSize,
     HeightMultiplier,
     TerrainFrequency,
     BiomeScale,

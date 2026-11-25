@@ -23,7 +23,7 @@ pub struct ExplorationPortal {
     pub seed: Option<u64>,
     /// Radius measured in hex tiles.
     pub radius: u32,
-    /// Rendered radius of one hex tile, in meters.
+    /// Legacy serialized field; generated tiles always use a 6 m radius.
     pub tile_size: f32,
     /// Maximum vertical displacement of the terrain from its base level.
     pub height_multiplier: f32,
@@ -57,7 +57,7 @@ impl ExplorationPortal {
     pub(crate) fn sanitized(self) -> Self {
         Self {
             radius: self.radius.clamp(MIN_MAP_RADIUS, MAX_MAP_RADIUS),
-            tile_size: finite_clamp(self.tile_size, 6.0, 4.0, 8.0),
+            tile_size: 6.0,
             height_multiplier: finite_clamp(self.height_multiplier, 2.2, 0.0, 5.0),
             terrain_frequency: finite_clamp(self.terrain_frequency, 0.045, 0.01, 0.15),
             biome_scale: finite_clamp(self.biome_scale, 0.028, 0.006, 0.12),

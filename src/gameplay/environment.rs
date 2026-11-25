@@ -284,10 +284,13 @@ pub(super) fn collect_assets(
         let mut tile_count = 0;
         let mut tile_mesh_count = 0;
         for root in tile_roots {
-            let Ok(asset) = WorldAsset::from_dynamic_world(&root.world, &type_registry) else {
+            let Ok(mut asset) = WorldAsset::from_dynamic_world(&root.world, &type_registry) else {
                 warn!("Could not create a tile prototype from {path}");
                 continue;
             };
+            if !normalize_prototype_root(&mut asset, root.root_name.as_ref(), &path) {
+                continue;
+            }
             let mesh_count = count_meshes(&asset.world);
             if mesh_count == 0 {
                 warn!(
@@ -317,10 +320,13 @@ pub(super) fn collect_assets(
             let Some(definition) = root.spawnable else {
                 continue;
             };
-            let Ok(asset) = WorldAsset::from_dynamic_world(&root.world, &type_registry) else {
+            let Ok(mut asset) = WorldAsset::from_dynamic_world(&root.world, &type_registry) else {
                 warn!("Could not create a spawnable object prototype from {path}");
                 continue;
             };
+            if !normalize_prototype_root(&mut asset, root.root_name.as_ref(), &path) {
+                continue;
+            }
             let mesh_count = count_meshes(&asset.world);
             if mesh_count == 0 {
                 warn!(
@@ -368,6 +374,32 @@ pub(super) fn collect_assets(
     }
 }
 
+fn normalize_prototype_root(
+    asset: &mut WorldAsset,
+    root_name: Option<&Name>,
+    path: &str,
+) -> bool {
+    let Some(root_name) = root_name else {
+        warn!("Cannot normalize an unnamed prototype root from {path}");
+        return false;
+    };
+    let Some(root_entity) = asset
+        .world
+        .iter_entities()
+        .find(|entity| entity.get::<Name>() == Some(root_name))
+        .map(|entity| entity.id())
+    else {
+        warn!("Cannot find prototype root {root_name} in extracted asset {path}");
+        return false;
+    };
+
+    if let Some(mut transform) = asset.world.get_mut::<Transform>(root_entity) {
+        transform.translation = Vec3::ZERO;
+    }
+
+    true
+}
+
 fn count_meshes(world: &World) -> usize {
     world
         .iter_entities()
@@ -383,6 +415,7 @@ enum PrototypeKind {
 
 struct ExtractedRoot {
     world: DynamicWorld,
+    root_name: Option<Name>,
     spawner: Option<ObjectSpawner>,
     spawnable: Option<SpawnableObject>,
 }
@@ -430,6 +463,7 @@ fn extract_collection_roots(
                 return None;
             }
 
+            let root_name = source.world.get::<Name>(root).cloned();
             let spawner = find_object_spawner(&source.world, root);
             let spawnable = source.world.get::<SpawnableObject>(root).copied();
 
@@ -455,6 +489,7 @@ fn extract_collection_roots(
 
             Some(ExtractedRoot {
                 world,
+                root_name,
                 spawner,
                 spawnable,
             })

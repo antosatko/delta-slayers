@@ -346,16 +346,7 @@ fn exploration_setup_panel() -> impl Scene {
                                 1.0
                             )
                             --
-                            @exploration_float_control(
-                                "Tile radius (m)",
-                                "Rendered tile radius; centers use regular hex spacing",
-                                ExplorationParameterControl::TileSize,
-                                defaults.tile_size,
-                                4.0,
-                                8.0,
-                                0.25,
-                                2
-                            )
+                            @label_dim("Tile radius: 6 m (fixed)")
                             --
                             @exploration_float_control(
                                 "Height multiplier",
@@ -588,9 +579,6 @@ fn exploration_float_value_changed(
     };
 
     match control {
-        ExplorationParameterControl::TileSize => {
-            draft.config.tile_size = event.value.clamp(4.0, 8.0);
-        }
         ExplorationParameterControl::HeightMultiplier => {
             draft.config.height_multiplier = event.value.clamp(0.0, 5.0);
         }

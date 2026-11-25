@@ -165,8 +165,11 @@ object roots only from `objects`, keeping their hierarchies and Skein
 components. Prototype extraction preserves the collection root's ancestor
 chain and registers the render, transform, and hierarchy components required
 by Bevy's reflected dynamic-world extraction (`Mesh3d`,
-`MeshMaterial3d<StandardMaterial>`, `Transform`, and `ChildOf`). Tile
-meshes use a 5 m source radius and are scaled to the configured tile radius. A
+`MeshMaterial3d<StandardMaterial>`, `Transform`, and `ChildOf`). Each
+prototype's root translation is reset to the origin so Blender's staging
+positions do not offset generated instances; root rotation, scale, and child
+transforms remain intact. Tile meshes use a 5 m source radius and are scaled
+to a fixed 6 m rendered radius. A
 smoothstep-weighted triangular height field keeps player and NPC elevation
 continuous between neighboring hex centers.
 Neighboring tiles can be crossed only when their height difference is within
