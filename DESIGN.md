@@ -35,7 +35,7 @@ Within those areas:
 | `gameplay/systems.rs` | Gameplay actions such as fast travel and returning to the menu |
 | `gameplay/persistence.rs` | Save-file serialization and loading |
 | `gameplay/billboard.rs` | Camera-facing billboard transform |
-| `ui/stack.rs` | UI navigation stack and cursor-capture preference |
+| `ui/stack.rs` | UI overlay navigation stack |
 | `ui/components.rs` | UI marker components and UI-only requests |
 | `ui/inventory.rs` | Inventory ViewModel, UI labels, and model-to-view projection |
 | `ui/screens/` | BSN scene definitions for loading, gameplay, main menu, and placeholder screens |
@@ -113,6 +113,16 @@ spawn systems are implemented.
 
 See `assets/worlds/README.md` for the Blender workflow and component schema.
 
+
+## Persistence
+
+The quick-save is stored in `save.txt` in the working directory. Version 2
+stores the player's full world position, yaw, camera pitch, and visited zone
+kinds. Versionless saves are treated as the previous format and have their
+camera pitch migrated once when loaded. A valid save at world origin is still a
+save; absence or invalid content is represented separately from its position.
+Save read/write failures are logged rather than silently ignored.
+
 ## MVVM in an ECS
 
 MVVM is a separation of responsibilities, not a framework layered on top of
@@ -158,9 +168,9 @@ Current layers:
 - Inventory
 - GameMenu (independent overlay, also accessible while inventory is open)
 
-The gameplay cursor is always visible and ungrabbed. Opening an overlay does
-not change cursor mode; UI projection keeps the pointer available for
-interacting with overlay controls. Inventory is a non-pausing overlay: world
+The gameplay cursor is always visible and ungrabbed. It is configured when
+entering InGame rather than rewritten every frame. Opening an overlay does not
+change cursor mode. Inventory is a non-pausing overlay: world
 simulation and player movement continue behind it, but cursor-based movement
 targeting and camera scrolling are blocked over the UI. Pause and GameMenu
 suspend gameplay simulation. UI hit regions expose their pointer-over state to
@@ -186,9 +196,10 @@ navigation with a separate Menu button. Its open state is represented by
 UiLayer::GameMenu, and a projection system controls Visibility.
 
 The main menu exposes Quick Load, New game, Load Save, Credits, and Exit to
-Desktop. Quick Load restores the save file; New game starts from the authored
-spawn point without loading the previous save. Load Save remains a placeholder
-until a save-selection interface is implemented. All five main-menu actions use
+Desktop. Quick Load restores a valid save file when one exists; otherwise it
+starts at the authored spawn point. New game always starts at the authored
+spawn point. Load Save remains a placeholder until a save-selection interface
+is implemented. All five main-menu actions use
 the same neutral secondary-button style. Both start actions share the same
 Loading transition and communicate their intent through GameStartMode.
 
@@ -272,9 +283,12 @@ navigation and ViewModel projection remain in `src/ui/`.
 ## State ownership
 
 - `AppState` owns top-level application navigation, including Loading.
-- UiStack owns overlay navigation and cursor preference.
-- InventoryModel owns currency, item, and equipment data.
-- InventoryViewModel owns derived display values.
+- UiStack owns overlay navigation.
+- InventoryModel owns the current authoritative currency values. Item artwork
+  and equipment positions in the current inventory screen are still static
+  presentation placeholders, not persisted inventory data.
+- InventoryViewModel owns the formatted currency labels projected into the
+  inventory view.
 - NearbyZone and VisitedZones are gameplay facts.
 - FastTravelRequest is the command boundary from UI to gameplay. UI requests a
   destination; gameplay systems perform the teleport.
