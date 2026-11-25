@@ -3,7 +3,10 @@ use bevy::{
     prelude::*,
     world_serialization::{WorldAsset, WorldAssetRoot},
 };
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::{
+    collections::{HashMap, HashSet, VecDeque},
+    time::{SystemTime, UNIX_EPOCH},
+};
 
 use crate::{
     app::state::AppState,
@@ -37,8 +40,8 @@ pub struct ExplorationPortal {
     pub terrain_frequency: f32,
     /// Controls the scale of biome regions.
     pub biome_scale: f32,
-    /// Fraction of forest tiles populated with trees.
-    pub vegetation_density: f32,
+    /// Maximum elevation difference the player can jump between adjacent tiles, in meters.
+    pub max_jump_height: f32,
 }
 
 impl Default for ExplorationPortal {
@@ -50,7 +53,7 @@ impl Default for ExplorationPortal {
             height_multiplier: 2.2,
             terrain_frequency: 0.045,
             biome_scale: 0.028,
-            vegetation_density: 0.28,
+            max_jump_height: 1.5,
         }
     }
 }
@@ -63,7 +66,7 @@ impl ExplorationPortal {
             height_multiplier: finite_clamp(self.height_multiplier, 2.2, 0.0, 5.0),
             terrain_frequency: finite_clamp(self.terrain_frequency, 0.045, 0.01, 0.15),
             biome_scale: finite_clamp(self.biome_scale, 0.028, 0.006, 0.12),
-            vegetation_density: finite_clamp(self.vegetation_density, 0.28, 0.0, 0.8),
+            max_jump_height: finite_clamp(self.max_jump_height, 1.5, 0.25, 3.5),
             ..self
         }
     }
@@ -84,7 +87,7 @@ pub(crate) struct ActiveExplorationMap(pub(crate) Option<ActiveMapData>);
 #[derive(Clone, Copy)]
 pub(crate) struct ActiveMapData {
     root: Entity,
-    origin: Vec3,
+    pub(crate) origin: Vec3,
     pub(crate) config: ExplorationPortal,
     pub(crate) seed: u64,
 }
@@ -106,7 +109,7 @@ pub(crate) enum PortalAction {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-enum Biome {
+pub(crate) enum Biome {
     Grassland,
     Woodland,
     Dryland,
@@ -122,7 +125,40 @@ impl Biome {
             Self::Highlands => [0.39, 0.42, 0.40, 1.0],
         }
     }
+
+    pub(crate) fn minimap_color(self) -> Color {
+        let color = self.color();
+        Color::srgb(color[0], color[1], color[2])
+    }
 }
+
+#[derive(Component, Clone, Copy, Debug)]
+pub(crate) struct ExplorationTile {
+    pub(crate) q: i32,
+    pub(crate) r: i32,
+    pub(crate) biome: Biome,
+}
+
+/// Added to generated tiles that cannot be reached from the map's spawn tile
+/// without crossing a transition higher than the configured jump limit.
+#[derive(Component, Default, Clone, Copy, Debug)]
+pub(crate) struct UnreachableTile;
+
+#[derive(Clone, Copy)]
+struct GeneratedTile {
+    center: Vec2,
+    height: f32,
+    biome: Biome,
+}
+
+const HEX_NEIGHBORS: [(i32, i32); 6] = [
+    (1, 0),
+    (1, -1),
+    (0, -1),
+    (-1, 0),
+    (-1, 1),
+    (0, 1),
+];
 
 /// Updates the nearby portal target used by the existing E interaction prompt.
 /// Authored portals use the same transformed Blender-cube bounds as TriggerBox.
@@ -285,9 +321,19 @@ fn spawn_map_geometry(
     meshes: &mut Assets<Mesh>,
     materials: &mut Assets<StandardMaterial>,
 ) {
-    spawn_terrain_tiles(commands, root, config, seed, tile_assets, materials);
-    spawn_vegetation(commands, root, config, seed, meshes, materials);
-    spawn_boundary_walls(commands, root, config);
+    let tiles = generate_tiles(config, seed);
+    let reachable = reachable_tiles(&tiles, (0, 2), config.max_jump_height);
+    spawn_terrain_tiles(
+        commands,
+        root,
+        config,
+        seed,
+        tile_assets,
+        materials,
+        &tiles,
+        &reachable,
+    );
+    spawn_boundary_walls(commands, root, config, &tiles);
 
     let return_height = terrain_surface_height(config, seed, Vec2::ZERO);
     // Keep the interaction volume independent from the beacon's visual scale.
@@ -360,6 +406,69 @@ pub fn apply_tile_materials(
     }
 }
 
+fn generate_tiles(config: ExplorationPortal, seed: u64) -> HashMap<(i32, i32), GeneratedTile> {
+    let mut tiles = HashMap::new();
+    let layout_radius = hex_layout_radius(config);
+
+    for q in -(config.radius as i32)..=config.radius as i32 {
+        let min_r = (-(config.radius as i32)).max(-q - config.radius as i32);
+        let max_r = (config.radius as i32).min(-q + config.radius as i32);
+        for r in min_r..=max_r {
+            let center = hex_center(q, r, layout_radius);
+            tiles.insert(
+                (q, r),
+                GeneratedTile {
+                    center,
+                    height: terrain_height(config, seed, center),
+                    biome: biome_at(config, seed, center),
+                },
+            );
+        }
+    }
+
+    tiles
+}
+
+/// Finds all tiles connected to the spawn tile through jumps within the
+/// configured height limit. The same height limit is used for cliff blockers.
+fn reachable_tiles(
+    tiles: &HashMap<(i32, i32), GeneratedTile>,
+    start: (i32, i32),
+    max_jump_height: f32,
+) -> HashSet<(i32, i32)> {
+    let mut reachable = HashSet::new();
+    let mut pending = VecDeque::new();
+
+    if tiles.contains_key(&start) {
+        reachable.insert(start);
+        pending.push_back(start);
+    }
+
+    while let Some(current) = pending.pop_front() {
+        let Some(current_tile) = tiles.get(&current) else {
+            continue;
+        };
+
+        for (dq, dr) in HEX_NEIGHBORS {
+            let neighbor = (current.0 + dq, current.1 + dr);
+            if reachable.contains(&neighbor) {
+                continue;
+            }
+
+            let Some(neighbor_tile) = tiles.get(&neighbor) else {
+                continue;
+            };
+
+            if (neighbor_tile.height - current_tile.height).abs() <= max_jump_height {
+                reachable.insert(neighbor);
+                pending.push_back(neighbor);
+            }
+        }
+    }
+
+    reachable
+}
+
 fn spawn_terrain_tiles(
     commands: &mut Commands,
     root: Entity,
@@ -367,118 +476,62 @@ fn spawn_terrain_tiles(
     seed: u64,
     tile_assets: &[Handle<WorldAsset>; 2],
     materials: &mut Assets<StandardMaterial>,
+    tiles: &HashMap<(i32, i32), GeneratedTile>,
+    reachable: &HashSet<(i32, i32)>,
 ) {
-    let layout_radius = hex_layout_radius(config);
     let model_scale = config.tile_size / TILE_MODEL_SOURCE_RADIUS;
     let base_surface_offset = 0.016821861267089844 * model_scale;
 
-    for q in -(config.radius as i32)..=config.radius as i32 {
-        let min_r = (-(config.radius as i32)).max(-q - config.radius as i32);
-        let max_r = (config.radius as i32).min(-q + config.radius as i32);
-        for r in min_r..=max_r {
-            let center = hex_center(q, r, layout_radius);
-            let height = terrain_height(config, seed, center);
-            let biome = biome_at(config, seed, center);
-            let variant_roll = cell_random(seed, q, r, 0xA24B_5F31_7C91_02D7);
-            let protected_area = center.length() < layout_radius * 2.5 || (q == 0 && r == 2);
-            let feature_chance = if biome == Biome::Highlands {
-                0.55
-            } else {
-                0.08
-            };
-            let use_feature_tile = !protected_area && variant_roll < feature_chance;
-            let tile_index = if use_feature_tile { 1 } else { 0 };
+    for (&(q, r), tile) in tiles {
+        let center = tile.center;
+        let variant_roll = cell_random(seed, q, r, 0xA24B_5F31_7C91_02D7);
+        let protected_area = center.length() < config.tile_size * 2.5 || (q == 0 && r == 2);
+        let feature_chance = if tile.biome == Biome::Highlands {
+            0.55
+        } else {
+            0.08
+        };
+        let use_feature_tile = !protected_area && variant_roll < feature_chance;
+        let tile_index = if use_feature_tile { 1 } else { 0 };
 
-            let base_color = biome.color();
-            let shade = 0.92 + cell_random(seed, q, r, 0x51ED_270B_91A4_6C3D) * 0.14;
-            let material = materials.add(StandardMaterial {
-                base_color: Color::srgba(
-                    base_color[0] * shade,
-                    base_color[1] * shade,
-                    base_color[2] * shade,
-                    base_color[3],
-                ),
-                perceptual_roughness: 1.0,
-                ..default()
-            });
+        let base_color = tile.biome.color();
+        let shade = 0.92 + cell_random(seed, q, r, 0x51ED_270B_91A4_6C3D) * 0.14;
+        let material = materials.add(StandardMaterial {
+            base_color: Color::srgba(
+                base_color[0] * shade,
+                base_color[1] * shade,
+                base_color[2] * shade,
+                base_color[3],
+            ),
+            perceptual_roughness: 1.0,
+            ..default()
+        });
 
-            commands.spawn((
-                WorldAssetRoot(tile_assets[tile_index].clone()),
-                Transform::from_xyz(center.x, height + base_surface_offset, center.y)
-                    .with_scale(Vec3::splat(model_scale)),
-                ExplorationTileTint(material),
-                ChildOf(root),
-            ));
+        let mut tile_entity = commands.spawn((
+            WorldAssetRoot(tile_assets[tile_index].clone()),
+            Transform::from_xyz(center.x, tile.height + base_surface_offset, center.y)
+                .with_scale(Vec3::splat(model_scale)),
+            ExplorationTile {
+                q,
+                r,
+                biome: tile.biome,
+            },
+            ExplorationTileTint(material),
+            ChildOf(root),
+        ));
+
+        if !reachable.contains(&(q, r)) {
+            tile_entity.insert(UnreachableTile);
         }
     }
 }
 
-fn spawn_vegetation(
+fn spawn_boundary_walls(
     commands: &mut Commands,
     root: Entity,
     config: ExplorationPortal,
-    seed: u64,
-    meshes: &mut Assets<Mesh>,
-    materials: &mut Assets<StandardMaterial>,
+    tiles: &HashMap<(i32, i32), GeneratedTile>,
 ) {
-    let vegetation_scale = config.tile_size / 2.0;
-    let trunk = meshes.add(Cylinder::new(
-        0.12 * vegetation_scale,
-        0.7 * vegetation_scale,
-    ));
-    let canopy = meshes.add(Cone::new(0.62 * vegetation_scale, 1.35 * vegetation_scale));
-    let wood_material = materials.add(Color::srgb(0.31, 0.19, 0.11));
-    let leaf_material = materials.add(Color::srgb(0.17, 0.38, 0.18));
-    let layout_radius = hex_layout_radius(config);
-    let spawn_center = hex_center(0, 2, layout_radius);
-
-    for q in -(config.radius as i32)..=config.radius as i32 {
-        let min_r = (-(config.radius as i32)).max(-q - config.radius as i32);
-        let max_r = (config.radius as i32).min(-q + config.radius as i32);
-        for r in min_r..=max_r {
-            let center = hex_center(q, r, layout_radius);
-            if center.length() < layout_radius * 2.5
-                || center.distance(spawn_center) < layout_radius * 0.8
-            {
-                continue;
-            }
-
-            let biome = biome_at(config, seed, center);
-            let feature_roll = cell_random(seed, q, r, 0xA24B_5F31_7C91_02D7);
-            let feature_chance = if biome == Biome::Highlands {
-                0.55
-            } else {
-                0.08
-            };
-            if feature_roll < feature_chance {
-                continue;
-            }
-            let chance = cell_random(seed, q, r, 0xA3C5_9AC3_7D21_4F01);
-            let height = terrain_surface_height(config, seed, center);
-            match biome {
-                Biome::Woodland if chance < config.vegetation_density => {
-                    commands.spawn((
-                        Mesh3d(trunk.clone()),
-                        MeshMaterial3d(wood_material.clone()),
-                        Transform::from_xyz(center.x, height + 0.35 * vegetation_scale, center.y),
-                        ChildOf(root),
-                    ));
-                    commands.spawn((
-                        Mesh3d(canopy.clone()),
-                        MeshMaterial3d(leaf_material.clone()),
-                        Transform::from_xyz(center.x, height + 1.05 * vegetation_scale, center.y),
-                        ChildOf(root),
-                    ));
-                }
-                _ => {}
-            }
-        }
-    }
-}
-
-fn spawn_boundary_walls(commands: &mut Commands, root: Entity, config: ExplorationPortal) {
-    let layout_radius = hex_layout_radius(config);
-    // Pointy-top axial directions mapped to the matching perimeter edge.
     const BOUNDARY_EDGES: [((i32, i32), usize); 6] = [
         ((1, 0), 5),
         ((1, -1), 4),
@@ -488,46 +541,48 @@ fn spawn_boundary_walls(commands: &mut Commands, root: Entity, config: Explorati
         ((0, 1), 0),
     ];
 
-    for q in -(config.radius as i32)..=config.radius as i32 {
-        let min_r = (-(config.radius as i32)).max(-q - config.radius as i32);
-        let max_r = (config.radius as i32).min(-q + config.radius as i32);
-        for r in min_r..=max_r {
-            if hex_distance(q, r) != config.radius as i32 {
+    for (&(q, r), tile) in tiles {
+        for ((dq, dr), side) in BOUNDARY_EDGES {
+            let neighbor_coordinates = (q + dq, r + dr);
+            let neighbor = tiles.get(&neighbor_coordinates);
+
+            if neighbor.is_some() && (q, r) > neighbor_coordinates {
                 continue;
             }
 
-            let center = hex_center(q, r, layout_radius);
-            for ((dq, dr), side) in BOUNDARY_EDGES {
-                if hex_distance(q + dq, r + dr) <= config.radius as i32 {
-                    continue;
-                }
-
-                // The tile's side walls remain visible where neighboring tiles
-                // have different elevations.
-                let a = hex_corner(center, config.tile_size, side);
-                let b = hex_corner(center, config.tile_size, (side + 1) % HEX_CORNER_COUNT);
-                let midpoint = (a + b) * 0.5;
-                let edge = b - a;
-                let yaw = edge.x.atan2(edge.y);
-                // Cover the entire possible terrain height range, even when
-                // the portal uses a high elevation multiplier.
-                commands.spawn((
-                    MovementBlocker,
-                    Transform::from_xyz(midpoint.x, 0.0, midpoint.y)
-                        .with_rotation(Quat::from_rotation_y(yaw))
-                        .with_scale(Vec3::new(
-                            0.18,
-                            config.height_multiplier + 2.0,
-                            config.tile_size * 0.62,
-                        )),
-                    ChildOf(root),
-                ));
+            let blocks_jump = neighbor.is_none_or(|neighbor| {
+                (neighbor.height - tile.height).abs() > config.max_jump_height
+            });
+            if !blocks_jump {
+                continue;
             }
+
+            let a = hex_corner(tile.center, config.tile_size, side);
+            let b = hex_corner(
+                tile.center,
+                config.tile_size,
+                (side + 1) % HEX_CORNER_COUNT,
+            );
+            let midpoint = (a + b) * 0.5;
+            let edge = b - a;
+            let yaw = edge.x.atan2(edge.y);
+
+            commands.spawn((
+                MovementBlocker,
+                Transform::from_xyz(midpoint.x, 0.0, midpoint.y)
+                    .with_rotation(Quat::from_rotation_y(yaw))
+                    .with_scale(Vec3::new(
+                        0.18,
+                        config.height_multiplier + 2.0,
+                        config.tile_size * 0.62,
+                    )),
+                ChildOf(root),
+            ));
         }
     }
 }
 
-/// Keeps the player and Godo aligned with the flat top of the selected hex tile.
+/// Keeps the player and Godo on the smoothstep-interpolated terrain surface.
 /// The player transform remains the ground-position authority.
 pub(super) fn sync_ground_height(
     active: Res<ActiveExplorationMap>,
@@ -553,10 +608,39 @@ pub(super) fn sync_ground_height(
 }
 
 fn terrain_surface_height(config: ExplorationPortal, seed: u64, point: Vec2) -> f32 {
-    let layout_radius = hex_layout_radius(config);
-    let (q, r) = world_to_axial(point, layout_radius);
-    let center = hex_center(q, r, layout_radius);
-    terrain_height(config, seed, center)
+    let size = hex_layout_radius(config);
+    let axial_q = (3.0_f32.sqrt() / 3.0 * point.x - point.y / 3.0) / size;
+    let axial_r = (2.0 / 3.0 * point.y) / size;
+    let q0 = axial_q.floor() as i32;
+    let r0 = axial_r.floor() as i32;
+    let tq = axial_q - q0 as f32;
+    let tr = axial_r - r0 as f32;
+
+    // Split each axial parallelogram along its short diagonal. Smoothstep
+    // barycentric weights agree on shared edges, so the field stays continuous.
+    let (coordinates, weights) = if tq + tr <= 1.0 {
+        (
+            [(q0, r0), (q0 + 1, r0), (q0, r0 + 1)],
+            [1.0 - tq - tr, tq, tr],
+        )
+    } else {
+        (
+            [(q0 + 1, r0 + 1), (q0, r0 + 1), (q0 + 1, r0)],
+            [tq + tr - 1.0, 1.0 - tq, 1.0 - tr],
+        )
+    };
+
+    let smooth_weights = weights.map(|weight| smoothstep(weight.clamp(0.0, 1.0)));
+    let weight_total = smooth_weights.iter().sum::<f32>();
+    coordinates
+        .into_iter()
+        .zip(smooth_weights)
+        .map(|((q, r), weight)| {
+            let center = hex_center(q, r, size);
+            terrain_height(config, seed, center) * weight
+        })
+        .sum::<f32>()
+        / weight_total.max(f32::EPSILON)
 }
 
 fn terrain_height(config: ExplorationPortal, seed: u64, point: Vec2) -> f32 {
@@ -652,7 +736,7 @@ fn hex_layout_radius(config: ExplorationPortal) -> f32 {
     config.tile_size
 }
 
-fn hex_center(q: i32, r: i32, size: f32) -> Vec2 {
+pub(crate) fn hex_center(q: i32, r: i32, size: f32) -> Vec2 {
     Vec2::new(
         3.0_f32.sqrt() * size * (q as f32 + r as f32 * 0.5),
         1.5 * size * r as f32,
@@ -664,7 +748,7 @@ fn hex_corner(center: Vec2, size: f32, index: usize) -> Vec2 {
     center + Vec2::new(angle.cos(), angle.sin()) * size
 }
 
-fn world_to_axial(point: Vec2, size: f32) -> (i32, i32) {
+pub(crate) fn world_to_axial(point: Vec2, size: f32) -> (i32, i32) {
     let q = (3.0_f32.sqrt() / 3.0 * point.x - point.y / 3.0) / size;
     let r = (2.0 / 3.0 * point.y) / size;
     let x = q;
@@ -744,7 +828,7 @@ mod tests {
             height_multiplier: -4.0,
             terrain_frequency: f32::INFINITY,
             biome_scale: 0.0,
-            vegetation_density: 3.0,
+            max_jump_height: 9.0,
         }
         .sanitized();
 
@@ -753,7 +837,7 @@ mod tests {
         assert_eq!(config.height_multiplier, 0.0);
         assert_eq!(config.terrain_frequency, 0.045);
         assert_eq!(config.biome_scale, 0.006);
-        assert_eq!(config.vegetation_density, 0.8);
+        assert_eq!(config.max_jump_height, 3.5);
         assert_eq!(config.seed, Some(42));
     }
 
@@ -780,7 +864,7 @@ mod tests {
     }
 
     #[test]
-    fn terrain_height_is_discrete_between_adjacent_tiles() {
+    fn terrain_height_uses_smoothstep_between_adjacent_tiles() {
         let config = ExplorationPortal::default();
         let first = hex_center(0, 0, hex_layout_radius(config));
         let second = hex_center(1, 0, hex_layout_radius(config));
@@ -789,8 +873,40 @@ mod tests {
         let midpoint = (first + second) * 0.5;
 
         assert_ne!(first_height, second_height);
-        let sampled = terrain_surface_height(config, 1234, midpoint);
-        assert!(sampled == first_height || sampled == second_height);
+        assert!((terrain_surface_height(config, 1234, first) - first_height).abs() < 1e-5);
+        assert!(
+            (terrain_surface_height(config, 1234, midpoint)
+                - (first_height + second_height) * 0.5)
+                .abs()
+                < 1e-4
+        );
+    }
+
+    #[test]
+    fn reachability_stops_at_transitions_above_the_jump_limit() {
+        let tiles = HashMap::from([
+            ((0, 0), GeneratedTile {
+                center: Vec2::ZERO,
+                height: 0.0,
+                biome: Biome::Grassland,
+            }),
+            ((1, 0), GeneratedTile {
+                center: Vec2::X,
+                height: 0.75,
+                biome: Biome::Grassland,
+            }),
+            ((2, 0), GeneratedTile {
+                center: Vec2::X * 2.0,
+                height: 2.0,
+                biome: Biome::Highlands,
+            }),
+        ]);
+
+        let reachable = reachable_tiles(&tiles, (0, 0), 1.0);
+
+        assert!(reachable.contains(&(0, 0)));
+        assert!(reachable.contains(&(1, 0)));
+        assert!(!reachable.contains(&(2, 0)));
     }
 
     #[test]
