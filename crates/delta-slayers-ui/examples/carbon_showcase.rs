@@ -82,13 +82,13 @@ fn showcase() -> impl Scene {
                                 row_gap: px(8),
                             }
                             Children [
-                                @item_tile(CarbonIcon::Sword, "Iron longsword", None, false)
+                                @item_tile_optional(CarbonIcon::Sword, "Iron longsword", None, false)
                                 --
-                                @item_tile(CarbonIcon::Shield, "Round shield", None, false)
+                                @item_tile_optional(CarbonIcon::Shield, "Round shield", None, false)
                                 --
-                                @item_tile(CarbonIcon::Flask, "Healing draught", Some("3"), true)
+                                @item_tile_optional(CarbonIcon::Flask, "Healing draught", Some("3"), true)
                                 --
-                                @item_tile(CarbonIcon::Coin, "Crowns", Some("312"), false)
+                                @item_tile_optional(CarbonIcon::Coin, "Crowns", Some("312"), false)
                             ]
                             --
                             Node {
@@ -124,7 +124,7 @@ fn showcase() -> impl Scene {
                         Children [
                             @section_header(CarbonIcon::Flask, "Selected item")
                             --
-                            @item_tile(CarbonIcon::Flask, "Healing draught", Some("3"), true)
+                            @item_tile_optional(CarbonIcon::Flask, "Healing draught", Some("3"), true)
                             --
                             @badge("CONSUMABLE", CarbonStatus::Neutral)
                             --
