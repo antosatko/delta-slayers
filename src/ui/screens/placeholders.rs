@@ -59,7 +59,7 @@ fn placeholder_content(
         Node {
             width: percent(100),
             height: percent(100),
-            padding: UiRect::all(px(24)),
+            padding: UiRect::all(px(12)),
             justify_content: JustifyContent::Center,
             align_items: AlignItems::Center,
         }
@@ -69,7 +69,9 @@ fn placeholder_content(
             Node {
                 width: px(480),
                 max_width: percent(92),
+                max_height: percent(90),
                 min_width: px(0),
+                overflow: Overflow::scroll(),
             }
             Children [
                 @panel(percent(100))
