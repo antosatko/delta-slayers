@@ -37,7 +37,7 @@ impl Plugin for UiPlugin {
                 screens::placeholders::credits_screen.spawn(),
             )
             .add_systems(OnEnter(AppState::Loading), screens::loading::scene.spawn())
-            .add_systems(OnEnter(AppState::InGame), screens::gameplay::scene.spawn())
+            .add_systems(OnEnter(AppState::InGame), (screens::gameplay::scene.spawn(), systems::sync_cursor))
             .add_systems(
                 Update,
                 systems::handle_ui_input
@@ -54,7 +54,6 @@ impl Plugin for UiPlugin {
                     systems::inventory_visibility_system,
                     systems::game_menu_visibility_system,
                     systems::pause_overlay_visibility_system,
-                    systems::sync_cursor,
                     systems::update_minimap,
                     inventory::sync_inventory_view_model,
                 )
