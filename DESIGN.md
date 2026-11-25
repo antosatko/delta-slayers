@@ -275,7 +275,12 @@ every frame.
 ## In-game menu overlay
 
 The in-game menu is a root-level BSN scene, independent of the inventory
-hierarchy. Escape opens it directly when no other overlay is active; Escape or
+hierarchy. Its Settings action opens live camera and movement tuning controls:
+pan, zoom, and pitch sensitivity; minimum and maximum camera distance; walk
+speed; and sprint speed. Changes apply immediately and can be restored to
+defaults. A collapsed Developer settings section exposes a toggle for the
+exploration-generation diagnostics and a control to reset the free-camera pan
+offset. These settings currently last for the application session. Escape opens it directly when no other overlay is active; Escape or
 right click closes the topmost layer. The inventory no longer duplicates that
 navigation with a separate Menu button. Its open state is represented by
 UiLayer::GameMenu, and a projection system controls Visibility.
