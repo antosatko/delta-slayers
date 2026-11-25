@@ -30,6 +30,9 @@ fn main_menu() -> impl Scene {
             Node {
                 width: px(470),
                 max_width: percent(92),
+                max_height: percent(90),
+                min_width: px(0),
+                overflow: Overflow::scroll(),
                 flex_direction: FlexDirection::Column,
                 row_gap: px(16),
             }
