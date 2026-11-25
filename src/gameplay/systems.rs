@@ -26,17 +26,19 @@ pub(super) fn fast_travel(
         .find(|(_, zone)| zone.kind == kind)
         .map(|(transform, _)| transform.translation());
 
-    if let Some(position) = destination {
+    if let Some(destination) = destination {
         if let Ok(mut player_transform) = player.single_mut() {
-            player_transform.translation = fast_travel_spawn_position(position);
+            let player_height = player_transform.translation.y;
+            player_transform.translation =
+                fast_travel_spawn_position(destination, player_height);
         }
     }
 }
 
-fn fast_travel_spawn_position(destination: Vec3) -> Vec3 {
-    // Blender/Bevy use Y as up. Offset the exit along Z without flattening
-    // the authored destination's elevation.
-    Vec3::new(destination.x, destination.y, destination.z + 2.0)
+fn fast_travel_spawn_position(destination: Vec3, player_height: f32) -> Vec3 {
+    // Use the destination's horizontal position, but retain the player's
+    // current elevation. Trigger-box height must not move the player vertically.
+    Vec3::new(destination.x, player_height, destination.z + 2.0)
 }
 
 #[cfg(test)]
@@ -44,15 +46,31 @@ mod tests {
     use super::*;
 
     #[test]
-    fn fast_travel_preserves_destination_height_at_any_elevation() {
-        for height in [-24.0, 0.0, 7.5, 48.0] {
-            let destination = Vec3::new(12.0, height, -4.0);
-            let spawn = fast_travel_spawn_position(destination);
+    fn fast_travel_preserves_player_height_regardless_of_destination_height() {
+        let player_heights = [-12.0, 0.0, 3.5, 48.0];
+        let destination_heights = [-30.0, 0.0, 7.5, 120.0];
 
-            assert_eq!(spawn.y, height);
+        for (player_height, destination_height) in
+            player_heights.into_iter().zip(destination_heights)
+        {
+            let destination = Vec3::new(12.0, destination_height, -4.0);
+            let spawn = fast_travel_spawn_position(destination, player_height);
+
+            assert_eq!(spawn.y, player_height);
             assert_eq!(spawn.x, destination.x);
             assert_eq!(spawn.z, destination.z + 2.0);
         }
+    }
+
+    #[test]
+    fn fast_travel_does_not_inherit_trigger_height() {
+        let destination = Vec3::new(-3.0, 100.0, 8.0);
+        let player_height = 2.25;
+
+        let spawn = fast_travel_spawn_position(destination, player_height);
+
+        assert_eq!(spawn.y, 2.25);
+        assert_ne!(spawn.y, destination.y);
     }
 }
 
