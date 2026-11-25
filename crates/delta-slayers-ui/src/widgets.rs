@@ -172,7 +172,9 @@ pub fn page_header(
                         row_gap: px(7),
                         border_radius: BorderRadius::all(px(8)),
                     }
-                    CarbonHoverCard
+                    Hovered(false)
+                    Hovered(false)
+            CarbonHoverCard
                     bevy::ui::GlobalZIndex(100)
                     Visibility::Hidden
                     template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().panel_raised)))
@@ -483,6 +485,7 @@ pub fn reference_term(
                 row_gap: px(7),
                 border_radius: BorderRadius::all(px(8)),
             }
+            Hovered(false)
             CarbonHoverCard
             bevy::ui::GlobalZIndex(100)
             Visibility::Hidden
