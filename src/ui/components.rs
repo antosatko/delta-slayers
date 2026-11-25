@@ -20,6 +20,18 @@ pub(super) struct PauseOverlay;
 #[derive(Component, Default, Clone)]
 pub(super) struct MinimapZoneDot(pub(super) ZoneKind);
 
+#[derive(Component, Clone, Copy)]
+pub(super) struct MinimapExplorationDot {
+    pub(super) q_offset: i32,
+    pub(super) r_offset: i32,
+}
+
+impl MinimapExplorationDot {
+    pub(super) const fn new(q_offset: i32, r_offset: i32) -> Self {
+        Self { q_offset, r_offset }
+    }
+}
+
 #[derive(Resource, Default)]
 pub(super) struct PopupConfirmRequested(pub(super) bool);
 
@@ -79,7 +91,7 @@ pub(super) enum ExplorationParameterControl {
     HeightMultiplier,
     TerrainFrequency,
     BiomeScale,
-    VegetationDensity,
+    MaxJumpHeight,
 }
 
 #[derive(Component, Default, Clone, Copy)]
