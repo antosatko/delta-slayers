@@ -89,7 +89,12 @@ it continuously, and animated 3D arrows slowly travel along the remaining
 trajectory. Holding the left button for 300 ms starts periodic destination
 updates from the cursor until release. A highlighted ground ring and vertical
 beacon mark the endpoint. A new click replaces the destination, and holding
-Shift increases movement speed. Right-click opens the inventory or dismisses the active overlay.
+Shift increases movement speed. WASD and arrow keys also move relative to the
+player's heading; direct keyboard movement takes priority and clears the clicked
+destination. The inventory does not pause gameplay: movement and world
+simulation continue behind it, while camera scrolling is reserved for the
+inventory UI. Pause and the game menu still suspend gameplay. Right-click opens
+the inventory or dismisses the active overlay.
 Saved positions and fast-travel destinations preserve their world-space
 elevation.
 Billboard sprites track the camera's horizontal bearing and partially follow
@@ -153,12 +158,15 @@ Current layers:
 - Inventory
 - GameMenu (independent overlay, also accessible while inventory is open)
 
-The gameplay cursor is always visible and ungrabbed. Opening an overlay
-suspends gameplay input without changing cursor mode; UI projection keeps the
-pointer available for interacting with overlay controls. UI hit regions expose
-their pointer-over state to movement targeting: clicks over UI do not set a
-destination, and a click that begins over UI remains blocked until release.
-This prevents click-through when an overlay closes during a held click.
+The gameplay cursor is always visible and ungrabbed. Opening an overlay does
+not change cursor mode; UI projection keeps the pointer available for
+interacting with overlay controls. Inventory is a non-pausing overlay: world
+simulation and player movement continue behind it, but cursor-based movement
+targeting and camera scrolling are blocked over the UI. Pause and GameMenu
+suspend gameplay simulation. UI hit regions expose their pointer-over state to
+movement targeting: clicks over UI do not set a destination, and a click that
+begins over UI remains blocked until release. This prevents click-through when
+an overlay closes during a held click.
 
 System ordering is explicit:
 
