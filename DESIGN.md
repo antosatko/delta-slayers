@@ -34,10 +34,11 @@ Within those areas:
 | `gameplay/player/destination.rs` | Movement-path and destination indicators |
 | `gameplay/player/visual.rs` | Player billboard transform synchronization |
 | `gameplay/spawning.rs` | Reflected spawn-point authoring types and initial player spawn selection |
+| `gameplay/environment.rs` | Reflected object-spawn authoring types, Blender collection loading, and prototype catalog |
 | `gameplay/zones.rs` | Town interaction zones, proximity detection, visited-zone data, and fast-travel requests |
 | `gameplay/exploration.rs` | Exploration domain data and stable module façade |
 | `gameplay/exploration/travel.rs` | Portal detection, entering/returning from maps, and travel anchors |
-| `gameplay/exploration/generation.rs` | Seeded tile generation, reachability, imported tile spawning, and biome materials |
+| `gameplay/exploration/generation.rs` | Seeded tile generation, reachability, biome tile selection, and capacity-limited object placement |
 | `gameplay/exploration/terrain.rs` | Biome/noise sampling and smooth terrain elevation synchronization |
 | `gameplay/exploration/hex.rs` | Axial coordinates, hex layout, and neighbor geometry |
 | `gameplay/inventory.rs` | Authoritative inventory data |
@@ -94,6 +95,12 @@ Current authored components:
 - `SpawnPoint`: spawn role and priority. The highest-priority Player point
   supplies the player's ground position and initial horizontal heading; saved
   player positions take precedence.
+- `ObjectSpawner`: marks a tile prototype as eligible for procedural object
+  placement. Its capacity rank supplies the tile's total size budget, and
+  spawn chance controls successive placement attempts.
+- `SpawnableObject`: marks a root object in the shared environment object
+  collection as a spawnable prototype. Its size rank and rarity control
+  capacity consumption and weighted selection; it has no interaction behavior.
 - `Billboard`: camera-facing behavior for flat world objects. The player uses
   the existing full-body character image on an unlit, transparent 3D quad.
 - `PlayerOccluder`: opt-in transparency for Blender-authored objects that cross the camera-to-player line of sight. The component applies to descendant meshes, each of which receives a private material copy while its opacity fades down and back up.
@@ -150,17 +157,29 @@ slower speed, stopping at a small personal-space distance. NPC movement calls
 the same collision resolver as player movement, so Blender-authored
 `MovementBlocker` volumes block both. The town remains the existing
 Blender-authored scene, while an `ExplorationPortal` can create a separate
-procedural hex map at runtime. The generated tile heights position the
-imported `assets/tiles/1.glb` and `assets/tiles/2.glb` models, while a
-smoothstep-weighted triangular height field keeps the player and NPC elevation
-continuous between neighboring hex centers. The full-depth cylinder sides
-remain visible at tile seams. Neighboring tiles can be crossed only when their
-height difference is within the configured maximum jump height; steeper edges
-receive movement blockers. Reachability is flood-filled from the spawn tile,
-and tiles outside that connected area carry the gameplay-only
-`UnreachableTile` marker for future systems. The markers are also highlighted
-on the exploration minimap. Tiles are tinted by biome, and tile 2 keeps its
-Skein-authored `MovementBlocker`. Procedural vegetation is intentionally not
+procedural hex map at runtime. The generated tile heights position imported biome tile variants from
+`assets/enviroment/biomes/{grassland,woodland,dryland,highlands}.glb`. Each
+file is a Blender Collection Exporter output from the `tiles` collection;
+the loader splits its root objects into individual reusable world assets and
+selects a variant deterministically for each generated tile. Tile meshes use a
+5 m source radius and are scaled to the configured tile radius. A
+smoothstep-weighted triangular height field keeps player and NPC elevation
+continuous between neighboring hex centers. Neighboring tiles can be crossed
+only when their height difference is within the configured maximum jump
+height; steeper edges receive movement blockers. Reachability is flood-filled
+from the spawn tile, and tiles outside that connected area carry the
+gameplay-only `UnreachableTile` marker for future systems. The markers are
+also highlighted on the exploration minimap. Tiles are tinted by biome, and
+Skein-authored components on tile variants are retained.
+
+The shared object library is loaded from `assets/enviroment/general.glb`,
+exported from the Blender collection named `objects`. Root objects with a
+`SpawnableObject` component become eligible prototypes. A tile variant with
+`ObjectSpawner` receives deterministic placement attempts during map
+generation. Size ranks consume capacity units (S = 1, M = 2, L = 3), so an L
+capacity tile supports one L object, one M plus one S, or three S objects.
+Rarity affects weighted selection. Generated objects currently have no
+interactions or separate gameplay behavior. Procedural vegetation is not
 generated. A collision-blocked perimeter and return beacon complete this
 exploration pass; the beacon restores the town-side position captured on entry.
 
@@ -179,7 +198,7 @@ remains disabled. The new `max_jump_height` field defaults when absent from
 older exports, so existing exploration portals can continue to instantiate
 without an immediate GLB re-export.
 
-See `assets/worlds/README.md` for the Blender workflow and component schema.
+See `assets/worlds/README.md` for town-scene authoring and `assets/enviroment/README.md` for biome tile and object collections.
 
 
 ## Exploration maps

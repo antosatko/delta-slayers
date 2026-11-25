@@ -104,7 +104,7 @@ pub(crate) enum PortalAction {
     Return,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub(crate) enum Biome {
     Grassland,
     Woodland,

@@ -1,9 +1,10 @@
-use bevy::{gltf::GltfAssetLabel, prelude::*, world_serialization::WorldAsset};
+use bevy::prelude::*;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::{
     app::state::AppState,
     gameplay::{
+        environment::EnvironmentAssets,
         npc::Npc,
         player::{self, PLAYER_VISUAL_HEIGHT, Player},
     },
@@ -54,7 +55,7 @@ fn contains_point(transform: &GlobalTransform, point: Vec3) -> bool {
 
 pub(in crate::gameplay) fn process_travel_request(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
+    environment: Res<EnvironmentAssets>,
     mut request: ResMut<ExplorationTravelRequest>,
     mut active: ResMut<ActiveExplorationMap>,
     mut session: ResMut<ExplorationSession>,
@@ -64,6 +65,12 @@ pub(in crate::gameplay) fn process_travel_request(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
+    let Some(action) = request.0 else {
+        return;
+    };
+    if matches!(action, PortalAction::Enter(_)) && !environment.is_ready() {
+        return;
+    }
     let Some(action) = request.0.take() else {
         return;
     };
@@ -90,10 +97,6 @@ pub(in crate::gameplay) fn process_travel_request(
 
             let config = authored_config.sanitized();
             let seed = config.seed.unwrap_or_else(generate_seed);
-            let tile_assets: [Handle<WorldAsset>; 2] = [
-                asset_server.load(GltfAssetLabel::Scene(0).from_asset("tiles/1.glb")),
-                asset_server.load(GltfAssetLabel::Scene(0).from_asset("tiles/2.glb")),
-            ];
             let origin = Vec3::new(
                 original_transform.translation.x + MAP_WORLD_OFFSET,
                 0.0,
@@ -113,7 +116,7 @@ pub(in crate::gameplay) fn process_travel_request(
                 root,
                 config,
                 seed,
-                &tile_assets,
+                &environment,
                 &mut meshes,
                 &mut materials,
             );

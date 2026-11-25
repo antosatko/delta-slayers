@@ -25,6 +25,8 @@ Add these components to Blender Objects (or Empties where appropriate):
 | `delta_slayers::gameplay::exploration::ExplorationPortal` | Opens a seeded procedural hex wilderness. Its fields configure the generated map; the object's transform defines the interaction volume. |
 | `delta_slayers::gameplay::player::MovementBlocker` | Invisible oriented box that blocks player movement; the object's transform defines its bounds. |
 | `delta_slayers::gameplay::spawning::SpawnPoint` | Spawn location. Choose `kind`; for Player points, a higher `priority` wins. |
+| `delta_slayers::gameplay::environment::ObjectSpawner` | Makes a tile model eligible for generated objects. Set its capacity rank and spawn chance. |
+| `delta_slayers::gameplay::environment::SpawnableObject` | Marks an object-library root as a spawnable prototype. Set its size rank and rarity. |
 | `delta_slayers::gameplay::billboard::Billboard` | Makes a flat object face the player camera horizontally. |
 | `delta_slayers::gameplay::billboard::SquashOnMove` | Adds subtle movement-driven squashing to an entity's visual scale. |
 | `delta_slayers::gameplay::occlusion::PlayerOccluder` | Makes an object's meshes translucent when the object blocks the camera's view of the player. |
@@ -94,18 +96,24 @@ set a seed explicitly; leave it empty when each visit should be different.
 In the setup dialog, **Randomize seed** chooses a fresh explicit seed while
 preserving the other settings; seed 0 continues to generate a new seed on each
 map entry. In debug builds, entering the map opens a dismissible on-screen
-readout of the actual seed and effective generation parameters. The generated map uses the supplied `assets/tiles/1.glb` and
-`assets/tiles/2.glb` models instead of constructing replacement hex meshes.
-Tile 1 is the base cylinder; tile 2 adds a raised feature with a Skein-authored
-`MovementBlocker`. Generation favours tile 2 in highlands and uses it
-occasionally elsewhere. Meshes are scaled from their 5 m source radius to the
-selected tile radius and arranged at regular hex spacing. Their full-depth
-sides remain visible between tiles with different base elevations. Grassland,
-woodland, dryland, and highland regions control tile tinting. Procedural
-vegetation is not generated. The map has a movement-blocked outer boundary
-and cliff-edge blockers where the jump limit is exceeded. This is a first
-exploration prototype: it does not yet persist discovered state or add
-resource gathering, ecology simulation, or NPC populations.
+readout of the actual seed and effective generation parameters. Biome tile variants are loaded from the collection exports described in
+[the environment asset workflow](../enviroment/README.md). Each supported
+biome has one GLB containing every root object from its Blender `tiles`
+collection. The loader extracts those roots as separate variants, so
+generation chooses one model per tile while preserving the object's Skein
+components and nested mesh hierarchy. Tile models are scaled from a 5 m
+source radius to the selected tile radius and arranged at regular hex spacing.
+Grassland, woodland, dryland, and highland regions control tile tinting.
+
+The shared `objects` collection is exported to
+`assets/enviroment/general.glb`. Root objects tagged with `SpawnableObject`
+are available to tiles that carry `ObjectSpawner`. The tile's S/M/L capacity
+is consumed by each generated object (S = 1, M = 2, L = 3); rarity affects
+weighted selection. Spawned objects currently have no interactions. The map
+has a movement-blocked outer boundary and cliff-edge blockers where the jump
+limit is exceeded. This is a first exploration prototype: it does not yet
+persist discovered state or add resource gathering, ecology simulation, or
+NPC populations.
 
 ### Invisible movement walls
 

@@ -1,16 +1,20 @@
-use bevy::{
-    prelude::*,
-    world_serialization::{WorldAsset, WorldAssetRoot},
-};
+use bevy::{prelude::*, world_serialization::WorldAssetRoot};
 use std::collections::{HashMap, HashSet, VecDeque};
 
-use crate::gameplay::player::MovementBlocker;
+use crate::gameplay::{
+    environment::{
+        EnvironmentAssets, ObjectSizeRank, ObjectSpawner, RemainingObjectCapacity,
+    },
+    player::MovementBlocker,
+};
 
 use super::hex::{HEX_CORNER_COUNT, HEX_NEIGHBORS, hex_center, hex_corner, hex_layout_radius};
 use super::terrain::{biome_at, cell_random, terrain_height, terrain_surface_height};
 use super::{Biome, ExplorationPortal, ExplorationReturnPortal, ExplorationTile, UnreachableTile};
 
 const TILE_MODEL_SOURCE_RADIUS: f32 = 5.0;
+const TILE_VARIANT_SALT: u64 = 0xA24B_5F31_7C91_02D7;
+const OBJECT_SPAWN_SALT: u64 = 0x83D2_EA19_6C45_B70F;
 
 #[derive(Clone, Copy)]
 pub(super) struct GeneratedTile {
@@ -27,7 +31,7 @@ pub(super) fn spawn_map_geometry(
     root: Entity,
     config: ExplorationPortal,
     seed: u64,
-    tile_assets: &[Handle<WorldAsset>; 2],
+    environment: &EnvironmentAssets,
     meshes: &mut Assets<Mesh>,
     materials: &mut Assets<StandardMaterial>,
 ) {
@@ -38,7 +42,7 @@ pub(super) fn spawn_map_geometry(
         root,
         config,
         seed,
-        tile_assets,
+        environment,
         materials,
         &tiles,
         &reachable,
@@ -184,7 +188,7 @@ fn spawn_terrain_tiles(
     root: Entity,
     config: ExplorationPortal,
     seed: u64,
-    tile_assets: &[Handle<WorldAsset>; 2],
+    environment: &EnvironmentAssets,
     materials: &mut Assets<StandardMaterial>,
     tiles: &HashMap<(i32, i32), GeneratedTile>,
     reachable: &HashSet<(i32, i32)>,
@@ -193,16 +197,15 @@ fn spawn_terrain_tiles(
     let base_surface_offset = 0.016_821_861 * model_scale;
 
     for (&(q, r), tile) in tiles {
-        let center = tile.center;
-        let variant_roll = cell_random(seed, q, r, 0xA24B_5F31_7C91_02D7);
-        let protected_area = center.length() < config.tile_size * 2.5 || (q == 0 && r == 2);
-        let feature_chance = if tile.biome == Biome::Highlands {
-            0.55
-        } else {
-            0.08
-        };
-        let use_feature_tile = !protected_area && variant_roll < feature_chance;
-        let tile_index = if use_feature_tile { 1 } else { 0 };
+        let variants = environment.tiles_for(tile.biome);
+        if variants.is_empty() {
+            continue;
+        }
+
+        let variant_roll = cell_random(seed, q, r, TILE_VARIANT_SALT);
+        let variant_index = ((variant_roll * variants.len() as f32) as usize)
+            .min(variants.len() - 1);
+        let prototype = &variants[variant_index];
 
         let base_color = tile.biome.color();
         let shade = 0.92 + cell_random(seed, q, r, 0x51ED_270B_91A4_6C3D) * 0.14;
@@ -218,8 +221,8 @@ fn spawn_terrain_tiles(
         });
 
         let mut tile_entity = commands.spawn((
-            WorldAssetRoot(tile_assets[tile_index].clone()),
-            Transform::from_xyz(center.x, tile.height + base_surface_offset, center.y)
+            WorldAssetRoot(prototype.handle.clone()),
+            Transform::from_xyz(tile.center.x, tile.height + base_surface_offset, tile.center.y)
                 .with_scale(Vec3::splat(model_scale)),
             ExplorationTile {
                 q,
@@ -232,6 +235,98 @@ fn spawn_terrain_tiles(
 
         if !reachable.contains(&(q, r)) {
             tile_entity.insert(UnreachableTile);
+        }
+
+        if let Some(spawner) = prototype.spawner {
+            let tile_entity = tile_entity.id();
+            commands.entity(tile_entity).insert((
+                spawner,
+                RemainingObjectCapacity(Some(spawner.capacity)),
+            ));
+            spawn_objects_on_tile(
+                commands,
+                root,
+                tile_entity,
+                config,
+                seed,
+                (q, r),
+                tile,
+                spawner,
+                environment,
+            );
+        }
+    }
+}
+
+/// Performs deterministic, size-budgeted object placement for a tile prototype
+/// that has an ObjectSpawner component.
+fn spawn_objects_on_tile(
+    commands: &mut Commands,
+    map_root: Entity,
+    tile_entity: Entity,
+    config: ExplorationPortal,
+    seed: u64,
+    coordinates: (i32, i32),
+    tile: &GeneratedTile,
+    spawner: ObjectSpawner,
+    environment: &EnvironmentAssets,
+) {
+    let mut remaining = spawner.capacity.units();
+    let spawn_chance = spawner.effective_spawn_chance();
+
+    for attempt in 0..spawner.capacity.units() {
+        if spawn_chance <= 0.0 {
+            break;
+        }
+
+        let attempt_salt = OBJECT_SPAWN_SALT
+            .wrapping_add(u64::from(attempt).wrapping_mul(0x9E37_79B9_7F4A_7C15));
+        let attempt_roll = cell_random(seed, coordinates.0, coordinates.1, attempt_salt);
+        if attempt_roll > spawn_chance {
+            break;
+        }
+
+        let selection_roll = cell_random(
+            seed,
+            coordinates.0,
+            coordinates.1,
+            attempt_salt ^ 0xD1B5_4A32_D192_ED03,
+        );
+        let Some(object) = environment.choose_spawnable(remaining, selection_roll) else {
+            break;
+        };
+
+        let placement_roll = cell_random(
+            seed,
+            coordinates.0,
+            coordinates.1,
+            attempt_salt ^ 0x94D0_49BB_1331_11EB,
+        );
+        let angle = placement_roll * std::f32::consts::TAU;
+        let radius_roll = cell_random(
+            seed,
+            coordinates.0,
+            coordinates.1,
+            attempt_salt ^ 0xBF58_476D_1CE4_E5B9,
+        );
+        let offset_radius = config.tile_size * (0.12 + radius_roll * 0.32);
+        let local_position = tile.center
+            + Vec2::new(angle.cos(), angle.sin()) * offset_radius;
+        let height = super::terrain::terrain_surface_height(config, seed, local_position);
+
+        commands.spawn((
+            WorldAssetRoot(object.handle.clone()),
+            Transform::from_xyz(local_position.x, height, local_position.y)
+                .with_rotation(Quat::from_rotation_y(angle)),
+            ChildOf(map_root),
+        ));
+
+        remaining = remaining.saturating_sub(object.definition.size.units());
+        commands.entity(tile_entity).insert(RemainingObjectCapacity(
+            ObjectSizeRank::from_units(remaining),
+        ));
+        if remaining == 0 {
+            break;
         }
     }
 }

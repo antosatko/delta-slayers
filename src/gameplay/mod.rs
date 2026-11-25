@@ -1,5 +1,6 @@
 mod billboard;
 pub(crate) mod exploration;
+mod environment;
 mod npc;
 mod occlusion;
 mod persistence;
@@ -41,6 +42,10 @@ impl Plugin for GameplayPlugin {
             },
         )
         .register_type::<occlusion::PlayerOccluder>()
+        .register_type::<environment::ObjectSizeRank>()
+        .register_type::<environment::ObjectRarity>()
+        .register_type::<environment::SpawnableObject>()
+        .register_type::<environment::ObjectSpawner>()
         .register_type::<zones::ZoneKind>()
         .register_type::<zones::TriggerBox>()
         .register_type::<exploration::ExplorationPortal>()
@@ -50,6 +55,7 @@ impl Plugin for GameplayPlugin {
         .register_type::<billboard::Billboard>()
         .register_type::<billboard::SquashOnMove>()
         .init_resource::<spawning::WorldStartup>()
+        .init_resource::<environment::EnvironmentAssets>()
         .init_resource::<zones::NearbyZone>()
         .init_resource::<zones::VisitedZones>()
         .init_resource::<zones::FastTravelRequest>()
@@ -61,6 +67,8 @@ impl Plugin for GameplayPlugin {
         .init_resource::<GameStartMode>()
         .init_resource::<player::MovementTarget>()
         .init_resource::<player::PlayerSettings>()
+        .add_systems(Startup, environment::load_assets)
+        .add_systems(Update, environment::collect_assets)
         .add_systems(OnEnter(AppState::Loading), world::setup_game)
         .add_systems(
             Update,
