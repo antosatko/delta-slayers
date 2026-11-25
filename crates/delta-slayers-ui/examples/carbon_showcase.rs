@@ -438,11 +438,11 @@ fn equipment_page() -> impl Scene {
             flex_grow: 1.0,
             min_width: px(0),
             min_height: px(0),
+            display: Display::None,
             flex_direction: FlexDirection::Column,
             row_gap: px(13),
         }
         ShowcaseContent(ShowcasePage::Equipment)
-        Node { display: Display::None }
         Children [
             @panel(percent(100))
             Children [
@@ -503,11 +503,11 @@ fn materials_page() -> impl Scene {
             flex_grow: 1.0,
             min_width: px(0),
             min_height: px(0),
+            display: Display::None,
             flex_direction: FlexDirection::Column,
             row_gap: px(13),
         }
         ShowcaseContent(ShowcasePage::Materials)
-        Node { display: Display::None }
         Children [
             @panel(percent(100))
             Children [
