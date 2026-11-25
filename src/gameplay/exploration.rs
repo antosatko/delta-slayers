@@ -423,7 +423,15 @@ fn spawn_vegetation(
 }
 
 fn spawn_boundary_walls(commands: &mut Commands, root: Entity, config: ExplorationPortal, seed: u64) {
-    const DIRECTIONS: [(i32, i32); 6] = [(1, 0), (1, -1), (0, -1), (-1, 0), (-1, 1), (0, 1)];
+    // Pointy-top axial directions mapped to the matching perimeter edge.
+    const BOUNDARY_EDGES: [((i32, i32), usize); 6] = [
+        ((1, 0), 5),
+        ((1, -1), 4),
+        ((0, -1), 3),
+        ((-1, 0), 2),
+        ((-1, 1), 1),
+        ((0, 1), 0),
+    ];
 
     for q in -(config.radius as i32)..=config.radius as i32 {
         let min_r = (-(config.radius as i32)).max(-q - config.radius as i32);
@@ -434,7 +442,7 @@ fn spawn_boundary_walls(commands: &mut Commands, root: Entity, config: Explorati
             }
 
             let center = hex_center(q, r, config.tile_size);
-            for (side, (dq, dr)) in DIRECTIONS.into_iter().enumerate() {
+            for ((dq, dr), side) in BOUNDARY_EDGES {
                 if hex_distance(q + dq, r + dr) <= config.radius as i32 {
                     continue;
                 }
@@ -705,6 +713,27 @@ mod tests {
                 let center = hex_center(q, r, 1.5);
                 assert_eq!(world_to_axial(center, 1.5), (q, r));
             }
+        }
+    }
+
+    #[test]
+    fn perimeter_wall_edges_face_outside_their_hex_neighbors() {
+        let boundary_edges = [
+            ((1, 0), 5),
+            ((1, -1), 4),
+            ((0, -1), 3),
+            ((-1, 0), 2),
+            ((-1, 1), 1),
+            ((0, 1), 0),
+        ];
+        let center = hex_center(0, 0, 1.0);
+
+        for ((dq, dr), side) in boundary_edges {
+            let neighbor_direction = hex_center(dq, dr, 1.0) - center;
+            let a = hex_corner(center, 1.0, side);
+            let b = hex_corner(center, 1.0, (side + 1) % HEX_CORNER_COUNT);
+            let edge_midpoint = (a + b) * 0.5;
+            assert!(edge_midpoint.dot(neighbor_direction) > 0.0);
         }
     }
 }
