@@ -1,6 +1,9 @@
 use bevy::prelude::*;
 
-use crate::gameplay::{exploration::ExplorationPortal, zones::ZoneKind};
+use crate::gameplay::{
+    exploration::{ExplorationPortal, generate_seed},
+    zones::ZoneKind,
+};
 
 #[derive(Component, Default, Clone)]
 pub(super) struct PanelRoot(pub(super) ZoneKind);
@@ -61,6 +64,10 @@ impl ExplorationSetupViewModel {
     pub(super) fn reset(&mut self) {
         self.config = self.authored;
     }
+
+    pub(super) fn randomize_seed(&mut self) {
+        self.config.seed = Some(generate_seed().clamp(1, i64::MAX as u64));
+    }
 }
 
 #[derive(Component, Default, Clone, Copy, Debug, PartialEq, Eq)]
@@ -99,6 +106,14 @@ mod tests {
 
         assert_eq!(view_model.config.radius, 18);
         assert_eq!(view_model.config.seed, Some(42));
+    }
+
+    #[test]
+    fn randomize_seed_selects_a_visible_reproducible_seed() {
+        let mut view_model = ExplorationSetupViewModel::default();
+        view_model.randomize_seed();
+
+        assert!(view_model.config.seed.is_some_and(|seed| seed > 0 && seed <= i64::MAX as u64));
     }
 
     #[test]
