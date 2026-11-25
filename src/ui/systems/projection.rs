@@ -311,7 +311,7 @@ pub fn update_minimap(
         .collect();
 
     for (dot, mut node, mut visibility, mut background) in &mut exploration_dots {
-        let coordinates = (center_q + dot.q_offset, center_r + dot.r_offset);
+        let coordinates = (center_q + dot.0, center_r + dot.1);
         let Some((biome, unreachable)) = tile_index.get(&coordinates) else {
             *visibility = Visibility::Hidden;
             continue;
