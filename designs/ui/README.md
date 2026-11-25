@@ -1,6 +1,6 @@
 # UI prototype
 
-Open `index.html` in a browser. The prototype uses one visual direction: **Field Folio — Slate**.
+Open `index.html` in a browser. The prototype uses one visual direction: **Field Folio — Carbon**.
 
 ## Screens
 
@@ -14,7 +14,7 @@ Open `index.html` in a browser. The prototype uses one visual direction: **Field
 
 ## Shared implementation
 
-- `styles.css` contains the Slate palette, shared layout primitives, responsive rules, and reference-card styling.
+- `styles.css` contains the Carbon palette, shared layout primitives, responsive rules, and reference-card styling.
 - `interaction.js` contains the shared contextual reference graph and the small interactions used by the screen studies.
 - Reference cards open after a 600 ms pointer dwell; leaving the term before the delay cancels the opening. Keyboard focus and click still open immediately. Cards support click-to-pin, linked entries, Back, Escape, and scrolling content. The card keeps a fixed viewport position while navigating between entries of different lengths.
 
