@@ -26,7 +26,11 @@ Do not silently promote proposals or assumptions into decided mechanics.
 - Hexes describe terrain chunks or regions. They are not a turn-based board
   and do not constrain entities to tile centers or discrete movement steps.
 - The player and other entities move continuously and can roam freely across
-  the terrain.
+  the terrain; they are not constrained to tile centers or discrete steps.
+- The player can jump across an adjacent tile transition up to the exploration
+  portal's configured maximum height. Steeper transitions are blocked, and a
+  flood fill from the map spawn marks disconnected tiles as unreachable for
+  later gameplay systems.
 - Characters and other suitable entities are represented as camera-facing
   billboards.
 - The town is currently handmade and Blender-authored. It remains separate
