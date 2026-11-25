@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use super::{
-    player::{self, MovementBlocker, Player, PLAYER_COLLIDER_RADIUS, PLAYER_VISUAL_HEIGHT},
+    player::{self, MovementBlocker, PLAYER_COLLIDER_RADIUS, PLAYER_VISUAL_HEIGHT, Player},
     spawning::WorldStartup,
 };
 

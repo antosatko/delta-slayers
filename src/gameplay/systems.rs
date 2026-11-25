@@ -29,8 +29,7 @@ pub(super) fn fast_travel(
     if let Some(destination) = destination {
         if let Ok(mut player_transform) = player.single_mut() {
             let player_height = player_transform.translation.y;
-            player_transform.translation =
-                fast_travel_spawn_position(destination, player_height);
+            player_transform.translation = fast_travel_spawn_position(destination, player_height);
         }
     }
 }

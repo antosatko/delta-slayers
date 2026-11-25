@@ -662,11 +662,7 @@ mod tests {
         assert!(keyboard_movement_direction(&input, Vec3::NEG_Z).is_none());
     }
 
-    fn move_against_test_blockers(
-        start: Vec3,
-        delta: Vec3,
-        blockers: &[GlobalTransform],
-    ) -> Vec3 {
+    fn move_against_test_blockers(start: Vec3, delta: Vec3, blockers: &[GlobalTransform]) -> Vec3 {
         move_with_collisions(start, delta, |candidate, intended_movement| {
             blockers.iter().find_map(|blocker| {
                 let contact = movement_collision_contact(candidate, blocker)?;
@@ -677,9 +673,7 @@ mod tests {
 
     #[test]
     fn movement_stops_at_an_authored_wall() {
-        let blocker = GlobalTransform::from(
-            Transform::from_scale(Vec3::new(0.1, 1.0, 2.0)),
-        );
+        let blocker = GlobalTransform::from(Transform::from_scale(Vec3::new(0.1, 1.0, 2.0)));
 
         let result = move_against_test_blockers(
             Vec3::new(-2.0, 0.0, 0.0),
@@ -694,9 +688,7 @@ mod tests {
 
     #[test]
     fn movement_slides_along_a_wall_instead_of_stopping_completely() {
-        let blocker = GlobalTransform::from(
-            Transform::from_scale(Vec3::new(0.1, 1.0, 4.0)),
-        );
+        let blocker = GlobalTransform::from(Transform::from_scale(Vec3::new(0.1, 1.0, 4.0)));
 
         let result = move_against_test_blockers(
             Vec3::new(-2.0, 0.0, -2.0),
@@ -725,8 +717,7 @@ mod tests {
     #[test]
     fn collision_does_not_apply_when_the_wall_is_above_the_player() {
         let blocker = GlobalTransform::from(
-            Transform::from_xyz(0.0, 3.0, 0.0)
-                .with_scale(Vec3::new(1.0, 0.25, 1.0)),
+            Transform::from_xyz(0.0, 3.0, 0.0).with_scale(Vec3::new(1.0, 0.25, 1.0)),
         );
 
         assert!(movement_collision_contact(Vec3::ZERO, &blocker).is_none());
@@ -734,9 +725,7 @@ mod tests {
 
     #[test]
     fn diagonal_movement_cannot_cut_through_a_wall_corner() {
-        let blocker = GlobalTransform::from(
-            Transform::from_scale(Vec3::new(0.1, 1.0, 0.1)),
-        );
+        let blocker = GlobalTransform::from(Transform::from_scale(Vec3::new(0.1, 1.0, 0.1)));
 
         let result = move_against_test_blockers(
             Vec3::new(-2.0, 0.0, -2.0),

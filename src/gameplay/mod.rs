@@ -1,6 +1,6 @@
 mod billboard;
-mod persistence;
 mod npc;
+mod persistence;
 mod spawning;
 mod systems;
 mod world;
