@@ -252,13 +252,19 @@ pub fn update_minimap(
     zones: Query<(&GlobalTransform, &TriggerBox)>,
     active_map: Res<ActiveExplorationMap>,
     exploration_tiles: Query<(&ExplorationTile, Has<UnreachableTile>)>,
-    mut town_dots: Query<(&MinimapZoneDot, &mut Node, &mut Visibility)>,
-    mut exploration_dots: Query<(
-        &MinimapExplorationDot,
-        &mut Node,
-        &mut Visibility,
-        &mut BackgroundColor,
-    )>,
+    mut town_dots: Query<
+        (&MinimapZoneDot, &mut Node, &mut Visibility),
+        Without<MinimapExplorationDot>,
+    >,
+    mut exploration_dots: Query<
+        (
+            &MinimapExplorationDot,
+            &mut Node,
+            &mut Visibility,
+            &mut BackgroundColor,
+        ),
+        Without<MinimapZoneDot>,
+    >,
 ) {
     let Ok(player_transform) = player.single() else {
         for (_, _, mut visibility, _) in &mut exploration_dots {
