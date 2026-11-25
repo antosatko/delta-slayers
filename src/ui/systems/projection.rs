@@ -130,18 +130,14 @@ pub fn update_minimap(
     };
 
     let player_position = player_transform.translation;
-    let zone_positions: Vec<(ZoneKind, Vec3)> = zones
-        .iter()
-        .map(|(transform, zone)| (zone.kind, transform.translation()))
-        .collect();
 
     for (dot, mut node, mut visibility) in &mut dots {
-        let Some((_, position)) = zone_positions.iter().find(|(kind, _)| *kind == dot.0) else {
+        let Some((transform, _)) = zones.iter().find(|(_, zone)| zone.kind == dot.0) else {
             *visibility = Visibility::Hidden;
             continue;
         };
 
-        let relative = *position - player_position;
+        let relative = transform.translation() - player_position;
         let (x, y) = minimap_position(relative, *player_transform.forward());
 
         if !(0.0..=114.0).contains(&x) || !(0.0..=114.0).contains(&y) {
