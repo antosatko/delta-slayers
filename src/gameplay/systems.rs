@@ -4,8 +4,8 @@ use crate::{
     app::state::AppState,
     gameplay::{
         persistence::save_game,
-        player::{MovementTarget, Player},
         exploration::ExplorationSession,
+        player::{MovementTarget, Player},
         zones::{FastTravelRequest, TriggerBox, VisitedZones},
     },
     ui::stack::UiStack,
