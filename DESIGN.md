@@ -145,30 +145,6 @@ camera pitch migrated once when loaded. A valid save at world origin is still a
 save; absence or invalid content is represented separately from its position.
 Save read/write failures are logged rather than silently ignored.
 
-## Gameplay direction
-
-The intended game world combines a continuous real-time character game with a
-hex-based world layout. Hexes describe terrain chunks or regions; they are not
-a turn-based board and do not constrain entities to tile centers or discrete
-steps.
-
-- The broader world is built from procedurally generated, mostly flat hexagonal
-  terrain chunks.
-- Gameplay remains real-time. The player and other entities move continuously
-  and are not locked to a hex grid.
-- Entities are represented as camera-facing billboards and may roam freely
-  across the terrain.
-- The town is a deliberate exception for now: it remains a handmade,
-  Blender-authored environment rather than being rebuilt from hex tiles.
-- The current town, its Blender-authored interaction volumes, and its existing
-  movement/camera implementation remain the immediate playable environment.
-  The procedural hex world is a broader direction, not a reason to replace the
-  town prematurely.
-
-This section records the agreed direction, not a complete gameplay
-specification. Add concrete mechanics here as they are decided; keep unresolved
-systems out of the implementation requirements until they have been discussed.
-
 ## MVVM in an ECS
 
 MVVM is a separation of responsibilities, not a framework layered on top of
