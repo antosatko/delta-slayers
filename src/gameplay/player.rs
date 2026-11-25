@@ -187,7 +187,7 @@ pub(super) fn set_move_target_from_cursor(
 /// Moves with WASD/arrows when pressed, otherwise follows the last clicked
 /// destination. Keyboard movement takes priority and cancels the current path.
 pub(super) fn move_player_to_target(
-    mut player: Query<(&mut Transform, &mut Player)>,
+    mut player: Query<(&mut Transform, &Player)>,
     mut target: ResMut<MovementTarget>,
     input: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
@@ -207,8 +207,6 @@ pub(super) fn move_player_to_target(
 
     if let Some(direction) = keyboard_movement_direction(&input, player.yaw) {
         target.clear();
-        player.yaw = direction.x.atan2(-direction.z);
-        transform.rotation = Quat::from_rotation_y(player.yaw);
         transform.translation += direction * step;
         return;
     }
