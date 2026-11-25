@@ -78,7 +78,7 @@ Current authored components:
   box with local extents of -1 to 1. Blockers are upright and may rotate around
   the vertical Y axis.
 - `ExplorationPortal`: configured oriented interaction volume that generates
-  a seeded, bounded hex wilderness. It exposes the map radius, tile size,
+  a seeded, bounded hex wilderness. It exposes the map radius, rendered tile radius in meters,
   elevation scale, terrain/biome frequency, vegetation density, and optional
   seed to Blender through Skein.
 - `SpawnPoint`: spawn role and priority. The highest-priority Player point
