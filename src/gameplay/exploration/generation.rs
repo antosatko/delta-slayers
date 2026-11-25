@@ -87,7 +87,7 @@ pub struct ExplorationTileTint(Handle<StandardMaterial>);
 pub struct ExplorationTileTintApplied;
 
 /// Applies biome materials to imported meshes, including nested GLB children.
-/// Instancing the complete world preserves Skein-authored components on tile 2.
+/// Marker-only Empty nodes are stripped during prototype extraction.
 pub fn apply_tile_materials(
     mut commands: Commands,
     tiles: Query<(Entity, &ExplorationTileTint, &Children), Without<ExplorationTileTintApplied>>,
@@ -306,13 +306,16 @@ fn spawn_objects_on_tile(
 
         // Marker coordinates are relative to the tile model's root. The
         // tile root is uniformly scaled when instanced into the map.
-        let marker_surface_y =
-            tile.height + base_surface_offset + point.position.y * model_scale;
+        let local_position = tile.center
+            + Vec2::new(point.position.x, point.position.z) * model_scale;
+        let marker_surface_y = terrain_surface_height(config, seed, local_position)
+            + base_surface_offset
+            + point.position.y * model_scale;
         let mesh_bottom = object.bounds.center.y - object.bounds.half_extents.y;
         let position = Vec3::new(
-            tile.center.x + point.position.x * model_scale,
+            local_position.x,
             marker_surface_y - mesh_bottom,
-            tile.center.y + point.position.z * model_scale,
+            local_position.y,
         );
         let rotation = point.rotation;
         let collider_center = position + rotation * object.bounds.center;

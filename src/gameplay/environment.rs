@@ -43,14 +43,6 @@ impl ObjectSizeRank {
         }
     }
 
-    pub(crate) const fn from_units(units: u8) -> Option<Self> {
-        match units {
-            1 => Some(Self::Small),
-            2 => Some(Self::Medium),
-            3 => Some(Self::Large),
-            _ => None,
-        }
-    }
 }
 
 /// Weighted spawn frequency. Rarer objects remain possible at points whose
@@ -83,7 +75,8 @@ impl ObjectRarity {
 /// the shared general objects collection.
 ///
 /// Attach this component to the root Blender object that should be eligible
-/// for procedural placement. It does not add interaction behavior.
+/// for placement. Its size rank is compared with the maximum size allowed by
+/// each tile's authored spawn point. It does not add interaction behavior.
 #[derive(Component, Reflect, Default, Clone, Copy, Debug)]
 #[reflect(Component, Default)]
 #[type_path = "delta_slayers::gameplay::environment"]
@@ -446,93 +439,135 @@ fn normalize_prototype_root(
 fn asset_world_transform(world: &World, entity: Entity) -> GlobalTransform {
     let mut ancestry = Vec::new();
     let mut current = Some(entity);
+
     while let Some(entity) = current {
         ancestry.push(entity);
         current = world.get::<ChildOf>(entity).map(ChildOf::parent);
     }
+
     let mut transform = GlobalTransform::IDENTITY;
     for ancestor in ancestry.into_iter().rev() {
-        transform = transform.mul_transform(
-            world.get::<Transform>(ancestor).copied().unwrap_or_default()
-        );
+        let local = world.get::<Transform>(ancestor).copied().unwrap_or_default();
+        transform = transform.mul_transform(local);
     }
+
     transform
 }
 
-/// Reads spawn markers only from the selected prototype subtree.
-fn collect_object_spawn_points(world: &World, prototype_root: Entity) -> Vec<ObjectSpawnPoint> {
+/// Reads spawn markers only from the selected prototype subtree. Collection
+/// and scene metadata must never become additional object spawn points.
+fn collect_object_spawn_points(
+    world: &World,
+    prototype_root: Entity,
+) -> Vec<ObjectSpawnPoint> {
     let mut pending = vec![(prototype_root, GlobalTransform::IDENTITY)];
     let mut points = Vec::new();
+
     while let Some((entity, parent_transform)) = pending.pop() {
-        let transform = parent_transform.mul_transform(
-            world.get::<Transform>(entity).copied().unwrap_or_default()
-        );
+        let local = world.get::<Transform>(entity).copied().unwrap_or_default();
+        let transform = parent_transform.mul_transform(local);
+
         if let Some(spawner) = world.get::<ObjectSpawner>(entity).copied() {
             let (_, rotation, position) = transform.to_scale_rotation_translation();
-            points.push(ObjectSpawnPoint { position, rotation, spawner });
+            points.push(ObjectSpawnPoint {
+                position,
+                rotation,
+                spawner,
+            });
         }
+
         if let Some(children) = world.get::<Children>(entity) {
             pending.extend(children.iter().copied().map(|child| (child, transform)));
         }
     }
+
+    // Stable ordering keeps seed-based placement independent of entity IDs.
     points.sort_by(|a, b| {
-        a.position.x.total_cmp(&b.position.x)
+        a.position
+            .x
+            .total_cmp(&b.position.x)
             .then(a.position.y.total_cmp(&b.position.y))
             .then(a.position.z.total_cmp(&b.position.z))
             .then(a.spawner.capacity.units().cmp(&b.spawner.capacity.units()))
             .then(a.spawner.spawn_chance.total_cmp(&b.spawner.spawn_chance))
     });
+
     points
 }
 
-/// Computes the union of mesh local AABBs after applying all prototype transforms.
+/// Computes the union of mesh-local AABBs after applying all prototype
+/// transforms. The result is relative to the imported prototype root.
 fn prototype_mesh_bounds(world: &World, meshes: &Assets<Mesh>) -> Option<PrototypeBounds> {
     let mut minimum = Vec3::splat(f32::INFINITY);
     let mut maximum = Vec3::splat(f32::NEG_INFINITY);
-    let mut found = false;
+    let mut found_mesh = false;
 
     for entity in world.iter_entities() {
-        let Some(mesh_3d) = entity.get::<Mesh3d>() else { continue };
-        let Some(mesh) = meshes.get(&mesh_3d.0) else { continue };
-        let Some(aabb) = mesh.get_aabb() else { continue };
+        let Some(mesh_3d) = entity.get::<Mesh3d>() else {
+            continue;
+        };
+        let Some(mesh) = meshes.get(&mesh_3d.0) else {
+            continue;
+        };
+        let Some(aabb) = mesh.get_aabb() else {
+            continue;
+        };
 
         let center = Vec3::new(aabb.center.x, aabb.center.y, aabb.center.z);
-        let half = Vec3::new(aabb.half_extents.x, aabb.half_extents.y, aabb.half_extents.z);
+        let half_extents = Vec3::new(
+            aabb.half_extents.x,
+            aabb.half_extents.y,
+            aabb.half_extents.z,
+        );
         let transform = asset_world_transform(world, entity.id());
+
         for x in [-1.0, 1.0] {
             for y in [-1.0, 1.0] {
                 for z in [-1.0, 1.0] {
-                    let point = transform.transform_point(center + half * Vec3::new(x, y, z));
+                    let corner = center + half_extents * Vec3::new(x, y, z);
+                    let point = transform.transform_point(corner);
                     minimum = minimum.min(point);
                     maximum = maximum.max(point);
                 }
             }
         }
-        found = true;
+
+        found_mesh = true;
     }
 
-    if !found || !minimum.is_finite() || !maximum.is_finite() { return None; }
+    if !found_mesh || !minimum.is_finite() || !maximum.is_finite() {
+        return None;
+    }
+
     Some(PrototypeBounds {
         center: (minimum + maximum) * 0.5,
         half_extents: (maximum - minimum) * 0.5,
     })
 }
 
-/// Removes authoring metadata and descendant Empty-only branches.
+/// Removes authoring metadata and descendant Empty-only branches while
+/// keeping Empty transform parents that contain rendered mesh descendants.
 fn strip_prototype_markers(world: &mut World, root: Entity) -> usize {
-    let entities = world.iter_entities().map(|entity| entity.id()).collect::<Vec<_>>();
+    let entities = world
+        .iter_entities()
+        .map(|entity| entity.id())
+        .collect::<Vec<_>>();
+
     for entity in entities {
         world.entity_mut(entity).remove::<ObjectSpawner>();
         world.entity_mut(entity).remove::<SpawnableObject>();
     }
+
     prune_non_rendering_descendants(world, root)
 }
 
 fn prune_non_rendering_descendants(world: &mut World, parent: Entity) -> usize {
-    let children = world.get::<Children>(parent)
+    let children = world
+        .get::<Children>(parent)
         .map(|children| children.iter().copied().collect::<Vec<_>>())
         .unwrap_or_default();
     let mut removed = 0;
+
     for child in children {
         if hierarchy_contains_mesh(world, child) {
             removed += prune_non_rendering_descendants(world, child);
@@ -540,15 +575,21 @@ fn prune_non_rendering_descendants(world: &mut World, parent: Entity) -> usize {
             removed += despawn_subtree(world, child);
         }
     }
+
     removed
 }
 
 fn despawn_subtree(world: &mut World, entity: Entity) -> usize {
-    let children = world.get::<Children>(entity)
+    let children = world
+        .get::<Children>(entity)
         .map(|children| children.iter().copied().collect::<Vec<_>>())
         .unwrap_or_default();
     let mut removed = 1;
-    for child in children { removed += despawn_subtree(world, child); }
+
+    for child in children {
+        removed += despawn_subtree(world, child);
+    }
+
     let _ = world.despawn(entity);
     removed
 }
@@ -707,61 +748,97 @@ mod tests {
     use super::*;
 
     #[test]
-    fn size_rank_maps_to_a_decrementing_capacity_budget() {
+    fn size_ranks_have_increasing_order() {
         assert_eq!(ObjectSizeRank::Small.units(), 1);
         assert_eq!(ObjectSizeRank::Medium.units(), 2);
         assert_eq!(ObjectSizeRank::Large.units(), 3);
-
-        assert_eq!(ObjectSizeRank::from_units(3), Some(ObjectSizeRank::Large));
-        assert_eq!(ObjectSizeRank::from_units(2), Some(ObjectSizeRank::Medium));
-        assert_eq!(ObjectSizeRank::from_units(1), Some(ObjectSizeRank::Small));
-        assert_eq!(ObjectSizeRank::from_units(0), None);
     }
 
     #[test]
     fn all_authored_spawn_points_keep_nested_transforms_and_ignore_ancestors() {
         let mut world = World::new();
-        let scene_root = world.spawn((Transform::IDENTITY, ObjectSpawner::default())).id();
-        let root = world.spawn((
-            Transform::from_xyz(10.0, 1.0, -4.0).with_scale(Vec3::new(2.0, 1.0, 2.0)),
-            ChildOf(scene_root),
-        )).id();
+        let scene_root = world
+            .spawn((Transform::IDENTITY, ObjectSpawner::default()))
+            .id();
+        let root = world
+            .spawn((
+                Transform::from_xyz(10.0, 1.0, -4.0)
+                    .with_scale(Vec3::new(2.0, 1.0, 2.0)),
+                ChildOf(scene_root),
+            ))
+            .id();
+
         world.spawn((
             Transform::from_xyz(1.0, 0.0, 2.0),
-            ObjectSpawner { capacity: ObjectSizeRank::Small, spawn_chance: 0.5 },
+            ObjectSpawner {
+                capacity: ObjectSizeRank::Small,
+                spawn_chance: 0.5,
+            },
             ChildOf(root),
         ));
         world.spawn((
             Transform::from_xyz(-2.0, 0.0, 0.0),
-            ObjectSpawner { capacity: ObjectSizeRank::Large, spawn_chance: 1.0 },
+            ObjectSpawner {
+                capacity: ObjectSizeRank::Large,
+                spawn_chance: 1.0,
+            },
             ChildOf(root),
         ));
+
         let points = collect_object_spawn_points(&world, root);
+
         assert_eq!(points.len(), 2);
-        assert!(points.iter().any(|point| point.position.abs_diff_eq(Vec3::new(12.0, 1.0, 0.0), 1e-5)));
-        assert!(points.iter().any(|point| point.position.abs_diff_eq(Vec3::new(6.0, 1.0, -4.0), 1e-5)));
+        assert!(points.iter().any(|point| {
+            point
+                .position
+                .abs_diff_eq(Vec3::new(12.0, 1.0, 0.0), 1e-5)
+        }));
+        assert!(points.iter().any(|point| {
+            point
+                .position
+                .abs_diff_eq(Vec3::new(6.0, 1.0, -4.0), 1e-5)
+        }));
     }
 
     #[test]
     fn marker_only_empty_nodes_are_removed_but_mesh_hierarchy_is_kept() {
         let mut world = World::new();
-        let root = world.spawn((
-            Name::new("Tile"), Transform::IDENTITY,
-            Mesh3d(Handle::<Mesh>::default()), ObjectSpawner::default(),
-        )).id();
-        let marker = world.spawn((
-            Name::new("Spawn marker"), Transform::from_xyz(2.0, 0.0, 1.0),
-            ObjectSpawner::default(), ChildOf(root),
-        )).id();
-        let group = world.spawn((Name::new("Mesh group"), Transform::IDENTITY, ChildOf(root))).id();
-        let mesh_child = world.spawn((
-            Transform::IDENTITY, Mesh3d(Handle::<Mesh>::default()), ChildOf(group),
-        )).id();
-        let empty_branch = world.spawn((
-            Name::new("Unsupported empty"), Transform::IDENTITY, ChildOf(root),
-        )).id();
+        let root = world
+            .spawn((
+                Name::new("Tile"),
+                Transform::IDENTITY,
+                Mesh3d(Handle::<Mesh>::default()),
+                ObjectSpawner::default(),
+            ))
+            .id();
+        let marker = world
+            .spawn((
+                Name::new("Spawn marker"),
+                Transform::from_xyz(2.0, 0.0, 1.0),
+                ObjectSpawner::default(),
+                ChildOf(root),
+            ))
+            .id();
+        let group = world
+            .spawn((Name::new("Mesh group"), Transform::IDENTITY, ChildOf(root)))
+            .id();
+        let mesh_child = world
+            .spawn((
+                Transform::IDENTITY,
+                Mesh3d(Handle::<Mesh>::default()),
+                ChildOf(group),
+            ))
+            .id();
+        let empty_branch = world
+            .spawn((
+                Name::new("Unsupported empty"),
+                Transform::IDENTITY,
+                ChildOf(root),
+            ))
+            .id();
 
         let removed = strip_prototype_markers(&mut world, root);
+
         assert_eq!(removed, 2);
         assert!(world.get::<ObjectSpawner>(root).is_none());
         assert!(world.get::<ObjectSpawner>(marker).is_none());
@@ -775,16 +852,28 @@ mod tests {
     fn object_bounds_include_mesh_and_ancestor_transforms() {
         let mut meshes = Assets::<Mesh>::default();
         let mesh_handle = meshes.add(Cuboid::new(2.0, 1.0, 4.0));
+
         let mut world = World::new();
-        let root = world.spawn(
-            Transform::from_xyz(10.0, 0.0, 4.0).with_scale(Vec3::new(2.0, 1.0, 1.0)),
-        ).id();
+        let root = world
+            .spawn(
+                Transform::from_xyz(10.0, 0.0, 4.0)
+                    .with_scale(Vec3::new(2.0, 1.0, 1.0)),
+            )
+            .id();
         world.spawn((
-            Mesh3d(mesh_handle), Transform::from_xyz(1.0, 0.0, 0.0), ChildOf(root),
+            Mesh3d(mesh_handle),
+            Transform::from_xyz(1.0, 0.0, 0.0),
+            ChildOf(root),
         ));
+
         let bounds = prototype_mesh_bounds(&world, &meshes).unwrap();
-        assert!(bounds.center.abs_diff_eq(Vec3::new(12.0, 0.0, 4.0), 1e-5));
-        assert!(bounds.half_extents.abs_diff_eq(Vec3::new(2.0, 0.5, 2.0), 1e-5));
+
+        assert!(bounds
+            .center
+            .abs_diff_eq(Vec3::new(12.0, 0.0, 4.0), 1e-5));
+        assert!(bounds
+            .half_extents
+            .abs_diff_eq(Vec3::new(2.0, 0.5, 2.0), 1e-5));
     }
 
     #[test]
