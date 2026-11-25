@@ -81,8 +81,7 @@ bsn! {
 All hierarchies are BSN scenes. Plugin systems only project interaction state
 into existing components; they do not spawn or rebuild UI trees.
 
-The old Slate type names remain as compatibility aliases, but new code should
-use the Carbon names.
+The crate exposes only the current Carbon API.
 
 ## Showcase
 
