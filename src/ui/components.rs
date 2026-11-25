@@ -31,6 +31,29 @@ pub(super) struct ExplorationDebugPanelState {
     pub(super) visible: bool,
 }
 
+#[derive(Resource, Default)]
+pub(super) struct DeveloperSettingsPanelState {
+    pub(super) expanded: bool,
+}
+
+#[derive(Component, Default, Clone)]
+pub(super) struct DeveloperSettingsContentRoot;
+
+#[derive(Component, Default, Clone)]
+pub(super) struct SettingsPanelRoot;
+
+#[derive(Component, Default, Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) enum PlayerSettingControl {
+    #[default]
+    PanSensitivity,
+    ZoomSensitivity,
+    PitchSensitivity,
+    MinCameraDistance,
+    MaxCameraDistance,
+    WalkSpeed,
+    SprintSpeed,
+}
+
 #[derive(Component, Default, Clone)]
 pub(super) struct ExplorationDebugPanelRoot;
 
