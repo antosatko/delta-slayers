@@ -2,7 +2,7 @@ pub mod state;
 
 use bevy::prelude::*;
 use bevy_skein::SkeinPlugin;
-use delta_slayers_ui::SlatePlugin;
+use delta_slayers_ui::CarbonPlugin;
 
 use crate::{gameplay::GameplayPlugin, ui::UiPlugin};
 
@@ -18,6 +18,6 @@ pub fn run() {
             ..default()
         })
         .init_state::<state::AppState>()
-        .add_plugins((SlatePlugin, UiPlugin, GameplayPlugin))
+        .add_plugins((CarbonPlugin, UiPlugin, GameplayPlugin))
         .run();
 }
