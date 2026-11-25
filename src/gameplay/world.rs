@@ -7,8 +7,9 @@ use bevy::{
 use crate::{
     app::state::AppState,
     gameplay::{
+        billboard::Billboard,
         persistence::load_game,
-        player::Player,
+        player::{self, GameplayCamera, Player, PlayerVisual},
         spawning::WorldStartup,
         zones::{FastTravelRequest, NearbyZone, VisitedZones},
     },
@@ -23,6 +24,8 @@ pub(super) fn setup_game(
     mut visited: ResMut<VisitedZones>,
     mut ui_state: ResMut<UiStack>,
     asset_server: Res<AssetServer>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
     mut startup: ResMut<WorldStartup>,
 ) {
     nearby.0 = None;
@@ -34,7 +37,7 @@ pub(super) fn setup_game(
         super::GameStartMode::NewGame => (
             Vec3::ZERO,
             0.0,
-            0.0,
+            -0.9,
             std::collections::HashSet::new(),
         ),
     };
@@ -54,23 +57,48 @@ pub(super) fn setup_game(
         DespawnOnExit::<AppState>(AppState::InGame),
     ));
 
-    let spawn_pos = if saved_pos == Vec3::ZERO {
-        Vec3::new(0.0, 1.7, 0.0)
+    let spawn_pos = Vec3::new(saved_pos.x, 0.0, saved_pos.z);
+    let initial_pitch = if startup.has_saved_position {
+        saved_pitch.clamp(-1.35, -0.45)
     } else {
-        Vec3::new(saved_pos.x, 1.7, saved_pos.z)
+        -0.9
     };
+    let player_rotation = Quat::from_euler(EulerRot::YXZ, saved_yaw, initial_pitch, 0.0);
+    let camera_target = spawn_pos + Vec3::Y * 0.8;
+    let camera_position =
+        camera_target - player_rotation * Vec3::NEG_Z * player::CAMERA_DISTANCE;
+
+    // The player model owns the world-space ground position. The camera and
+    // billboard are separate entities so neither affects gameplay queries.
     commands.spawn((
-        Camera3d::default(),
-        Transform::from_xyz(spawn_pos.x, spawn_pos.y, spawn_pos.z).with_rotation(Quat::from_euler(
-            EulerRot::YXZ,
-            saved_yaw,
-            saved_pitch,
-            0.0,
-        )),
+        Transform::from_translation(spawn_pos).with_rotation(player_rotation),
         Player {
             yaw: saved_yaw,
-            pitch: saved_pitch,
+            pitch: initial_pitch,
         },
+        DespawnOnExit::<AppState>(AppState::InGame),
+    ));
+
+    commands.spawn((
+        Camera3d::default(),
+        GameplayCamera,
+        Transform::from_translation(camera_position).looking_at(camera_target, Vec3::Y),
+        DespawnOnExit::<AppState>(AppState::InGame),
+    ));
+
+    let player_mesh = meshes.add(Rectangle::new(0.95, 1.68));
+    let player_material = materials.add(StandardMaterial {
+        base_color_texture: Some(asset_server.load("character/portrait.png")),
+        alpha_mode: AlphaMode::Blend,
+        unlit: true,
+        ..default()
+    });
+    commands.spawn((
+        Mesh3d(player_mesh),
+        MeshMaterial3d(player_material),
+        Transform::from_translation(spawn_pos + Vec3::Y * 0.8),
+        PlayerVisual,
+        Billboard,
         DespawnOnExit::<AppState>(AppState::InGame),
     ));
 
