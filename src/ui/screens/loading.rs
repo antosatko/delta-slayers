@@ -1,4 +1,8 @@
 use bevy::prelude::*;
+use delta_slayers_ui::{
+    CarbonIcon, CarbonStatus, CarbonTheme, badge, eyebrow_text, muted_text, page_header, panel,
+    section_header,
+};
 
 use crate::app::state::AppState;
 
@@ -21,37 +25,52 @@ fn loading_content() -> impl Scene {
         Node {
             width: percent(100),
             height: percent(100),
-            flex_direction: FlexDirection::Column,
+            padding: UiRect::all(px(24)),
             justify_content: JustifyContent::Center,
             align_items: AlignItems::Center,
-            row_gap: px(18),
         }
-        BackgroundColor(Color::srgb(0.035, 0.045, 0.065))
+        template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().page)))
         DespawnOnExit::<AppState>(AppState::Loading)
         Children [
-            Text("DELTA SLAYERS")
-            TextFont {
-                font_size: px(48),
-            }
-            TextColor(Color::WHITE)
-            --
             Node {
-                width: px(72),
-                height: px(4),
+                width: px(440),
+                max_width: percent(92),
+                min_width: px(0),
             }
-            BackgroundColor(Color::srgb(0.95, 0.55, 0.2))
-            --
-            Text("LOADING WORLD")
-            TextFont {
-                font_size: px(20),
-            }
-            TextColor(Color::srgb(0.95, 0.65, 0.4))
-            --
-            Text("Preparing the town...")
-            TextFont {
-                font_size: px(16),
-            }
-            TextColor(Color::srgb(0.72, 0.74, 0.78))
+            Children [
+                @page_header(
+                    "Delta Slayers",
+                    "Loading",
+                    "The town and its authored gameplay objects are being prepared."
+                )
+                --
+                @panel(percent(100))
+                Children [
+                    @section_header(CarbonIcon::Map, "Preparing the world")
+                    --
+                    @badge("LOADING", CarbonStatus::Warning)
+                    --
+                    @eyebrow_text("WORLD INITIALIZATION")
+                    --
+                    @muted_text("Preparing the town...", 13.0)
+                    --
+                    Node {
+                        width: percent(100),
+                        height: px(5),
+                        border_radius: BorderRadius::all(px(3)),
+                        overflow: Overflow::clip(),
+                    }
+                    template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().surface_deep)))
+                    Children [
+                        Node {
+                            width: percent(42),
+                            height: percent(100),
+                            border_radius: BorderRadius::all(px(3)),
+                        }
+                        template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().accent)))
+                    ]
+                ]
+            ]
         ]
     }
 }
