@@ -55,10 +55,11 @@ fn zone_panel(
     bsn! {
         Node {
             position_type: PositionType::Absolute,
-            top: px(32),
-            left: px(32),
+            top: px(16),
+            left: px(16),
+            right: px(16),
             width: px(390),
-            max_width: percent(90),
+            max_width: percent(100),
             min_width: px(0),
         }
         template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().overlay)))
@@ -154,10 +155,10 @@ fn fast_travel_menu() -> impl Scene {
     bsn! {
         Node {
             position_type: PositionType::Absolute,
-            top: px(20),
-            right: px(20),
+            top: px(12),
+            right: px(12),
             width: px(224),
-            max_width: percent(90),
+            max_width: percent(60),
             min_width: px(0),
         }
         bevy::ui::GlobalZIndex(18)
@@ -280,7 +281,8 @@ fn inventory_scene() -> impl Scene {
                 max_height: px(780),
                 min_width: px(0),
                 min_height: px(0),
-                padding: UiRect::all(px(18)),
+                overflow: Overflow::clip(),
+                padding: UiRect::all(px(14)),
                 flex_direction: FlexDirection::Column,
                 align_items: AlignItems::Stretch,
                 row_gap: px(14),
@@ -330,6 +332,7 @@ fn inventory_scene() -> impl Scene {
                     flex_grow: 1.0,
                     min_width: px(0),
                     min_height: px(0),
+                    overflow: Overflow::scroll(),
                     flex_direction: FlexDirection::Row,
                     flex_wrap: FlexWrap::Wrap,
                     align_content: AlignContent::Start,
@@ -339,9 +342,10 @@ fn inventory_scene() -> impl Scene {
                 }
                 Children [
                     Node {
-                        width: px(260),
-                        min_width: px(230),
-                        flex_shrink: 0.0,
+                        width: px(250),
+                        flex_basis: px(240),
+                        min_width: px(190),
+                        flex_shrink: 1.0,
                         flex_direction: FlexDirection::Column,
                         row_gap: px(12),
                     }
@@ -353,8 +357,9 @@ fn inventory_scene() -> impl Scene {
                     --
                     Node {
                         flex_grow: 1.0,
-                        flex_basis: px(440),
-                        min_width: px(320),
+                        flex_basis: px(420),
+                        min_width: px(240),
+                        flex_shrink: 1.0,
                         flex_direction: FlexDirection::Column,
                         row_gap: px(12),
                     }
@@ -375,7 +380,7 @@ fn character_panel() -> impl Scene {
             --
             Node {
                 width: percent(100),
-                height: px(230),
+                height: px(190),
                 min_width: px(0),
                 border_radius: BorderRadius::all(px(6)),
                 overflow: Overflow::clip(),
@@ -491,6 +496,8 @@ fn game_menu_modal() -> impl Scene {
                 width: px(360),
                 max_width: percent(92),
                 min_width: px(0),
+                max_height: percent(90),
+                overflow: Overflow::scroll(),
             }
             Children [
                 @panel(percent(100))
@@ -570,6 +577,8 @@ fn pause_overlay() -> impl Scene {
                 width: px(340),
                 max_width: percent(92),
                 min_width: px(0),
+                max_height: percent(90),
+                overflow: Overflow::scroll(),
             }
             Children [
                 @panel(percent(100))
