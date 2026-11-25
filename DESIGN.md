@@ -83,9 +83,11 @@ their previous behavior. A separate perspective camera follows above and behind 
 locked horizontal heading offset from the player's initial facing direction,
 so the camera reveals the sides of world models. Mouse movement does not
 rotate the camera; the wheel slightly adjusts follow distance and vertical
-viewing angle. Billboard sprites track the camera's horizontal bearing and
-partially follow its elevation while retaining an upright bias. WASD movement remains continuous in world
-space. The player image is
+viewing angle. The default vertical angle is slightly shallower than before.
+WASD movement uses the camera's horizontal forward and right axes, projected
+onto the ground plane, so controls follow the viewing angle without introducing
+vertical movement. Billboard sprites track the camera's horizontal bearing and
+partially follow its elevation while retaining an upright bias. The player image is
 rendered on a vertical, camera-facing 3D quad. The town remains the existing
 Blender-authored scene; no hex tiles or procedural terrain are introduced by
 this camera/rendering setup.
