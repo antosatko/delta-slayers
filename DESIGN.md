@@ -218,6 +218,7 @@ Current layers:
 - Pause
 - Panel(ZoneKind)
 - Inventory
+- ExplorationSetup (player-facing portal configuration dialog; suspends gameplay)
 - GameMenu (independent overlay, also accessible while inventory is open)
 
 The gameplay cursor is always visible and ungrabbed. It is configured when
