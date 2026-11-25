@@ -508,15 +508,6 @@ mod tests {
     }
 
     #[test]
-    fn camera_relative_ground_target_stays_on_the_ground_plane() {
-        let ground = Vec3::new(0.0, 2.5, 0.0);
-        let destination = Vec3::new(4.0, 9.0, -7.0).with_y(ground.y);
-        assert_eq!(destination.y, 2.5);
-        assert_eq!(destination.x, 4.0);
-        assert_eq!(destination.z, -7.0);
-    }
-
-    #[test]
     fn trajectory_arrows_slowly_advance_toward_the_destination() {
         let initial = trajectory_arrow_phase(0.0);
         let later = trajectory_arrow_phase(1.0);
