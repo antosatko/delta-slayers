@@ -242,7 +242,7 @@ pub(super) fn process_travel_request(
             });
             movement_target.clear();
             info!(
-                "Entered exploration map (seed {seed}, radius {}, tile size {:.2})",
+                "Entered exploration map (seed {seed}, radius {}, tile radius {:.2} m)",
                 config.radius, config.tile_size
             );
         }
@@ -338,7 +338,7 @@ pub(super) fn apply_tile_materials(
     renderables: Query<(Option<&Children>, Has<Mesh3d>)>,
 ) {
     for (tile, tint, children) in &tiles {
-        let mut pending = children.iter().collect::<Vec<_>>();
+        let mut pending = children.iter().copied().collect::<Vec<_>>();
         let mut applied = false;
 
         while let Some(entity) = pending.pop() {
@@ -354,7 +354,7 @@ pub(super) fn apply_tile_materials(
             }
 
             if let Some(nested_children) = nested_children {
-                pending.extend(nested_children.iter());
+                pending.extend(nested_children.iter().copied());
             }
         }
 
