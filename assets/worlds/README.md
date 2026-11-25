@@ -64,18 +64,32 @@ The portal exposes these settings:
 | --- | ---: | ---: | --- |
 | `seed` | empty | any `u64` | A fixed value reproduces the same terrain and decoration. Empty chooses a new seed on each visit. |
 | `radius` | 12 | 8–32 | Hex radius; the map contains `1 + 3r(r + 1)` tiles. |
-| `tile_size` | 1.5 | 1–3 | Side length of each hex tile in world units. |
+| `tile_size` | 6.0 | 4–8 | Rendered hex-tile radius in meters. The supplied models have a 5 m source radius and are scaled to this value. |
 | `height_multiplier` | 2.2 | 0–5 | Vertical scale of the terrain. Set to zero for flat terrain. |
 | `terrain_frequency` | 0.045 | 0.01–0.15 | Higher values create smaller, more frequent elevation features. |
 | `biome_scale` | 0.028 | 0.006–0.12 | Controls the size of biome regions. |
 | `vegetation_density` | 0.28 | 0–0.8 | Chance of placing a tree on eligible woodland tiles. |
 
+The `tile_size` field now means rendered radius in meters (default 6, range
+4–8), rather than the previous 1–3 world-unit hex side length. Existing
+Blender-authored values below 4 are clamped to 4 at runtime; update them in the
+Skein component if a different radius is desired. Neighboring tile centers are
+spaced at 82% of the radius to create the intentional overhang.
+
 Values outside the runtime ranges are clamped. For a reproducible test map,
 set a seed explicitly; leave it empty when each visit should be different.
-In debug builds, entering the map opens a dismissible on-screen readout of the
-actual seed and effective generation parameters. The generated terrain has grassland, woodland, dryland, and highland regions,
-with procedural height variation, subtle per-hex color variation, sparse trees
-and rocks, and a movement-blocked outer boundary. The map is a first
+In the setup dialog, **Randomize seed** chooses a fresh explicit seed while
+preserving the other settings; seed 0 continues to generate a new seed on each
+map entry. In debug builds, entering the map opens a dismissible on-screen
+readout of the actual seed and effective generation parameters. The generated map uses the supplied `assets/tiles/1.glb` and
+`assets/tiles/2.glb` models instead of constructing replacement hex meshes.
+Tile 1 is the base cylinder; tile 2 adds a raised feature with a Skein-authored
+`MovementBlocker`. Generation favours tile 2 in highlands and uses it
+occasionally elsewhere. Meshes are scaled from their 5 m source radius to the
+selected tile radius and spaced at 82% of that radius, so they intentionally
+overhang. Grassland, woodland, dryland, and highland regions still control tile
+tinting; woodland tiles can receive trees. The map has a movement-blocked
+outer boundary. The map is a first
 exploration prototype: it does not yet persist its discovered state or add
 resource gathering, ecology simulation, or NPC populations.
 
