@@ -5,7 +5,7 @@ use bevy::{
 
 use crate::{
     gameplay::{
-        exploration::ActiveExplorationMap,
+        exploration::{ActiveExplorationMap, NearbyExplorationPortal},
         player::Player,
         zones::{NearbyZone, TriggerBox, VisitedZones, ZoneKind},
     },
@@ -101,7 +101,7 @@ pub fn exploration_debug_panel_projection(
             let config = map.config;
             let tile_count = 1 + 3 * config.radius * (config.radius + 1);
             let details = format!(
-                "Seed: {}\\nHex radius: {} ({} tiles)\\nTile size: {:.2}\\nHeight multiplier: {:.2}\\nTerrain frequency: {:.3}\\nBiome scale: {:.3}\\nVegetation density: {:.0}%",
+                "Seed: {}\nHex radius: {} ({} tiles)\nTile size: {:.2}\nHeight multiplier: {:.2}\nTerrain frequency: {:.3}\nBiome scale: {:.3}\nVegetation density: {:.0}%",
                 map.seed,
                 config.radius,
                 tile_count,
