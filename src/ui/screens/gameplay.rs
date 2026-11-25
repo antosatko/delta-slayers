@@ -1167,7 +1167,7 @@ pub(in crate::ui) fn player_setting_value_changed(
         PlayerSettingControl::PitchSensitivity => {
             settings.camera_pitch_sensitivity = event.value.clamp(0.002, 0.06)
         }
-        PlayerSettingControl::MinCameraDistance => {}
+        PlayerSettingControl::MinCameraDistance => {
             settings.camera_min_distance = event.value.clamp(4.0, settings.camera_max_distance)
         }
         PlayerSettingControl::MaxCameraDistance => {
