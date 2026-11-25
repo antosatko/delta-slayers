@@ -180,6 +180,7 @@ fn showcase_tab(
 }
 
 fn items_page() -> impl Scene {
+    let initial_preview_icon = CarbonIcon::Flask.glyph();
     bsn! {
         Node {
             width: percent(100),
@@ -294,7 +295,7 @@ fn items_page() -> impl Scene {
                     }
                     template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().panel_alt)))
                     Children [
-                        Text(CarbonIcon::Flask.glyph())
+                        Text(initial_preview_icon)
                         ShowcaseDetailField::Icon
                         TextFont { font_size: px(36) }
                         template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().muted)))
@@ -424,8 +425,9 @@ fn showcase_item(
     quantity: Option<&'static str>,
     selected: bool,
 ) -> impl Scene {
+    let item_title = item.title();
     bsn! {
-        @item_tile_optional(icon, item.title(), quantity, selected)
+        @item_tile_optional(icon, item_title, quantity, selected)
         ShowcaseItem(item)
         on(move |_activate: On<Activate>,
             mut items: Query<(&ShowcaseItem, &mut CarbonSelection)>,
