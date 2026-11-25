@@ -3,7 +3,7 @@ members = ["crates/delta-slayers-ui"]
 resolver = "3"
 
 [workspace.dependencies]
-bevy = { version = "0.20.1", features = ["dynamic_linking", "bevy_feathers", "webp", "jpeg"] }
+bevy = { version = "0.20.1", features = ["dynamic_linking", "webp", "jpeg"] }
 
 [package]
 name = "delta-slayers"
