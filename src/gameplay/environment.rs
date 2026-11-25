@@ -467,10 +467,10 @@ fn collect_object_spawn_points(
         let transform = parent_transform.mul_transform(local);
 
         if let Some(spawner) = world.get::<ObjectSpawner>(entity).copied() {
-            let (_, rotation, position) = transform.to_scale_rotation_translation();
+            let world_transform = transform.compute_transform();
             points.push(ObjectSpawnPoint {
-                position,
-                rotation,
+                position: world_transform.translation,
+                rotation: world_transform.rotation,
                 spawner,
             });
         }
