@@ -191,8 +191,9 @@ placement attempts during map generation. Size ranks consume capacity units
 plus one S, or three S objects. Rarity weights are applied across both
 eligible object pools. Generated objects currently have no interactions or separate gameplay behavior.
 They receive invisible, size-rank-based movement blockers so the player and NPC
-cannot walk through them. These are approximate upright box colliders, not
-mesh-accurate physics. Procedural vegetation is not generated. A
+cannot walk through them. Horizontal half-extents are 0.5 m for Small, 1.4 m
+for Medium, and 2.0 m for Large, matching the current exported object bounds.
+These are approximate upright box colliders, not mesh-accurate physics. Procedural vegetation is not generated. A
 collision-blocked perimeter and return beacon complete this exploration pass;
 the beacon restores the town-side position captured on entry.
 

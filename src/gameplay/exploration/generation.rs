@@ -16,6 +16,16 @@ const TILE_MODEL_SOURCE_RADIUS: f32 = 5.0;
 const TILE_VARIANT_SALT: u64 = 0xA24B_5F31_7C91_02D7;
 const OBJECT_SPAWN_SALT: u64 = 0x83D2_EA19_6C45_B70F;
 
+/// Approximate half-extents matched to the current exported object meshes:
+/// the small cone is about 0.86 m wide; the medium Suzanne mesh is 2.74 m wide.
+fn object_collision_dimensions(size: ObjectSizeRank) -> (f32, f32) {
+    match size {
+        ObjectSizeRank::Small => (0.5, 0.5),
+        ObjectSizeRank::Medium => (1.4, 0.85),
+        ObjectSizeRank::Large => (2.0, 1.2),
+    }
+}
+
 #[derive(Clone, Copy)]
 pub(super) struct GeneratedTile {
     pub(super) center: Vec2,
@@ -195,6 +205,8 @@ fn spawn_terrain_tiles(
 ) {
     let model_scale = config.tile_size / TILE_MODEL_SOURCE_RADIUS;
     let base_surface_offset = 0.016_821_861 * model_scale;
+    let mut tiles_with_spawners = 0;
+    let mut spawned_objects = 0;
 
     for (&(q, r), tile) in tiles {
         let variants = environment.tiles_for(tile.biome);
@@ -243,7 +255,8 @@ fn spawn_terrain_tiles(
                 spawner,
                 RemainingObjectCapacity(Some(spawner.capacity)),
             ));
-            spawn_objects_on_tile(
+            tiles_with_spawners += 1;
+            spawned_objects += spawn_objects_on_tile(
                 commands,
                 root,
                 tile_entity,
@@ -256,6 +269,10 @@ fn spawn_terrain_tiles(
             );
         }
     }
+
+    info!(
+        "Generated {spawned_objects} objects across {tiles_with_spawners} object-spawning tiles"
+    );
 }
 
 /// Performs deterministic, size-budgeted object placement for a tile prototype
@@ -270,8 +287,9 @@ fn spawn_objects_on_tile(
     tile: &GeneratedTile,
     spawner: ObjectSpawner,
     environment: &EnvironmentAssets,
-) {
+) -> usize {
     let mut remaining = spawner.capacity.units();
+    let mut spawned_count = 0;
     let spawn_chance = spawner.effective_spawn_chance();
 
     for attempt in 0..spawner.capacity.units() {
@@ -309,11 +327,8 @@ fn spawn_objects_on_tile(
             coordinates.1,
             attempt_salt ^ 0xBF58_476D_1CE4_E5B9,
         );
-        let (collision_radius, collision_half_height) = match object.definition.size {
-            ObjectSizeRank::Small => (0.35, 0.6),
-            ObjectSizeRank::Medium => (0.55, 0.9),
-            ObjectSizeRank::Large => (0.8, 1.2),
-        };
+        let (collision_radius, collision_half_height) =
+            object_collision_dimensions(object.definition.size);
         let minimum_offset = collision_radius + 0.32 + 0.1;
         let offset_radius =
             (config.tile_size * (0.12 + radius_roll * 0.32)).max(minimum_offset);
@@ -344,6 +359,7 @@ fn spawn_objects_on_tile(
             )),
             ChildOf(map_root),
         ));
+        spawned_count += 1;
 
         remaining = remaining.saturating_sub(object.definition.size.units());
         commands.entity(tile_entity).insert(RemainingObjectCapacity(
@@ -353,6 +369,8 @@ fn spawn_objects_on_tile(
             break;
         }
     }
+
+    spawned_count
 }
 
 fn spawn_boundary_walls(

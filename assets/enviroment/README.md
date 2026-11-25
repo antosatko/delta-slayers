@@ -102,8 +102,13 @@ the same map seed produces the same tile variants and object placements. Each
 placement receives a small deterministic offset around the tile center and
 uses the terrain's interpolated surface height.
 
-These objects are visual world content only at this stage. They do not expose
-interaction prompts, collision behavior, or gameplay actions.
+Generated objects have invisible movement blockers. The blocker uses a
+conservative upright box sized by the object's rank: Small 0.5 m, Medium
+1.4 m, and Large 2.0 m horizontal half-extents. These values cover the
+current small cone and medium Suzanne prototype bounds. The player and NPC
+cannot walk through these blockers, but the shape is approximate rather than
+mesh-accurate. Objects do not yet expose interaction prompts or gameplay
+actions.
 
 ## Export checklist
 
