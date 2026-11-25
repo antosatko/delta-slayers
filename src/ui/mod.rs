@@ -22,6 +22,7 @@ impl Plugin for UiPlugin {
         app.init_resource::<stack::UiStack>()
             .init_resource::<inventory::InventoryViewModel>()
             .init_resource::<components::PopupConfirmRequested>()
+            .init_resource::<components::ExplorationDebugPanelState>()
             .configure_sets(Update, (UiSet::Input, UiSet::Projection).chain())
             .add_systems(OnEnter(AppState::MainMenu), screens::menu::scene.spawn())
             .add_systems(
@@ -58,6 +59,7 @@ impl Plugin for UiPlugin {
                     systems::game_menu_visibility_system,
                     systems::pause_overlay_visibility_system,
                     systems::update_minimap,
+                    systems::exploration_debug_panel_projection,
                     inventory::sync_inventory_view_model,
                 )
                     .chain()
