@@ -128,9 +128,10 @@ slower speed, stopping at a small personal-space distance. NPC movement calls
 the same collision resolver as player movement, so Blender-authored
 `MovementBlocker` volumes block both. The town remains the existing
 Blender-authored scene, while an `ExplorationPortal` can create a separate
-procedural hex map at runtime. Its triangulated height field drives both the
-terrain mesh and player/NPC ground elevation. The map has biome-colored tiles,
-sparse vegetation and rocks, and a collision-blocked perimeter. A return
+procedural hex map at runtime. The per-tile height field drives the imported tile models and player/NPC ground elevation. The map instances the supplied `assets/tiles/1.glb` and `assets/tiles/2.glb`
+models, tints them by biome, and leaves their edges overlapping. Tile 2 keeps
+its Skein-authored `MovementBlocker`. Sparse trees and a collision-blocked
+perimeter complete the first pass. A return
 beacon restores the town-side position captured on entry.
 
 The TriggerZone-to-TriggerBox rename is a reflected authoring API break.
@@ -148,12 +149,16 @@ See `assets/worlds/README.md` for the Blender workflow and component schema.
 
 An exploration portal is an interaction volume, not an automatic touch trigger:
 the player enters its bounds and presses E to open a setup dialog. The dialog
-starts with the portal's authored values and exposes the seed, hex radius, tile
-size, height multiplier, terrain frequency, biome scale, and vegetation
-density. A seed of 0 generates a new map per visit; a positive seed reproduces
-the same map. Number inputs enforce the generator's safe runtime ranges, and a
+starts with the portal's authored values and exposes the seed, hex radius,
+rendered tile radius, height multiplier, terrain frequency, biome scale, and
+vegetation density. A seed of 0 generates a new map per visit; **Randomize
+seed** chooses a visible, reproducible seed without changing the other
+parameters. Number inputs enforce the generator's safe runtime ranges, and a
 live tile count reflects the selected radius. Reset restores the portal's
 authored values; Generate submits the selected configuration to gameplay.
+Tile radius defaults to 6 m. The supplied meshes have a 5 m source radius and
+are scaled to the selected radius; their grid centers are spaced at 82% of that
+radius so neighboring tiles visibly overhang one another.
 While the dialog is open, UiStack owns its visibility and world simulation is
 suspended. Debug builds also show a dismissible panel on map entry with the
 resolved seed and effective generation parameters. The town scene stays loaded
