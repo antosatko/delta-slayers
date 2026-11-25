@@ -30,6 +30,7 @@ impl Plugin for GameplayPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<zones::ZoneKind>()
             .register_type::<zones::TriggerBox>()
+            .register_type::<player::MovementBlocker>()
             .register_type::<spawning::SpawnPointKind>()
             .register_type::<spawning::SpawnPoint>()
             .register_type::<billboard::Billboard>()
