@@ -125,6 +125,14 @@ pub(crate) struct CarbonButtonStyle {
     pub selected: bool,
 }
 
+/// Mutable selection state for a tab created by screen_tab().
+///
+/// Screen code owns this value and updates it when the active sub-page changes.
+#[derive(Component, Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct CarbonTab {
+    pub selected: bool,
+}
+
 #[derive(Component, Clone, Copy, Debug, Default)]
 pub(crate) struct CarbonHoverDelay {
     pub delay_seconds: f32,
@@ -139,7 +147,10 @@ pub struct CarbonPlugin;
 impl Plugin for CarbonPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<CarbonTheme>()
-            .add_systems(Update, (update_button_styles, update_reference_cards));
+            .add_systems(
+                Update,
+                (update_button_styles, update_tab_labels, update_reference_cards),
+            );
     }
 }
 
@@ -149,15 +160,32 @@ fn update_button_styles(
         &bevy::picking::hover::Hovered,
         Option<&Pressed>,
         &CarbonButtonStyle,
+        Option<&CarbonTab>,
         &mut BackgroundColor,
     )>,
 ) {
-    for (hovered, pressed, style, mut background) in &mut buttons {
-        *background = BackgroundColor(if style.selected {
+    for (hovered, pressed, style, tab, mut background) in &mut buttons {
+        let selected = tab.map_or(style.selected, |tab| tab.selected);
+        *background = BackgroundColor(if selected {
             theme.panel_raised
         } else {
             theme.button_background(style.tone, hovered.get(), pressed.is_some())
         });
+    }
+}
+
+fn update_tab_labels(
+    theme: Res<CarbonTheme>,
+    tabs: Query<(&CarbonTab, &Children)>,
+    mut labels: Query<&mut TextColor>,
+) {
+    for (tab, children) in &tabs {
+        let color = if tab.selected { theme.accent } else { theme.muted };
+        for child in children {
+            if let Ok(mut text_color) = labels.get_mut(*child) {
+                *text_color = TextColor(color);
+            }
+        }
     }
 }
 
