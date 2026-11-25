@@ -48,10 +48,10 @@ complete or final gameplay loop.
 
 ## Action-driven simulation
 
-**Proposed**
+**Decided**
 
-The game could use a real-time simulation that advances only while the player
-is performing an action. There are no traditional turns: the player's actions
+The game uses a real-time simulation that advances only while the player is
+performing an action. There are no traditional turns: the player's actions
 determine when and for how long the world progresses.
 
 - When the player is not performing an action, the simulation is frozen.
@@ -114,9 +114,8 @@ Questions to resolve:
 
 **Open**
 
-No combat rules, enemy roles, or encounter structure have been committed to
-this document yet. The proposed action-driven simulation above is a possible
-foundation for combat, not a finalized combat system.
+The action-driven simulation is a decided foundation for gameplay, but combat
+rules, enemy roles, and encounter structure have not yet been committed.
 
 ## Progression and rewards
 
