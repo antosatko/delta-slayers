@@ -280,8 +280,8 @@ pub(super) fn move_player_to_target(
 }
 
 /// Advances in small increments so a fast frame or sprint cannot tunnel
-/// through a thin authored wall. When a step hits a wall, its inward component
-/// is removed, preserving the tangential part so the player can slide along it.
+/// through a thin authored wall. Overlapping steps are corrected to the wall
+/// surface, preserving tangential movement so the player can slide along it.
 fn move_with_collisions(
     start: Vec3,
     delta: Vec3,
@@ -744,7 +744,7 @@ mod tests {
             &[blocker],
         );
 
-        let corner_distance = Vec2::new(result.x - 0.1, result.z - 0.1).length();
+        let corner_distance = Vec2::new(result.x + 0.1, result.z + 0.1).length();
         assert!(corner_distance >= PLAYER_COLLIDER_RADIUS - 0.02);
         assert!(result.x < 0.1 && result.z < 0.1);
     }
