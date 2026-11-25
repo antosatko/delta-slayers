@@ -104,6 +104,27 @@ pub fn panel(width: Val) -> impl Scene {
     }
 }
 
+/// A plain page title for screens where contextual help would be redundant.
+pub fn page_title(title: &'static str) -> impl Scene {
+    bsn! {
+        Node {
+            width: percent(100),
+            min_height: px(34),
+            flex_direction: FlexDirection::Row,
+            align_items: AlignItems::Center,
+        }
+        Children [
+            Text(title)
+            Node {
+                min_width: px(0),
+                flex_shrink: 1.0,
+            }
+            TextFont { font_size: px(28) }
+            template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().ink)))
+        ]
+    }
+}
+
 /// One-line screen title with a delayed help card. The optional second row is
 /// composed by placing screen_tabs() and screen_tab() directly below it.
 pub fn page_header(
@@ -131,11 +152,15 @@ pub fn page_header(
                 Text(title)
                 Node {
                     min_width: px(0),
-                    flex_grow: 1.0,
                     flex_shrink: 1.0,
                 }
                 TextFont { font_size: px(28) }
                 template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().ink)))
+                --
+                Node {
+                    flex_grow: 1.0,
+                    min_width: px(0),
+                }
                 --
                 Button
                 Hovered(false)
@@ -167,7 +192,9 @@ pub fn page_header(
                         top: px(34),
                         right: px(0),
                         width: px(300),
-                        max_width: percent(85),
+                        max_width: Val::Vw(85.0),
+                        max_height: Val::Vh(70.0),
+                        overflow: Overflow::scroll(),
                         padding: UiRect::all(px(14)),
                         flex_direction: FlexDirection::Column,
                         row_gap: px(7),
@@ -342,7 +369,9 @@ pub fn item_art_tile(
         Node {
             width: px(112),
             height: px(112),
-            min_width: px(0),
+            min_width: px(112),
+            min_height: px(112),
+            flex_basis: px(112),
             flex_shrink: 0.0,
             position_type: PositionType::Relative,
             overflow: Overflow::clip(),
@@ -528,7 +557,10 @@ fn item_tile_scene(
         Node {
             width: px(112),
             height: px(112),
-            min_width: px(0),
+            min_width: px(112),
+            min_height: px(112),
+            flex_basis: px(112),
+            flex_shrink: 0.0,
             position_type: PositionType::Relative,
             overflow: Overflow::clip(),
             flex_direction: FlexDirection::Column,
