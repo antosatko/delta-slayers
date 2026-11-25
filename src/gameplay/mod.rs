@@ -57,12 +57,12 @@ impl Plugin for GameplayPlugin {
                 Update,
                 (
                     player::adjust_camera.run_if(camera_input_enabled),
-                    player::move_player_to_target.run_if(gameplay_input_enabled),
+                    player::move_player_to_target.run_if(gameplay_simulation_enabled),
                     player::follow_camera,
-                    player::draw_move_trajectory.run_if(gameplay_input_enabled),
+                    player::draw_move_trajectory.run_if(gameplay_simulation_enabled),
                     player::sync_player_visual,
                     billboard::billboard_system,
-                    zones::zone_detection_system.run_if(gameplay_input_enabled),
+                    zones::zone_detection_system.run_if(gameplay_simulation_enabled),
                 )
                     .chain()
                     .after(UiSet::Input)
@@ -83,10 +83,44 @@ impl Plugin for GameplayPlugin {
     }
 }
 
-fn gameplay_input_enabled(ui_state: Res<UiStack>) -> bool {
-    !ui_state.paused() && !ui_state.game_menu_open()
+fn gameplay_simulation_enabled(ui_state: Res<UiStack>) -> bool {
+    gameplay_simulation_allowed(&ui_state)
 }
 
 fn camera_input_enabled(ui_state: Res<UiStack>) -> bool {
-    !ui_state.paused() && !ui_state.inventory_open() && !ui_state.game_menu_open()
+    camera_input_allowed(&ui_state)
+}
+
+fn gameplay_simulation_allowed(ui_state: &UiStack) -> bool {
+    !ui_state.paused() && !ui_state.game_menu_open()
+}
+
+fn camera_input_allowed(ui_state: &UiStack) -> bool {
+    gameplay_simulation_allowed(ui_state) && !ui_state.inventory_open()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::ui::stack::UiLayer;
+
+    #[test]
+    fn opening_inventory_does_not_pause_gameplay() {
+        let mut ui = UiStack::default();
+        ui.push(UiLayer::Inventory);
+
+        assert!(gameplay_simulation_allowed(&ui));
+        assert!(!camera_input_allowed(&ui));
+    }
+
+    #[test]
+    fn pause_and_game_menu_still_suspend_gameplay() {
+        let mut ui = UiStack::default();
+        ui.push(UiLayer::Pause);
+        assert!(!gameplay_simulation_allowed(&ui));
+
+        ui.reset();
+        ui.push(UiLayer::GameMenu);
+        assert!(!gameplay_simulation_allowed(&ui));
+    }
 }
