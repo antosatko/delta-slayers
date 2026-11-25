@@ -143,7 +143,7 @@ fn interaction_prompt() -> impl Scene {
                 Children [
                     @key_hint("E", "Interact")
                     --
-                    @action_button("Open", CarbonIcon::Confirm, CarbonButtonTone::Primary)
+                    @action_button("Use", CarbonIcon::Confirm, CarbonButtonTone::Primary)
                     on(|_activate: On<Activate>, mut request: ResMut<PopupConfirmRequested>| {
                         request.0 = true;
                     })
