@@ -168,24 +168,32 @@ fn update_reference_cards(
         &mut CarbonHoverDelay,
         &Children,
     )>,
-    mut cards: Query<&mut Visibility, With<CarbonHoverCard>>,
+    mut cards: Query<(&mut Visibility, &bevy::picking::hover::Hovered), With<CarbonHoverCard>>,
 ) {
     for (hovered, mut delay, children) in &mut triggers {
+        let card_hovered = children.iter().any(|child| {
+            cards
+                .get(*child)
+                .map_or(false, |(_, card_hover)| card_hover.get())
+        });
+
         if hovered.get() {
             delay.elapsed_seconds =
                 (delay.elapsed_seconds + time.delta_secs()).min(delay.delay_seconds);
-        } else {
+        } else if !card_hovered {
             delay.elapsed_seconds = 0.0;
         }
 
-        let visibility = if hovered.get() && delay.elapsed_seconds >= delay.delay_seconds {
+        let visible = (hovered.get() && delay.elapsed_seconds >= delay.delay_seconds)
+            || card_hovered;
+        let visibility = if visible {
             Visibility::Visible
         } else {
             Visibility::Hidden
         };
 
         for child in children {
-            if let Ok(mut card_visibility) = cards.get_mut(*child) {
+            if let Ok((mut card_visibility, _)) = cards.get_mut(*child) {
                 *card_visibility = visibility;
             }
         }
