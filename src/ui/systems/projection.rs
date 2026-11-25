@@ -1,4 +1,5 @@
 use bevy::{
+    feathers::controls::{FeathersNumberInput, NumberInputValue},
     prelude::*,
     window::{CursorGrabMode, CursorOptions, PrimaryWindow},
 };
@@ -43,7 +44,8 @@ pub fn popup_visibility_system(
         && ui.active_panel().is_none()
         && !ui.inventory_open()
         && !ui.paused()
-        && !ui.game_menu_open()\n        && !ui.exploration_setup_open();
+        && !ui.game_menu_open()
+        && !ui.exploration_setup_open();
 
     for mut visibility in &mut popups {
         *visibility = if visible {
