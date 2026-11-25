@@ -145,11 +145,13 @@ pub(super) fn set_move_target_from_cursor(
     mut target: ResMut<MovementTarget>,
     time: Res<Time>,
     ui_state: Res<UiStack>,
-    ui_surfaces: Query<&RelativeCursorPosition>,
+    ui_surfaces: Query<(&RelativeCursorPosition, &InheritedVisibility)>,
 ) {
     let just_pressed = mouse.just_pressed(MouseButton::Left);
     let pressed = mouse.pressed(MouseButton::Left);
-    let pointer_over_ui = ui_surfaces.iter().any(|cursor| cursor.cursor_over);
+    let pointer_over_ui = ui_surfaces
+        .iter()
+        .any(|(cursor, visibility)| visibility.get() && cursor.cursor_over);
     let blocked_by_ui = pointer_over_ui
         || ui_state.paused()
         || ui_state.inventory_open()
