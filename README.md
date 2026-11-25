@@ -21,6 +21,7 @@ Current features:
 - Loading screen while the Blender-authored world is instantiated
 - Overhead follow camera with click-to-move and camera-relative WASD / arrow movement
 - Shift sprint and a moving destination-path indicator
+- Invisible Blender-authored movement walls with collision and wall sliding
 - Moving sprites with subtle squash-and-stretch animation
 - 2D billboard entities that face the camera
 - Oriented Blender-authored trigger boxes for Shop and Guild interactions
