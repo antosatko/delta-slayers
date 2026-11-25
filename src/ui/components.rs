@@ -51,7 +51,11 @@ impl Default for ExplorationSetupViewModel {
 
 impl ExplorationSetupViewModel {
     pub(super) fn open(&mut self, authored: ExplorationPortal) {
-        let authored = authored.sanitized();
+        let mut authored = authored.sanitized();
+        authored.seed = authored
+            .seed
+            .map(|seed| seed.min(i64::MAX as u64))
+            .filter(|seed| *seed != 0);
         self.authored = authored;
         self.config = authored;
     }
@@ -97,5 +101,15 @@ mod tests {
 
         assert_eq!(view_model.config.radius, 18);
         assert_eq!(view_model.config.seed, Some(42));
+    }
+
+    #[test]
+    fn zero_seed_is_treated_as_random() {
+        let mut view_model = ExplorationSetupViewModel::default();
+        let mut authored = ExplorationPortal::default();
+        authored.seed = Some(0);
+        view_model.open(authored);
+
+        assert_eq!(view_model.config.seed, None);
     }
 }
