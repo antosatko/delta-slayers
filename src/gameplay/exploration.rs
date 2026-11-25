@@ -443,7 +443,7 @@ fn spawn_vegetation(
     }
 }
 
-fn spawn_boundary_walls(commands: &mut Commands, root: Entity, config: ExplorationPortal, seed: u64) {
+fn spawn_boundary_walls(commands: &mut Commands, root: Entity, config: ExplorationPortal) {
     // Pointy-top axial directions mapped to the matching perimeter edge.
     const BOUNDARY_EDGES: [((i32, i32), usize); 6] = [
         ((1, 0), 5),
