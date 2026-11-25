@@ -69,8 +69,7 @@ pub(super) fn setup_game(
     let player_rotation = Quat::from_rotation_y(saved_yaw);
     let camera_rotation = player::follow_camera_rotation(saved_yaw, initial_pitch);
     let camera_target = spawn_pos + Vec3::Y * 0.8;
-    let camera_position =
-        camera_target - camera_rotation * Vec3::NEG_Z * player::CAMERA_DISTANCE;
+    let camera_position = camera_target - camera_rotation * Vec3::NEG_Z * player::CAMERA_DISTANCE;
 
     // The player model owns the world-space ground position. The camera and
     // billboard are separate entities so neither affects gameplay queries.

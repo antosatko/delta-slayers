@@ -154,7 +154,6 @@ pub fn update_minimap(
     }
 }
 
-
 /// Projects a world-space offset into a player-oriented minimap.
 ///
 /// The player's horizontal forward direction always points toward the top

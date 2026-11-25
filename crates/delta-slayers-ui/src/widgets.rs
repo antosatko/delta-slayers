@@ -323,7 +323,6 @@ pub fn action_button(label: &'static str, icon: CarbonIcon, tone: CarbonButtonTo
     }
 }
 
-
 /// Compact secondary copy for descriptions and helper notes.
 pub fn muted_text(value: &'static str, size: f32) -> impl Scene {
     bsn! {

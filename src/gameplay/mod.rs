@@ -12,7 +12,7 @@ use bevy::prelude::*;
 
 use crate::{
     app::state::AppState,
-    ui::{stack::UiStack, UiSet},
+    ui::{UiSet, stack::UiStack},
 };
 
 /// Selects whether a new gameplay session restores the quick-save or starts fresh.

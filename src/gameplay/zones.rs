@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::gameplay::player::{Player, INTERACTION_HEIGHT};
+use crate::gameplay::player::{INTERACTION_HEIGHT, Player};
 
 /// High-level interaction category used by UI panels and fast travel.
 #[derive(Reflect, Default, Clone, Copy, PartialEq, Eq, Debug, Hash)]

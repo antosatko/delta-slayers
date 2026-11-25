@@ -66,11 +66,7 @@ fn main_menu() -> impl Scene {
     }
 }
 
-fn start_game_button(
-    label: &'static str,
-    icon: CarbonIcon,
-    mode: GameStartMode,
-) -> impl Scene {
+fn start_game_button(label: &'static str, icon: CarbonIcon, mode: GameStartMode) -> impl Scene {
     bsn! {
         @action_button(label, icon, CarbonButtonTone::Secondary)
         on(move |_activate: On<Activate>,
@@ -82,11 +78,7 @@ fn start_game_button(
     }
 }
 
-fn menu_button(
-    label: &'static str,
-    icon: CarbonIcon,
-    target: AppState,
-) -> impl Scene {
+fn menu_button(label: &'static str, icon: CarbonIcon, target: AppState) -> impl Scene {
     bsn! {
         @action_button(label, icon, CarbonButtonTone::Secondary)
         on(move |_activate: On<Activate>, mut next_state: ResMut<NextState<AppState>>| {

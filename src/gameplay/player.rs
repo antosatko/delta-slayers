@@ -98,8 +98,7 @@ impl MovementTarget {
 
         self.refresh_elapsed += delta_secs;
         if self.refresh_elapsed + 1e-5 >= MOVE_TARGET_REFRESH_INTERVAL {
-            self.refresh_elapsed =
-                (self.refresh_elapsed - MOVE_TARGET_REFRESH_INTERVAL).max(0.0);
+            self.refresh_elapsed = (self.refresh_elapsed - MOVE_TARGET_REFRESH_INTERVAL).max(0.0);
             return true;
         }
 
@@ -156,12 +155,7 @@ pub(super) fn set_move_target_from_cursor(
         || ui_state.paused()
         || ui_state.inventory_open()
         || ui_state.game_menu_open();
-    if !target.should_update_from_cursor(
-        pressed,
-        just_pressed,
-        time.delta_secs(),
-        blocked_by_ui,
-    ) {
+    if !target.should_update_from_cursor(pressed, just_pressed, time.delta_secs(), blocked_by_ui) {
         return;
     }
 
@@ -259,8 +253,7 @@ pub(super) fn draw_move_trajectory(
     // Arrows advance from the player toward the destination, then re-enter
     // from behind to create a continuous, slowly flowing trajectory.
     while arrow_start_distance < distance {
-        let arrow_end_distance =
-            (arrow_start_distance + TRAJECTORY_ARROW_LENGTH).min(distance);
+        let arrow_end_distance = (arrow_start_distance + TRAJECTORY_ARROW_LENGTH).min(distance);
         if arrow_end_distance - arrow_start_distance >= 0.12 {
             let arrow_start = start + direction * arrow_start_distance;
             let arrow_end = start + direction * arrow_end_distance;
@@ -316,10 +309,7 @@ pub(super) fn follow_camera_rotation(player_yaw: f32, pitch: f32) -> Quat {
 /// heading. Scrolling only changes its distance and vertical viewing angle.
 pub(super) fn follow_camera(
     player: Query<(&Transform, &Player)>,
-    mut camera: Query<
-        (&mut Transform, &GameplayCamera),
-        (With<GameplayCamera>, Without<Player>),
-    >,
+    mut camera: Query<(&mut Transform, &GameplayCamera), (With<GameplayCamera>, Without<Player>)>,
 ) {
     let Ok((player_transform, player)) = player.single() else {
         return;
@@ -338,10 +328,7 @@ pub(super) fn follow_camera(
 /// Projects the player's ground position to the separate billboard entity.
 pub(super) fn sync_player_visual(
     player: Query<&Transform, With<Player>>,
-    mut visual: Query<
-        &mut Transform,
-        (With<PlayerVisual>, Without<Player>),
-    >,
+    mut visual: Query<&mut Transform, (With<PlayerVisual>, Without<Player>)>,
 ) {
     let Ok(player_transform) = player.single() else {
         return;
@@ -350,8 +337,7 @@ pub(super) fn sync_player_visual(
         return;
     };
 
-    visual_transform.translation =
-        player_transform.translation + Vec3::Y * PLAYER_VISUAL_HEIGHT;
+    visual_transform.translation = player_transform.translation + Vec3::Y * PLAYER_VISUAL_HEIGHT;
 }
 
 #[cfg(test)]

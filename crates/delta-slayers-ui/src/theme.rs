@@ -31,23 +31,23 @@ pub struct CarbonTheme {
 impl Default for CarbonTheme {
     fn default() -> Self {
         Self {
-            page: Color::srgb(0.086, 0.098, 0.118),             // #16191e
-            panel: Color::srgb(0.133, 0.157, 0.192),          // #222831
-            panel_alt: Color::srgb(0.169, 0.204, 0.251),      // #2b3440
-            panel_raised: Color::srgb(0.224, 0.271, 0.329),   // #394554
-            surface_deep: Color::srgb(0.114, 0.145, 0.180),    // #1d252e
-            ink: Color::srgb(0.945, 0.957, 0.969),             // #f1f4f7
-            muted: Color::srgb(0.780, 0.820, 0.863),           // #c7d1dc
-            quiet: Color::srgb(0.627, 0.686, 0.741),           // #a0afbd
-            accent: Color::srgb(0.467, 0.718, 1.000),           // #77b7ff
-            accent_hover: Color::srgb(0.639, 0.816, 1.000),     // #a3d0ff
-            line: Color::srgb(0.227, 0.275, 0.329),             // #3a4654
-            line_strong: Color::srgb(0.333, 0.396, 0.459),      // #556575
-            positive: Color::srgb(0.416, 0.851, 0.639),         // #6ad9a3
+            page: Color::srgb(0.086, 0.098, 0.118),         // #16191e
+            panel: Color::srgb(0.133, 0.157, 0.192),        // #222831
+            panel_alt: Color::srgb(0.169, 0.204, 0.251),    // #2b3440
+            panel_raised: Color::srgb(0.224, 0.271, 0.329), // #394554
+            surface_deep: Color::srgb(0.114, 0.145, 0.180), // #1d252e
+            ink: Color::srgb(0.945, 0.957, 0.969),          // #f1f4f7
+            muted: Color::srgb(0.780, 0.820, 0.863),        // #c7d1dc
+            quiet: Color::srgb(0.627, 0.686, 0.741),        // #a0afbd
+            accent: Color::srgb(0.467, 0.718, 1.000),       // #77b7ff
+            accent_hover: Color::srgb(0.639, 0.816, 1.000), // #a3d0ff
+            line: Color::srgb(0.227, 0.275, 0.329),         // #3a4654
+            line_strong: Color::srgb(0.333, 0.396, 0.459),  // #556575
+            positive: Color::srgb(0.416, 0.851, 0.639),     // #6ad9a3
             positive_background: Color::srgba(0.416, 0.851, 0.639, 0.10),
-            warning: Color::srgb(1.000, 0.820, 0.400),          // #ffd166
+            warning: Color::srgb(1.000, 0.820, 0.400), // #ffd166
             warning_background: Color::srgba(1.000, 0.820, 0.400, 0.10),
-            danger: Color::srgb(1.000, 0.490, 0.533),            // #ff7d88
+            danger: Color::srgb(1.000, 0.490, 0.533), // #ff7d88
             danger_background: Color::srgba(1.000, 0.490, 0.533, 0.10),
             overlay: Color::srgba(0.035, 0.045, 0.065, 0.72),
         }
@@ -152,11 +152,14 @@ pub struct CarbonPlugin;
 
 impl Plugin for CarbonPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<CarbonTheme>()
-            .add_systems(
-                Update,
-                (update_button_styles, update_tab_labels, update_reference_cards),
-            );
+        app.init_resource::<CarbonTheme>().add_systems(
+            Update,
+            (
+                update_button_styles,
+                update_tab_labels,
+                update_reference_cards,
+            ),
+        );
     }
 }
 
@@ -190,7 +193,11 @@ fn update_tab_labels(
     mut labels: Query<&mut TextColor>,
 ) {
     for (tab, children) in &tabs {
-        let color = if tab.selected { theme.accent } else { theme.muted };
+        let color = if tab.selected {
+            theme.accent
+        } else {
+            theme.muted
+        };
         for child in children {
             if let Ok(mut text_color) = labels.get_mut(*child) {
                 *text_color = TextColor(color);
@@ -222,8 +229,8 @@ fn update_reference_cards(
             delay.elapsed_seconds = 0.0;
         }
 
-        let visible = (hovered.get() && delay.elapsed_seconds >= delay.delay_seconds)
-            || card_hovered;
+        let visible =
+            (hovered.get() && delay.elapsed_seconds >= delay.delay_seconds) || card_hovered;
         let visibility = if visible {
             Visibility::Visible
         } else {
