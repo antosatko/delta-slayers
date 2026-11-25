@@ -58,15 +58,14 @@ pub(super) fn apply_player_spawn_point(
     };
 
     let (_, rotation, translation) = spawn_transform.to_scale_rotation_translation();
-    let (yaw, pitch, _) = rotation.to_euler(EulerRot::YXZ);
+    let (yaw, _, _) = rotation.to_euler(EulerRot::YXZ);
 
     let Ok((mut transform, mut player)) = player.single_mut() else {
         warn!("A Player SpawnPoint exists, but no player camera was found");
         return;
     };
 
-    transform.translation = translation + rotation * Vec3::Y * 1.7;
-    transform.rotation = rotation;
+    transform.translation = translation;
+    transform.rotation = Quat::from_euler(EulerRot::YXZ, yaw, player.pitch, 0.0);
     player.yaw = yaw;
-    player.pitch = pitch;
 }
