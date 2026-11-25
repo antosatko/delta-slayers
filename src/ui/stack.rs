@@ -10,6 +10,7 @@ pub enum UiLayer {
     Inventory,
     ExplorationSetup,
     GameMenu,
+    Settings,
 }
 
 #[derive(Resource, Debug, Default)]
