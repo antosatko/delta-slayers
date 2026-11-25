@@ -66,7 +66,7 @@ impl Plugin for GameplayPlugin {
                 Update,
                 systems::fast_travel
                     .run_if(in_state(AppState::InGame))
-                    .after(player::player_move),
+                    .after(player::move_player_to_target),
             )
             .add_systems(
                 Update,
