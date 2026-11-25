@@ -179,6 +179,9 @@ Game UI should adapt through Bevy UI flex layout rather than fixed screen assump
   height.
 - Floating panels keep consistent viewport insets and must not assume a
   desktop-sized window.
+- The minimap is player-oriented: the player's horizontal forward direction
+  points toward its top edge, nearby markers rotate around the centered player
+  marker, and the arrow indicates the player's heading.
 - Fixed-size artwork tiles and equipment slots remain fixed-size controls;
   their containing rows wrap instead of compressing the artwork.
 
