@@ -487,6 +487,10 @@ fn collect_object_spawn_points(
             .total_cmp(&b.position.x)
             .then(a.position.y.total_cmp(&b.position.y))
             .then(a.position.z.total_cmp(&b.position.z))
+            .then(a.rotation.x.total_cmp(&b.rotation.x))
+            .then(a.rotation.y.total_cmp(&b.rotation.y))
+            .then(a.rotation.z.total_cmp(&b.rotation.z))
+            .then(a.rotation.w.total_cmp(&b.rotation.w))
             .then(a.spawner.capacity.units().cmp(&b.spawner.capacity.units()))
             .then(a.spawner.spawn_chance.total_cmp(&b.spawner.spawn_chance))
     });
