@@ -27,10 +27,19 @@ Within those areas:
 | --- | --- |
 | `app/mod.rs` | Application startup and plugin composition |
 | `app/state.rs` | Top-level application states, including the Loading transition |
-| `gameplay/player.rs` | Player ground position, shared collision movement, look, follow camera, and visual synchronization |
+| `gameplay/player.rs` | Player model and tuning settings; stable façade for the player module API |
+| `gameplay/player/camera.rs` | Follow camera, pan/zoom input, pitch, and camera settings behavior |
+| `gameplay/player/movement.rs` | Cursor targeting, keyboard movement, and destination state |
+| `gameplay/player/collision.rs` | Shared player/NPC collision resolution and authored movement blockers |
+| `gameplay/player/destination.rs` | Movement-path and destination indicators |
+| `gameplay/player/visual.rs` | Player billboard transform synchronization |
 | `gameplay/spawning.rs` | Reflected spawn-point authoring types and initial player spawn selection |
 | `gameplay/zones.rs` | Town interaction zones, proximity detection, visited-zone data, and fast-travel requests |
-| `gameplay/exploration.rs` | Reflected exploration-portal settings, seeded hex terrain generation, map travel, and terrain elevation sampling |
+| `gameplay/exploration.rs` | Exploration domain data and stable module façade |
+| `gameplay/exploration/travel.rs` | Portal detection, entering/returning from maps, and travel anchors |
+| `gameplay/exploration/generation.rs` | Seeded tile generation, reachability, imported tile spawning, and biome materials |
+| `gameplay/exploration/terrain.rs` | Biome/noise sampling and smooth terrain elevation synchronization |
+| `gameplay/exploration/hex.rs` | Axial coordinates, hex layout, and neighbor geometry |
 | `gameplay/inventory.rs` | Authoritative inventory data |
 | `gameplay/world.rs` | In-game world setup and the world-ready transition |
 | `gameplay/npc.rs` | NPC movement that reuses the player collision resolver |
