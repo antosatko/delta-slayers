@@ -37,7 +37,10 @@ impl Plugin for UiPlugin {
                 screens::placeholders::credits_screen.spawn(),
             )
             .add_systems(OnEnter(AppState::Loading), screens::loading::scene.spawn())
-            .add_systems(OnEnter(AppState::InGame), (screens::gameplay::scene.spawn(), systems::sync_cursor))
+            .add_systems(
+                OnEnter(AppState::InGame),
+                (screens::gameplay::scene.spawn(), systems::sync_cursor),
+            )
             .add_systems(
                 Update,
                 systems::handle_ui_input
