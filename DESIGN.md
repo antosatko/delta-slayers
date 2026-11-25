@@ -147,16 +147,20 @@ See `assets/worlds/README.md` for the Blender workflow and component schema.
 ## Exploration maps
 
 An exploration portal is an interaction volume, not an automatic touch trigger:
-the player enters its bounds and presses E. A fixed optional seed reproduces the
-same map; an empty seed is randomized per visit. Map dimensions, tile size,
-terrain height/frequency, biome scale, and vegetation density are clamped to
-safe runtime ranges. The town scene stays loaded while the generated map is
-placed in a distant world area. Its return beacon restores the town-side
-transform. Debug builds show a dismissible settings panel on entry with the
-resolved seed and effective map-generation parameters. The current save format
-stores town state only; using Backspace
-while exploring saves the return anchor so a subsequent Quick Load starts back
-in town rather than at the generated map's world offset.
+the player enters its bounds and presses E to open a setup dialog. The dialog
+starts with the portal's authored values and exposes the seed, hex radius, tile
+size, height multiplier, terrain frequency, biome scale, and vegetation
+density. A seed of 0 generates a new map per visit; a positive seed reproduces
+the same map. Number inputs enforce the generator's safe runtime ranges, and a
+live tile count reflects the selected radius. Reset restores the portal's
+authored values; Generate submits the selected configuration to gameplay.
+While the dialog is open, UiStack owns its visibility and world simulation is
+suspended. Debug builds also show a dismissible panel on map entry with the
+resolved seed and effective generation parameters. The town scene stays loaded
+while the generated map is placed in a distant world area. Its return beacon
+restores the town-side transform. The current save format stores town state
+only; using Backspace while exploring saves the return anchor so a subsequent
+Quick Load starts back in town rather than at the generated map's world offset.
 
 The generator is a first exploration pass, not the final ecosystem system. It
 does not yet save map discovery, resource nodes, time progression, tribal
@@ -254,7 +258,7 @@ is implemented. All five main-menu actions use
 the same neutral secondary-button style. Both start actions share the same
 Loading transition and communicate their intent through GameStartMode.
 
-## Visual hierarchy and Carbon UI principles
+## Visual hierarchy and Feathers-based controls
 
 The interface should have a small number of deliberate attention anchors. Avoid giving every panel, control, label, and status the same visual weight. Use spacing and grouping before adding separators; reserve the strongest contrast and filled treatment for the current primary action or selected state. Keep secondary actions quieter, use semantic colours only where they communicate meaning, and avoid decorative borders around ordinary surfaces. Distinguish layered surfaces with restrained elevation and soft shadows rather than outlining every container. Use consistent styling for equivalent controls and keep related information close together. Hover references should be discoverable but should not compete with the main task until the user deliberately pauses over them. Use a hoverable help affordance only when the screen contains contextual information that is not already obvious from its visible content; otherwise use a plain page title. Explanatory copy and secondary status belong in the help card or page content. Put tabs for distinct views of the same screen directly beneath the title, and omit that row when no such views exist.
 
@@ -280,31 +284,35 @@ Game UI should adapt through Bevy UI flex layout rather than fixed screen assump
 - Fixed-size artwork tiles and equipment slots remain fixed-size controls;
   their containing rows wrap instead of compressing the artwork.
 
-## Reusable Carbon UI library
+## Reusable Feathers-based UI library
 
-The workspace crate `delta-slayers-ui` contains the reusable presentation
-layer. It is deliberately game-specific rather than a generic widget framework.
+The workspace crate `delta-slayers-ui` contains game-specific BSN composition
+helpers and presentation behaviour. The application enables Bevy 0.20.1's
+`bevy_feathers` feature, installs `FeathersPlugins`, and initializes the
+standard dark `UiTheme` once at startup.
 
-- `CarbonPlugin` registers the `CarbonTheme` resource and presentation systems
-  for hover states and delayed help/reference cards.
-- `CarbonTheme` is the shared palette source. It uses graphite surface steps,
-  neutral text and icon colors, a restrained azure accent, and semantic status
-  colors with subtle tinted backgrounds.
-- `panel`, `page_header`, `screen_tabs`, `screen_tab`, `section_header`,
-  `action_button`, `badge`, `stat_bar`, and `item_tile` are composable BSN
-  scenes. Item tiles are square, artwork-first controls with optional quantity.
-  Each screen tab carries a `CarbonTab` selection component, and each item
-  tile exposes `CarbonSelection`; screens can update either state without
-  rebuilding the scene.
-- `reference_term` is a hoverable text control whose information card opens
-  after a 600 ms dwell. The page header uses the same delayed-card behaviour for
-  its help affordance.
-- `muted_text`, `eyebrow_text`, and `key_hint` provide consistent secondary
-  copy and keyboard affordances. `item_art_tile` is a passive square image tile;
-  `gear_slot` provides a labelled square equipment position while
-  `equipment_slot` remains a caption-free generic placeholder.
-- All controls are declared with BSN. Library systems only project interaction
-  state into existing components; they do not create or rebuild UI trees.
+- Shared action buttons are built with `FeathersButton`; the secondary screen
+  tabs also use the Feathers button control and project their selected state
+  through `ButtonVariant`.
+- Shared panel surfaces use Feathers theme tokens and `ThemeContext`, while
+  the Carbon palette remains available for game-specific art tiles, status
+  treatments, minimap marks, and delayed hover cards.
+- The exploration setup dialog uses `FeathersNumberInput` with hard limits,
+  precision, and step sizes. Its values are synchronized with a UI ViewModel;
+  only the Generate action sends a gameplay travel request.
+- `CarbonPlugin` retains game-specific hover-card timing and selection
+  projection. Its systems update existing BSN entities and do not spawn or
+  rebuild UI trees.
+- `page_header`, `section_header`, `badge`, `stat_bar`, `item_tile`,
+  `item_art_tile`, `gear_slot`, `equipment_slot`, and the text helpers
+  provide presentation patterns that Feathers does not attempt to define for
+  this game's inventory and world screens.
+- All hierarchies remain BSN scenes. UI observers mutate navigation or model
+  request state; projection systems synchronize visibility and widget values.
+
+Bevy documents Feathers as an experimental, editor-oriented collection rather
+than a game UI framework. The project uses its ready-made controls and theme
+system where they fit, with game-specific BSN composition retained around them.
 
 The crate example is a standalone catalogue of the current visual language:
 
@@ -312,11 +320,10 @@ The crate example is a standalone catalogue of the current visual language:
 cargo run -p delta-slayers-ui --example carbon_showcase
 ```
 
-The game imports the crate through the workspace path dependency. The main
-menu, loading screen, application placeholders, inventory, zone panels,
-interaction prompt, fast-travel panel, minimap surfaces, pause overlay, and
-game menu all use the shared Carbon palette and widgets. Game-specific
-navigation and ViewModel projection remain in `src/ui/`.
+The main menu, loading screen, application placeholders, inventory actions,
+zone panels, interaction prompt, fast-travel panel, and modal actions use the
+shared Feathers button control. Game-specific navigation and ViewModel
+projection remain in `src/ui/`.
 
 ## BSN conventions
 
