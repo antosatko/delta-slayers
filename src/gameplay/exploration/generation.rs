@@ -1,10 +1,7 @@
 use bevy::{prelude::*, world_serialization::WorldAssetRoot};
 use std::collections::{HashMap, HashSet, VecDeque};
 
-use crate::gameplay::{
-    environment::{EnvironmentAssets, ObjectSpawnPoint},
-    player::{MovementBlocker, PLAYER_COLLIDER_RADIUS},
-};
+use crate::gameplay::environment::{EnvironmentAssets, ObjectSpawnPoint};
 
 use super::hex::{HEX_CORNER_COUNT, HEX_NEIGHBORS, hex_center, hex_corner, hex_layout_radius};
 use super::terrain::{biome_at, cell_random, terrain_height, terrain_surface_height};
@@ -14,7 +11,6 @@ const TILE_MODEL_SOURCE_RADIUS: f32 = 5.0;
 const TILE_VARIANT_SALT: u64 = 0xA24B_5F31_7C91_02D7;
 const OBJECT_SPAWN_SALT: u64 = 0x83D2_EA19_6C45_B70F;
 const SPAWN_POINT_SALT_STRIDE: u64 = 0x9E37_79B9_7F4A_7C15;
-const OBJECT_COLLIDER_PADDING: Vec3 = Vec3::new(0.08, 0.04, 0.08);
 
 #[derive(Clone, Copy)]
 pub(super) struct GeneratedTile {
@@ -263,8 +259,8 @@ fn spawn_terrain_tiles(
 
 /// Places at most one object at each Blender-authored spawn point.
 ///
-/// Marker transforms define exact placement; the collision box is derived
-/// from the complete transformed mesh bounds of the selected prototype.
+/// Marker transforms define exact placement. The prototype's lowest mesh point
+/// is used only to align the visible geometry with the generated terrain.
 fn spawn_objects_on_tile(
     commands: &mut Commands,
     map_root: Entity,
@@ -313,43 +309,15 @@ fn spawn_objects_on_tile(
         let marker_surface_y = terrain_surface_height(config, seed, local_position)
             + base_surface_offset
             + point.position.y * model_scale;
-        let mesh_bottom = object.bounds.center.y - object.bounds.half_extents.y;
         let position = Vec3::new(
             local_position.x,
-            marker_surface_y - mesh_bottom,
+            marker_surface_y - object.mesh_bottom,
             local_position.y,
         );
-        let rotation = point.rotation;
-        let collider_center = position + rotation * object.bounds.center;
-        let collider_half_extents =
-            object.bounds.half_extents + OBJECT_COLLIDER_PADDING;
-
-        // The player starts at the center of axial tile (0, 2). Avoid a
-        // prototype whose actual bounds would overlap that starting body.
-        if coordinates == (0, 2) {
-            let center_offset = Vec2::new(
-                collider_center.x - tile.center.x,
-                collider_center.z - tile.center.y,
-            );
-            let clearance =
-                Vec2::new(collider_half_extents.x, collider_half_extents.z).length()
-                    + PLAYER_COLLIDER_RADIUS;
-            if center_offset.length() < clearance {
-                continue;
-            }
-        }
 
         commands.spawn((
             WorldAssetRoot(object.handle.clone()),
-            Transform::from_translation(position).with_rotation(rotation),
-            ChildOf(map_root),
-        ));
-
-        commands.spawn((
-            MovementBlocker,
-            Transform::from_translation(collider_center)
-                .with_rotation(rotation)
-                .with_scale(collider_half_extents),
+            Transform::from_translation(position).with_rotation(point.rotation),
             ChildOf(map_root),
         ));
         spawned_count += 1;

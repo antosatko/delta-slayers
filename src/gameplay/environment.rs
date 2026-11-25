@@ -9,7 +9,7 @@ use bevy::{
     world_serialization::{DynamicWorld, DynamicWorldBuilder, WorldAsset},
 };
 
-use super::exploration::Biome;
+use super::{exploration::Biome, player::MovementBlocker};
 
 const BIOME_FILES: [(Biome, &str); 4] = [
     (Biome::Grassland, "grassland"),
@@ -138,12 +138,6 @@ pub(crate) struct ObjectSpawnPoint {
     pub(crate) spawner: ObjectSpawner,
 }
 
-#[derive(Clone, Copy, Debug)]
-pub(crate) struct PrototypeBounds {
-    pub(crate) center: Vec3,
-    pub(crate) half_extents: Vec3,
-}
-
 pub(crate) struct TilePrototype {
     pub(crate) handle: Handle<WorldAsset>,
     pub(crate) spawn_points: Vec<ObjectSpawnPoint>,
@@ -152,7 +146,7 @@ pub(crate) struct TilePrototype {
 pub(crate) struct SpawnablePrototype {
     pub(crate) handle: Handle<WorldAsset>,
     pub(crate) definition: SpawnableObject,
-    pub(crate) bounds: PrototypeBounds,
+    pub(crate) mesh_bottom: f32,
 }
 
 /// Loaded prototype pools extracted from named Blender collection nodes.
@@ -342,8 +336,8 @@ pub(super) fn collect_assets(
             else {
                 continue;
             };
-            let Some(bounds) = prototype_mesh_bounds(&asset.world, &meshes) else {
-                warn!("Could not calculate mesh bounds for spawnable object in {path}");
+            let Some(mesh_bottom) = prototype_mesh_bottom(&asset.world, &meshes) else {
+                warn!("Could not calculate the mesh bottom for spawnable object in {path}");
                 continue;
             };
             let mesh_count = count_meshes(&asset.world);
@@ -359,7 +353,7 @@ pub(super) fn collect_assets(
             let prototype = SpawnablePrototype {
                 handle,
                 definition,
-                bounds,
+                mesh_bottom,
             };
 
             match kind {
@@ -498,11 +492,10 @@ fn collect_object_spawn_points(
     points
 }
 
-/// Computes the union of mesh-local AABBs after applying all prototype
-/// transforms. The result is relative to the imported prototype root.
-fn prototype_mesh_bounds(world: &World, meshes: &Assets<Mesh>) -> Option<PrototypeBounds> {
-    let mut minimum = Vec3::splat(f32::INFINITY);
-    let mut maximum = Vec3::splat(f32::NEG_INFINITY);
+/// Finds the lowest mesh point after applying the full descendant transform
+/// hierarchy. This is used only to place spawned object geometry on terrain.
+fn prototype_mesh_bottom(world: &World, meshes: &Assets<Mesh>) -> Option<f32> {
+    let mut minimum_y = f32::INFINITY;
     let mut found_mesh = false;
 
     for entity in world.iter_entities() {
@@ -528,9 +521,7 @@ fn prototype_mesh_bounds(world: &World, meshes: &Assets<Mesh>) -> Option<Prototy
             for y in [-1.0, 1.0] {
                 for z in [-1.0, 1.0] {
                     let corner = center + half_extents * Vec3::new(x, y, z);
-                    let point = transform.transform_point(corner);
-                    minimum = minimum.min(point);
-                    maximum = maximum.max(point);
+                    minimum_y = minimum_y.min(transform.transform_point(corner).y);
                 }
             }
         }
@@ -538,18 +529,11 @@ fn prototype_mesh_bounds(world: &World, meshes: &Assets<Mesh>) -> Option<Prototy
         found_mesh = true;
     }
 
-    if !found_mesh || !minimum.is_finite() || !maximum.is_finite() {
-        return None;
-    }
-
-    Some(PrototypeBounds {
-        center: (minimum + maximum) * 0.5,
-        half_extents: (maximum - minimum) * 0.5,
-    })
+    (found_mesh && minimum_y.is_finite()).then_some(minimum_y)
 }
 
-/// Removes authoring metadata and descendant Empty-only branches while
-/// keeping Empty transform parents that contain rendered mesh descendants.
+/// Removes spawn metadata and unrelated Empty-only branches while retaining
+/// rendered meshes and explicitly authored movement blockers.
 fn strip_prototype_markers(world: &mut World, root: Entity) -> usize {
     let entities = world
         .iter_entities()
@@ -572,7 +556,7 @@ fn prune_non_rendering_descendants(world: &mut World, parent: Entity) -> usize {
     let mut removed = 0;
 
     for child in children {
-        if hierarchy_contains_mesh(world, child) {
+        if hierarchy_contains_runtime_content(world, child) {
             removed += prune_non_rendering_descendants(world, child);
         } else {
             removed += despawn_subtree(world, child);
@@ -595,6 +579,16 @@ fn despawn_subtree(world: &mut World, entity: Entity) -> usize {
 
     let _ = world.despawn(entity);
     removed
+}
+
+fn hierarchy_contains_runtime_content(world: &World, entity: Entity) -> bool {
+    world.get::<Mesh3d>(entity).is_some()
+        || world.get::<MovementBlocker>(entity).is_some()
+        || world.get::<Children>(entity).is_some_and(|children| {
+            children
+                .iter()
+                .any(|child| hierarchy_contains_runtime_content(world, child))
+        })
 }
 
 fn count_meshes(world: &World) -> usize {
@@ -839,6 +833,21 @@ mod tests {
                 ChildOf(root),
             ))
             .id();
+        let blocker_parent = world
+            .spawn((
+                Name::new("Authored blocker parent"),
+                Transform::from_xyz(0.0, 0.0, 2.0),
+                ChildOf(root),
+            ))
+            .id();
+        let blocker = world
+            .spawn((
+                Name::new("Authored movement blocker"),
+                Transform::from_xyz(1.0, 0.0, 0.0),
+                MovementBlocker,
+                ChildOf(blocker_parent),
+            ))
+            .id();
 
         let removed = strip_prototype_markers(&mut world, root);
 
@@ -847,19 +856,22 @@ mod tests {
         assert!(world.get::<ObjectSpawner>(marker).is_none());
         assert!(world.get::<Transform>(marker).is_none());
         assert!(world.get::<Transform>(empty_branch).is_none());
+        assert!(world.get::<Transform>(blocker_parent).is_some());
+        assert!(world.get::<Transform>(blocker).is_some());
+        assert!(world.get::<MovementBlocker>(blocker).is_some());
         assert!(world.get::<Transform>(group).is_some());
         assert!(world.get::<Mesh3d>(mesh_child).is_some());
     }
 
     #[test]
-    fn object_bounds_include_mesh_and_ancestor_transforms() {
+    fn prototype_mesh_bottom_includes_mesh_and_ancestor_transforms() {
         let mut meshes = Assets::<Mesh>::default();
         let mesh_handle = meshes.add(Cuboid::new(2.0, 1.0, 4.0));
 
         let mut world = World::new();
         let root = world
             .spawn(
-                Transform::from_xyz(10.0, 0.0, 4.0)
+                Transform::from_xyz(10.0, 3.0, 4.0)
                     .with_scale(Vec3::new(2.0, 1.0, 1.0)),
             )
             .id();
@@ -869,14 +881,9 @@ mod tests {
             ChildOf(root),
         ));
 
-        let bounds = prototype_mesh_bounds(&world, &meshes).unwrap();
+        let mesh_bottom = prototype_mesh_bottom(&world, &meshes).unwrap();
 
-        assert!(bounds
-            .center
-            .abs_diff_eq(Vec3::new(12.0, 0.0, 4.0), 1e-5));
-        assert!(bounds
-            .half_extents
-            .abs_diff_eq(Vec3::new(2.0, 0.5, 2.0), 1e-5));
+        assert!((mesh_bottom - 2.5).abs() < 1e-5);
     }
 
     #[test]

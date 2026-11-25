@@ -97,12 +97,15 @@ same weighted selection.
 
 Placement is reproducible from the exploration map seed, tile coordinates,
 and sorted spawn-point position. The object's position and orientation come
-from the marker rather than a generated random offset. The complete mesh
-hierarchy is used to compute an aggregate AABB, including descendant mesh
-transforms. An invisible upright movement blocker uses those bounds with a
-small padding, so the player and NPC cannot walk through the visible object.
-The blocker is conservative rather than mesh-accurate physics. Objects do not
-yet expose interaction prompts or gameplay actions.
+from the marker rather than a generated random offset. The mesh hierarchy is
+used only to align the visible object with the terrain; generated objects do
+not receive collision automatically.
+
+To make an authored tile or object block movement, attach
+`delta_slayers::gameplay::player::MovementBlocker` to an Empty in that
+prototype's hierarchy. Its transform defines the box volume (local bounds
+from -1 to 1 on each axis). Authored blockers are preserved when the prototype
+is extracted and block both the player and NPC.
 
 ## Export checklist
 

@@ -179,9 +179,9 @@ the configured maximum jump height; steeper edges receive movement blockers.
 Reachability is flood-filled from the spawn tile, and tiles outside that
 connected area carry the gameplay-only `UnreachableTile` marker for future
 systems. The markers are also highlighted on the exploration minimap. Tiles
-are tinted by biome. Marker-only Empty nodes and their authoring components
-are removed after spawn metadata is collected; mesh-bearing transform
-hierarchy is retained.
+are tinted by biome. Empty nodes used only for spawn metadata are removed,
+while authored `MovementBlocker` nodes and the Empty transform hierarchy
+containing them are retained.
 
 The shared general object pool is loaded from
 `assets/enviroment/general.glb`'s `objects` collection. Its root prototypes
@@ -194,11 +194,11 @@ capacity is a maximum object size (S, M, or L), not a shared tile budget.
 Chance and weighted object selection are deterministic from the map seed,
 tile coordinates, and marker position. Marker-only Empty entities are
 removed from runtime prototypes, and collection/scene ancestors are detached
-so they cannot appear at every tile. Each spawned object's aggregate mesh AABB
-is computed through the full descendant transform hierarchy, then used for an
-invisible movement blocker with small padding. The upright box is conservative,
-not mesh-accurate physics. Generated objects do not yet expose interaction
-prompts or gameplay actions. Procedural vegetation is not generated. A
+so they cannot appear at every tile. The object's lowest mesh point is used
+only to align its visible geometry with the terrain. Generated objects do not
+receive movement blockers automatically; only Blender-authored
+`MovementBlocker` components block movement. Procedural vegetation is not
+generated. A
 collision-blocked perimeter and return beacon complete this exploration pass;
 the beacon restores the town-side position captured on entry.
 
