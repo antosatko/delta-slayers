@@ -148,9 +148,15 @@ This prevents stale visibility and multiple systems fighting over cursor state.
 
 The in-game menu is a root-level BSN scene, independent of the inventory
 hierarchy. Escape opens it directly when no other overlay is active; Escape or
-right click closes the topmost layer. The inventory no longer duplicates that navigation with a separate Menu
-button. Its open state is represented by UiLayer::GameMenu, and a projection
-system controls Visibility.
+right click closes the topmost layer. The inventory no longer duplicates that
+navigation with a separate Menu button. Its open state is represented by
+UiLayer::GameMenu, and a projection system controls Visibility.
+
+The main menu exposes Quick Load, New game, Load Save, Credits, and Exit to
+Desktop. Quick Load restores the save file; New game starts from the authored
+spawn point without loading the previous save. Load Save remains a placeholder
+until a save-selection interface is implemented. Both start actions share the
+same Loading transition and communicate their intent through GameStartMode.
 
 ## Visual hierarchy and Carbon UI principles
 
