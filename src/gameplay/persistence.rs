@@ -37,6 +37,13 @@ pub(super) fn save_game(
     pitch: f32,
     visited: &HashSet<ZoneKind>,
 ) -> io::Result<()> {
+    if !position.is_finite() || !yaw.is_finite() || !pitch.is_finite() {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "save contains non-finite player state",
+        ));
+    }
+
     let save = SaveData {
         position,
         yaw,
@@ -122,6 +129,10 @@ fn parse_save(content: &str) -> Option<SaveData> {
         }
     }
 
+    if version > SAVE_VERSION {
+        return None;
+    }
+
     let position = position?;
     let pitch = match pitch {
         Some(pitch) if version < SAVE_VERSION => player::migrate_saved_camera_pitch(pitch),
@@ -176,5 +187,10 @@ mod tests {
     fn malformed_or_non_finite_positions_are_rejected() {
         assert!(parse_save("pos NaN 0 0").is_none());
         assert!(parse_save("yaw 1.0").is_none());
+    }
+
+    #[test]
+    fn unsupported_future_versions_are_rejected() {
+        assert!(parse_save("version 999\npos 0 0 0").is_none());
     }
 }
