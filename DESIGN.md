@@ -100,9 +100,9 @@ simulation continue behind it, while camera scrolling is reserved for the
 inventory UI. Pause and the game menu still suspend gameplay. Right-click opens
 the inventory or dismisses the active overlay.
 Saved positions preserve their full world-space coordinates. Fast travel uses
-the selected trigger box's world-space center and offsets the exit along Z only;
-the destination's Y elevation is preserved, including for destinations above
-or below the starting area. Billboard sprites track the camera's horizontal
+the selected trigger box's world-space X/Z position and offsets the exit along
+Z only. It preserves the player's current Y elevation; the trigger box's own
+height never moves the player vertically. Billboard sprites track the camera's horizontal
 bearing and partially follow its elevation while retaining an upright bias.
 Visual entities tagged with `SquashOnMove` pulse with a small, smoothed
 horizontal stretch and vertical compression while their transform is moving.
