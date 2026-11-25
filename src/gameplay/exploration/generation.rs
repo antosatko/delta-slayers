@@ -2,6 +2,7 @@ use bevy::{prelude::*, world_serialization::WorldAssetRoot};
 use std::collections::{HashMap, HashSet, VecDeque};
 
 use crate::gameplay::environment::{EnvironmentAssets, ObjectSpawnPoint};
+use crate::gameplay::player::MovementBlocker;
 
 use super::hex::{HEX_CORNER_COUNT, HEX_NEIGHBORS, hex_center, hex_corner, hex_layout_radius};
 use super::terrain::{biome_at, cell_random, terrain_height, terrain_surface_height};
@@ -201,8 +202,8 @@ fn spawn_terrain_tiles(
         }
 
         let variant_roll = cell_random(seed, q, r, TILE_VARIANT_SALT);
-        let variant_index = ((variant_roll * variants.len() as f32) as usize)
-            .min(variants.len() - 1);
+        let variant_index =
+            ((variant_roll * variants.len() as f32) as usize).min(variants.len() - 1);
         let prototype = &variants[variant_index];
 
         let base_color = tile.biome.color();
@@ -220,8 +221,12 @@ fn spawn_terrain_tiles(
 
         let mut tile_entity = commands.spawn((
             WorldAssetRoot(prototype.handle.clone()),
-            Transform::from_xyz(tile.center.x, tile.height + base_surface_offset, tile.center.y)
-                .with_scale(Vec3::splat(model_scale)),
+            Transform::from_xyz(
+                tile.center.x,
+                tile.height + base_surface_offset,
+                tile.center.y,
+            )
+            .with_scale(Vec3::splat(model_scale)),
             ExplorationTile {
                 q,
                 r,
@@ -252,9 +257,7 @@ fn spawn_terrain_tiles(
         }
     }
 
-    info!(
-        "Generated {spawned_objects} objects from {authored_spawn_points} authored spawn points"
-    );
+    info!("Generated {spawned_objects} objects from {authored_spawn_points} authored spawn points");
 }
 
 /// Places at most one object at each Blender-authored spawn point.
@@ -304,8 +307,8 @@ fn spawn_objects_on_tile(
 
         // Marker coordinates are relative to the tile model's root. The
         // tile root is uniformly scaled when instanced into the map.
-        let local_position = tile.center
-            + Vec2::new(point.position.x, point.position.z) * model_scale;
+        let local_position =
+            tile.center + Vec2::new(point.position.x, point.position.z) * model_scale;
         let marker_surface_y = terrain_surface_height(config, seed, local_position)
             + base_surface_offset
             + point.position.y * model_scale;
