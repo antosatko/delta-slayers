@@ -33,8 +33,26 @@ pub(super) fn fast_travel(
 
     if let Some(position) = destination {
         if let Ok(mut player_transform) = queries.p0().single_mut() {
-            player_transform.translation = position + Vec3::new(0.0, 0.0, 2.0);
+            player_transform.translation = fast_travel_spawn_position(position);
         }
+    }
+}
+
+fn fast_travel_spawn_position(destination: Vec3) -> Vec3 {
+    destination + Vec3::Z * 2.0
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn fast_travel_preserves_destination_height() {
+        let destination = Vec3::new(12.0, 7.5, -4.0);
+        let spawn = fast_travel_spawn_position(destination);
+        assert_eq!(spawn.y, destination.y);
+        assert_eq!(spawn.x, destination.x);
+        assert_eq!(spawn.z, destination.z + 2.0);
     }
 }
 
