@@ -40,6 +40,9 @@ pub struct ExplorationPortal {
     pub terrain_frequency: f32,
     /// Controls the scale of biome regions.
     pub biome_scale: f32,
+    /// Legacy Skein field retained so older town-map.glb exports still instantiate.
+    /// No procedural vegetation is generated from this value.
+    pub vegetation_density: f32,
     /// Maximum elevation difference the player can jump between adjacent tiles, in meters.
     pub max_jump_height: f32,
 }
@@ -53,6 +56,7 @@ impl Default for ExplorationPortal {
             height_multiplier: 2.2,
             terrain_frequency: 0.045,
             biome_scale: 0.028,
+            vegetation_density: 0.28,
             max_jump_height: 1.5,
         }
     }
@@ -66,6 +70,7 @@ impl ExplorationPortal {
             height_multiplier: finite_clamp(self.height_multiplier, 2.2, 0.0, 5.0),
             terrain_frequency: finite_clamp(self.terrain_frequency, 0.045, 0.01, 0.15),
             biome_scale: finite_clamp(self.biome_scale, 0.028, 0.006, 0.12),
+            vegetation_density: finite_clamp(self.vegetation_density, 0.28, 0.0, 0.8),
             max_jump_height: finite_clamp(self.max_jump_height, 1.5, 0.25, 3.5),
             ..self
         }
@@ -828,6 +833,7 @@ mod tests {
             height_multiplier: -4.0,
             terrain_frequency: f32::INFINITY,
             biome_scale: 0.0,
+            vegetation_density: 3.0,
             max_jump_height: 9.0,
         }
         .sanitized();
@@ -837,6 +843,7 @@ mod tests {
         assert_eq!(config.height_multiplier, 0.0);
         assert_eq!(config.terrain_frequency, 0.045);
         assert_eq!(config.biome_scale, 0.006);
+        assert_eq!(config.vegetation_density, 0.8);
         assert_eq!(config.max_jump_height, 3.5);
         assert_eq!(config.seed, Some(42));
     }
