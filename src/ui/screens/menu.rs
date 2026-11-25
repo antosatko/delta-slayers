@@ -41,7 +41,7 @@ fn main_menu() -> impl Scene {
                 --
                 @panel(percent(100))
                 Children [
-                    @section_header(CarbonIcon::Compass, "Continue your journey")
+                    @section_header(CarbonIcon::Compass, "Start a journey")
                     --
                     @start_game_button("Quick Load", CarbonIcon::Back, GameStartMode::QuickLoad)
                     --
