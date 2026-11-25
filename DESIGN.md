@@ -189,8 +189,10 @@ collection, while a golden sword that can appear anywhere belongs in
 placement attempts during map generation. Size ranks consume capacity units
 (S = 1, M = 2, L = 3), so an L capacity tile supports one L object, one M
 plus one S, or three S objects. Rarity weights are applied across both
-eligible object pools. Generated objects currently have no interactions or
-separate gameplay behavior. Procedural vegetation is not generated. A
+eligible object pools. Generated objects currently have no interactions or separate gameplay behavior.
+They receive invisible, size-rank-based movement blockers so the player and NPC
+cannot walk through them. These are approximate upright box colliders, not
+mesh-accurate physics. Procedural vegetation is not generated. A
 collision-blocked perimeter and return beacon complete this exploration pass;
 the beacon restores the town-side position captured on entry.
 

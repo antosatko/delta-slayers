@@ -309,7 +309,14 @@ fn spawn_objects_on_tile(
             coordinates.1,
             attempt_salt ^ 0xBF58_476D_1CE4_E5B9,
         );
-        let offset_radius = config.tile_size * (0.12 + radius_roll * 0.32);
+        let (collision_radius, collision_half_height) = match object.definition.size {
+            ObjectSizeRank::Small => (0.35, 0.6),
+            ObjectSizeRank::Medium => (0.55, 0.9),
+            ObjectSizeRank::Large => (0.8, 1.2),
+        };
+        let minimum_offset = collision_radius + 0.32 + 0.1;
+        let offset_radius =
+            (config.tile_size * (0.12 + radius_roll * 0.32)).max(minimum_offset);
         let local_position = tile.center
             + Vec2::new(angle.cos(), angle.sin()) * offset_radius;
         let height = super::terrain::terrain_surface_height(config, seed, local_position);
@@ -318,6 +325,23 @@ fn spawn_objects_on_tile(
             WorldAssetRoot(object.handle.clone()),
             Transform::from_xyz(local_position.x, height, local_position.y)
                 .with_rotation(Quat::from_rotation_y(angle)),
+            ChildOf(map_root),
+        ));
+
+        // Spawn a separate invisible collider so the prototype's authored
+        // render transform and hierarchy remain untouched.
+        commands.spawn((
+            MovementBlocker,
+            Transform::from_xyz(
+                local_position.x,
+                height + collision_half_height,
+                local_position.y,
+            )
+            .with_scale(Vec3::new(
+                collision_radius,
+                collision_half_height,
+                collision_radius,
+            )),
             ChildOf(map_root),
         ));
 
