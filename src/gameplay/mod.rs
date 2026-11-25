@@ -52,6 +52,13 @@ impl Plugin for GameplayPlugin {
             )
             .add_systems(
                 Update,
+                npc::spawn_godo
+                    .after(spawning::apply_player_spawn_point)
+                    .before(npc::chase_player)
+                    .run_if(in_state(AppState::InGame)),
+            )
+            .add_systems(
+                Update,
                 player::set_move_target_from_cursor
                     .after(UiSet::Input)
                     .before(player::move_player_to_target)
