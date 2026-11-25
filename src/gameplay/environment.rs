@@ -181,7 +181,7 @@ impl EnvironmentAssets {
         let biome_objects = self
             .biome_objects
             .get(&biome)
-            .map_or(&[], Vec::as_slice);
+            .map_or(&[][..], Vec::as_slice);
 
         choose_spawnable(
             biome_objects,
