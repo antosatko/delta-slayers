@@ -23,9 +23,13 @@ title. Screens with multiple views can place a tab row directly underneath.
 Install Bevy Feathers and the game's presentation plugin once:
 
 ```rust
-app.add_plugins(FeathersPlugins);
+use bevy::{
+    feathers::{dark_theme::create_dark_theme, theme::UiTheme, FeathersPlugins},
+    prelude::*,
+};
+
 app.insert_resource(UiTheme(create_dark_theme()));
-app.add_plugins(CarbonPlugin);
+app.add_plugins((FeathersPlugins, CarbonPlugin));
 ```
 
 Compose components with BSN. Scenes do not own game state; attach observers
