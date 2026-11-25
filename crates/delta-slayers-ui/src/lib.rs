@@ -1,4 +1,4 @@
-//! Reusable Slate UI components for Delta Slayers.
+//! Carbon UI components for Delta Slayers.
 //!
 //! All UI hierarchy is authored with Bevy Scene Notation. The crate provides
 //! presentation primitives and small presentation-only behaviours; it does not
@@ -7,8 +7,15 @@
 mod theme;
 mod widgets;
 
-pub use theme::{SlateButtonTone, SlatePlugin, SlateStatus, SlateTheme};
+pub use theme::{CarbonButtonTone, CarbonPlugin, CarbonStatus, CarbonTheme};
 pub use widgets::{
-    action_button, badge, item_tile, page_header, panel, reference_term, root, section_header,
-    stat_bar, SlateIcon,
+    CarbonIcon, action_button, badge, item_tile, page_header, panel, reference_term, root,
+    screen_tab, screen_tabs, section_header, stat_bar,
 };
+
+// Compatibility names for call sites that have not migrated from Slate yet.
+pub use theme::CarbonButtonTone as SlateButtonTone;
+pub use theme::CarbonPlugin as SlatePlugin;
+pub use theme::CarbonStatus as SlateStatus;
+pub use theme::CarbonTheme as SlateTheme;
+pub use widgets::CarbonIcon as SlateIcon;
