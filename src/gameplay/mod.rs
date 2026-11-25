@@ -12,6 +12,14 @@ use bevy::prelude::*;
 
 use crate::{app::state::AppState, ui::{stack::UiStack, UiSet}};
 
+/// Selects whether a new gameplay session restores the quick-save or starts fresh.
+#[derive(Resource, Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub(crate) enum GameStartMode {
+    #[default]
+    QuickLoad,
+    NewGame,
+}
+
 pub struct GameplayPlugin;
 
 impl Plugin for GameplayPlugin {
@@ -26,6 +34,7 @@ impl Plugin for GameplayPlugin {
             .init_resource::<zones::VisitedZones>()
             .init_resource::<zones::FastTravelRequest>()
             .init_resource::<inventory::InventoryModel>()
+            .init_resource::<GameStartMode>()
             .add_systems(OnEnter(AppState::Loading), world::setup_game)
             .add_systems(
                 Update,
