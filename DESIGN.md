@@ -169,6 +169,8 @@ layer. It is deliberately game-specific rather than a generic widget framework.
 - `panel`, `page_header`, `screen_tabs`, `screen_tab`, `section_header`,
   `action_button`, `badge`, `stat_bar`, and `item_tile` are composable BSN
   scenes. Item tiles are square, artwork-first controls with optional quantity.
+  Each screen tab carries a `CarbonTab` selection component that UI projection
+  can update without rebuilding the tab scene.
 - `reference_term` is a hoverable text control whose information card opens
   after a 600 ms dwell. The page header uses the same delayed-card behaviour for
   its help affordance.
