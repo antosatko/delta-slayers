@@ -2,11 +2,11 @@ use bevy::prelude::*;
 
 use crate::{
     gameplay::{
-        exploration::{ExplorationTravelRequest, NearbyExplorationPortal},
+        exploration::{ExplorationTravelRequest, NearbyExplorationPortal, PortalAction},
         zones::NearbyZone,
     },
     ui::{
-        components::PopupConfirmRequested,
+        components::{ExplorationSetupViewModel, PopupConfirmRequested},
         stack::{UiLayer, UiStack},
     },
 };
@@ -28,9 +28,18 @@ pub fn handle_ui_input(
         && !ui.paused()
         && ui.active_panel().is_none()
         && !ui.inventory_open()
+        && !ui.exploration_setup_open()
     {
-        if let Some(portal) = nearby_portal.0 {
-            travel_request.0 = Some(portal);
+        if let Some(action) = nearby_portal.0 {
+            match action {
+                PortalAction::Enter(config) => {
+                    setup.open(config);
+                    ui.push(UiLayer::ExplorationSetup);
+                }
+                PortalAction::Return => {
+                    travel_request.0 = Some(PortalAction::Return);
+                }
+            }
         } else if let Some(kind) = nearby.0 {
             ui.push(UiLayer::Panel(kind));
         }
@@ -52,7 +61,7 @@ pub fn handle_ui_input(
         }
     }
 
-    if keys.just_pressed(KeyCode::KeyP) && !ui.game_menu_open() {
+    if keys.just_pressed(KeyCode::KeyP) && !ui.game_menu_open() && !ui.exploration_setup_open() {
         ui.toggle_pause();
     }
 
