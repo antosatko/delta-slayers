@@ -1,6 +1,6 @@
 use bevy::{prelude::*, ui_widgets::Activate};
 use delta_slayers_ui::{
-    SlateButtonTone, SlateIcon, SlateTheme, action_button, page_header, panel, section_header,
+    CarbonButtonTone, CarbonIcon, CarbonTheme, action_button, page_header, panel, section_header,
 };
 
 use crate::app::state::AppState;
@@ -23,7 +23,7 @@ fn main_menu() -> impl Scene {
             align_items: AlignItems::Center,
         }
         template(|ctx| {
-            Ok(BackgroundColor(ctx.resource::<SlateTheme>().page))
+            Ok(BackgroundColor(ctx.resource::<CarbonTheme>().page))
         })
         DespawnOnExit::<AppState>(AppState::MainMenu)
         Children [
@@ -35,24 +35,24 @@ fn main_menu() -> impl Scene {
             }
             Children [
                 @page_header(
-                    "GREYBRIDGE CHAPTER",
                     "Delta Slayers",
-                    "A guild contract awaits."
+                    "Guild hall",
+                    "Choose whether to begin a new journey, continue an existing one, or adjust the game settings."
                 )
                 --
                 @panel(percent(100))
                 Children [
-                    @section_header(SlateIcon::Compass, "Continue your journey")
+                    @section_header(CarbonIcon::Compass, "Continue your journey")
                     --
-                    @menu_button("Play", SlateIcon::Sword, AppState::Loading, SlateButtonTone::Primary)
+                    @menu_button("Play", CarbonIcon::Sword, AppState::Loading, CarbonButtonTone::Primary)
                     --
-                    @menu_button("Continue", SlateIcon::Back, AppState::Continue, SlateButtonTone::Secondary)
+                    @menu_button("Continue", CarbonIcon::Back, AppState::Continue, CarbonButtonTone::Secondary)
                     --
-                    @menu_button("Load game", SlateIcon::Inventory, AppState::Load, SlateButtonTone::Secondary)
+                    @menu_button("Load game", CarbonIcon::Inventory, AppState::Load, CarbonButtonTone::Secondary)
                     --
-                    @menu_button("Settings", SlateIcon::Settings, AppState::Settings, SlateButtonTone::Secondary)
+                    @menu_button("Settings", CarbonIcon::Settings, AppState::Settings, CarbonButtonTone::Secondary)
                     --
-                    @menu_button("Credits", SlateIcon::Book, AppState::Credits, SlateButtonTone::Ghost)
+                    @menu_button("Credits", CarbonIcon::Book, AppState::Credits, CarbonButtonTone::Ghost)
                     --
                     @exit_button()
                 ]
@@ -63,9 +63,9 @@ fn main_menu() -> impl Scene {
 
 fn menu_button(
     label: &'static str,
-    icon: SlateIcon,
+    icon: CarbonIcon,
     target: AppState,
-    tone: SlateButtonTone,
+    tone: CarbonButtonTone,
 ) -> impl Scene {
     bsn! {
         @action_button(label, icon, tone)
@@ -78,7 +78,7 @@ fn menu_button(
 
 fn exit_button() -> impl Scene {
     bsn! {
-        @action_button("Exit", SlateIcon::Close, SlateButtonTone::Danger)
+        @action_button("Exit", CarbonIcon::Close, CarbonButtonTone::Danger)
         on(|_activate: On<Activate>, mut app_exit: MessageWriter<AppExit>| {
             app_exit.write(AppExit::Success);
         })
