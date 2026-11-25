@@ -45,9 +45,10 @@ shops or guilds.
 
 ### Spawn points
 
-Place a SpawnPoint on an Empty at the desired player start location. Its
-world-space position is used, with the camera raised 1.7 units along the
-point's local up axis. Its world rotation sets the initial camera orientation.
+Place a SpawnPoint on an Empty at the desired player start location, at ground
+level. Its world-space position becomes the player's ground position; its
+horizontal rotation sets the initial camera heading. The gameplay camera follows
+above and behind the player, and its pitch is controlled independently.
 If several Player points exist, the one with the highest priority is selected;
 avoid tied priorities.
 
