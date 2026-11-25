@@ -85,9 +85,12 @@ so the camera reveals the sides of world models. Mouse movement does not
 rotate the camera; the wheel slightly adjusts follow distance and vertical
 viewing angle. The mouse cursor remains visible and ungrabbed during gameplay.
 Left-clicking the ground sets a movement destination; the player walks toward
-it continuously, and a sequence of 3D arrows marks the remaining trajectory.
+it continuously, and animated 3D arrows slowly travel along the remaining
+trajectory. A highlighted ground ring and vertical beacon mark the endpoint.
 A new click replaces the destination, and holding Shift increases movement
 speed. Right-click opens the inventory or dismisses the active overlay.
+Saved positions and fast-travel destinations preserve their world-space
+elevation.
 Billboard sprites track the camera's horizontal bearing and partially follow
 its elevation while retaining an upright bias. The player image is
 rendered on a vertical, camera-facing 3D quad. The town remains the existing
