@@ -10,7 +10,7 @@ fn main() {
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
                 title: "Carbon UI Showcase".into(),
-                resolution: (1360.0, 900.0).into(),
+                resolution: (1360, 900).into(),
                 ..default()
             }),
             ..default()
