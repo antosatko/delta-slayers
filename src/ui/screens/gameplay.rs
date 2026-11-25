@@ -1,6 +1,6 @@
 use bevy::{prelude::*, ui_widgets::Activate};
 use delta_slayers_ui::{
-    CarbonButtonTone, CarbonIcon, CarbonTheme, action_button, equipment_slot, eyebrow_text,
+    CarbonButtonTone, CarbonIcon, CarbonTheme, action_button, gear_slot, eyebrow_text,
     item_art_tile, key_hint, muted_text, page_header, page_title, panel, section_header,
 };
 
@@ -315,11 +315,6 @@ fn inventory_scene() -> impl Scene {
                         column_gap: px(8),
                     }
                     Children [
-                        @action_button("Game menu", CarbonIcon::Settings, CarbonButtonTone::Ghost)
-                        on(|_activate: On<Activate>, mut ui: ResMut<UiStack>| {
-                            ui.push(UiLayer::GameMenu);
-                        })
-                        --
                         @action_button("Close", CarbonIcon::Close, CarbonButtonTone::Secondary)
                         on(|_activate: On<Activate>, mut ui: ResMut<UiStack>| {
                             ui.remove(UiLayer::Inventory);
@@ -409,19 +404,21 @@ fn character_panel() -> impl Scene {
                 row_gap: px(7),
             }
             Children [
-                @equipment_slot(CarbonIcon::Shield)
+                @gear_slot("Neck", CarbonIcon::Compass)
                 --
-                @equipment_slot(CarbonIcon::Book)
+                @gear_slot("Head", CarbonIcon::Character)
                 --
-                @equipment_slot(CarbonIcon::Sword)
+                @gear_slot("Shoulders", CarbonIcon::Shield)
                 --
-                @equipment_slot(CarbonIcon::Sword)
+                @gear_slot("L Arm", CarbonIcon::Shield)
                 --
-                @equipment_slot(CarbonIcon::Flask)
+                @gear_slot("Torso", CarbonIcon::Character)
                 --
-                @equipment_slot(CarbonIcon::Shield)
+                @gear_slot("R Arm", CarbonIcon::Shield)
                 --
-                @equipment_slot(CarbonIcon::Compass)
+                @gear_slot("Legs", CarbonIcon::Compass)
+                --
+                @gear_slot("Boots", CarbonIcon::Stamina)
             ]
         ]
     }
