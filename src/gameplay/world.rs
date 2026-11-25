@@ -17,6 +17,7 @@ use crate::{
 
 pub(super) fn setup_game(
     mut commands: Commands,
+    start_mode: Res<super::GameStartMode>,
     mut nearby: ResMut<NearbyZone>,
     mut request: ResMut<FastTravelRequest>,
     mut visited: ResMut<VisitedZones>,
@@ -28,7 +29,15 @@ pub(super) fn setup_game(
     ui_state.reset();
     request.0 = None;
 
-    let (saved_pos, saved_yaw, saved_pitch, saved_visited) = load_game();
+    let (saved_pos, saved_yaw, saved_pitch, saved_visited) = match *start_mode {
+        super::GameStartMode::QuickLoad => load_game(),
+        super::GameStartMode::NewGame => (
+            Vec3::ZERO,
+            0.0,
+            0.0,
+            std::collections::HashSet::new(),
+        ),
+    };
     startup.has_saved_position = saved_pos != Vec3::ZERO;
     startup.spawn_point_applied = startup.has_saved_position;
     startup.scene_ready = false;
