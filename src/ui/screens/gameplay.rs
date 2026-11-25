@@ -3,8 +3,7 @@ use bevy::{
     feathers::{
         containers::{pane, pane_body, pane_header},
         controls::{
-            FeathersNumberInput, HardLimit, NumberInputPrecision, NumberInputStep,
-            NumberInputValue,
+            FeathersNumberInput, HardLimit, NumberInputPrecision, NumberInputStep, NumberInputValue,
         },
         display::{label, label_dim},
         theme::{SurfaceLevel, ThemeBackgroundColor, ThemeContext},
@@ -30,8 +29,7 @@ use crate::{
             ExplorationDebugInfoText, ExplorationDebugPanelRoot, ExplorationDebugPanelState,
             ExplorationParameterControl, ExplorationSetupRoot, ExplorationSetupTileCountText,
             ExplorationSetupViewModel, FastTravelButton, FastTravelMenu, GameMenuModal,
-            MinimapZoneDot, PanelRoot,
-            PauseOverlay, PopupConfirmRequested, PopupRoot,
+            MinimapZoneDot, PanelRoot, PauseOverlay, PopupConfirmRequested, PopupRoot,
         },
         inventory::{CurrencyLabel, InventoryRoot},
         stack::{UiLayer, UiStack},
@@ -256,7 +254,9 @@ fn exploration_debug_panel() -> impl Scene {
 /// Player-facing settings shown when interacting with an exploration portal.
 fn exploration_setup_panel() -> impl Scene {
     let defaults = ExplorationPortal::default();
-    let default_seed = defaults.seed.map_or(0, |seed| seed.min(i64::MAX as u64) as i64);
+    let default_seed = defaults
+        .seed
+        .map_or(0, |seed| seed.min(i64::MAX as u64) as i64);
 
     bsn! {
         Node {

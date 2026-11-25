@@ -8,13 +8,13 @@ use crate::{
     app::state::AppState,
     gameplay::{
         billboard::{Billboard, SquashOnMove},
-        persistence::load_game,
-        player::{self, GameplayCamera, Player, PlayerVisual},
-        spawning::WorldStartup,
         exploration::{
             ActiveExplorationMap, ExplorationSession, ExplorationTravelRequest,
             NearbyExplorationPortal,
         },
+        persistence::load_game,
+        player::{self, GameplayCamera, Player, PlayerVisual},
+        spawning::WorldStartup,
         zones::{FastTravelRequest, NearbyZone, VisitedZones},
     },
     ui::stack::UiStack,

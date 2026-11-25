@@ -1,5 +1,5 @@
 use bevy::{
-    feathers::{dark_theme::create_dark_theme, theme::UiTheme, FeathersPlugins},
+    feathers::{FeathersPlugins, dark_theme::create_dark_theme, theme::UiTheme},
     prelude::*,
     ui_widgets::Activate,
 };

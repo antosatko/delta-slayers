@@ -1,8 +1,5 @@
 use bevy::{
-    asset::RenderAssetUsages,
-    mesh::Indices,
-    prelude::*,
-    render::render_resource::PrimitiveTopology,
+    asset::RenderAssetUsages, mesh::Indices, prelude::*, render::render_resource::PrimitiveTopology,
 };
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -10,7 +7,7 @@ use crate::{
     app::state::AppState,
     gameplay::{
         npc::Npc,
-        player::{self, MovementBlocker, Player, PLAYER_VISUAL_HEIGHT},
+        player::{self, MovementBlocker, PLAYER_VISUAL_HEIGHT, Player},
     },
 };
 
@@ -208,7 +205,14 @@ pub(super) fn process_travel_request(
                 ))
                 .id();
 
-            spawn_map_geometry(&mut commands, root, config, seed, &mut meshes, &mut materials);
+            spawn_map_geometry(
+                &mut commands,
+                root,
+                config,
+                seed,
+                &mut meshes,
+                &mut materials,
+            );
 
             let spawn_local = Vec2::new(0.0, config.tile_size * 3.0);
             let spawn_height = terrain_surface_height(config, seed, spawn_local);
@@ -292,11 +296,7 @@ fn spawn_map_geometry(
     // Its vertical bounds cover the entire configured terrain height range.
     commands.spawn((
         ExplorationReturnPortal,
-        Transform::from_scale(Vec3::new(
-            1.6,
-            config.height_multiplier + 2.0,
-            1.6,
-        )),
+        Transform::from_scale(Vec3::new(1.6, config.height_multiplier + 2.0, 1.6)),
         ChildOf(root),
     ));
 
@@ -337,8 +337,7 @@ fn build_terrain_mesh(config: ExplorationPortal, seed: u64) -> Mesh {
             let base_color = biome_at(config, seed, center).color();
             // Slight deterministic per-tile variation keeps the hex layout
             // readable without adding gaps or breaking the shared height field.
-            let shade = 0.94
-                + cell_random(seed, q, r, 0x51ED_270B_91A4_6C3D) * 0.12;
+            let shade = 0.94 + cell_random(seed, q, r, 0x51ED_270B_91A4_6C3D) * 0.12;
             let color = [
                 base_color[0] * shade,
                 base_color[1] * shade,
@@ -504,8 +503,8 @@ pub(super) fn sync_ground_height(
 
     if let Ok(mut transform) = player.single_mut() {
         let local = transform.translation - map.origin;
-        transform.translation.y =
-            map.origin.y + terrain_surface_height(map.config, map.seed, Vec2::new(local.x, local.z));
+        transform.translation.y = map.origin.y
+            + terrain_surface_height(map.config, map.seed, Vec2::new(local.x, local.z));
     }
 
     for mut transform in &mut npcs {
@@ -585,9 +584,7 @@ fn fractal_noise(x: f32, z: f32, seed: u64) -> f32 {
         total += value_noise(
             x * frequency,
             z * frequency,
-            seed.wrapping_add(
-                (octave as u64).wrapping_mul(0x9E37_79B9_7F4A_7C15),
-            ),
+            seed.wrapping_add((octave as u64).wrapping_mul(0x9E37_79B9_7F4A_7C15)),
         ) * amplitude;
         normalization += amplitude;
         amplitude *= 0.5;
@@ -644,8 +641,7 @@ fn hex_center(q: i32, r: i32, size: f32) -> Vec2 {
 }
 
 fn hex_corner(center: Vec2, size: f32, index: usize) -> Vec2 {
-    let angle = std::f32::consts::FRAC_PI_6
-        + index as f32 * std::f32::consts::PI / 3.0;
+    let angle = std::f32::consts::FRAC_PI_6 + index as f32 * std::f32::consts::PI / 3.0;
     center + Vec2::new(angle.cos(), angle.sin()) * size
 }
 

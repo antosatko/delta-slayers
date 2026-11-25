@@ -14,9 +14,8 @@ use crate::{
         components::{
             ExplorationDebugInfoText, ExplorationDebugPanelRoot, ExplorationDebugPanelState,
             ExplorationParameterControl, ExplorationSetupRoot, ExplorationSetupTileCountText,
-            ExplorationSetupViewModel,
-            FastTravelButton, FastTravelMenu, GameMenuModal, MinimapZoneDot, PanelRoot,
-            PauseOverlay, PopupRoot,
+            ExplorationSetupViewModel, FastTravelButton, FastTravelMenu, GameMenuModal,
+            MinimapZoneDot, PanelRoot, PauseOverlay, PopupRoot,
         },
         inventory::InventoryRoot,
         stack::UiStack,
@@ -77,14 +76,12 @@ pub fn fast_travel_button_visibility_system(
     mut buttons: Query<(&FastTravelButton, &mut Visibility)>,
 ) {
     for (button, mut visibility) in &mut buttons {
-        *visibility = if ui.inventory_open()
-            && active_map.0.is_none()
-            && visited.0.contains(&button.0)
-        {
-            Visibility::Visible
-        } else {
-            Visibility::Hidden
-        };
+        *visibility =
+            if ui.inventory_open() && active_map.0.is_none() && visited.0.contains(&button.0) {
+                Visibility::Visible
+            } else {
+                Visibility::Hidden
+            };
     }
 }
 
@@ -177,11 +174,11 @@ pub fn exploration_setup_projection(
     for (entity, control, current) in &controls {
         let next = match control {
             ExplorationParameterControl::Seed => NumberInputValue::I64(
-                config.seed.map_or(0, |seed| seed.min(i64::MAX as u64) as i64),
+                config
+                    .seed
+                    .map_or(0, |seed| seed.min(i64::MAX as u64) as i64),
             ),
-            ExplorationParameterControl::Radius => {
-                NumberInputValue::I64(config.radius as i64)
-            }
+            ExplorationParameterControl::Radius => NumberInputValue::I64(config.radius as i64),
             ExplorationParameterControl::TileSize => NumberInputValue::F32(config.tile_size),
             ExplorationParameterControl::HeightMultiplier => {
                 NumberInputValue::F32(config.height_multiplier)
@@ -189,9 +186,7 @@ pub fn exploration_setup_projection(
             ExplorationParameterControl::TerrainFrequency => {
                 NumberInputValue::F32(config.terrain_frequency)
             }
-            ExplorationParameterControl::BiomeScale => {
-                NumberInputValue::F32(config.biome_scale)
-            }
+            ExplorationParameterControl::BiomeScale => NumberInputValue::F32(config.biome_scale),
             ExplorationParameterControl::VegetationDensity => {
                 NumberInputValue::F32(config.vegetation_density * 100.0)
             }

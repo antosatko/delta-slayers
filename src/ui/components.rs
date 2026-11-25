@@ -1,8 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{
-    gameplay::{exploration::ExplorationPortal, zones::ZoneKind},
-};
+use crate::gameplay::{exploration::ExplorationPortal, zones::ZoneKind};
 
 #[derive(Component, Default, Clone)]
 pub(super) struct PanelRoot(pub(super) ZoneKind);
