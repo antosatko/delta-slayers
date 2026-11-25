@@ -1,5 +1,7 @@
 use bevy::{
-    asset::RenderAssetUsages, mesh::Indices, prelude::*, render::render_resource::PrimitiveTopology,
+    gltf::GltfAssetLabel,
+    prelude::*,
+    world_serialization::{WorldAsset, WorldAssetRoot},
 };
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -13,6 +15,8 @@ use crate::{
 
 const MAP_WORLD_OFFSET: f32 = 512.0;
 const HEX_CORNER_COUNT: usize = 6;
+const TILE_MODEL_SOURCE_RADIUS: f32 = 5.0;
+pub(crate) const TILE_SPACING_FACTOR: f32 = 0.82;
 const TERRAIN_OCTAVES: usize = 4;
 const MIN_MAP_RADIUS: u32 = 8;
 const MAX_MAP_RADIUS: u32 = 32;
@@ -26,7 +30,7 @@ pub struct ExplorationPortal {
     pub seed: Option<u64>,
     /// Radius measured in hex tiles.
     pub radius: u32,
-    /// Side length of one hex tile, in world units.
+    /// Rendered radius of one hex tile, in meters.
     pub tile_size: f32,
     /// Maximum vertical displacement of the terrain from its base level.
     pub height_multiplier: f32,
@@ -43,7 +47,7 @@ impl Default for ExplorationPortal {
         Self {
             seed: None,
             radius: 12,
-            tile_size: 1.5,
+            tile_size: 6.0,
             height_multiplier: 2.2,
             terrain_frequency: 0.045,
             biome_scale: 0.028,
@@ -56,7 +60,7 @@ impl ExplorationPortal {
     pub(crate) fn sanitized(self) -> Self {
         Self {
             radius: self.radius.clamp(MIN_MAP_RADIUS, MAX_MAP_RADIUS),
-            tile_size: finite_clamp(self.tile_size, 1.5, 1.0, 3.0),
+            tile_size: finite_clamp(self.tile_size, 6.0, 4.0, 8.0),
             height_multiplier: finite_clamp(self.height_multiplier, 2.2, 0.0, 5.0),
             terrain_frequency: finite_clamp(self.terrain_frequency, 0.045, 0.01, 0.15),
             biome_scale: finite_clamp(self.biome_scale, 0.028, 0.006, 0.12),
@@ -156,6 +160,7 @@ fn contains_point(transform: &GlobalTransform, point: Vec3) -> bool {
 /// or restores the town-side transform captured when the player entered it.
 pub(super) fn process_travel_request(
     mut commands: Commands,
+    asset_server: Res<AssetServer>,
     mut request: ResMut<ExplorationTravelRequest>,
     mut active: ResMut<ActiveExplorationMap>,
     mut session: ResMut<ExplorationSession>,
@@ -191,6 +196,10 @@ pub(super) fn process_travel_request(
 
             let config = authored_config.sanitized();
             let seed = config.seed.unwrap_or_else(generate_seed);
+            let tile_assets: [Handle<WorldAsset>; 2] = [
+                asset_server.load(GltfAssetLabel::Scene(0).from_asset("tiles/1.glb")),
+                asset_server.load(GltfAssetLabel::Scene(0).from_asset("tiles/2.glb")),
+            ];
             let origin = Vec3::new(
                 original_transform.translation.x + MAP_WORLD_OFFSET,
                 0.0,
@@ -210,11 +219,12 @@ pub(super) fn process_travel_request(
                 root,
                 config,
                 seed,
+                &tile_assets,
                 &mut meshes,
                 &mut materials,
             );
 
-            let spawn_local = Vec2::new(0.0, config.tile_size * 3.0);
+            let spawn_local = hex_center(0, 2, hex_layout_radius(config));
             let spawn_height = terrain_surface_height(config, seed, spawn_local);
             player_transform.translation =
                 origin + Vec3::new(spawn_local.x, spawn_height, spawn_local.y);
@@ -260,7 +270,7 @@ pub(super) fn process_travel_request(
 #[derive(Component)]
 struct ExplorationMapRoot;
 
-fn generate_seed() -> u64 {
+pub(crate) fn generate_seed() -> u64 {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .map(|duration| duration.as_nanos() as u64)
@@ -272,22 +282,11 @@ fn spawn_map_geometry(
     root: Entity,
     config: ExplorationPortal,
     seed: u64,
+    tile_assets: &[Handle<WorldAsset>; 2],
     meshes: &mut Assets<Mesh>,
     materials: &mut Assets<StandardMaterial>,
 ) {
-    let terrain = meshes.add(build_terrain_mesh(config, seed));
-    let terrain_material = materials.add(StandardMaterial {
-        base_color: Color::WHITE,
-        perceptual_roughness: 1.0,
-        ..default()
-    });
-    commands.spawn((
-        Mesh3d(terrain),
-        MeshMaterial3d(terrain_material),
-        Transform::IDENTITY,
-        ChildOf(root),
-    ));
-
+    spawn_terrain_tiles(commands, root, config, seed, tile_assets, materials);
     spawn_vegetation(commands, root, config, seed, meshes, materials);
     spawn_boundary_walls(commands, root, config);
 
@@ -322,66 +321,96 @@ fn spawn_map_geometry(
     ));
 }
 
-fn build_terrain_mesh(config: ExplorationPortal, seed: u64) -> Mesh {
-    let mut positions = Vec::<[f32; 3]>::new();
-    let mut normals = Vec::<[f32; 3]>::new();
-    let mut colors = Vec::<[f32; 4]>::new();
-    let mut indices = Vec::<u32>::new();
+#[derive(Component)]
+struct ExplorationTileTint(Handle<StandardMaterial>);
+
+#[derive(Component)]
+struct ExplorationTileTintApplied;
+
+/// Applies biome materials to imported meshes, including nested GLB children.
+/// Instancing the complete world preserves Skein-authored components on tile 2.
+pub(super) fn apply_tile_materials(
+    mut commands: Commands,
+    tiles: Query<
+        (Entity, &ExplorationTileTint, &Children),
+        Without<ExplorationTileTintApplied>,
+    >,
+    renderables: Query<(Option<&Children>, Has<Mesh3d>)>,
+) {
+    for (tile, tint, children) in &tiles {
+        let mut pending = children.iter().collect::<Vec<_>>();
+        let mut applied = false;
+
+        while let Some(entity) = pending.pop() {
+            let Ok((nested_children, has_mesh)) = renderables.get(entity) else {
+                continue;
+            };
+
+            if has_mesh {
+                commands
+                    .entity(entity)
+                    .insert(MeshMaterial3d(tint.0.clone()));
+                applied = true;
+            }
+
+            if let Some(nested_children) = nested_children {
+                pending.extend(nested_children.iter());
+            }
+        }
+
+        if applied {
+            commands.entity(tile).insert(ExplorationTileTintApplied);
+        }
+    }
+}
+
+fn spawn_terrain_tiles(
+    commands: &mut Commands,
+    root: Entity,
+    config: ExplorationPortal,
+    seed: u64,
+    tile_assets: &[Handle<WorldAsset>; 2],
+    materials: &mut Assets<StandardMaterial>,
+) {
+    let layout_radius = hex_layout_radius(config);
+    let model_scale = config.tile_size / TILE_MODEL_SOURCE_RADIUS;
+    let base_surface_offset = 0.016821861267089844 * model_scale;
 
     for q in -(config.radius as i32)..=config.radius as i32 {
         let min_r = (-(config.radius as i32)).max(-q - config.radius as i32);
         let max_r = (config.radius as i32).min(-q + config.radius as i32);
         for r in min_r..=max_r {
-            let center = hex_center(q, r, config.tile_size);
-            let center_height = terrain_height(config, seed, center);
-            let base_color = biome_at(config, seed, center).color();
-            // Slight deterministic per-tile variation keeps the hex layout
-            // readable without adding gaps or breaking the shared height field.
-            let shade = 0.94 + cell_random(seed, q, r, 0x51ED_270B_91A4_6C3D) * 0.12;
-            let color = [
-                base_color[0] * shade,
-                base_color[1] * shade,
-                base_color[2] * shade,
-                base_color[3],
-            ];
+            let center = hex_center(q, r, layout_radius);
+            let height = terrain_height(config, seed, center);
+            let biome = biome_at(config, seed, center);
+            let variant_roll = cell_random(seed, q, r, 0xA24B_5F31_7C91_02D7);
+            let protected_area = center.length() < layout_radius * 2.5 || (q == 0 && r == 2);
+            let feature_chance = if biome == Biome::Highlands { 0.55 } else { 0.08 };
+            let use_feature_tile = !protected_area && variant_roll < feature_chance;
+            let tile_index = if use_feature_tile { 1 } else { 0 };
 
-            for side in 0..HEX_CORNER_COUNT {
-                let current = hex_corner(center, config.tile_size, side);
-                let next = hex_corner(center, config.tile_size, (side + 1) % HEX_CORNER_COUNT);
-                let current_height = terrain_height(config, seed, current);
-                let next_height = terrain_height(config, seed, next);
+            let base_color = biome.color();
+            let shade = 0.92 + cell_random(seed, q, r, 0x51ED_270B_91A4_6C3D) * 0.14;
+            let material = materials.add(StandardMaterial {
+                base_color: Color::srgba(
+                    base_color[0] * shade,
+                    base_color[1] * shade,
+                    base_color[2] * shade,
+                    base_color[3],
+                ),
+                perceptual_roughness: 1.0,
+                ..default()
+            });
 
-                let first_index = positions.len() as u32;
-                // Reverse the perimeter order so the top faces point upward.
-                // Derive a flat normal per triangle so height variation affects
-                // both the silhouette and the lighting.
-                let center_vertex = Vec3::new(center.x, center_height, center.y);
-                let next_vertex = Vec3::new(next.x, next_height, next.y);
-                let current_vertex = Vec3::new(current.x, current_height, current.y);
-                let normal = (next_vertex - center_vertex)
-                    .cross(current_vertex - center_vertex)
-                    .normalize_or_zero();
-                positions.extend([
-                    center_vertex.to_array(),
-                    next_vertex.to_array(),
-                    current_vertex.to_array(),
-                ]);
-                normals.extend([normal.to_array(); 3]);
-                colors.extend([color; 3]);
-                indices.extend([first_index, first_index + 1, first_index + 2]);
-            }
+            commands.spawn((
+                WorldAssetRoot(tile_assets[tile_index].clone()),
+                Transform::from_xyz(center.x, height + base_surface_offset, center.y)
+                    .with_scale(Vec3::splat(model_scale)),
+                ExplorationTileTint(material),
+                ChildOf(root),
+            ));
         }
     }
-
-    let mut mesh = Mesh::new(
-        PrimitiveTopology::TriangleList,
-        RenderAssetUsages::default(),
-    );
-    mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, positions);
-    mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, normals);
-    mesh.insert_attribute(Mesh::ATTRIBUTE_COLOR, colors);
-    mesh.insert_indices(Indices::U32(indices));
-    mesh
 }
 
 fn spawn_vegetation(
@@ -392,24 +421,31 @@ fn spawn_vegetation(
     meshes: &mut Assets<Mesh>,
     materials: &mut Assets<StandardMaterial>,
 ) {
-    let trunk = meshes.add(Cylinder::new(0.12, 0.7));
-    let canopy = meshes.add(Cone::new(0.62, 1.35));
-    let rock = meshes.add(Sphere::new(0.42));
+    let vegetation_scale = config.tile_size / 2.0;
+    let trunk = meshes.add(Cylinder::new(0.12 * vegetation_scale, 0.7 * vegetation_scale));
+    let canopy = meshes.add(Cone::new(0.62 * vegetation_scale, 1.35 * vegetation_scale));
     let wood_material = materials.add(Color::srgb(0.31, 0.19, 0.11));
     let leaf_material = materials.add(Color::srgb(0.17, 0.38, 0.18));
-    let rock_material = materials.add(Color::srgb(0.43, 0.45, 0.43));
+    let layout_radius = hex_layout_radius(config);
+    let spawn_center = hex_center(0, 2, layout_radius);
 
     for q in -(config.radius as i32)..=config.radius as i32 {
         let min_r = (-(config.radius as i32)).max(-q - config.radius as i32);
         let max_r = (config.radius as i32).min(-q + config.radius as i32);
         for r in min_r..=max_r {
-            let center = hex_center(q, r, config.tile_size);
-            let distance_from_return = center.length();
-            if distance_from_return < config.tile_size * 2.5 {
+            let center = hex_center(q, r, layout_radius);
+            if center.length() < layout_radius * 2.5
+                || center.distance(spawn_center) < layout_radius * 0.8
+            {
                 continue;
             }
 
             let biome = biome_at(config, seed, center);
+            let feature_roll = cell_random(seed, q, r, 0xA24B_5F31_7C91_02D7);
+            let feature_chance = if biome == Biome::Highlands { 0.55 } else { 0.08 };
+            if feature_roll < feature_chance {
+                continue;
+            }
             let chance = cell_random(seed, q, r, 0xA3C5_9AC3_7D21_4F01);
             let height = terrain_surface_height(config, seed, center);
             match biome {
@@ -417,22 +453,21 @@ fn spawn_vegetation(
                     commands.spawn((
                         Mesh3d(trunk.clone()),
                         MeshMaterial3d(wood_material.clone()),
-                        Transform::from_xyz(center.x, height + 0.35, center.y),
+                        Transform::from_xyz(
+                            center.x,
+                            height + 0.35 * vegetation_scale,
+                            center.y,
+                        ),
                         ChildOf(root),
                     ));
                     commands.spawn((
                         Mesh3d(canopy.clone()),
                         MeshMaterial3d(leaf_material.clone()),
-                        Transform::from_xyz(center.x, height + 1.05, center.y),
-                        ChildOf(root),
-                    ));
-                }
-                Biome::Highlands if chance < 0.32 => {
-                    commands.spawn((
-                        Mesh3d(rock.clone()),
-                        MeshMaterial3d(rock_material.clone()),
-                        Transform::from_xyz(center.x, height + 0.24, center.y)
-                            .with_scale(Vec3::new(1.3, 0.75, 1.0)),
+                        Transform::from_xyz(
+                            center.x,
+                            height + 1.05 * vegetation_scale,
+                            center.y,
+                        ),
                         ChildOf(root),
                     ));
                 }
@@ -443,6 +478,7 @@ fn spawn_vegetation(
 }
 
 fn spawn_boundary_walls(commands: &mut Commands, root: Entity, config: ExplorationPortal) {
+    let layout_radius = hex_layout_radius(config);
     // Pointy-top axial directions mapped to the matching perimeter edge.
     const BOUNDARY_EDGES: [((i32, i32), usize); 6] = [
         ((1, 0), 5),
@@ -461,14 +497,14 @@ fn spawn_boundary_walls(commands: &mut Commands, root: Entity, config: Explorati
                 continue;
             }
 
-            let center = hex_center(q, r, config.tile_size);
+            let center = hex_center(q, r, layout_radius);
             for ((dq, dr), side) in BOUNDARY_EDGES {
                 if hex_distance(q + dq, r + dr) <= config.radius as i32 {
                     continue;
                 }
 
-                let a = hex_corner(center, config.tile_size, side);
-                let b = hex_corner(center, config.tile_size, (side + 1) % HEX_CORNER_COUNT);
+                let a = hex_corner(center, layout_radius, side);
+                let b = hex_corner(center, layout_radius, (side + 1) % HEX_CORNER_COUNT);
                 let midpoint = (a + b) * 0.5;
                 let edge = b - a;
                 let yaw = edge.x.atan2(edge.y);
@@ -481,7 +517,7 @@ fn spawn_boundary_walls(commands: &mut Commands, root: Entity, config: Explorati
                         .with_scale(Vec3::new(
                             0.18,
                             config.height_multiplier + 2.0,
-                            config.tile_size * 0.62,
+                            layout_radius * 0.62,
                         )),
                     ChildOf(root),
                 ));
@@ -490,8 +526,8 @@ fn spawn_boundary_walls(commands: &mut Commands, root: Entity, config: Explorati
     }
 }
 
-/// Keeps the player and Godo on the same triangulated height field used by the
-/// generated mesh. The player transform remains the ground-position authority.
+/// Keeps the player and Godo aligned with the flat top of the selected hex tile.
+/// The player transform remains the ground-position authority.
 pub(super) fn sync_ground_height(
     active: Res<ActiveExplorationMap>,
     mut player: Query<&mut Transform, With<Player>>,
@@ -516,32 +552,10 @@ pub(super) fn sync_ground_height(
 }
 
 fn terrain_surface_height(config: ExplorationPortal, seed: u64, point: Vec2) -> f32 {
-    let (q, r) = world_to_axial(point, config.tile_size);
-    let center = hex_center(q, r, config.tile_size);
-    let offset = point - center;
-    let center_height = terrain_height(config, seed, center);
-    if offset.length_squared() <= 1e-8 {
-        return center_height;
-    }
-
-    let angle = offset.y.atan2(offset.x);
-    let start_angle = std::f32::consts::FRAC_PI_6;
-    let sector = ((angle - start_angle).rem_euclid(std::f32::consts::TAU)
-        / (std::f32::consts::PI / 3.0))
-        .floor() as usize
-        % HEX_CORNER_COUNT;
-    let a = hex_corner(center, config.tile_size, sector) - center;
-    let b = hex_corner(center, config.tile_size, (sector + 1) % HEX_CORNER_COUNT) - center;
-    let determinant = a.perp_dot(b);
-    if determinant.abs() <= 1e-6 {
-        return center_height;
-    }
-
-    let u = offset.perp_dot(b) / determinant;
-    let v = a.perp_dot(offset) / determinant;
-    let corner_a_height = terrain_height(config, seed, center + a);
-    let corner_b_height = terrain_height(config, seed, center + b);
-    center_height * (1.0 - u - v) + corner_a_height * u + corner_b_height * v
+    let layout_radius = hex_layout_radius(config);
+    let (q, r) = world_to_axial(point, layout_radius);
+    let center = hex_center(q, r, layout_radius);
+    terrain_height(config, seed, center)
 }
 
 fn terrain_height(config: ExplorationPortal, seed: u64, point: Vec2) -> f32 {
@@ -631,6 +645,10 @@ fn smoothstep(value: f32) -> f32 {
 
 fn lerp(a: f32, b: f32, t: f32) -> f32 {
     a + (b - a) * t
+}
+
+fn hex_layout_radius(config: ExplorationPortal) -> f32 {
+    config.tile_size * TILE_SPACING_FACTOR
 }
 
 fn hex_center(q: i32, r: i32, size: f32) -> Vec2 {
@@ -730,7 +748,7 @@ mod tests {
         .sanitized();
 
         assert_eq!(config.radius, MAX_MAP_RADIUS);
-        assert_eq!(config.tile_size, 1.5);
+        assert_eq!(config.tile_size, 6.0);
         assert_eq!(config.height_multiplier, 0.0);
         assert_eq!(config.terrain_frequency, 0.045);
         assert_eq!(config.biome_scale, 0.006);
