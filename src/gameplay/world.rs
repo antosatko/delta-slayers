@@ -27,8 +27,10 @@ pub(super) fn setup_game(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut startup: ResMut<WorldStartup>,
+    mut movement_target: ResMut<player::MovementTarget>,
 ) {
     nearby.0 = None;
+    movement_target.0 = None;
     ui_state.reset();
     request.0 = None;
 
