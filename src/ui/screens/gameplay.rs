@@ -65,6 +65,7 @@ fn zone_panel(
         template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().overlay)))
         bevy::ui::GlobalZIndex(10)
         PanelRoot(kind)
+        RelativeCursorPosition
         Visibility::Hidden
         DespawnOnExit::<AppState>(AppState::InGame)
         Children [
@@ -117,6 +118,7 @@ fn interaction_prompt() -> impl Scene {
         }
         bevy::ui::GlobalZIndex(8)
         PopupRoot
+        RelativeCursorPosition
         Visibility::Hidden
         DespawnOnExit::<AppState>(AppState::InGame)
         Children [
@@ -163,6 +165,7 @@ fn fast_travel_menu() -> impl Scene {
         }
         bevy::ui::GlobalZIndex(18)
         FastTravelMenu
+        RelativeCursorPosition
         Visibility::Hidden
         DespawnOnExit::<AppState>(AppState::InGame)
         Children [
@@ -204,6 +207,7 @@ fn minimap() -> impl Scene {
         }
         template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().panel)))
         bevy::ui::GlobalZIndex(2)
+        RelativeCursorPosition
         DespawnOnExit::<AppState>(AppState::InGame)
         Children [
             Node {
@@ -271,6 +275,7 @@ fn inventory_scene() -> impl Scene {
         template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().overlay)))
         bevy::ui::GlobalZIndex(12)
         InventoryRoot
+        RelativeCursorPosition
         Visibility::Hidden
         DespawnOnExit::<AppState>(AppState::InGame)
         Children [
@@ -495,6 +500,7 @@ fn game_menu_modal() -> impl Scene {
         template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().overlay)))
         bevy::ui::GlobalZIndex(30)
         GameMenuModal
+        RelativeCursorPosition
         Visibility::Hidden
         DespawnOnExit::<AppState>(AppState::InGame)
         Children [
@@ -572,6 +578,7 @@ fn pause_overlay() -> impl Scene {
         template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().overlay)))
         bevy::ui::GlobalZIndex(25)
         PauseOverlay
+        RelativeCursorPosition
         Visibility::Hidden
         DespawnOnExit::<AppState>(AppState::InGame)
         Children [
