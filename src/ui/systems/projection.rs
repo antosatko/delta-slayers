@@ -5,7 +5,7 @@ use bevy::{
 
 use crate::{
     gameplay::{
-        exploration::NearbyExplorationPortal,
+        exploration::{ActiveExplorationMap, NearbyExplorationPortal},
         player::Player,
         zones::{NearbyZone, TriggerBox, VisitedZones, ZoneKind},
     },
@@ -53,10 +53,11 @@ pub fn popup_visibility_system(
 
 pub fn fast_travel_menu_visibility_system(
     ui: Res<UiStack>,
+    active_map: Res<ActiveExplorationMap>,
     mut menus: Query<&mut Visibility, With<FastTravelMenu>>,
 ) {
     for mut visibility in &mut menus {
-        *visibility = if ui.inventory_open() {
+        *visibility = if ui.inventory_open() && active_map.0.is_none() {
             Visibility::Visible
         } else {
             Visibility::Hidden
@@ -67,10 +68,14 @@ pub fn fast_travel_menu_visibility_system(
 pub fn fast_travel_button_visibility_system(
     ui: Res<UiStack>,
     visited: Res<VisitedZones>,
+    active_map: Res<ActiveExplorationMap>,
     mut buttons: Query<(&FastTravelButton, &mut Visibility)>,
 ) {
     for (button, mut visibility) in &mut buttons {
-        *visibility = if ui.inventory_open() && visited.0.contains(&button.0) {
+        *visibility = if ui.inventory_open()
+            && active_map.0.is_none()
+            && visited.0.contains(&button.0)
+        {
             Visibility::Visible
         } else {
             Visibility::Hidden
