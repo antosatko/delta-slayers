@@ -1,4 +1,13 @@
-use bevy::{picking::hover::Hovered, prelude::*, ui_widgets::Button};
+use bevy::{
+    feathers::{
+        controls::{ButtonVariant, FeathersButton},
+        display::caption,
+        theme::{SurfaceLevel, ThemeBackgroundColor, ThemeContext},
+    },
+    picking::hover::Hovered,
+    prelude::*,
+    ui_widgets::Button,
+};
 
 use crate::{
     CarbonButtonTone, CarbonSelection, CarbonStatus, CarbonTheme,
@@ -100,7 +109,8 @@ pub fn panel(width: Val) -> impl Scene {
             row_gap: px(12),
             border_radius: BorderRadius::all(px(8)),
         }
-        template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().panel)))
+        ThemeBackgroundColor(tokens::PANE_BODY_BG)
+        ThemeContext(SurfaceLevel::Higher)
     }
 }
 
@@ -291,35 +301,18 @@ pub fn section_header(icon: CarbonIcon, title: &'static str) -> impl Scene {
 
 /// Primary, secondary, quiet, and destructive actions share one control shape.
 pub fn action_button(label: &'static str, icon: CarbonIcon, tone: CarbonButtonTone) -> impl Scene {
+    let variant = match tone {
+        CarbonButtonTone::Primary => ButtonVariant::Primary,
+        CarbonButtonTone::Ghost => ButtonVariant::Plain,
+        CarbonButtonTone::Secondary | CarbonButtonTone::Danger => ButtonVariant::Normal,
+    };
+    let caption_text = format!("{}  {}", icon.glyph(), label);
+
     bsn! {
-        Button
-        Hovered(false)
-        CarbonButtonStyle { tone, selected: false }
-        Node {
-            min_width: px(0),
-            min_height: px(36),
-            padding: UiRect::axes(px(12), px(7)),
-            flex_direction: FlexDirection::Row,
-            justify_content: JustifyContent::Center,
-            align_items: AlignItems::Center,
-            column_gap: px(8),
-            border_radius: BorderRadius::all(px(6)),
+        @FeathersButton {
+            @variant: variant,
+            @caption: bsn! { @caption(caption_text) }
         }
-        template(move |ctx| {
-            let theme = ctx.resource::<CarbonTheme>();
-            Ok(BackgroundColor(theme.button_background(tone, false, false)))
-        })
-        Children [
-            @glyph(icon, 15.0, GlyphTone::Button(tone))
-            --
-            Text(label)
-            TextFont { font_size: px(13) }
-            template(move |ctx| {
-                Ok(TextColor(
-                    ctx.resource::<CarbonTheme>().button_foreground(tone),
-                ))
-            })
-        ]
     }
 }
 
