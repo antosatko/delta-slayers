@@ -259,8 +259,8 @@ pub(super) fn move_player_to_target(
         movement,
         |candidate, intended_movement| {
             blockers.iter().find_map(|blocker| {
-                let normal = movement_collision_normal(candidate, blocker)?;
-                (intended_movement.dot(normal) < -1e-5).then_some(normal)
+                let contact = movement_collision_contact(candidate, blocker)?;
+                (intended_movement.dot(contact.normal) < -1e-5).then_some(contact)
             })
         },
     );
@@ -285,7 +285,7 @@ pub(super) fn move_player_to_target(
 fn move_with_collisions(
     start: Vec3,
     delta: Vec3,
-    mut collision_normal: impl FnMut(Vec3, Vec3) -> Option<Vec3>,
+    mut collision_contact: impl FnMut(Vec3, Vec3) -> Option<MovementContact>,
 ) -> Vec3 {
     let distance = Vec2::new(delta.x, delta.z).length();
     if !distance.is_finite() || distance <= f32::EPSILON || !delta.is_finite() {
@@ -304,11 +304,16 @@ fn move_with_collisions(
             }
 
             let candidate = position + movement;
-            let Some(normal) = collision_normal(candidate, movement) else {
+            let Some(contact) = collision_contact(candidate, movement) else {
                 break;
             };
 
-            movement -= normal * movement.dot(normal);
+            let mut corrected_candidate = candidate + contact.normal * contact.penetration;
+            movement = corrected_candidate - position;
+            let inward_component = movement.dot(contact.normal);
+            if inward_component < 0.0 {
+                movement -= contact.normal * inward_component;
+            }
         }
         position += movement;
     }
@@ -316,13 +321,20 @@ fn move_with_collisions(
     position
 }
 
-/// Returns the outward horizontal contact normal when the player's circular
-/// footprint overlaps an upright, oriented box. Blockers are rotated around Y;
-/// their vertical scale and position determine whether they overlap the body.
-fn movement_collision_normal(
+#[derive(Clone, Copy)]
+struct MovementContact {
+    normal: Vec3,
+    penetration: f32,
+}
+
+/// Returns the outward horizontal contact normal and penetration depth when
+/// the player's circular footprint overlaps an upright, oriented box.
+/// Blockers are rotated around Y; their vertical scale and position determine
+/// whether they overlap the body.
+fn movement_collision_contact(
     player_position: Vec3,
     blocker: &GlobalTransform,
-) -> Option<Vec3> {
+) -> Option<MovementContact> {
     let (scale, rotation, translation) = blocker.to_scale_rotation_translation();
     let half_extents = scale.abs();
     if !half_extents.is_finite()
@@ -348,28 +360,41 @@ fn movement_collision_normal(
         Vec2::new(half_extents.x, half_extents.z),
     );
     let difference = local_xz - closest;
+    let distance_squared = difference.length_squared();
 
-    let local_normal = if difference.length_squared() > 1e-8 {
-        Vec3::new(difference.x, 0.0, difference.y).normalize()
+    let (local_normal, penetration) = if distance_squared > 1e-8 {
+        let distance = distance_squared.sqrt();
+        if distance >= PLAYER_COLLIDER_RADIUS {
+            return None;
+        }
+        (
+            Vec3::new(difference.x, 0.0, difference.y) / distance,
+            PLAYER_COLLIDER_RADIUS - distance,
+        )
     } else {
         // The center is inside the box footprint. Pick its nearest face so
         // motion toward the interior is blocked while motion out is allowed.
         let distance_to_x_face = half_extents.x - local_center.x.abs();
         let distance_to_z_face = half_extents.z - local_center.z.abs();
         if distance_to_x_face <= distance_to_z_face {
-            Vec3::new(if local_center.x >= 0.0 { 1.0 } else { -1.0 }, 0.0, 0.0)
+            (
+                Vec3::new(if local_center.x >= 0.0 { 1.0 } else { -1.0 }, 0.0, 0.0),
+                PLAYER_COLLIDER_RADIUS + distance_to_x_face,
+            )
         } else {
-            Vec3::new(0.0, 0.0, if local_center.z >= 0.0 { 1.0 } else { -1.0 })
+            (
+                Vec3::new(0.0, 0.0, if local_center.z >= 0.0 { 1.0 } else { -1.0 }),
+                PLAYER_COLLIDER_RADIUS + distance_to_z_face,
+            )
         }
     };
 
-    if difference.length_squared() >= PLAYER_COLLIDER_RADIUS * PLAYER_COLLIDER_RADIUS {
-        return None;
-    }
-
     let world_normal = rotation * local_normal;
     let horizontal_normal = Vec3::new(world_normal.x, 0.0, world_normal.z).normalize_or_zero();
-    (horizontal_normal != Vec3::ZERO).then_some(horizontal_normal)
+    (horizontal_normal != Vec3::ZERO).then_some(MovementContact {
+        normal: horizontal_normal,
+        penetration,
+    })
 }
 
 fn keyboard_movement_direction(input: &ButtonInput<KeyCode>, camera_forward: Vec3) -> Option<Vec3> {
@@ -648,8 +673,8 @@ mod tests {
     ) -> Vec3 {
         move_with_collisions(start, delta, |candidate, intended_movement| {
             blockers.iter().find_map(|blocker| {
-                let normal = movement_collision_normal(candidate, blocker)?;
-                (intended_movement.dot(normal) < -1e-5).then_some(normal)
+                let contact = movement_collision_contact(candidate, blocker)?;
+                (intended_movement.dot(contact.normal) < -1e-5).then_some(contact)
             })
         })
     }
@@ -694,11 +719,11 @@ mod tests {
                 .with_scale(Vec3::new(0.1, 1.0, 2.0)),
         );
 
-        let normal = movement_collision_normal(Vec3::new(0.0, 0.0, 0.3), &blocker)
+        let contact = movement_collision_contact(Vec3::new(0.0, 0.0, 0.3), &blocker)
             .expect("player footprint overlaps the rotated wall");
 
-        assert!(normal.z > 0.99);
-        assert!(normal.x.abs() < 0.01);
+        assert!(contact.normal.z > 0.99);
+        assert!(contact.normal.x.abs() < 0.01);
     }
 
     #[test]
@@ -708,7 +733,7 @@ mod tests {
                 .with_scale(Vec3::new(1.0, 0.25, 1.0)),
         );
 
-        assert!(movement_collision_normal(Vec3::ZERO, &blocker).is_none());
+        assert!(movement_collision_contact(Vec3::ZERO, &blocker).is_none());
     }
 
     #[test]
