@@ -97,8 +97,8 @@ their previous behavior. A separate perspective camera follows above and
 behind the player from a fixed heading, initially offset from the player's
 facing direction so the camera reveals the sides of world models. Holding the
 middle mouse button and dragging pans the camera and its focus together across
-the scene without rotating the view or changing the player's heading; dragging
-over UI does not pan the camera. The pan offset follows the player until the
+the horizontal ground plane without changing camera height, rotating the view,
+or changing the player's heading; dragging over UI does not pan the camera. The pan offset follows the player until the
 next gameplay session. The wheel adjusts follow distance and vertical viewing
 angle. The mouse cursor remains visible and ungrabbed during gameplay.
 Left-clicking the ground sets a movement destination; the player walks toward
