@@ -174,8 +174,8 @@ fn minimap_position(relative: Vec3, player_forward: Vec3) -> (f32, f32) {
     }
 
     let right = forward.cross(Vec3::Y).normalize();
-    let map_x = 60.0 + relative.dot(right) * 4.0 - 3.0;
-    let map_y = 60.0 - relative.dot(forward) * 4.0 - 3.0;
+    let map_x = 60.0 + relative.dot(right) * 3.0 - 3.0;
+    let map_y = 60.0 - relative.dot(forward) * 3.0 - 3.0;
     (map_x, map_y)
 }
 
