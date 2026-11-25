@@ -73,8 +73,10 @@ The portal exposes these settings:
 The `tile_size` field now means rendered radius in meters (default 6, range
 4–8), rather than the previous 1–3 world-unit hex side length. Existing
 Blender-authored values below 4 are clamped to 4 at runtime; update them in the
-Skein component if a different radius is desired. Neighboring tile centers are
-spaced at 82% of the radius to create the intentional overhang.
+Skein component if a different radius is desired. Tile centers use the full
+rendered radius for regular hex spacing. Elevation remains discrete per tile:
+neighboring heights are not interpolated or smoothed, so the thick cylinder
+sides of raised tiles remain visible above lower neighbors.
 
 Values outside the runtime ranges are clamped. For a reproducible test map,
 set a seed explicitly; leave it empty when each visit should be different.
@@ -86,8 +88,9 @@ readout of the actual seed and effective generation parameters. The generated ma
 Tile 1 is the base cylinder; tile 2 adds a raised feature with a Skein-authored
 `MovementBlocker`. Generation favours tile 2 in highlands and uses it
 occasionally elsewhere. Meshes are scaled from their 5 m source radius to the
-selected tile radius and spaced at 82% of that radius, so they intentionally
-overhang. Grassland, woodland, dryland, and highland regions still control tile
+selected tile radius and arranged at regular hex spacing. Their full-depth
+sides expose abrupt height differences between adjacent tiles. Grassland,
+woodland, dryland, and highland regions still control tile
 tinting; woodland tiles can receive trees. The map has a movement-blocked
 outer boundary. The map is a first
 exploration prototype: it does not yet persist its discovered state or add
