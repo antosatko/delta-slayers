@@ -27,7 +27,7 @@ pub(super) fn fast_travel(
 
     if let Some(position) = destination {
         if let Ok(mut player_transform) = queries.p0().single_mut() {
-            player_transform.translation = position + Vec3::new(0.0, 1.7, 2.0);
+            player_transform.translation = position + Vec3::new(0.0, 0.0, 2.0);
         }
     }
 }
