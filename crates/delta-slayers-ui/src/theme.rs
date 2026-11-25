@@ -201,7 +201,7 @@ fn update_reference_cards(
     for (hovered, mut delay, children) in &mut triggers {
         let card_hovered = children.iter().any(|child| {
             cards
-                .get(*child)
+                .get(child)
                 .map_or(false, |(_, card_hover)| card_hover.get())
         });
 
