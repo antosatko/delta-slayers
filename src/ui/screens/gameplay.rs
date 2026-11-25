@@ -1,4 +1,18 @@
-use bevy::{prelude::*, ui::RelativeCursorPosition, ui_widgets::Activate};
+use bevy::{
+    feathers::{
+        containers::{pane, pane_body, pane_header},
+        controls::{
+            FeathersNumberInput, HardLimit, NumberInputPrecision, NumberInputStep,
+            NumberInputValue,
+        },
+        display::{label, label_dim},
+        theme::{SurfaceLevel, ThemeBackgroundColor, ThemeContext},
+        tokens,
+    },
+    prelude::*,
+    ui::RelativeCursorPosition,
+    ui_widgets::{Activate, ValueChange},
+};
 use delta_slayers_ui::{
     CarbonButtonTone, CarbonIcon, CarbonTheme, action_button, eyebrow_text, gear_slot,
     item_art_tile, key_hint, muted_text, page_header, page_title, panel, section_header,
@@ -6,11 +20,16 @@ use delta_slayers_ui::{
 
 use crate::{
     app::state::AppState,
-    gameplay::zones::{FastTravelRequest, ZoneKind},
+    gameplay::{
+        exploration::{ExplorationPortal, ExplorationTravelRequest, PortalAction},
+        zones::{FastTravelRequest, ZoneKind},
+    },
     ui::{
         components::{
             ExplorationDebugInfoText, ExplorationDebugPanelRoot, ExplorationDebugPanelState,
-            FastTravelButton, FastTravelMenu, GameMenuModal, MinimapZoneDot, PanelRoot,
+            ExplorationParameterControl, ExplorationSetupRoot, ExplorationSetupTileCountText,
+            ExplorationSetupViewModel, FastTravelButton, FastTravelMenu, GameMenuModal,
+            MinimapZoneDot, PanelRoot,
             PauseOverlay, PopupConfirmRequested, PopupRoot,
         },
         inventory::{CurrencyLabel, InventoryRoot},
@@ -229,6 +248,351 @@ fn exploration_debug_panel() -> impl Scene {
             ]
         ]
     }
+}
+
+/// Player-facing settings shown when interacting with an exploration portal.
+fn exploration_setup_panel() -> impl Scene {
+    let defaults = ExplorationPortal::default();
+    let default_seed = defaults.seed.map_or(0, |seed| seed.min(i64::MAX as u64) as i64);
+
+    bsn! {
+        Node {
+            position_type: PositionType::Absolute,
+            top: px(0),
+            left: px(0),
+            right: px(0),
+            bottom: px(0),
+            width: percent(100),
+            height: percent(100),
+            padding: UiRect::all(px(18)),
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+        }
+        BackgroundColor(Color::srgba(0.025, 0.035, 0.05, 0.82))
+        bevy::ui::GlobalZIndex(22)
+        ExplorationSetupRoot
+        RelativeCursorPosition
+        Visibility::Hidden
+        DespawnOnExit::<AppState>(AppState::InGame)
+        Children [
+            Node {
+                width: px(680),
+                max_width: percent(96),
+                max_height: percent(94),
+                min_width: px(0),
+                min_height: px(0),
+            }
+            Children [
+                @pane()
+                Node {
+                    display: Display::Flex,
+                    width: percent(100),
+                    max_height: percent(100),
+                    min_width: px(0),
+                    min_height: px(0),
+                    flex_direction: FlexDirection::Column,
+                    align_items: AlignItems::Stretch,
+                    overflow: Overflow::clip(),
+                    border_radius: BorderRadius::all(px(8)),
+                }
+                ThemeContext(SurfaceLevel::Floating)
+                ThemeBackgroundColor(tokens::PANE_BODY_BG)
+                Children [
+                    @pane_header()
+                    Children [
+                        @label("Explore the wilderness")
+                        TextFont { font_size: px(18) }
+                    ]
+                    --
+                    Node {
+                        width: percent(100),
+                        flex_grow: 1.0,
+                        min_width: px(0),
+                        min_height: px(0),
+                        overflow: Overflow::scroll(),
+                    }
+                    Children [
+                        @pane_body()
+                        Children [
+                            @label_dim("Adjust the map before entering. A seed of 0 generates a new map each visit.",)
+                            --
+                            @exploration_integer_control(
+                                "Seed",
+                                "0 = random; a positive value reproduces the same map",
+                                ExplorationParameterControl::Seed,
+                                default_seed,
+                                0,
+                                i64::MAX,
+                                1.0
+                            )
+                            --
+                            @exploration_integer_control(
+                                "Hex radius",
+                                "Tiles from the center to each edge (8–32)",
+                                ExplorationParameterControl::Radius,
+                                defaults.radius as i64,
+                                8,
+                                32,
+                                1.0
+                            )
+                            --
+                            @exploration_float_control(
+                                "Tile size",
+                                "Hex side length in world units",
+                                ExplorationParameterControl::TileSize,
+                                defaults.tile_size,
+                                1.0,
+                                3.0,
+                                0.05,
+                                2
+                            )
+                            --
+                            @exploration_float_control(
+                                "Height multiplier",
+                                "Maximum terrain elevation scale",
+                                ExplorationParameterControl::HeightMultiplier,
+                                defaults.height_multiplier,
+                                0.0,
+                                5.0,
+                                0.1,
+                                2
+                            )
+                            --
+                            @exploration_float_control(
+                                "Terrain frequency",
+                                "Scale of hills and elevation features",
+                                ExplorationParameterControl::TerrainFrequency,
+                                defaults.terrain_frequency,
+                                0.01,
+                                0.15,
+                                0.001,
+                                3
+                            )
+                            --
+                            @exploration_float_control(
+                                "Biome scale",
+                                "Scale of woodland, grassland, and dryland regions",
+                                ExplorationParameterControl::BiomeScale,
+                                defaults.biome_scale,
+                                0.006,
+                                0.12,
+                                0.001,
+                                3
+                            )
+                            --
+                            @exploration_float_control(
+                                "Vegetation density (%)",
+                                "Tree density in woodland tiles",
+                                ExplorationParameterControl::VegetationDensity,
+                                defaults.vegetation_density * 100.0,
+                                0.0,
+                                80.0,
+                                1.0,
+                                0
+                            )
+                            --
+                            Text("Estimated map size")
+                            template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().ink)))
+                            TextFont { font_size: px(13) }
+                            --
+                            Text("469 hexes · approx. 54 world units across")
+                            ExplorationSetupTileCountText
+                            TextFont { font_size: px(11) }
+                            template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().muted)))
+                        ]
+                    ]
+                    --
+                    Node {
+                        width: percent(100),
+                        padding: UiRect::axes(px(12), px(10)),
+                        flex_direction: FlexDirection::Row,
+                        flex_wrap: FlexWrap::Wrap,
+                        justify_content: JustifyContent::FlexEnd,
+                        align_items: AlignItems::Center,
+                        column_gap: px(8),
+                        row_gap: px(8),
+                    }
+                    Children [
+                        @action_button("Reset", CarbonIcon::Back, CarbonButtonTone::Ghost)
+                        on(|_activate: On<Activate>, mut draft: ResMut<ExplorationSetupViewModel>| {
+                            draft.reset();
+                        })
+                        --
+                        @action_button("Cancel", CarbonIcon::Close, CarbonButtonTone::Secondary)
+                        on(|_activate: On<Activate>, mut ui: ResMut<UiStack>| {
+                            ui.remove(UiLayer::ExplorationSetup);
+                        })
+                        --
+                        @action_button("Generate map", CarbonIcon::Confirm, CarbonButtonTone::Primary)
+                        on(|_activate: On<Activate>,
+                            draft: Res<ExplorationSetupViewModel>,
+                            mut request: ResMut<ExplorationTravelRequest>,
+                            mut ui: ResMut<UiStack>| {
+                            request.0 = Some(PortalAction::Enter(draft.config.sanitized()));
+                            ui.remove(UiLayer::ExplorationSetup);
+                        })
+                    ]
+                ]
+            ]
+        ]
+    }
+}
+
+fn exploration_integer_control(
+    title: &'static str,
+    description: &'static str,
+    control: ExplorationParameterControl,
+    value: i64,
+    min: i64,
+    max: i64,
+    step: f64,
+) -> impl Scene {
+    bsn! {
+        Node {
+            width: percent(100),
+            min_width: px(0),
+            flex_direction: FlexDirection::Row,
+            flex_wrap: FlexWrap::Wrap,
+            align_items: AlignItems::Center,
+            column_gap: px(14),
+            row_gap: px(6),
+        }
+        Children [
+            Node {
+                width: px(230),
+                min_width: px(170),
+                flex_direction: FlexDirection::Column,
+                row_gap: px(3),
+            }
+            Children [
+                @label(title)
+                --
+                @label_dim(description)
+            ]
+            --
+            @FeathersNumberInput
+            ExplorationParameterControl(control)
+            NumberInputValue::I64(value)
+            HardLimit::i64(min..=max)
+            NumberInputStep(step)
+            NumberInputPrecision(0)
+            Node {
+                flex_grow: 1.0,
+                min_width: px(140),
+            }
+            on(exploration_integer_value_changed)
+        ]
+    }
+}
+
+fn exploration_float_control(
+    title: &'static str,
+    description: &'static str,
+    control: ExplorationParameterControl,
+    value: f32,
+    min: f32,
+    max: f32,
+    step: f64,
+    precision: i32,
+) -> impl Scene {
+    bsn! {
+        Node {
+            width: percent(100),
+            min_width: px(0),
+            flex_direction: FlexDirection::Row,
+            flex_wrap: FlexWrap::Wrap,
+            align_items: AlignItems::Center,
+            column_gap: px(14),
+            row_gap: px(6),
+        }
+        Children [
+            Node {
+                width: px(230),
+                min_width: px(170),
+                flex_direction: FlexDirection::Column,
+                row_gap: px(3),
+            }
+            Children [
+                @label(title)
+                --
+                @label_dim(description)
+            ]
+            --
+            @FeathersNumberInput
+            ExplorationParameterControl(control)
+            NumberInputValue::F32(value)
+            HardLimit::f32(min..=max)
+            NumberInputStep(step)
+            NumberInputPrecision(precision)
+            Node {
+                flex_grow: 1.0,
+                min_width: px(140),
+            }
+            on(exploration_float_value_changed)
+        ]
+    }
+}
+
+fn exploration_integer_value_changed(
+    event: On<ValueChange<i64>>,
+    controls: Query<&ExplorationParameterControl, With<FeathersNumberInput>>,
+    mut draft: ResMut<ExplorationSetupViewModel>,
+    mut commands: Commands,
+) {
+    let Ok(control) = controls.get(event.source) else {
+        return;
+    };
+
+    match control {
+        ExplorationParameterControl::Seed => {
+            draft.config.seed = (event.value > 0).then_some(event.value as u64);
+        }
+        ExplorationParameterControl::Radius => {
+            draft.config.radius = event.value.clamp(8, 32) as u32;
+        }
+        _ => return,
+    }
+
+    commands
+        .entity(event.source)
+        .insert(NumberInputValue::I64(event.value));
+}
+
+fn exploration_float_value_changed(
+    event: On<ValueChange<f32>>,
+    controls: Query<&ExplorationParameterControl, With<FeathersNumberInput>>,
+    mut draft: ResMut<ExplorationSetupViewModel>,
+    mut commands: Commands,
+) {
+    if !event.value.is_finite() {
+        return;
+    }
+    let Ok(control) = controls.get(event.source) else {
+        return;
+    };
+
+    match control {
+        ExplorationParameterControl::TileSize => {
+            draft.config.tile_size = event.value.clamp(1.0, 3.0);
+        }
+        ExplorationParameterControl::HeightMultiplier => {
+            draft.config.height_multiplier = event.value.clamp(0.0, 5.0);
+        }
+        ExplorationParameterControl::TerrainFrequency => {
+            draft.config.terrain_frequency = event.value.clamp(0.01, 0.15);
+        }
+        ExplorationParameterControl::BiomeScale => {
+            draft.config.biome_scale = event.value.clamp(0.006, 0.12);
+        }
+        ExplorationParameterControl::VegetationDensity => {
+            draft.config.vegetation_density = event.value.clamp(0.0, 80.0) / 100.0;
+        }
+        _ => return,
+    }
+
+    commands
+        .entity(event.source)
+        .insert(NumberInputValue::F32(event.value));
 }
 
 fn minimap() -> impl Scene {
