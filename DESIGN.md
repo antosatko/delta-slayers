@@ -50,7 +50,7 @@ Within those areas:
 | `ui/stack.rs` | UI overlay navigation stack |
 | `ui/components.rs` | UI marker components and UI-only requests |
 | `ui/inventory.rs` | Inventory ViewModel, UI labels, and model-to-view projection |
-| `ui/screens/` | BSN scene definitions for loading, gameplay, main menu, and placeholder screens |
+| `ui/screens/` | BSN scene definitions for loading, gameplay, main menu, player settings, and placeholder screens |
 | `ui/systems/input.rs` | UI input and navigation actions |
 | `ui/systems/projection.rs` | Visibility, cursor, and minimap projection |
 | `ui/mod.rs` | UI plugin composition and system ordering |
@@ -298,8 +298,9 @@ right click closes the topmost layer. The inventory no longer duplicates that
 navigation with a separate Menu button. Its open state is represented by
 UiLayer::GameMenu, and a projection system controls Visibility.
 
-The main menu exposes Quick Load, New game, Load Save, Credits, and Exit to
-Desktop. Quick Load restores a valid save file when one exists; otherwise it
+The main menu exposes Quick Load, New game, Settings, Load Save, Credits, and
+Exit to Desktop. Its Settings screen shares the live camera and movement
+controls with the in-game menu. Quick Load restores a valid save file when one exists; otherwise it
 starts at the authored spawn point. New game always starts at the authored
 spawn point. Load Save remains a placeholder until a save-selection interface
 is implemented. All five main-menu actions use

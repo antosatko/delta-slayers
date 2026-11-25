@@ -246,6 +246,13 @@ fn middle_drag_pan_accumulates_from_existing_camera_position() {
 }
 
 #[test]
+fn scroll_tilt_keeps_the_original_fixed_increment() {
+    let tilted = camera_pitch_after_scroll(CAMERA_DEFAULT_PITCH, 1.0);
+
+    assert!((tilted - (CAMERA_DEFAULT_PITCH + 0.02)).abs() < 1e-6);
+}
+
+#[test]
 fn scrolling_in_zooms_in_and_flattens_the_view() {
     assert!(
         camera_distance_after_scroll(

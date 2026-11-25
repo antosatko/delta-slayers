@@ -7,7 +7,9 @@ mod movement;
 mod visual;
 
 #[cfg(test)]
-use camera::{camera_distance_after_scroll, camera_pan_offset_after_drag, camera_pitch_after_scroll};
+use camera::{
+    camera_distance_after_scroll, camera_pan_offset_after_drag, camera_pitch_after_scroll,
+};
 
 pub(crate) use camera::GameplayCamera;
 pub use camera::{CAMERA_DEFAULT_PITCH, CAMERA_DISTANCE, CAMERA_MAX_PITCH, CAMERA_MIN_PITCH};
