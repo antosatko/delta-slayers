@@ -20,7 +20,7 @@ pub(super) struct PauseOverlay;
 #[derive(Component, Default, Clone)]
 pub(super) struct MinimapZoneDot(pub(super) ZoneKind);
 
-#[derive(Component, Clone, Copy)]
+#[derive(Component, Clone, Copy, Default)]
 pub(super) struct MinimapExplorationDot(pub(super) i32, pub(super) i32);
 
 #[derive(Resource, Default)]
@@ -116,7 +116,12 @@ mod tests {
         let mut view_model = ExplorationSetupViewModel::default();
         view_model.randomize_seed();
 
-        assert!(view_model.config.seed.is_some_and(|seed| seed > 0 && seed <= i64::MAX as u64));
+        assert!(
+            view_model
+                .config
+                .seed
+                .is_some_and(|seed| seed > 0 && seed <= i64::MAX as u64)
+        );
     }
 
     #[test]
