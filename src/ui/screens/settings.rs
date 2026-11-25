@@ -10,7 +10,7 @@ use crate::{
     ui::components::PlayerSettingControl,
 };
 
-use super::gameplay::{player_setting_control, player_setting_value_changed};
+use super::gameplay::player_setting_control;
 
 pub(in crate::ui) fn scene() -> impl SceneList {
     bsn_list! {

@@ -52,7 +52,9 @@ impl Plugin for UiPlugin {
             )
             .add_systems(
                 Update,
-                systems::player_settings_projection.run_if(in_state(AppState::Settings)),
+                systems::player_settings_projection
+                    .in_set(UiSet::Projection)
+                    .run_if(in_state(AppState::Settings)),
             )
             .add_systems(
                 Update,
