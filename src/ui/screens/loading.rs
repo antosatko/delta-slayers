@@ -25,7 +25,7 @@ fn loading_content() -> impl Scene {
         Node {
             width: percent(100),
             height: percent(100),
-            padding: UiRect::all(px(24)),
+            padding: UiRect::all(px(12)),
             justify_content: JustifyContent::Center,
             align_items: AlignItems::Center,
         }
@@ -35,7 +35,9 @@ fn loading_content() -> impl Scene {
             Node {
                 width: px(440),
                 max_width: percent(92),
+                max_height: percent(90),
                 min_width: px(0),
+                overflow: Overflow::scroll(),
             }
             Children [
                 @page_header(
