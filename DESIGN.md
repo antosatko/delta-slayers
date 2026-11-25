@@ -166,8 +166,9 @@ components. Prototype extraction preserves the collection root's ancestor
 chain and registers the render, transform, and hierarchy components required
 by Bevy's reflected dynamic-world extraction (`Mesh3d`,
 `MeshMaterial3d<StandardMaterial>`, `Transform`, and `ChildOf`). Tile
-meshes use a 5 m source radius and are scaled to the configured tile radius. A smoothstep-weighted triangular height field keeps
-player and NPC elevation continuous between neighboring hex centers.
+meshes use a 5 m source radius and are scaled to the configured tile radius. A
+smoothstep-weighted triangular height field keeps player and NPC elevation
+continuous between neighboring hex centers.
 Neighboring tiles can be crossed only when their height difference is within
 the configured maximum jump height; steeper edges receive movement blockers.
 Reachability is flood-filled from the spawn tile, and tiles outside that
