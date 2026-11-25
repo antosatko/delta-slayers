@@ -109,36 +109,34 @@ explore, interact, fight, collect, and return to safe locations.
 - Time pressure should create meaningful prioritization rather than simply
   forcing the player to rush through every activity.
 
-## Exploration
+## Exploration and world ecosystems
 
-**Proposed direction**
+**Decided**
 
 - Exploration and combat happen in the same world and on the same map. Engaging
   an enemy does not load a separate combat arena or switch to a different
   encounter map.
 - The player explores procedurally generated maps where enemies and other
-  entities already inhabit the environment. Encounters can arise during
-  exploration rather than only at predefined combat locations.
+  entities inhabit the environment. Encounters can arise during exploration
+  rather than only at predefined combat locations.
 - The same action-driven simulation applies throughout the map. When the
   player acts, the rest of the world advances alongside them; when the player
   stops and the simulation freezes, the other entities stop as well.
-- Maps should feel like places with their own ecosystems and activity, worth
-  exploring beyond simply moving between objectives.
+- The intended finished world is made up of maps that feel like complete
+  ecosystems, with interconnected elements such as biomes, non-player
+  characters, relationships, tribes, and their activities.
+- Maps should be worth exploring as places in their own right, not merely as
+  routes between objectives or collections of encounters.
 
 **Open questions**
 
-- What makes locations worth visiting, beyond enemies and rewards?
 - How are points of interest discovered and communicated?
 - What role do the hex regions play beyond organizing terrain?
 - How does the handmade town connect to the wider procedural world?
-- Which entities and environmental processes make up a map's ecosystem, and
-  how do they interact with one another?
-- How does large-scale time passage work alongside the frozen/active
-  simulation? For example, what advances quest deadlines, schedules, or
-  opportunities when the player is not actively moving through the world?
-- Should the player be able to deliberately spend time through activities such
-  as resting, travelling, or interacting, and what consequences should those
-  choices have?
+- What ecological and social relationships should exist between creatures,
+  NPCs, tribes, and their environments?
+- How deep does the simulation of those relationships need to be to make the
+  world feel coherent and responsive?
 
 ## Time constraints
 
@@ -148,19 +146,35 @@ Action-driven simulation and broader gameplay time constraints are related,
 but they do not necessarily need identical rules.
 
 - The action-driven simulation governs moment-to-moment activity on the map.
-- Deadlines, limited opportunities, and other longer-term constraints can use
-  a larger-scale notion of elapsed time.
-- Different activities may advance that larger-scale time in ways appropriate
-  to their purpose. This should not be assumed to mean that every interaction
-  or system needs a real-time timer.
+- Mainline quests may have hard deadlines, while many other activities and
+  opportunities compete for the player's time.
+- Larger-scale time constraints can coexist with the frozen/active simulation.
+  Not every deadline or opportunity needs to be represented as a real-time
+  countdown.
+
+**Decided interaction direction**
+
+The control scheme and UI should make a broad range of player actions
+accessible without requiring every action to have a dedicated keyboard
+binding.
+
+- Contextual UI actions can expose options such as waiting, sleeping, camping,
+  and shouting.
+- These options give the player deliberate ways to interact with the passage
+  of time and the surrounding world.
+- The UI should offer many possibilities while keeping the available choices
+  understandable rather than overwhelming the player with mechanics.
+- Popover tips provide optional, contextual explanations so players can learn
+  what an action does when they need that information.
 
 **Open questions**
 
-- Are quest deadlines measured in elapsed world time, completed activities,
-  milestones, or some combination?
-- What actions or transitions advance large-scale time?
-- Can the player intentionally advance time, and what risks or opportunities
-  accompany doing so?
+- What exactly advances quest deadlines and other large-scale time
+  constraints?
+- Do waiting, sleeping, camping, travelling, and other activities advance
+  different amounts of time or have different conditions and consequences?
+- Which actions are available in which contexts, and how does the world react
+  to them?
 - How visible should deadlines and expiring opportunities be to the player?
 
 ## Encounters and combat
