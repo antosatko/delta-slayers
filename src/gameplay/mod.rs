@@ -48,6 +48,7 @@ impl Plugin for GameplayPlugin {
             .init_resource::<inventory::InventoryModel>()
             .init_resource::<GameStartMode>()
             .init_resource::<player::MovementTarget>()
+            .init_resource::<player::PlayerSettings>()
             .add_systems(OnEnter(AppState::Loading), world::setup_game)
             .add_systems(
                 Update,
