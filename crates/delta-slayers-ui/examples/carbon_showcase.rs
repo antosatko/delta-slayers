@@ -77,6 +77,15 @@ impl ShowcaseItemKind {
         }
     }
 
+    const fn icon(self) -> CarbonIcon {
+        match self {
+            Self::Sword => CarbonIcon::Sword,
+            Self::Shield => CarbonIcon::Shield,
+            Self::Draught => CarbonIcon::Flask,
+            Self::Crowns => CarbonIcon::Coin,
+        }
+    }
+
     const fn value(self) -> &'static str {
         match self {
             Self::Sword => "84 crowns",
@@ -92,6 +101,7 @@ struct ShowcaseItem(ShowcaseItemKind);
 
 #[derive(Component, Clone, Copy)]
 enum ShowcaseDetailField {
+    Icon,
     Title,
     Category,
     Description,
@@ -273,12 +283,22 @@ fn items_page() -> impl Scene {
                 Children [
                     @section_header(CarbonIcon::Flask, "Selected item")
                     --
-                    @item_tile_optional(
-                        CarbonIcon::Flask,
-                        "Healing draught",
-                        Some("3"),
-                        true
-                    )
+                    Node {
+                        width: px(112),
+                        height: px(112),
+                        flex_direction: FlexDirection::Column,
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        align_self: AlignSelf::Start,
+                        border_radius: BorderRadius::all(px(7)),
+                    }
+                    template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().panel_alt)))
+                    Children [
+                        Text(CarbonIcon::Flask.glyph())
+                        ShowcaseDetailField::Icon
+                        TextFont { font_size: px(36) }
+                        template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().muted)))
+                    ]
                     --
                     Text("CONSUMABLE")
                     ShowcaseDetailField::Category
@@ -417,6 +437,7 @@ fn showcase_item(
 
             for (field, mut text) in &mut details {
                 text.0 = match field {
+                    ShowcaseDetailField::Icon => item.icon().glyph(),
                     ShowcaseDetailField::Title => item.title(),
                     ShowcaseDetailField::Category => item.category(),
                     ShowcaseDetailField::Description => item.description(),
