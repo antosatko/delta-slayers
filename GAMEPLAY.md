@@ -46,6 +46,52 @@ Do not silently promote proposals or assumptions into decided mechanics.
 These are useful prototype foundations. They should not be mistaken for a
 complete or final gameplay loop.
 
+## Action-driven simulation
+
+**Proposed**
+
+The game could use a real-time simulation that advances only when the player
+performs an action. Instead of taking turns, each player action opens a
+temporary window during which the whole world progresses.
+
+- While no action is advancing time, the simulation is frozen.
+- Starting an action unfreezes the simulation for a duration associated with
+  that action.
+- All entities advance together during that window: the player, NPCs, enemies,
+  projectiles, animations, and physics.
+- When the action's time window expires, the simulation freezes again until
+  another action advances it.
+- The player does not necessarily lose control during this window. Each action
+  defines which controls remain available while it is executing.
+
+An action therefore has at least two distinct properties:
+
+- **Duration:** How much simulation time the action advances.
+- **Control:** What the player is allowed to do while that time passes.
+
+For example, a heavy spell might advance one second of simulation while
+allowing the player to aim or move, depending on the spell. Another spell of
+the same duration might keep the player stationary. A quick movement or dodge
+could advance a much shorter window.
+
+This makes action duration part of the combat balance. A powerful, slow action
+gives enemies more time to reposition or attack; a quick action gives them less
+time to respond. Enemies can use ordinary real-time behaviour, but that
+behaviour only progresses when the player advances the simulation.
+
+**Open questions**
+
+- Does holding a movement input continuously advance time, or does each
+  movement command create a separate time window?
+- Are action durations fixed, or can they depend on distance, charge time,
+  animation state, or other conditions?
+- Can a new action replace or interrupt an action that is still executing?
+- Can actions be queued or buffered while the simulation is frozen?
+- Does every action advance exactly its full duration, or can the player end
+  some action windows early?
+- How should passive effects, hazards, and status durations behave while time
+  is frozen?
+
 ## Core gameplay loop
 
 **Open**
@@ -68,7 +114,8 @@ Questions to resolve:
 **Open**
 
 No combat rules, enemy roles, or encounter structure have been committed to
-this document yet.
+this document yet. The proposed action-driven simulation above is a possible
+foundation for combat, not a finalized combat system.
 
 ## Progression and rewards
 
