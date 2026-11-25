@@ -73,10 +73,10 @@ impl ExplorationPortal {
 pub(super) struct ExplorationReturnPortal;
 
 #[derive(Resource, Default)]
-pub(super) struct NearbyExplorationPortal(pub(super) Option<PortalAction>);
+pub(crate) struct NearbyExplorationPortal(pub(crate) Option<PortalAction>);
 
 #[derive(Resource, Default)]
-pub(super) struct ExplorationTravelRequest(pub(super) Option<PortalAction>);
+pub(crate) struct ExplorationTravelRequest(pub(crate) Option<PortalAction>);
 
 #[derive(Resource, Default)]
 pub(super) struct ActiveExplorationMap(pub(super) Option<ActiveMapData>);
@@ -100,7 +100,7 @@ pub(super) struct TravelAnchor {
 }
 
 #[derive(Clone, Copy, Debug)]
-pub(super) enum PortalAction {
+pub(crate) enum PortalAction {
     Enter(ExplorationPortal),
     Return,
 }
@@ -141,7 +141,7 @@ pub(super) fn detect_portal(
     nearby.0 = portals
         .iter()
         .find(|(transform, _)| contains_point(transform, interaction_point))
-        .map(|(_, portal)| PortalAction::Enter(**portal))
+        .map(|(_, portal)| PortalAction::Enter(*portal))
         .or_else(|| {
             return_portals
                 .iter()
@@ -292,7 +292,7 @@ fn spawn_map_geometry(
         .spawn((
             ExplorationReturnPortal,
             Transform::from_xyz(0.0, return_height, 0.0)
-                .with_scale(Vec3::new(1.6, 1.5, 1.6)),
+                .with_scale(Vec3::new(1.6, 2.0, 1.6)),
             ChildOf(root),
         ))
         .id();
