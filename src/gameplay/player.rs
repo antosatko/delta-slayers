@@ -45,15 +45,15 @@ pub(super) struct PlayerVisual;
 
 /// The current ground destination plus click-and-hold retargeting state.
 #[derive(Resource, Default)]
-pub(super) struct MovementTarget(
-    pub(super) Option<Vec3>,
+pub(super) struct MovementTarget {
+    pub(super) destination: Option<Vec3>,
     hold_elapsed: f32,
     refresh_elapsed: f32,
-);
+}
 
 impl MovementTarget {
     pub(super) fn clear(&mut self) {
-        self.0 = None;
+        self.destination = None;
         self.hold_elapsed = 0.0;
         self.refresh_elapsed = 0.0;
     }
@@ -157,7 +157,7 @@ pub(super) fn set_move_target_from_cursor(
     };
 
     if destination.is_finite() {
-        target.0 = Some(destination.with_y(player_transform.translation.y));
+        target.destination = Some(destination.with_y(player_transform.translation.y));
     }
 }
 
@@ -169,11 +169,11 @@ pub(super) fn move_player_to_target(
     input: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
 ) {
-    let Some(destination) = target.0 else {
+    let Some(destination) = target.destination else {
         return;
     };
     let Ok(mut transform) = player.single_mut() else {
-        target.0 = None;
+        target.destination = None;
         return;
     };
 
@@ -191,7 +191,7 @@ pub(super) fn move_player_to_target(
     if distance <= step || distance <= 0.03 {
         transform.translation.x = destination.x;
         transform.translation.z = destination.z;
-        target.0 = None;
+        target.destination = None;
         return;
     }
 
@@ -206,7 +206,7 @@ pub(super) fn draw_move_trajectory(
     target: Res<MovementTarget>,
     time: Res<Time>,
 ) {
-    let Some(destination) = target.0 else {
+    let Some(destination) = target.destination else {
         return;
     };
     let Ok(player_transform) = player.single() else {
@@ -363,7 +363,7 @@ mod tests {
         assert!(target.should_update_from_cursor(true, true, 0.016));
         target.clear();
 
-        assert!(target.0.is_none());
+        assert!(target.destination.is_none());
         assert!(!target.should_update_from_cursor(true, false, 0.2));
     }
 
