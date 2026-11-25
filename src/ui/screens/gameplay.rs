@@ -581,7 +581,7 @@ fn exploration_float_value_changed(
 
     match control {
         ExplorationParameterControl::TileSize => {
-            draft.config.tile_size = event.value.clamp(1.0, 3.0);
+            draft.config.tile_size = event.value.clamp(4.0, 8.0);
         }
         ExplorationParameterControl::HeightMultiplier => {
             draft.config.height_multiplier = event.value.clamp(0.0, 5.0);
