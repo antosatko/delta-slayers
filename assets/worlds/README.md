@@ -51,8 +51,10 @@ shops or guilds.
 
 Add `ExplorationPortal` to a default Blender cube. Its transformed bounds
 define the interaction volume, using the same local -1 to 1 bounds as
-`TriggerBox`. Enter the volume and press **E** to generate and enter a
-procedural exploration map. The generated map is placed in a separate world
+`TriggerBox`. Place the cube around the player's upper body; for a ground-level
+portal, a cube centered about 1 unit above the ground with its default 1-unit
+half-height will contain the 1.7-unit interaction probe. Enter the volume and
+press **E** to generate and enter a procedural exploration map. The generated map is placed in a separate world
 area while the town remains loaded. A return beacon is created near the map's
 center; enter its volume and press **E** to return to the town.
 
