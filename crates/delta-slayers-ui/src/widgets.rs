@@ -134,7 +134,7 @@ pub fn page_header(
             }
             Children [
                 Text(title)
-                TextFont { font_size: px(28), weight: FontWeight::SEMIBOLD }
+                TextFont { font_size: px(28) }
                 template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().ink)))
                 --
                 Button
@@ -151,7 +151,7 @@ pub fn page_header(
                 }
                 Children [
                     Text("?")
-                    TextFont { font_size: px(14), weight: FontWeight::BOLD }
+                    TextFont { font_size: px(14) }
                     template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().muted)))
                     --
                     Node {
@@ -179,7 +179,7 @@ pub fn page_header(
                     ])
                     Children [
                         Text(help_title)
-                        TextFont { font_size: px(15), weight: FontWeight::SEMIBOLD }
+                        TextFont { font_size: px(15) }
                         template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().ink)))
                         --
                         Text(help_description)
@@ -221,7 +221,7 @@ pub fn screen_tab(label: &'static str, selected: bool) -> impl Scene {
         }
         Children [
             Text(label)
-            TextFont { font_size: px(12), weight: FontWeight::MEDIUM }
+            TextFont { font_size: px(12) }
             template(move |ctx| {
                 let theme = ctx.resource::<CarbonTheme>();
                 Ok(TextColor(if selected { theme.accent } else { theme.muted }))
@@ -244,7 +244,7 @@ pub fn section_header(icon: CarbonIcon, title: &'static str) -> impl Scene {
             @glyph(icon, 15.0, GlyphTone::Muted)
             --
             Text(title)
-            TextFont { font_size: px(15), weight: FontWeight::SEMIBOLD }
+            TextFont { font_size: px(15) }
             template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().ink)))
         ]
     }
@@ -273,7 +273,7 @@ pub fn action_button(
             @glyph(icon, 15.0, GlyphTone::Button(tone))
             --
             Text(label)
-            TextFont { font_size: px(13), weight: FontWeight::MEDIUM }
+            TextFont { font_size: px(13) }
             template(move |ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().button_foreground(tone))))
         ]
     }
@@ -291,7 +291,7 @@ pub fn badge(label: &'static str, status: CarbonStatus) -> impl Scene {
         }
         template(move |ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().status_background(status))))
         Text(label)
-        TextFont { font_size: px(10), weight: FontWeight::SEMIBOLD }
+        TextFont { font_size: px(10) }
         template(move |ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().status_color(status))))
     }
 }
@@ -320,13 +320,13 @@ pub fn stat_bar(
             @glyph(icon, 13.0, GlyphTone::Muted)
             --
             Text(label)
-            TextFont { font_size: px(12), weight: FontWeight::MEDIUM }
+            TextFont { font_size: px(12) }
             template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().muted)))
             --
             Node { flex_grow: 1.0 }
             --
             Text(value)
-            TextFont { font_size: px(12), weight: FontWeight::MEDIUM }
+            TextFont { font_size: px(12) }
             template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().ink)))
             --
             Node {
@@ -385,11 +385,11 @@ pub fn item_tile(
             template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().surface_deep.with_alpha(0.94))))
             Children [
                 Text(label)
-                TextFont { font_size: px(11), weight: FontWeight::SEMIBOLD }
+                TextFont { font_size: px(11) }
                 template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().ink)))
                 --
                 Text(quantity.unwrap_or(""))
-                TextFont { font_size: px(10), weight: FontWeight::MEDIUM }
+                TextFont { font_size: px(10) }
                 template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().quiet)))
             ]
         ]
@@ -414,7 +414,7 @@ pub fn reference_term(
         CarbonHoverDelay { delay_seconds: 0.6, elapsed_seconds: 0.0 }
         Children [
             Text(label)
-            TextFont { font_size: px(13), weight: FontWeight::SEMIBOLD }
+            TextFont { font_size: px(13) }
             template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().accent)))
             --
             Node {
@@ -442,11 +442,11 @@ pub fn reference_term(
             ])
             Children [
                 Text(category)
-                TextFont { font_size: px(10), weight: FontWeight::MEDIUM }
+                TextFont { font_size: px(10) }
                 template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().quiet)))
                 --
                 Text(title)
-                TextFont { font_size: px(16), weight: FontWeight::SEMIBOLD }
+                TextFont { font_size: px(16) }
                 template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().ink)))
                 --
                 Text(description)
