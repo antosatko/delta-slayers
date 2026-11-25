@@ -27,7 +27,7 @@ Within those areas:
 | --- | --- |
 | `app/mod.rs` | Application startup and plugin composition |
 | `app/state.rs` | Top-level application states, including the Loading transition |
-| `gameplay/player.rs` | Player component, movement, and look |
+| `gameplay/player.rs` | Player ground position, movement, look, follow camera, and visual synchronization |
 | `gameplay/spawning.rs` | Reflected spawn-point authoring types and initial player spawn selection |
 | `gameplay/zones.rs` | Zone types, proximity detection, visited-zone data, and travel requests |
 | `gameplay/inventory.rs` | Authoritative inventory data |
@@ -72,9 +72,17 @@ Current authored components:
   belongs on a default Blender cube; its full world transform defines the
   bounds, with the default cube's local extents of -1 to 1 on each axis.
 - `SpawnPoint`: spawn role and priority. The highest-priority Player point
-  supplies the initial camera position and orientation; saved player positions
-  take precedence.
-- `Billboard`: camera-facing behavior for flat world objects.
+  supplies the player's ground position and initial horizontal heading; saved
+  player positions take precedence.
+- `Billboard`: camera-facing behavior for flat world objects. The player uses
+  the existing full-body character image on an unlit, transparent 3D quad.
+
+The player entity stores its position on the ground. A separate perspective
+camera follows above and behind it; mouse look changes the camera heading and
+overhead angle, while WASD movement remains continuous in world space. The
+player image is rendered on a vertical, camera-facing 3D quad. The town remains
+the existing Blender-authored scene; no hex tiles or procedural terrain are
+introduced by this camera/rendering setup.
 
 The TriggerZone-to-TriggerBox rename is a reflected authoring API break.
 Existing Blender files must replace the old component using the refreshed
