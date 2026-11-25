@@ -11,7 +11,7 @@ pub mod inventory;
 pub mod player;
 pub mod zones;
 
-use bevy::prelude::*;
+use bevy::{gizmos::{config::GizmoConfig, AppGizmoBuilder}, prelude::*};
 
 use crate::{
     app::state::AppState,

@@ -26,7 +26,8 @@ Add these components to Blender Objects (or Empties where appropriate):
 | `delta_slayers::gameplay::player::MovementBlocker` | Invisible oriented box that blocks player movement; the object's transform defines its bounds. |
 | `delta_slayers::gameplay::spawning::SpawnPoint` | Spawn location. Choose `kind`; for Player points, a higher `priority` wins. |
 | `delta_slayers::gameplay::billboard::Billboard` | Makes a flat object face the player camera horizontally. |
-| `delta_slayers::gameplay::billboard::SquashOnMove` | Adds subtle movement-driven squashing to an entity's visual scale. |\n| `delta_slayers::gameplay::occlusion::PlayerOccluder` | Makes an object's meshes translucent when the object blocks the camera's view of the player. |
+| `delta_slayers::gameplay::billboard::SquashOnMove` | Adds subtle movement-driven squashing to an entity's visual scale. |
+| `delta_slayers::gameplay::occlusion::PlayerOccluder` | Makes an object's meshes translucent when the object blocks the camera's view of the player. |
 
 ### Trigger boxes
 
@@ -149,7 +150,8 @@ opacity; they fade back to their original material appearance when the player
 is no longer behind them.
 
 The reflected `occluded_opacity` field defaults to `0.35` (35% opacity).
-Values range from `0.0` (fully transparent) to `1.0` (fully opaque).
+Values range from `0.0` (fully transparent) to `1.0` (fully opaque). The value
+is an opacity multiplier for the original material's base-color alpha.
 Materials are copied per mesh before fading, so other objects that share the
 same imported material are not affected. The fade is visual only; it does not
 change collision, visibility, or gameplay queries.
@@ -167,8 +169,9 @@ ignores large one-frame displacements such as teleports.
 - Export Skein component extras with the scene.
 - Keep gameplay tags on the Blender Object / Empty whose transform represents
   the zone or spawn point.
-- Prefer object-level components for these gameplay markers. Use `PlayerOccluder` on visible mesh objects or their parent object; it traverses descendant meshes. Skein also
-  supports mesh and material components, but those are not needed here.
+- Prefer object-level components for these gameplay markers. Use `PlayerOccluder`
+  on visible mesh objects or their parent object; it traverses descendant meshes.
+  Skein also supports mesh and material components, but those are not needed here.
 - Keep the root scene hierarchy and transforms intact; gameplay queries use
   world-space transforms so nested objects are supported.
 

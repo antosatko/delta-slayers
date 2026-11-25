@@ -45,7 +45,8 @@ Within those areas:
 | `gameplay/npc.rs` | NPC movement that reuses the player collision resolver |
 | `gameplay/systems.rs` | Gameplay actions such as fast travel and returning to the menu |
 | `gameplay/persistence.rs` | Save-file serialization and loading |
-| `gameplay/billboard.rs` | Camera-facing billboard transform |\n| `gameplay/occlusion.rs` | Blender-authored player occluders and per-object material fading |
+| `gameplay/billboard.rs` | Camera-facing billboard transform |
+| `gameplay/occlusion.rs` | Blender-authored player occluders and per-object material fading |
 | `ui/stack.rs` | UI overlay navigation stack |
 | `ui/components.rs` | UI marker components and UI-only requests |
 | `ui/inventory.rs` | Inventory ViewModel, UI labels, and model-to-view projection |
@@ -95,7 +96,8 @@ Current authored components:
   player positions take precedence.
 - `Billboard`: camera-facing behavior for flat world objects. The player uses
   the existing full-body character image on an unlit, transparent 3D quad.
-- `PlayerOccluder`: opt-in transparency for Blender-authored objects that cross the camera-to-player line of sight. The component applies to descendant meshes, each of which receives a private material copy while its opacity fades down and back up.\n- `SquashOnMove`: opt-in movement animation for visual entities. It detects
+- `PlayerOccluder`: opt-in transparency for Blender-authored objects that cross the camera-to-player line of sight. The component applies to descendant meshes, each of which receives a private material copy while its opacity fades down and back up.
+- `SquashOnMove`: opt-in movement animation for visual entities. It detects
   transform displacement and applies a subtle horizontal stretch / vertical
   squash to the sprite scale. It does not move the entity or alter gameplay
   position; large one-frame displacements are treated as teleports and ignored.
