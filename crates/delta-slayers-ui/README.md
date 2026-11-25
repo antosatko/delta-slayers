@@ -71,6 +71,8 @@ bsn! {
 - stat_bar displays a value and semantic progress fill.
 - item_tile and item_tile_optional are square, artwork-first item controls.
   The optional variant accepts None for items without a stack quantity.
+  Each tile exposes CarbonSelection so a screen can change its selected
+  appearance without rebuilding the scene.
 - reference_term opens a contextual information card after a 600 ms hover
   dwell.
 
@@ -88,4 +90,7 @@ Run the component catalogue from the workspace root:
 cargo run -p delta-slayers-ui --example carbon_showcase
 ```
 
-The example interactions are demonstration-only and do not mutate game state.
+The example includes working tab navigation, selectable inventory items,
+updated item details, and visible use/drop feedback. Its responsive content
+columns wrap when the window becomes too narrow for a side-by-side layout.
+All actions remain demonstration-only and do not mutate game state.
