@@ -95,7 +95,7 @@ pub fn panel(width: Val) -> impl Scene {
             row_gap: px(12),
             border_radius: BorderRadius::all(px(8)),
         }
-        template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().surface)))
+        template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().panel)))
         BoxShadow([
             ShadowStyle {
                 color: Color::srgba(0.0, 0.0, 0.0, 0.18),
@@ -167,7 +167,7 @@ pub fn page_header(
                     CarbonHoverCard
                     bevy::ui::GlobalZIndex(100)
                     Visibility::Hidden
-                    template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().surface_raised)))
+                    template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().panel_raised)))
                     BoxShadow([
                         ShadowStyle {
                             color: Color::srgba(0.0, 0.0, 0.0, 0.28),
@@ -408,7 +408,7 @@ fn item_tile_scene(
                 flex_direction: FlexDirection::Column,
                 row_gap: px(2),
             }
-            template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().surface_deep.with_alpha(0.94))))
+            template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().surface_deep)))
             Children [
                 Text(label)
                 TextFont { font_size: px(11) }
@@ -456,7 +456,7 @@ pub fn reference_term(
             CarbonHoverCard
             bevy::ui::GlobalZIndex(100)
             Visibility::Hidden
-            template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().surface_raised)))
+            template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().panel_raised)))
             BoxShadow([
                 ShadowStyle {
                     color: Color::srgba(0.0, 0.0, 0.0, 0.28),
