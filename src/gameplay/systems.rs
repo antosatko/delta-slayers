@@ -21,7 +21,7 @@ pub(super) fn fast_travel(
     let Some(kind) = request.0.take() else {
         return;
     };
-    movement_target.0 = None;
+    movement_target.clear();
 
     let destination = {
         let zones = queries.p1();
