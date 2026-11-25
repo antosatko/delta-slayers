@@ -351,12 +351,20 @@ fn build_terrain_mesh(config: ExplorationPortal, seed: u64) -> Mesh {
 
                 let first_index = positions.len() as u32;
                 // Reverse the perimeter order so the top faces point upward.
+                // Derive a flat normal per triangle so height variation affects
+                // both the silhouette and the lighting.
+                let center_vertex = Vec3::new(center.x, center_height, center.y);
+                let next_vertex = Vec3::new(next.x, next_height, next.y);
+                let current_vertex = Vec3::new(current.x, current_height, current.y);
+                let normal = (next_vertex - center_vertex)
+                    .cross(current_vertex - center_vertex)
+                    .normalize_or_zero();
                 positions.extend([
-                    [center.x, center_height, center.y],
-                    [next.x, next_height, next.y],
-                    [current.x, current_height, current.y],
+                    center_vertex.to_array(),
+                    next_vertex.to_array(),
+                    current_vertex.to_array(),
                 ]);
-                normals.extend([[0.0, 1.0, 0.0]; 3]);
+                normals.extend([normal.to_array(); 3]);
                 colors.extend([color; 3]);
                 indices.extend([first_index, first_index + 1, first_index + 2]);
             }
