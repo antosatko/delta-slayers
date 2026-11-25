@@ -2,12 +2,17 @@ use bevy::prelude::*;
 
 use crate::{
     app::state::AppState,
-    gameplay::{persistence::save_game, player::Player, zones::{FastTravelRequest, TriggerBox, VisitedZones}},
+    gameplay::{
+        persistence::save_game,
+        player::{MovementTarget, Player},
+        zones::{FastTravelRequest, TriggerBox, VisitedZones},
+    },
     ui::stack::UiStack,
 };
 
 pub(super) fn fast_travel(
     mut request: ResMut<FastTravelRequest>,
+    mut movement_target: ResMut<MovementTarget>,
     mut queries: ParamSet<(
         Query<&mut Transform, With<Player>>,
         Query<(&GlobalTransform, &TriggerBox)>,
@@ -16,6 +21,7 @@ pub(super) fn fast_travel(
     let Some(kind) = request.0.take() else {
         return;
     };
+    movement_target.0 = None;
 
     let destination = {
         let zones = queries.p1();
