@@ -1,6 +1,6 @@
 use bevy::{prelude::*, ui::Pressed};
 
-/// Carbon design tokens shared by every Slate UI scene.
+/// Carbon design tokens shared by every Carbon UI scene.
 ///
 /// Use neutral surface steps for ordinary hierarchy. Azure is reserved for
 /// selected controls, links, focus, and primary actions; status colours are
