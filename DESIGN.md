@@ -76,6 +76,10 @@ Current authored components:
   player positions take precedence.
 - `Billboard`: camera-facing behavior for flat world objects. The player uses
   the existing full-body character image on an unlit, transparent 3D quad.
+- `SquashOnMove`: opt-in movement animation for visual entities. It detects
+  transform displacement and applies a subtle horizontal stretch / vertical
+  squash to the sprite scale. It does not move the entity or alter gameplay
+  position; large one-frame displacements are treated as teleports and ignored.
 
 The player entity stores its position on the ground. Zone detection uses a
 separate 1.7-unit interaction probe so existing Blender trigger volumes retain
@@ -95,10 +99,15 @@ the clicked destination. The inventory does not pause gameplay: movement and wor
 simulation continue behind it, while camera scrolling is reserved for the
 inventory UI. Pause and the game menu still suspend gameplay. Right-click opens
 the inventory or dismisses the active overlay.
-Saved positions and fast-travel destinations preserve their world-space
-elevation.
-Billboard sprites track the camera's horizontal bearing and partially follow
-its elevation while retaining an upright bias. The player image is
+Saved positions preserve their full world-space coordinates. Fast travel uses
+the selected trigger box's world-space center and offsets the exit along Z only;
+the destination's Y elevation is preserved, including for destinations above
+or below the starting area. Billboard sprites track the camera's horizontal
+bearing and partially follow its elevation while retaining an upright bias.
+Visual entities tagged with `SquashOnMove` pulse with a small, smoothed
+horizontal stretch and vertical compression while their transform is moving.
+The animation restores the authored scale when idle and does not change the
+entity's position or its gameplay state. The player image is
 rendered on a vertical, camera-facing 3D quad. The town remains the existing
 Blender-authored scene; no hex tiles or procedural terrain are introduced by
 this camera/rendering setup.
