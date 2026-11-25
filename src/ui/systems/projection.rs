@@ -6,6 +6,7 @@ use bevy::{
 use crate::{
     gameplay::{
         player::Player,
+        exploration::NearbyExplorationPortal,
         zones::{NearbyZone, TriggerBox, VisitedZones, ZoneKind},
     },
     ui::{
@@ -31,10 +32,11 @@ pub fn panel_visibility_system(ui: Res<UiStack>, mut panels: Query<(&PanelRoot, 
 
 pub fn popup_visibility_system(
     nearby: Res<NearbyZone>,
+    nearby_portal: Res<NearbyExplorationPortal>,
     ui: Res<UiStack>,
     mut popups: Query<&mut Visibility, With<PopupRoot>>,
 ) {
-    let visible = nearby.0.is_some()
+    let visible = (nearby.0.is_some() || nearby_portal.0.is_some())
         && ui.active_panel().is_none()
         && !ui.inventory_open()
         && !ui.paused()
