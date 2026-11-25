@@ -1,4 +1,4 @@
-use bevy::{prelude::*, ui::Pressed};
+use bevy::{feathers::controls::ButtonVariant, prelude::*, ui::Pressed};
 
 /// Carbon design tokens shared by every Carbon UI scene.
 ///
@@ -187,21 +187,11 @@ fn update_button_styles(
     }
 }
 
-fn update_tab_labels(
-    theme: Res<CarbonTheme>,
-    tabs: Query<(&CarbonTab, &Children)>,
-    mut labels: Query<&mut TextColor>,
-) {
-    for (tab, children) in &tabs {
-        let color = if tab.selected {
-            theme.accent
-        } else {
-            theme.muted
-        };
-        for child in children {
-            if let Ok(mut text_color) = labels.get_mut(*child) {
-                *text_color = TextColor(color);
-            }
+fn update_tab_labels(mut tabs: Query<(&CarbonTab, &mut ButtonVariant)>) {
+    for (tab, mut variant) in &mut tabs {
+        let next = ButtonVariant::selected(tab.selected);
+        if *variant != next {
+            *variant = next;
         }
     }
 }
