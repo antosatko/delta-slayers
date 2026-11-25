@@ -1,4 +1,5 @@
 use bevy::{
+    app::Propagate,
     feathers::{
         containers::{pane, pane_body, pane_header},
         controls::{
@@ -297,8 +298,8 @@ fn exploration_setup_panel() -> impl Scene {
                     overflow: Overflow::clip(),
                     border_radius: BorderRadius::all(px(8)),
                 }
-                ThemeContext(SurfaceLevel::Floating)
                 ThemeBackgroundColor(tokens::PANE_BODY_BG)
+                Propagate::<ThemeContext>(ThemeContext(SurfaceLevel::Floating))
                 Children [
                     @pane_header()
                     Children [
