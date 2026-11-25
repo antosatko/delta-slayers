@@ -12,7 +12,7 @@ pub(super) const DESTINATION_BEACON_HEIGHT: f32 = 0.72;
 
 /// Draws a sequence of small 3D arrows from the player to the selected
 /// destination. The path follows the character as it moves.
-pub(super) fn draw_move_trajectory
+pub(super) fn draw_move_trajectory(
     mut gizmos: Gizmos,
     player: Query<&Transform, With<Player>>,
     target: Res<MovementTarget>,

@@ -1,7 +1,7 @@
 use bevy::{
     gltf::GltfAssetLabel,
     prelude::*,
-    world_serialization::{WorldAsset, WorldAssetRoot},
+    world_serialization::WorldAsset,
 };
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -9,7 +9,7 @@ use crate::{
     app::state::AppState,
     gameplay::{
         npc::Npc,
-        player::{self, MovementBlocker, PLAYER_VISUAL_HEIGHT, Player},
+        player::{self, PLAYER_VISUAL_HEIGHT, Player},
     },
 };
 

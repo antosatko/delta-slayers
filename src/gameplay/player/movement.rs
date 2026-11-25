@@ -12,6 +12,7 @@ use super::collision::{move_with_collisions, movement_collision_contact};
 const MOVE_TARGET_HOLD_DELAY: f32 = 0.3;
 const MOVE_TARGET_REFRESH_INTERVAL: f32 = 0.1;
 
+/// The active click destination and click-and-hold retargeting state.
 #[derive(Resource, Default)]
 pub(super) struct MovementTarget {
     pub(super) destination: Option<Vec3>,
@@ -72,10 +73,8 @@ impl MovementTarget {
     }
 }
 
-/// The current destination and click-and-hold retargeting state.
-#[derive(Resource, Default)]
-pub(super) struct _MovementTargetDocMarker;
-
+/// A quick click sets one destination. Holding the button for a short
+/// delay switches to periodic retargeting from the current cursor position.
 pub(super) fn set_move_target_from_cursor(
     mouse: Res<ButtonInput<MouseButton>>,
     window: Single<&Window, With<PrimaryWindow>>,

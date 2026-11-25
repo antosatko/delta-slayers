@@ -14,6 +14,9 @@ pub(super) const MAX_COLLISION_RESOLVE_PASSES: usize = 6;
 #[type_path = "delta_slayers::gameplay::player"]
 pub struct MovementBlocker;
 
+/// Advances in small increments so a fast frame or sprint cannot tunnel
+/// through a thin authored wall. Contact correction preserves tangential
+/// movement so the player can slide along the blocker.
 pub(super) fn move_with_collisions(
     start: Vec3,
     delta: Vec3,
