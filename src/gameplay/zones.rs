@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::gameplay::player::Player;
+use crate::gameplay::player::{Player, INTERACTION_HEIGHT};
 
 /// High-level interaction category used by UI panels and fast travel.
 #[derive(Reflect, Default, Clone, Copy, PartialEq, Eq, Debug, Hash)]
@@ -51,7 +51,9 @@ pub fn zone_detection_system(
     let Ok(player_transform) = player_q.single() else {
         return;
     };
-    let player_pos = player_transform.translation;
+    // Keep authored trigger volumes working as before: interaction is tested
+    // around the player's upper body, while the Player transform stays at ground level.
+    let player_pos = player_transform.translation + Vec3::Y * INTERACTION_HEIGHT;
 
     let mut found = None;
     for (zone_transform, zone) in &zones {
