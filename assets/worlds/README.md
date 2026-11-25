@@ -72,7 +72,8 @@ The portal exposes these settings:
 
 Values outside the runtime ranges are clamped. For a reproducible test map,
 set a seed explicitly; leave it empty when each visit should be different.
-The generated terrain has grassland, woodland, dryland, and highland regions,
+In debug builds, entering the map opens a dismissible on-screen readout of the
+actual seed and effective generation parameters. The generated terrain has grassland, woodland, dryland, and highland regions,
 with procedural height variation, subtle per-hex color variation, sparse trees
 and rocks, and a movement-blocked outer boundary. The map is a first
 exploration prototype: it does not yet persist its discovered state or add
