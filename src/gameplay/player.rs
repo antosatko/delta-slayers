@@ -19,11 +19,11 @@ const CAMERA_MAX_DISTANCE: f32 = 22.0;
 const CAMERA_ZOOM_PER_LINE: f32 = 0.65;
 const CAMERA_PITCH_PER_LINE: f32 = 0.02;
 const CAMERA_TARGET_HEIGHT: f32 = 0.8;
-const PLAYER_VISUAL_HEIGHT: f32 = 0.8;
-const PLAYER_COLLIDER_RADIUS: f32 = 0.32;
-const PLAYER_COLLIDER_HEIGHT: f32 = 1.6;
-const MAX_COLLISION_STEP: f32 = 0.1;
-const MAX_COLLISION_RESOLVE_PASSES: usize = 6;
+pub(super) const PLAYER_VISUAL_HEIGHT: f32 = 0.8;
+pub(super) const PLAYER_COLLIDER_RADIUS: f32 = 0.32;
+pub(super) const PLAYER_COLLIDER_HEIGHT: f32 = 1.6;
+pub(super) const MAX_COLLISION_STEP: f32 = 0.1;
+pub(super) const MAX_COLLISION_RESOLVE_PASSES: usize = 6;
 const PLAYER_WALK_SPEED: f32 = 5.0;
 const PLAYER_SPRINT_SPEED: f32 = 8.0;
 const TRAJECTORY_ARROW_SPACING: f32 = 1.2;
@@ -282,7 +282,7 @@ pub(super) fn move_player_to_target(
 /// Advances in small increments so a fast frame or sprint cannot tunnel
 /// through a thin authored wall. Overlapping steps are corrected to the wall
 /// surface, preserving tangential movement so the player can slide along it.
-fn move_with_collisions(
+pub(super) fn move_with_collisions(
     start: Vec3,
     delta: Vec3,
     mut collision_contact: impl FnMut(Vec3, Vec3) -> Option<MovementContact>,
@@ -318,16 +318,16 @@ fn move_with_collisions(
 }
 
 #[derive(Clone, Copy)]
-struct MovementContact {
-    normal: Vec3,
-    penetration: f32,
+pub(super) struct MovementContact {
+    pub(super) normal: Vec3,
+    pub(super) penetration: f32,
 }
 
 /// Returns the outward horizontal contact normal and penetration depth when
 /// the player's circular footprint overlaps an upright, oriented box.
 /// Blockers are rotated around Y; their vertical scale and position determine
 /// whether they overlap the body.
-fn movement_collision_contact(
+pub(super) fn movement_collision_contact(
     player_position: Vec3,
     blocker: &GlobalTransform,
 ) -> Option<MovementContact> {
