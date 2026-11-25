@@ -155,8 +155,9 @@ UiLayer::GameMenu, and a projection system controls Visibility.
 The main menu exposes Quick Load, New game, Load Save, Credits, and Exit to
 Desktop. Quick Load restores the save file; New game starts from the authored
 spawn point without loading the previous save. Load Save remains a placeholder
-until a save-selection interface is implemented. Both start actions share the
-same Loading transition and communicate their intent through GameStartMode.
+until a save-selection interface is implemented. All five main-menu actions use
+the same neutral secondary-button style. Both start actions share the same
+Loading transition and communicate their intent through GameStartMode.
 
 ## Visual hierarchy and Carbon UI principles
 
