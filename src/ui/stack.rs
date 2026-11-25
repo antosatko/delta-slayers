@@ -11,19 +11,9 @@ pub enum UiLayer {
     GameMenu,
 }
 
-#[derive(Resource, Debug)]
+#[derive(Resource, Debug, Default)]
 pub struct UiStack {
     layers: Vec<UiLayer>,
-    capture_requested: bool,
-}
-
-impl Default for UiStack {
-    fn default() -> Self {
-        Self {
-            layers: Vec::new(),
-            capture_requested: true,
-        }
-    }
 }
 
 impl UiStack {
@@ -61,44 +51,19 @@ impl UiStack {
     }
 
     pub fn pop_top(&mut self) -> Option<UiLayer> {
-        let popped = self.layers.pop();
-        if self.layers.is_empty() && popped.is_some() {
-            self.capture_requested = true;
-        }
-        popped
+        self.layers.pop()
     }
 
     pub fn remove(&mut self, layer: UiLayer) -> bool {
         let Some(index) = self.layers.iter().rposition(|current| *current == layer) else {
             return false;
         };
-
         self.layers.remove(index);
-        if self.layers.is_empty() {
-            self.capture_requested = true;
-        }
         true
     }
 
     pub fn reset(&mut self) {
         self.layers.clear();
-        self.capture_requested = true;
-    }
-
-    pub fn cursor_capture_requested(&self) -> bool {
-        self.capture_requested
-    }
-
-    pub fn cursor_grabbed(&self) -> bool {
-        self.layers.is_empty() && self.capture_requested
-    }
-
-    pub fn capture_cursor(&mut self) {
-        self.capture_requested = true;
-    }
-
-    pub fn release_cursor(&mut self) {
-        self.capture_requested = false;
     }
 
     pub fn toggle_pause(&mut self) {
