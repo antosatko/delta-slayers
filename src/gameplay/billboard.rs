@@ -1,11 +1,94 @@
 use bevy::prelude::*;
 
 const BILLBOARD_VIEW_TILT: f32 = 0.35;
+const SQUASH_SMOOTHING: f32 = 12.0;
+const SQUASH_FULL_INTENSITY_SPEED: f32 = 3.0;
+const SQUASH_MAX_ANIMATED_SPEED: f32 = 40.0;
+const SQUASH_CYCLES_PER_UNIT: f32 = 0.35;
+const SQUASH_HORIZONTAL_STRETCH: f32 = 0.025;
+const SQUASH_VERTICAL_COMPRESSION: f32 = 0.04;
 
 #[derive(Component, Reflect, Default)]
 #[reflect(Component, Default)]
 #[type_path = "delta_slayers::gameplay::billboard"]
 pub struct Billboard;
+
+/// Opt-in movement-driven squash animation for an entity's visual transform.
+///
+/// Attach this to a moving sprite or billboard. The animation changes only its
+/// X/Y scale; the gameplay entity and its world position remain untouched.
+#[derive(Component, Reflect, Default)]
+#[reflect(Component, Default)]
+#[type_path = "delta_slayers::gameplay::billboard"]
+pub struct SquashOnMove;
+
+#[derive(Component, Default)]
+struct SquashState {
+    previous_position: Option<Vec3>,
+    base_scale: Option<Vec3>,
+    phase: f32,
+    intensity: f32,
+}
+
+/// Updates the subtle squash/stretch on entities tagged with `SquashOnMove`.
+///
+/// Large one-frame displacements are treated as teleports rather than movement,
+/// preventing fast travel and spawn placement from triggering a squash pulse.
+pub fn animate_moving_sprites(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut sprites: Query<(Entity, &mut Transform, Option<&mut SquashState>), With<SquashOnMove>>,
+) {
+    let delta_secs = time.delta_secs();
+    if delta_secs <= 0.0 {
+        return;
+    }
+
+    for (entity, mut transform, state) in &mut sprites {
+        let Some(mut state) = state else {
+            commands.entity(entity).insert(SquashState {
+                previous_position: Some(transform.translation),
+                base_scale: Some(transform.scale),
+                ..default()
+            });
+            continue;
+        };
+
+        let base_scale = *state.base_scale.get_or_insert(transform.scale);
+        let previous_position = state.previous_position.replace(transform.translation);
+        let Some(previous_position) = previous_position else {
+            continue;
+        };
+
+        let distance = transform.translation.distance(previous_position);
+        let speed = distance / delta_secs;
+        let moving = distance > 0.0 && speed <= SQUASH_MAX_ANIMATED_SPEED;
+
+        if moving {
+            state.phase = (state.phase + distance * std::f32::consts::TAU * SQUASH_CYCLES_PER_UNIT)
+                .rem_euclid(std::f32::consts::TAU);
+        }
+
+        let target_intensity = if moving {
+            (speed / SQUASH_FULL_INTENSITY_SPEED).clamp(0.0, 1.0)
+        } else {
+            0.0
+        };
+        let blend = 1.0 - (-SQUASH_SMOOTHING * delta_secs).exp();
+        state.intensity += (target_intensity - state.intensity) * blend;
+
+        transform.scale = squash_scale(base_scale, state.phase, state.intensity);
+    }
+}
+
+fn squash_scale(base_scale: Vec3, phase: f32, intensity: f32) -> Vec3 {
+    let pulse = phase.sin() * intensity;
+    Vec3::new(
+        base_scale.x * (1.0 + SQUASH_HORIZONTAL_STRETCH * pulse),
+        base_scale.y * (1.0 - SQUASH_VERTICAL_COMPRESSION * pulse),
+        base_scale.z,
+    )
+}
 
 /// Faces billboards toward the camera horizontally and partially follows its
 /// vertical viewing angle. Keeping some upright bias avoids fully screen-flat
@@ -46,6 +129,24 @@ fn billboard_facing_rotation(to_camera: Vec3) -> Option<Quat> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn movement_squash_compresses_height_and_stretches_width() {
+        let base_scale = Vec3::new(2.0, 3.0, 0.5);
+
+        let scale = squash_scale(base_scale, std::f32::consts::FRAC_PI_2, 1.0);
+
+        assert!(scale.x > base_scale.x);
+        assert!(scale.y < base_scale.y);
+        assert_eq!(scale.z, base_scale.z);
+    }
+
+    #[test]
+    fn idle_movement_animation_preserves_the_authored_scale() {
+        let base_scale = Vec3::new(1.5, 2.0, 0.75);
+
+        assert_eq!(squash_scale(base_scale, 2.1, 0.0), base_scale);
+    }
 
     #[test]
     fn billboard_partially_tracks_camera_elevation() {
