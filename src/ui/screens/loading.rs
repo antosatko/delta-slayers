@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use delta_slayers_ui::{
-    CarbonIcon, CarbonStatus, CarbonTheme, badge, eyebrow_text, muted_text, page_header, panel,
+    CarbonIcon, CarbonStatus, CarbonTheme, badge, eyebrow_text, muted_text, page_title, panel,
     section_header,
 };
 
@@ -40,11 +40,7 @@ fn loading_content() -> impl Scene {
                 overflow: Overflow::scroll(),
             }
             Children [
-                @page_header(
-                    "Delta Slayers",
-                    "Loading",
-                    "The town and its authored gameplay objects are being prepared."
-                )
+                @page_title("Delta Slayers")
                 --
                 @panel(percent(100))
                 Children [
