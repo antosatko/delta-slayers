@@ -51,7 +51,8 @@ the configured hex radius. One root model is chosen deterministically for
 each generated tile from the variants in that biome's GLB.
 
 Attach `delta_slayers::gameplay::environment::ObjectSpawner` to a tile root
-that should be eligible for object placement.
+or to a marker Empty anywhere below that root. The first spawner found in
+root-first hierarchy order supplies the tile's capacity and spawn chance.
 
 | Field | Default | Meaning |
 | --- | --- | --- |

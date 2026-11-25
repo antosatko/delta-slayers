@@ -394,7 +394,7 @@ fn extract_collection_roots(
     roots
         .into_iter()
         .filter_map(|root| {
-            let spawner = source.world.get::<ObjectSpawner>(root).copied();
+            let spawner = find_object_spawner(&source.world, root);
             let spawnable = source.world.get::<SpawnableObject>(root).copied();
 
             if matches!(prototype_kind, PrototypeKind::Spawnable) && spawnable.is_none() {
@@ -416,6 +416,15 @@ fn extract_collection_roots(
             })
         })
         .collect()
+}
+
+fn find_object_spawner(world: &World, entity: Entity) -> Option<ObjectSpawner> {
+    world.get::<ObjectSpawner>(entity).copied().or_else(|| {
+        world
+            .get::<Children>(entity)?
+            .iter()
+            .find_map(|child| find_object_spawner(world, child))
+    })
 }
 
 fn collect_hierarchy_entities(world: &World, entity: Entity, output: &mut Vec<Entity>) {
