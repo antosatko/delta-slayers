@@ -41,6 +41,7 @@ impl Plugin for GameplayPlugin {
                 ..default()
             },
         )
+        .register_type::<Name>()
         .register_type::<Mesh3d>()
         .register_type::<MeshMaterial3d<StandardMaterial>>()
         .register_type::<Transform>()

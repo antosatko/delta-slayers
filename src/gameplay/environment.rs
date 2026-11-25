@@ -586,6 +586,35 @@ mod tests {
     }
 
     #[test]
+    fn prototype_root_translation_is_reset_without_changing_rotation_or_scale() {
+        let rotation = Quat::from_rotation_y(0.7);
+        let scale = Vec3::new(1.2, 0.8, 1.4);
+        let mut world = World::new();
+        let root = world
+            .spawn((
+                Name::new("Prototype"),
+                Transform {
+                    translation: Vec3::new(12.0, 3.0, -11.0),
+                    rotation,
+                    scale,
+                },
+            ))
+            .id();
+        let mut asset = WorldAsset::new(world);
+
+        assert!(normalize_prototype_root(
+            &mut asset,
+            Some(&Name::new("Prototype")),
+            "test.glb"
+        ));
+
+        let transform = asset.world.get::<Transform>(root).unwrap();
+        assert_eq!(transform.translation, Vec3::ZERO);
+        assert_eq!(transform.rotation, rotation);
+        assert_eq!(transform.scale, scale);
+    }
+
+    #[test]
     fn invalid_spawn_chance_uses_the_default() {
         let spawner = ObjectSpawner {
             spawn_chance: f32::NAN,
