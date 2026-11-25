@@ -8,7 +8,7 @@ use crate::{
     gameplay::{
         exploration::{ActiveExplorationMap, NearbyExplorationPortal},
         player::Player,
-        zones::{NearbyZone, TriggerBox, VisitedZones, ZoneKind},
+        zones::{NearbyZone, TriggerBox, VisitedZones},
     },
     ui::{
         components::{
