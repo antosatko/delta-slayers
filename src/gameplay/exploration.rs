@@ -79,10 +79,10 @@ pub(crate) struct NearbyExplorationPortal(pub(crate) Option<PortalAction>);
 pub(crate) struct ExplorationTravelRequest(pub(crate) Option<PortalAction>);
 
 #[derive(Resource, Default)]
-pub(super) struct ActiveExplorationMap(pub(super) Option<ActiveMapData>);
+pub(crate) struct ActiveExplorationMap(pub(crate) Option<ActiveMapData>);
 
 #[derive(Clone, Copy)]
-pub(super) struct ActiveMapData {
+pub(crate) struct ActiveMapData {
     root: Entity,
     origin: Vec3,
     config: ExplorationPortal,
@@ -94,9 +94,9 @@ pub(super) struct ExplorationSession(pub(super) Option<TravelAnchor>);
 
 #[derive(Clone, Copy)]
 pub(super) struct TravelAnchor {
-    transform: Transform,
-    yaw: f32,
-    pitch: f32,
+    pub(super) transform: Transform,
+    pub(super) yaw: f32,
+    pub(super) pitch: f32,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -163,8 +163,8 @@ pub(super) fn process_travel_request(
     mut active: ResMut<ActiveExplorationMap>,
     mut session: ResMut<ExplorationSession>,
     mut movement_target: ResMut<player::MovementTarget>,
-    mut player: Query<(&mut Transform, &mut Player)>,
-    mut npcs: Query<&mut Transform, With<Npc>>,
+    mut player: Query<(&mut Transform, &mut Player), Without<Npc>>,
+    mut npcs: Query<&mut Transform, (With<Npc>, Without<Player>)>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
@@ -331,7 +331,17 @@ fn build_terrain_mesh(config: ExplorationPortal, seed: u64) -> Mesh {
         for r in min_r..=max_r {
             let center = hex_center(q, r, config.tile_size);
             let center_height = terrain_height(config, seed, center);
-            let color = biome_at(config, seed, center).color();
+            let base_color = biome_at(config, seed, center).color();
+            // Slight deterministic per-tile variation keeps the hex layout
+            // readable without adding gaps or breaking the shared height field.
+            let shade = 0.94
+                + cell_random(seed, q, r, 0x51ED_270B_91A4_6C3D) * 0.12;
+            let color = [
+                base_color[0] * shade,
+                base_color[1] * shade,
+                base_color[2] * shade,
+                base_color[3],
+            ];
 
             for side in 0..HEX_CORNER_COUNT {
                 let current = hex_corner(center, config.tile_size, side);
@@ -452,12 +462,17 @@ fn spawn_boundary_walls(commands: &mut Commands, root: Entity, config: Explorati
                 let midpoint = (a + b) * 0.5;
                 let edge = b - a;
                 let yaw = edge.x.atan2(edge.y);
-                let height = terrain_surface_height(config, seed, midpoint);
+                // Cover the entire possible terrain height range, even when
+                // the portal uses a high elevation multiplier.
                 commands.spawn((
                     MovementBlocker,
-                    Transform::from_xyz(midpoint.x, height + 1.1, midpoint.y)
+                    Transform::from_xyz(midpoint.x, 0.0, midpoint.y)
                         .with_rotation(Quat::from_rotation_y(yaw))
-                        .with_scale(Vec3::new(0.18, 1.5, config.tile_size * 0.62)),
+                        .with_scale(Vec3::new(
+                            0.18,
+                            config.height_multiplier + 2.0,
+                            config.tile_size * 0.62,
+                        )),
                     ChildOf(root),
                 ));
             }
