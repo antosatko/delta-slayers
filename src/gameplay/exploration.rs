@@ -85,8 +85,8 @@ pub(crate) struct ActiveExplorationMap(pub(crate) Option<ActiveMapData>);
 pub(crate) struct ActiveMapData {
     root: Entity,
     origin: Vec3,
-    config: ExplorationPortal,
-    seed: u64,
+    pub(crate) config: ExplorationPortal,
+    pub(crate) seed: u64,
 }
 
 #[derive(Resource, Default)]
@@ -585,7 +585,9 @@ fn fractal_noise(x: f32, z: f32, seed: u64) -> f32 {
         total += value_noise(
             x * frequency,
             z * frequency,
-            seed.wrapping_add(octave as u64 * 0x9E37_79B9_7F4A_7C15),
+            seed.wrapping_add(
+                (octave as u64).wrapping_mul(0x9E37_79B9_7F4A_7C15),
+            ),
         ) * amplitude;
         normalization += amplitude;
         amplitude *= 0.5;
@@ -708,6 +710,14 @@ mod tests {
 
         assert_eq!(first, repeated);
         assert_ne!(first, different);
+    }
+
+    #[test]
+    fn octave_seed_offsets_use_wrapping_arithmetic() {
+        let sample = fractal_noise(0.2, -0.4, u64::MAX);
+
+        assert!(sample.is_finite());
+        assert!((-1.0..=1.0).contains(&sample));
     }
 
     #[test]
