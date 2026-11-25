@@ -394,6 +394,15 @@ fn extract_collection_roots(
     roots
         .into_iter()
         .filter_map(|root| {
+            if matches!(prototype_kind, PrototypeKind::Tile)
+                && !hierarchy_contains_mesh(&source.world, root)
+            {
+                warn!(
+                    "Ignoring a tile entry in {collection_name} because its hierarchy contains no mesh"
+                );
+                return None;
+            }
+
             let spawner = find_object_spawner(&source.world, root);
             let spawnable = source.world.get::<SpawnableObject>(root).copied();
 
@@ -416,6 +425,13 @@ fn extract_collection_roots(
             })
         })
         .collect()
+}
+
+fn hierarchy_contains_mesh(world: &World, entity: Entity) -> bool {
+    world.get::<Mesh3d>(entity).is_some()
+        || world
+            .get::<Children>(entity)
+            .is_some_and(|children| children.iter().any(|child| hierarchy_contains_mesh(world, child)))
 }
 
 fn find_object_spawner(world: &World, entity: Entity) -> Option<ObjectSpawner> {
