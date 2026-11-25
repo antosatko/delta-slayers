@@ -184,25 +184,19 @@ pub(super) fn set_move_target_from_cursor(
     }
 }
 
-/// Moves continuously toward the last clicked position. A new click replaces
-/// the current destination; shift temporarily increases movement speed.
+/// Moves with WASD/arrows when pressed, otherwise follows the last clicked
+/// destination. Keyboard movement takes priority and cancels the current path.
 pub(super) fn move_player_to_target(
-    mut player: Query<&mut Transform, With<Player>>,
+    mut player: Query<(&mut Transform, &mut Player)>,
     mut target: ResMut<MovementTarget>,
     input: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
 ) {
-    let Some(destination) = target.destination else {
-        return;
-    };
-    let Ok(mut transform) = player.single_mut() else {
-        target.destination = None;
+    let Ok((mut transform, mut player)) = player.single_mut() else {
+        target.clear();
         return;
     };
 
-    let mut offset = destination - transform.translation;
-    offset.y = 0.0;
-    let distance = offset.length();
     let sprinting = input.pressed(KeyCode::ShiftLeft) || input.pressed(KeyCode::ShiftRight);
     let speed = if sprinting {
         PLAYER_SPRINT_SPEED
@@ -210,6 +204,22 @@ pub(super) fn move_player_to_target(
         PLAYER_WALK_SPEED
     };
     let step = speed * time.delta_secs();
+
+    if let Some(direction) = keyboard_movement_direction(&input, player.yaw) {
+        target.clear();
+        player.yaw = direction.x.atan2(-direction.z);
+        transform.rotation = Quat::from_rotation_y(player.yaw);
+        transform.translation += direction * step;
+        return;
+    }
+
+    let Some(destination) = target.destination else {
+        return;
+    };
+
+    let mut offset = destination - transform.translation;
+    offset.y = 0.0;
+    let distance = offset.length();
 
     if distance <= step || distance <= 0.03 {
         transform.translation.x = destination.x;
@@ -219,6 +229,24 @@ pub(super) fn move_player_to_target(
     }
 
     transform.translation += offset / distance * step;
+}
+
+fn keyboard_movement_direction(input: &ButtonInput<KeyCode>, yaw: f32) -> Option<Vec3> {
+    let left = input.pressed(KeyCode::KeyA) || input.pressed(KeyCode::ArrowLeft);
+    let right = input.pressed(KeyCode::KeyD) || input.pressed(KeyCode::ArrowRight);
+    let forward = input.pressed(KeyCode::KeyW) || input.pressed(KeyCode::ArrowUp);
+    let backward = input.pressed(KeyCode::KeyS) || input.pressed(KeyCode::ArrowDown);
+
+    let local_direction = Vec3::new(
+        (right as i8 - left as i8) as f32,
+        0.0,
+        (backward as i8 - forward as i8) as f32,
+    );
+    if local_direction == Vec3::ZERO {
+        return None;
+    }
+
+    Some((Quat::from_rotation_y(yaw) * local_direction.normalize()).normalize())
 }
 
 /// Draws a sequence of small 3D arrows from the player to the selected
@@ -401,6 +429,53 @@ mod tests {
         assert!(!target.should_update_from_cursor(true, false, 0.5, false));
         assert!(!target.should_update_from_cursor(false, false, 0.016, false));
         assert!(target.should_update_from_cursor(true, true, 0.016, false));
+    }
+
+    #[test]
+    fn wasd_and_arrow_keys_move_in_the_same_direction() {
+        let mut wasd = ButtonInput::<KeyCode>::default();
+        wasd.press(KeyCode::KeyW);
+        let mut arrows = ButtonInput::<KeyCode>::default();
+        arrows.press(KeyCode::ArrowUp);
+
+        let wasd_direction = keyboard_movement_direction(&wasd, 0.0).unwrap();
+        let arrow_direction = keyboard_movement_direction(&arrows, 0.0).unwrap();
+
+        assert!(wasd_direction.abs_diff_eq(Vec3::NEG_Z, 1e-6));
+        assert!(wasd_direction.abs_diff_eq(arrow_direction, 1e-6));
+    }
+
+    #[test]
+    fn keyboard_diagonal_movement_is_normalized() {
+        let mut input = ButtonInput::<KeyCode>::default();
+        input.press(KeyCode::KeyW);
+        input.press(KeyCode::KeyD);
+
+        let direction = keyboard_movement_direction(&input, 0.0).unwrap();
+
+        assert!((direction.length() - 1.0).abs() < 1e-6);
+        assert!(direction.x > 0.0);
+        assert!(direction.z < 0.0);
+    }
+
+    #[test]
+    fn keyboard_movement_uses_player_heading() {
+        let mut input = ButtonInput::<KeyCode>::default();
+        input.press(KeyCode::KeyW);
+
+        let direction = keyboard_movement_direction(&input, std::f32::consts::FRAC_PI_2)
+            .unwrap();
+
+        assert!(direction.abs_diff_eq(Vec3::X, 1e-6));
+    }
+
+    #[test]
+    fn opposing_keyboard_directions_cancel_out() {
+        let mut input = ButtonInput::<KeyCode>::default();
+        input.press(KeyCode::KeyW);
+        input.press(KeyCode::ArrowDown);
+
+        assert!(keyboard_movement_direction(&input, 0.0).is_none());
     }
 
     #[test]
