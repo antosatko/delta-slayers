@@ -22,10 +22,10 @@ pub struct Billboard;
 #[type_path = "delta_slayers::gameplay::billboard"]
 pub struct SquashOnMove;
 
-#[derive(Component, Default)]
+#[derive(Component)]
 struct SquashState {
-    previous_position: Option<Vec3>,
-    base_scale: Option<Vec3>,
+    previous_position: Vec3,
+    base_scale: Vec3,
     phase: f32,
     intensity: f32,
 }
@@ -47,37 +47,40 @@ pub fn animate_moving_sprites(
     for (entity, mut transform, state) in &mut sprites {
         let Some(mut state) = state else {
             commands.entity(entity).insert(SquashState {
-                previous_position: Some(transform.translation),
-                base_scale: Some(transform.scale),
-                ..default()
+                previous_position: transform.translation,
+                base_scale: transform.scale,
+                phase: 0.0,
+                intensity: 0.0,
             });
             continue;
         };
 
-        let base_scale = *state.base_scale.get_or_insert(transform.scale);
-        let previous_position = state.previous_position.replace(transform.translation);
-        let Some(previous_position) = previous_position else {
-            continue;
-        };
+        let previous_position = state.previous_position;
+        state.previous_position = transform.translation;
+        let base_scale = state.base_scale;
 
         let distance = transform.translation.distance(previous_position);
         let speed = distance / delta_secs;
-        let moving = distance > 0.0 && speed <= SQUASH_MAX_ANIMATED_SPEED;
+        let target_intensity = movement_intensity(speed);
+        let moving = distance > 0.0 && target_intensity > 0.0;
 
         if moving {
             state.phase = (state.phase + distance * std::f32::consts::TAU * SQUASH_CYCLES_PER_UNIT)
                 .rem_euclid(std::f32::consts::TAU);
         }
 
-        let target_intensity = if moving {
-            (speed / SQUASH_FULL_INTENSITY_SPEED).clamp(0.0, 1.0)
-        } else {
-            0.0
-        };
         let blend = 1.0 - (-SQUASH_SMOOTHING * delta_secs).exp();
         state.intensity += (target_intensity - state.intensity) * blend;
 
         transform.scale = squash_scale(base_scale, state.phase, state.intensity);
+    }
+}
+
+fn movement_intensity(speed: f32) -> f32 {
+    if speed.is_finite() && speed <= SQUASH_MAX_ANIMATED_SPEED {
+        (speed / SQUASH_FULL_INTENSITY_SPEED).clamp(0.0, 1.0)
+    } else {
+        0.0
     }
 }
 
@@ -139,6 +142,13 @@ mod tests {
         assert!(scale.x > base_scale.x);
         assert!(scale.y < base_scale.y);
         assert_eq!(scale.z, base_scale.z);
+    }
+
+    #[test]
+    fn teleports_do_not_trigger_movement_squash() {
+        assert!(movement_intensity(8.0) > 0.0);
+        assert_eq!(movement_intensity(10_000.0), 0.0);
+        assert_eq!(movement_intensity(f32::NAN), 0.0);
     }
 
     #[test]
