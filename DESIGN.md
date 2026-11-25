@@ -80,9 +80,11 @@ Current authored components:
 The player entity stores its position on the ground. Zone detection uses a
 separate 1.7-unit interaction probe so existing Blender trigger volumes retain
 their previous behavior. A separate perspective camera follows above and behind the player from a
-locked horizontal heading based on the player's initial facing direction.
-Mouse movement does not rotate the camera; the wheel slightly adjusts follow
-distance and vertical viewing angle. WASD movement remains continuous in world
+locked horizontal heading offset from the player's initial facing direction,
+so the camera reveals the sides of world models. Mouse movement does not
+rotate the camera; the wheel slightly adjusts follow distance and vertical
+viewing angle. Billboard sprites track the camera's horizontal bearing and
+partially follow its elevation while retaining an upright bias. WASD movement remains continuous in world
 space. The player image is
 rendered on a vertical, camera-facing 3D quad. The town remains the existing
 Blender-authored scene; no hex tiles or procedural terrain are introduced by
