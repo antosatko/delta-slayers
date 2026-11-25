@@ -147,8 +147,7 @@ pub fn update_minimap(
         };
 
         let relative = *position - player_position;
-        let x = 60.0 + relative.x * 4.0 - 3.0;
-        let y = 60.0 - relative.z * 4.0 - 3.0;
+        let (x, y) = minimap_position(relative, player_transform.forward());
 
         if !(0.0..=114.0).contains(&x) || !(0.0..=114.0).contains(&y) {
             *visibility = Visibility::Hidden;
@@ -157,5 +156,54 @@ pub fn update_minimap(
             node.left = px(x);
             node.top = px(y);
         }
+    }
+}
+
+
+/// Projects a world-space offset into a player-oriented minimap.
+///
+/// The player's horizontal forward direction always points toward the top
+/// edge of the map; the right vector defines its horizontal axis.
+fn minimap_position(relative: Vec3, player_forward: Dir3) -> (f32, f32) {
+    let mut forward = Vec3::from(player_forward);
+    forward.y = 0.0;
+    if forward.length_squared() < 1e-6 {
+        forward = Vec3::NEG_Z;
+    } else {
+        forward = forward.normalize();
+    }
+
+    let right = forward.cross(Vec3::Y).normalize();
+    let map_x = 60.0 + relative.dot(right) * 4.0 - 3.0;
+    let map_y = 60.0 - relative.dot(forward) * 4.0 - 3.0;
+    (map_x, map_y)
+}
+
+#[cfg(test)]
+mod minimap_tests {
+    use super::*;
+
+    #[test]
+    fn forward_is_always_at_the_top_of_the_minimap() {
+        let north_facing = Dir3::new(Vec3::NEG_Z).expect("valid direction");
+        let east_facing = Dir3::new(Vec3::X).expect("valid direction");
+
+        let north = minimap_position(Vec3::NEG_Z * 10.0, north_facing);
+        let east = minimap_position(Vec3::X * 10.0, east_facing);
+
+        assert!(north.1 < 60.0);
+        assert!(east.1 < 60.0);
+    }
+
+    #[test]
+    fn right_of_player_is_always_on_the_right_of_the_minimap() {
+        let north_facing = Dir3::new(Vec3::NEG_Z).expect("valid direction");
+        let east_facing = Dir3::new(Vec3::X).expect("valid direction");
+
+        let north_right = minimap_position(Vec3::X * 10.0, north_facing);
+        let east_right = minimap_position(Vec3::NEG_Z * 10.0, east_facing);
+
+        assert!(north_right.0 > 60.0);
+        assert!(east_right.0 > 60.0);
     }
 }
