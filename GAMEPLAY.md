@@ -50,29 +50,31 @@ complete or final gameplay loop.
 
 **Proposed**
 
-The game could use a real-time simulation that advances only when the player
-performs an action. Instead of taking turns, each player action opens a
-temporary window during which the whole world progresses.
+The game could use a real-time simulation that advances only while the player
+is performing an action. There are no traditional turns: the player's actions
+determine when and for how long the world progresses.
 
-- While no action is advancing time, the simulation is frozen.
-- Starting an action unfreezes the simulation for a duration associated with
-  that action.
-- All entities advance together during that window: the player, NPCs, enemies,
-  projectiles, animations, and physics.
-- When the action's time window expires, the simulation freezes again until
-  another action advances it.
-- The player does not necessarily lose control during this window. Each action
-  defines which controls remain available while it is executing.
+- When the player is not performing an action, the simulation is frozen.
+- All entities advance together while the simulation is active: the player,
+  NPCs, enemies, projectiles, animations, and physics.
+- Continuous actions, especially movement, keep the simulation running for as
+  long as the player maintains the input. Releasing the input stops the action
+  and freezes the simulation; movement is not divided into artificial time
+  windows and the player is not forced to pause at intervals.
+- Other actions can advance the simulation for a defined duration. A heavy
+  spell, for example, might advance one second of world time.
+- The player may retain some control during a timed action. The action defines
+  which controls remain available while it executes.
 
 An action therefore has at least two distinct properties:
 
-- **Duration:** How much simulation time the action advances.
+- **Duration:** Whether it runs continuously while maintained or advances a
+  defined amount of simulation time.
 - **Control:** What the player is allowed to do while that time passes.
 
 For example, a heavy spell might advance one second of simulation while
 allowing the player to aim or move, depending on the spell. Another spell of
-the same duration might keep the player stationary. A quick movement or dodge
-could advance a much shorter window.
+the same duration might keep the player stationary.
 
 This makes action duration part of the combat balance. A powerful, slow action
 gives enemies more time to reposition or attack; a quick action gives them less
@@ -81,16 +83,15 @@ behaviour only progresses when the player advances the simulation.
 
 **Open questions**
 
-- Does holding a movement input continuously advance time, or does each
-  movement command create a separate time window?
-- Are action durations fixed, or can they depend on distance, charge time,
+- Are timed action durations fixed, or can they depend on charge time,
   animation state, or other conditions?
 - Can a new action replace or interrupt an action that is still executing?
 - Can actions be queued or buffered while the simulation is frozen?
-- Does every action advance exactly its full duration, or can the player end
-  some action windows early?
+- Can the player end some timed action windows early?
 - How should passive effects, hazards, and status durations behave while time
   is frozen?
+- How should simultaneous or overlapping inputs combine, such as moving while
+  casting a spell?
 
 ## Core gameplay loop
 
