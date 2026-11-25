@@ -97,15 +97,6 @@ pub fn panel(width: Val) -> impl Scene {
             border_radius: BorderRadius::all(px(8)),
         }
         template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().panel)))
-        BoxShadow([
-            ShadowStyle {
-                color: Color::srgba(0.0, 0.0, 0.0, 0.18),
-                x_offset: px(0),
-                y_offset: px(3),
-                spread_radius: px(0),
-                blur_radius: px(12),
-            }
-        ])
     }
 }
 
@@ -177,15 +168,6 @@ pub fn page_header(
                     bevy::ui::GlobalZIndex(100)
                     Visibility::Hidden
                     template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().panel_raised)))
-                    BoxShadow([
-                        ShadowStyle {
-                            color: Color::srgba(0.0, 0.0, 0.0, 0.28),
-                            x_offset: px(0),
-                            y_offset: px(5),
-                            spread_radius: px(0),
-                            blur_radius: px(18),
-                        }
-                    ])
                     Children [
                         Text(help_title)
                         TextFont { font_size: px(15) }
@@ -490,15 +472,6 @@ pub fn reference_term(
             bevy::ui::GlobalZIndex(100)
             Visibility::Hidden
             template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().panel_raised)))
-            BoxShadow([
-                ShadowStyle {
-                    color: Color::srgba(0.0, 0.0, 0.0, 0.28),
-                    x_offset: px(0),
-                    y_offset: px(5),
-                    spread_radius: px(0),
-                    blur_radius: px(18),
-                }
-            ])
             Children [
                 Text(category)
                 TextFont { font_size: px(10) }
