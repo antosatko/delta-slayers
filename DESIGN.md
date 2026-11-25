@@ -86,9 +86,10 @@ rotate the camera; the wheel slightly adjusts follow distance and vertical
 viewing angle. The mouse cursor remains visible and ungrabbed during gameplay.
 Left-clicking the ground sets a movement destination; the player walks toward
 it continuously, and animated 3D arrows slowly travel along the remaining
-trajectory. A highlighted ground ring and vertical beacon mark the endpoint.
-A new click replaces the destination, and holding Shift increases movement
-speed. Right-click opens the inventory or dismisses the active overlay.
+trajectory. Holding the left button for 300 ms starts periodic destination
+updates from the cursor until release. A highlighted ground ring and vertical
+beacon mark the endpoint. A new click replaces the destination, and holding
+Shift increases movement speed. Right-click opens the inventory or dismisses the active overlay.
 Saved positions and fast-travel destinations preserve their world-space
 elevation.
 Billboard sprites track the camera's horizontal bearing and partially follow
