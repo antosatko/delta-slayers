@@ -115,14 +115,9 @@ pub fn pause_overlay_visibility_system(
     }
 }
 
-pub fn sync_cursor(ui: Res<UiStack>, mut cursor: Single<&mut CursorOptions, With<PrimaryWindow>>) {
-    let grabbed = ui.cursor_grabbed();
-    cursor.visible = !grabbed;
-    cursor.grab_mode = if grabbed {
-        CursorGrabMode::Confined
-    } else {
-        CursorGrabMode::None
-    };
+pub fn sync_cursor(mut cursor: Single<&mut CursorOptions, With<PrimaryWindow>>) {
+    cursor.visible = true;
+    cursor.grab_mode = CursorGrabMode::None;
 }
 
 pub fn update_minimap(
