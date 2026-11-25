@@ -474,7 +474,7 @@ fn exploration_integer_control(
             ]
             --
             @FeathersNumberInput
-            ExplorationParameterControl(control)
+            template(move |_| Ok(control))
             NumberInputValue::I64(value)
             HardLimit::i64(min..=max)
             NumberInputStep(step)
@@ -522,7 +522,7 @@ fn exploration_float_control(
             ]
             --
             @FeathersNumberInput
-            ExplorationParameterControl(control)
+            template(move |_| Ok(control))
             NumberInputValue::F32(value)
             HardLimit::f32(min..=max)
             NumberInputStep(step)
