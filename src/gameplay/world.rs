@@ -59,14 +59,15 @@ pub(super) fn setup_game(
 
     let spawn_pos = Vec3::new(saved_pos.x, 0.0, saved_pos.z);
     let initial_pitch = if startup.has_saved_position {
-        saved_pitch.clamp(-1.35, -0.45)
+        saved_pitch.clamp(player::CAMERA_MIN_PITCH, player::CAMERA_MAX_PITCH)
     } else {
-        -0.9
+        player::CAMERA_DEFAULT_PITCH
     };
-    let player_rotation = Quat::from_euler(EulerRot::YXZ, saved_yaw, initial_pitch, 0.0);
+    let player_rotation = Quat::from_rotation_y(saved_yaw);
+    let camera_rotation = Quat::from_euler(EulerRot::YXZ, saved_yaw, initial_pitch, 0.0);
     let camera_target = spawn_pos + Vec3::Y * 0.8;
     let camera_position =
-        camera_target - player_rotation * Vec3::NEG_Z * player::CAMERA_DISTANCE;
+        camera_target - camera_rotation * Vec3::NEG_Z * player::CAMERA_DISTANCE;
 
     // The player model owns the world-space ground position. The camera and
     // billboard are separate entities so neither affects gameplay queries.
@@ -81,7 +82,9 @@ pub(super) fn setup_game(
 
     commands.spawn((
         Camera3d::default(),
-        GameplayCamera,
+        GameplayCamera {
+            distance: player::CAMERA_DISTANCE,
+        },
         Transform::from_translation(camera_position).looking_at(camera_target, Vec3::Y),
         DespawnOnExit::<AppState>(AppState::InGame),
     ));
