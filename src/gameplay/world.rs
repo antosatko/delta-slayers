@@ -64,7 +64,7 @@ pub(super) fn setup_game(
         player::CAMERA_DEFAULT_PITCH
     };
     let player_rotation = Quat::from_rotation_y(saved_yaw);
-    let camera_rotation = Quat::from_euler(EulerRot::YXZ, saved_yaw, initial_pitch, 0.0);
+    let camera_rotation = player::follow_camera_rotation(saved_yaw, initial_pitch);
     let camera_target = spawn_pos + Vec3::Y * 0.8;
     let camera_position =
         camera_target - camera_rotation * Vec3::NEG_Z * player::CAMERA_DISTANCE;
