@@ -81,8 +81,6 @@ pub(in crate::gameplay) fn adjust_camera(
             camera.distance,
             scroll,
             settings.camera_zoom_sensitivity,
-            settings.camera_min_distance,
-            settings.camera_max_distance,
         );
     }
 }
@@ -115,10 +113,8 @@ pub(in crate::gameplay) fn camera_distance_after_scroll(
     distance: f32,
     scroll: f32,
     sensitivity: f32,
-    min: f32,
-    max: f32,
 ) -> f32 {
-    (distance - scroll * sensitivity).clamp(min, max)
+    (distance - scroll * sensitivity).clamp(CAMERA_MIN_DISTANCE, CAMERA_MAX_DISTANCE)
 }
 
 /// Converts a pitch stored by the previous camera setup to the new, slightly
@@ -157,7 +153,7 @@ pub(in crate::gameplay) fn follow_camera(
 
     camera_settings.distance = camera_settings
         .distance
-        .clamp(settings.camera_min_distance, settings.camera_max_distance);
+        .clamp(CAMERA_MIN_DISTANCE, CAMERA_MAX_DISTANCE);
     let target =
         player_transform.translation + Vec3::Y * CAMERA_TARGET_HEIGHT + camera_settings.pan_offset;
     let orientation = follow_camera_rotation(player.yaw, player.pitch);

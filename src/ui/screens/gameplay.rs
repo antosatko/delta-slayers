@@ -1040,10 +1040,6 @@ fn player_settings_panel() -> impl Scene {
                     --
                     @player_auto_lock_setting()
                     --
-                    @player_setting_control("Minimum camera distance", "Closest allowed follow-camera distance.", PlayerSettingControl::MinCameraDistance, defaults.camera_min_distance, 4.0, 30.0, 0.5, 1)
-                    --
-                    @player_setting_control("Maximum camera distance", "Farthest allowed follow-camera distance.", PlayerSettingControl::MaxCameraDistance, defaults.camera_max_distance, 8.0, 60.0, 0.5, 1)
-                    --
                     @section_header(CarbonIcon::Character, "Movement")
                     --
                     @player_setting_control("Walk speed", "Normal keyboard and click-to-move speed.", PlayerSettingControl::WalkSpeed, defaults.walk_speed, 1.0, 12.0, 0.25, 2)
@@ -1166,12 +1162,6 @@ pub(in crate::ui) fn player_setting_value_changed(
         }
         PlayerSettingControl::PitchSensitivity => {
             settings.camera_pitch_sensitivity = event.value.clamp(0.002, 0.06)
-        }
-        PlayerSettingControl::MinCameraDistance => {
-            settings.camera_min_distance = event.value.clamp(4.0, settings.camera_max_distance)
-        }
-        PlayerSettingControl::MaxCameraDistance => {
-            settings.camera_max_distance = event.value.clamp(settings.camera_min_distance, 60.0)
         }
         PlayerSettingControl::WalkSpeed => settings.walk_speed = event.value.clamp(1.0, 12.0),
         PlayerSettingControl::SprintSpeed => settings.sprint_speed = event.value.clamp(1.0, 20.0),

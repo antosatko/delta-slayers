@@ -260,9 +260,7 @@ fn scrolling_in_zooms_in_and_flattens_the_view() {
         camera_distance_after_scroll(
             CAMERA_DISTANCE,
             1.0,
-            0.65,
-            CAMERA_MIN_DISTANCE,
-            CAMERA_MAX_DISTANCE
+            0.65
         ) < CAMERA_DISTANCE
     );
     assert!(
@@ -276,9 +274,7 @@ fn scrolling_out_zooms_out_and_raises_the_view() {
         camera_distance_after_scroll(
             CAMERA_DISTANCE,
             -1.0,
-            0.65,
-            CAMERA_MIN_DISTANCE,
-            CAMERA_MAX_DISTANCE
+            0.65
         ) > CAMERA_DISTANCE
     );
     assert!(
@@ -292,9 +288,7 @@ fn camera_adjustments_stay_within_their_limits() {
         camera_distance_after_scroll(
             CAMERA_MIN_DISTANCE,
             10.0,
-            0.65,
-            CAMERA_MIN_DISTANCE,
-            CAMERA_MAX_DISTANCE
+            0.65
         ),
         CAMERA_MIN_DISTANCE
     );
@@ -302,9 +296,7 @@ fn camera_adjustments_stay_within_their_limits() {
         camera_distance_after_scroll(
             CAMERA_MAX_DISTANCE,
             -10.0,
-            0.65,
-            CAMERA_MIN_DISTANCE,
-            CAMERA_MAX_DISTANCE
+            0.65
         ),
         CAMERA_MAX_DISTANCE
     );

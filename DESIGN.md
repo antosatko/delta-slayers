@@ -112,9 +112,10 @@ the horizontal ground plane without changing camera height, rotating the view,
 or changing the player's heading; dragging over UI does not pan the camera.
 By default, keyboard or click-to-move input clears the pan offset and recenters
 the camera on the player. The auto-lock setting can be disabled to preserve an
-independent free-camera offset while moving. The wheel adjusts follow distance
-and vertical viewing angle; tilt stays within the previous -0.97 to -0.67 radian
-range, and its scroll speed is configurable. The mouse cursor remains visible
+independent free-camera view: player movement does not translate the camera.
+The wheel still adjusts follow distance within fixed limits and vertical viewing
+angle; tilt stays within the previous -0.97 to -0.67 radian range, and its scroll
+speed is configurable. The mouse cursor remains visible
 and ungrabbed during gameplay.
 Left-clicking the ground sets a movement destination; the player walks toward
 it continuously, and animated 3D arrows slowly travel along the remaining
@@ -294,8 +295,9 @@ every frame.
 
 The in-game menu is a root-level BSN scene, independent of the inventory
 hierarchy. Its Settings action opens live camera and movement tuning controls:
-pan, zoom, and tilt scroll sensitivity; camera auto-lock while moving; minimum
-and maximum camera distance; walk speed; and sprint speed. The same basic settings screen is available
+pan, zoom, and tilt scroll sensitivity; camera auto-lock while moving; walk
+speed; and sprint speed. Camera distance limits are fixed rather than exposed
+as settings. The same basic settings screen is available
 from the main menu. Changes apply immediately and can be restored to
 defaults. A collapsed Developer settings section exposes a toggle for the
 exploration-generation diagnostics and a control to reset the free-camera pan

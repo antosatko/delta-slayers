@@ -91,28 +91,6 @@ fn settings_screen() -> impl Scene {
                     --
                     @player_auto_lock_setting()
                     --
-                    @player_setting_control(
-                        "Minimum camera distance",
-                        "Closest allowed follow-camera distance.",
-                        PlayerSettingControl::MinCameraDistance,
-                        defaults.camera_min_distance,
-                        4.0,
-                        30.0,
-                        0.5,
-                        1
-                    )
-                    --
-                    @player_setting_control(
-                        "Maximum camera distance",
-                        "Farthest allowed follow-camera distance.",
-                        PlayerSettingControl::MaxCameraDistance,
-                        defaults.camera_max_distance,
-                        8.0,
-                        60.0,
-                        0.5,
-                        1
-                    )
-                    --
                     @section_header(CarbonIcon::Character, "Movement")
                     --
                     @player_setting_control(

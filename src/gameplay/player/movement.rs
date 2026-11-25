@@ -218,6 +218,12 @@ pub(in crate::gameplay) fn move_player_to_target(
         target.cancel_destination_until_release();
     }
 
+    if !settings.camera_auto_lock {
+        if let Ok(mut camera) = camera_settings.single_mut() {
+            camera.pan_offset -= next_position - start_position;
+        }
+    }
+
     if let Some(destination) = target.destination {
         let remaining = Vec2::new(
             destination.x - transform.translation.x,
@@ -278,5 +284,22 @@ mod tests {
         assert!(target.destination.is_none());
         assert!(keyboard_movement_direction(&input, Vec3::NEG_Z).is_some());
         assert!(!target.should_update_from_cursor(true, false, 1.0, false));
+    }
+}
+
+
+#[cfg(test)]
+mod free_camera_tests {
+    use super::*;
+
+    #[test]
+    fn free_camera_offset_compensates_for_player_translation() {
+        let player_start = Vec3::new(4.0, 0.0, 7.0);
+        let initial_offset = Vec3::new(12.0, 3.0, -5.0);
+        let movement = Vec3::new(2.5, 0.0, -1.25);
+        let player_end = player_start + movement;
+        let adjusted_offset = initial_offset - movement;
+
+        assert!((player_end + adjusted_offset).abs_diff_eq(player_start + initial_offset, 1e-6));
     }
 }

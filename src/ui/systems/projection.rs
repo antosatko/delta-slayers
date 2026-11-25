@@ -26,7 +26,7 @@ use crate::{
             SettingsPanelRoot,
         },
         inventory::InventoryRoot,
-        stack::UiStack,
+        stack::{UiLayer, UiStack},
     },
 };
 
@@ -245,12 +245,25 @@ pub fn settings_panel_visibility_system(
     }
 }
 
+fn developer_settings_visible(
+    ui: &UiStack,
+    state: &mut DeveloperSettingsPanelState,
+) -> bool {
+    if !ui.contains(UiLayer::Settings) {
+        state.expanded = false;
+        return false;
+    }
+    state.expanded
+}
+
 pub fn developer_settings_projection(
-    state: Res<DeveloperSettingsPanelState>,
+    ui: Res<UiStack>,
+    mut state: ResMut<DeveloperSettingsPanelState>,
     mut content: Query<&mut Visibility, With<DeveloperSettingsContentRoot>>,
 ) {
+    let visible = developer_settings_visible(&ui, &mut state);
     for mut visibility in &mut content {
-        *visibility = if state.expanded {
+        *visibility = if visible {
             Visibility::Visible
         } else {
             Visibility::Hidden
@@ -269,8 +282,6 @@ pub fn player_settings_projection(
             PlayerSettingControl::PanSensitivity => settings.camera_pan_sensitivity,
             PlayerSettingControl::ZoomSensitivity => settings.camera_zoom_sensitivity,
             PlayerSettingControl::PitchSensitivity => settings.camera_pitch_sensitivity,
-            PlayerSettingControl::MinCameraDistance => settings.camera_min_distance,
-            PlayerSettingControl::MaxCameraDistance => settings.camera_max_distance,
             PlayerSettingControl::WalkSpeed => settings.walk_speed,
             PlayerSettingControl::SprintSpeed => settings.sprint_speed,
         };
@@ -460,5 +471,28 @@ mod minimap_tests {
 
         assert!(north_right.0 > 60.0);
         assert!(east_right.0 > 60.0);
+    }
+}
+
+
+#[cfg(test)]
+mod developer_settings_tests {
+    use super::*;
+
+    #[test]
+    fn developer_settings_hide_and_collapse_when_settings_close() {
+        let mut ui = UiStack::default();
+        let mut state = DeveloperSettingsPanelState { expanded: true };
+
+        assert!(!developer_settings_visible(&ui, &mut state));
+        assert!(!state.expanded);
+
+        ui.push(UiLayer::Settings);
+        state.expanded = true;
+        assert!(developer_settings_visible(&ui, &mut state));
+
+        ui.remove(UiLayer::Settings);
+        assert!(!developer_settings_visible(&ui, &mut state));
+        assert!(!state.expanded);
     }
 }
