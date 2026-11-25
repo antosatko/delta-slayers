@@ -201,7 +201,7 @@ mod minimap_tests {
         let east_facing = Dir3::new(Vec3::X).expect("valid direction");
 
         let north_right = minimap_position(Vec3::X * 10.0, north_facing);
-        let east_right = minimap_position(Vec3::NEG_Z * 10.0, east_facing);
+        let east_right = minimap_position(Vec3::Z * 10.0, east_facing);
 
         assert!(north_right.0 > 60.0);
         assert!(east_right.0 > 60.0);
