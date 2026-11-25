@@ -38,6 +38,7 @@ impl Plugin for GameplayPlugin {
             .init_resource::<zones::FastTravelRequest>()
             .init_resource::<inventory::InventoryModel>()
             .init_resource::<GameStartMode>()
+            .init_resource::<player::MovementTarget>()
             .add_systems(OnEnter(AppState::Loading), world::setup_game)
             .add_systems(
                 Update,
@@ -49,8 +50,10 @@ impl Plugin for GameplayPlugin {
                 Update,
                 (
                     player::adjust_camera.run_if(gameplay_input_enabled),
-                    player::player_move.run_if(gameplay_input_enabled),
+                    player::set_move_target_from_cursor.run_if(gameplay_input_enabled),
+                    player::move_player_to_target.run_if(gameplay_input_enabled),
                     player::follow_camera,
+                    player::draw_move_trajectory.run_if(gameplay_input_enabled),
                     player::sync_player_visual,
                     billboard::billboard_system,
                     zones::zone_detection_system.run_if(gameplay_input_enabled),
