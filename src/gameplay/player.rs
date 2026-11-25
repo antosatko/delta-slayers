@@ -48,8 +48,8 @@ impl Default for PlayerSettings {
             camera_pan_sensitivity: 0.0025,
             camera_zoom_sensitivity: 0.65,
             camera_pitch_sensitivity: 0.02,
-            camera_min_distance: 14.0,
-            camera_max_distance: 22.0,
+            camera_min_distance: CAMERA_MIN_DISTANCE,
+            camera_max_distance: CAMERA_MAX_DISTANCE,
             walk_speed: 5.0,
             sprint_speed: 8.0,
         }
@@ -577,15 +577,19 @@ pub(super) fn follow_camera_rotation(player_yaw: f32, pitch: f32) -> Quat {
 /// offset. Panning translates the camera and focus together without rotation.
 pub(super) fn follow_camera(
     player: Query<(&Transform, &Player)>,
-    mut camera: Query<(&mut Transform, &GameplayCamera), (With<GameplayCamera>, Without<Player>)>,
+    mut camera: Query<(&mut Transform, &mut GameplayCamera), (With<GameplayCamera>, Without<Player>)>,
+    settings: Res<PlayerSettings>,
 ) {
     let Ok((player_transform, player)) = player.single() else {
         return;
     };
-    let Ok((mut camera_transform, camera_settings)) = camera.single_mut() else {
+    let Ok((mut camera_transform, mut camera_settings)) = camera.single_mut() else {
         return;
     };
 
+    camera_settings.distance = camera_settings
+        .distance
+        .clamp(settings.camera_min_distance, settings.camera_max_distance);
     let target = player_transform.translation
         + Vec3::Y * CAMERA_TARGET_HEIGHT
         + camera_settings.pan_offset;
