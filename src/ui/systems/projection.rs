@@ -5,8 +5,8 @@ use bevy::{
 
 use crate::{
     gameplay::{
-        player::Player,
         exploration::NearbyExplorationPortal,
+        player::Player,
         zones::{NearbyZone, TriggerBox, VisitedZones, ZoneKind},
     },
     ui::{
