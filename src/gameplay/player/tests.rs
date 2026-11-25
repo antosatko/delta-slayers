@@ -240,37 +240,59 @@ fn middle_drag_pan_accumulates_from_existing_camera_position() {
         Vec3::Y,
         0.05,
     );
-    let second = camera_pan_offset_after_drag(
-        first,
-        Vec2::new(20.0, 0.0),
-        Vec3::X,
-        Vec3::Y,
-        0.05,
-    );
+    let second = camera_pan_offset_after_drag(first, Vec2::new(20.0, 0.0), Vec3::X, Vec3::Y, 0.05);
 
     assert!(second.abs_diff_eq(Vec3::ZERO, 1e-6));
 }
 
 #[test]
 fn scrolling_in_zooms_in_and_flattens_the_view() {
-    assert!(camera_distance_after_scroll(CAMERA_DISTANCE, 1.0, 0.65, CAMERA_MIN_DISTANCE, CAMERA_MAX_DISTANCE) < CAMERA_DISTANCE);
+    assert!(
+        camera_distance_after_scroll(
+            CAMERA_DISTANCE,
+            1.0,
+            0.65,
+            CAMERA_MIN_DISTANCE,
+            CAMERA_MAX_DISTANCE
+        ) < CAMERA_DISTANCE
+    );
     assert!(camera_pitch_after_scroll(CAMERA_DEFAULT_PITCH, 1.0, 0.02) > CAMERA_DEFAULT_PITCH);
 }
 
 #[test]
 fn scrolling_out_zooms_out_and_raises_the_view() {
-    assert!(camera_distance_after_scroll(CAMERA_DISTANCE, -1.0, 0.65, CAMERA_MIN_DISTANCE, CAMERA_MAX_DISTANCE) > CAMERA_DISTANCE);
+    assert!(
+        camera_distance_after_scroll(
+            CAMERA_DISTANCE,
+            -1.0,
+            0.65,
+            CAMERA_MIN_DISTANCE,
+            CAMERA_MAX_DISTANCE
+        ) > CAMERA_DISTANCE
+    );
     assert!(camera_pitch_after_scroll(CAMERA_DEFAULT_PITCH, -1.0, 0.02) < CAMERA_DEFAULT_PITCH);
 }
 
 #[test]
 fn camera_adjustments_stay_within_their_limits() {
     assert_eq!(
-        camera_distance_after_scroll(CAMERA_MIN_DISTANCE, 10.0, 0.65, CAMERA_MIN_DISTANCE, CAMERA_MAX_DISTANCE),
+        camera_distance_after_scroll(
+            CAMERA_MIN_DISTANCE,
+            10.0,
+            0.65,
+            CAMERA_MIN_DISTANCE,
+            CAMERA_MAX_DISTANCE
+        ),
         CAMERA_MIN_DISTANCE
     );
     assert_eq!(
-        camera_distance_after_scroll(CAMERA_MAX_DISTANCE, -10.0, 0.65, CAMERA_MIN_DISTANCE, CAMERA_MAX_DISTANCE),
+        camera_distance_after_scroll(
+            CAMERA_MAX_DISTANCE,
+            -10.0,
+            0.65,
+            CAMERA_MIN_DISTANCE,
+            CAMERA_MAX_DISTANCE
+        ),
         CAMERA_MAX_DISTANCE
     );
     assert_eq!(

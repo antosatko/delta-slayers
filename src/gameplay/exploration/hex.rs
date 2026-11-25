@@ -4,14 +4,8 @@ use super::ExplorationPortal;
 
 pub(super) const HEX_CORNER_COUNT: usize = 6;
 
-pub(super) const HEX_NEIGHBORS: [(i32, i32); 6] = [
-    (1, 0),
-    (1, -1),
-    (0, -1),
-    (-1, 0),
-    (-1, 1),
-    (0, 1),
-];
+pub(super) const HEX_NEIGHBORS: [(i32, i32); 6] =
+    [(1, 0), (1, -1), (0, -1), (-1, 0), (-1, 1), (0, 1)];
 
 pub(super) fn hex_layout_radius(config: ExplorationPortal) -> f32 {
     config.tile_size
@@ -49,4 +43,3 @@ pub(crate) fn world_to_axial(point: Vec2, size: f32) -> (i32, i32) {
     }
     (rx as i32, rz as i32)
 }
-

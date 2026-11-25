@@ -1,13 +1,9 @@
-use bevy::{
-    prelude::*,
-    ui::RelativeCursorPosition,
-    window::PrimaryWindow,
-};
+use bevy::{prelude::*, ui::RelativeCursorPosition, window::PrimaryWindow};
 
 use crate::ui::stack::UiStack;
 
-use super::{GameplayCamera, MovementBlocker, Player, PlayerSettings};
 use super::collision::{move_with_collisions, movement_collision_contact};
+use super::{GameplayCamera, MovementBlocker, Player, PlayerSettings};
 
 const MOVE_TARGET_HOLD_DELAY: f32 = 0.3;
 const MOVE_TARGET_REFRESH_INTERVAL: f32 = 0.1;
@@ -140,7 +136,11 @@ pub(in crate::gameplay) fn move_player_to_target(
     };
 
     let sprinting = input.pressed(KeyCode::ShiftLeft) || input.pressed(KeyCode::ShiftRight);
-    let speed = if sprinting { settings.sprint_speed } else { settings.walk_speed };
+    let speed = if sprinting {
+        settings.sprint_speed
+    } else {
+        settings.walk_speed
+    };
     let delta_secs = time.delta_secs();
     if !delta_secs.is_finite() || delta_secs <= 0.0 {
         return;
@@ -205,7 +205,10 @@ pub(in crate::gameplay) fn move_player_to_target(
 /// through a thin authored wall. Overlapping steps are corrected to the wall
 /// surface, preserving tangential movement so the player can slide along it.
 
-pub(in crate::gameplay) fn keyboard_movement_direction(input: &ButtonInput<KeyCode>, camera_forward: Vec3) -> Option<Vec3> {
+pub(in crate::gameplay) fn keyboard_movement_direction(
+    input: &ButtonInput<KeyCode>,
+    camera_forward: Vec3,
+) -> Option<Vec3> {
     let left = input.pressed(KeyCode::KeyA) || input.pressed(KeyCode::ArrowLeft);
     let right = input.pressed(KeyCode::KeyD) || input.pressed(KeyCode::ArrowRight);
     let forward = input.pressed(KeyCode::KeyW) || input.pressed(KeyCode::ArrowUp);
@@ -228,5 +231,3 @@ pub(in crate::gameplay) fn keyboard_movement_direction(input: &ButtonInput<KeyCo
 
     Some((right * local_direction.x - forward * local_direction.z).normalize())
 }
-
-

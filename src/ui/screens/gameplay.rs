@@ -27,11 +27,11 @@ use crate::{
     ui::{
         components::{
             DeveloperSettingsContentRoot, DeveloperSettingsPanelState, ExplorationDebugInfoText,
-            ExplorationDebugPanelRoot, ExplorationDebugPanelState, PlayerSettingControl, SettingsPanelRoot,
-            ExplorationParameterControl, ExplorationSetupRoot, ExplorationSetupTileCountText,
-            ExplorationSetupViewModel, FastTravelButton, FastTravelMenu, GameMenuModal,
-            MinimapExplorationDot, MinimapZoneDot, PanelRoot, PauseOverlay, PopupConfirmRequested,
-            PopupRoot,
+            ExplorationDebugPanelRoot, ExplorationDebugPanelState, ExplorationParameterControl,
+            ExplorationSetupRoot, ExplorationSetupTileCountText, ExplorationSetupViewModel,
+            FastTravelButton, FastTravelMenu, GameMenuModal, MinimapExplorationDot, MinimapZoneDot,
+            PanelRoot, PauseOverlay, PlayerSettingControl, PopupConfirmRequested, PopupRoot,
+            SettingsPanelRoot,
         },
         inventory::{CurrencyLabel, InventoryRoot},
         stack::{UiLayer, UiStack},
@@ -653,7 +653,6 @@ fn minimap() -> impl Scene {
     }
 }
 
-
 fn minimap_exploration_tiles() -> impl Scene {
     bsn! {
         Node {
@@ -1073,7 +1072,16 @@ fn player_settings_panel() -> impl Scene {
     }
 }
 
-fn player_setting_control(title: &'static str, description: &'static str, control: PlayerSettingControl, value: f32, min: f32, max: f32, step: f64, precision: i32) -> impl Scene {
+fn player_setting_control(
+    title: &'static str,
+    description: &'static str,
+    control: PlayerSettingControl,
+    value: f32,
+    min: f32,
+    max: f32,
+    step: f64,
+    precision: i32,
+) -> impl Scene {
     bsn! {
         Node { width: percent(100), min_width: px(0), flex_direction: FlexDirection::Row, flex_wrap: FlexWrap::Wrap, align_items: AlignItems::Center, column_gap: px(14), row_gap: px(6) }
         Children [
@@ -1092,15 +1100,33 @@ fn player_setting_control(title: &'static str, description: &'static str, contro
     }
 }
 
-fn player_setting_value_changed(event: On<ValueChange<f32>>, controls: Query<&PlayerSettingControl, With<FeathersNumberInput>>, mut settings: ResMut<crate::gameplay::player::PlayerSettings>) {
-    if !event.value.is_finite() { return; }
-    let Ok(control) = controls.get(event.source) else { return; };
+fn player_setting_value_changed(
+    event: On<ValueChange<f32>>,
+    controls: Query<&PlayerSettingControl, With<FeathersNumberInput>>,
+    mut settings: ResMut<crate::gameplay::player::PlayerSettings>,
+) {
+    if !event.value.is_finite() {
+        return;
+    }
+    let Ok(control) = controls.get(event.source) else {
+        return;
+    };
     match control {
-        PlayerSettingControl::PanSensitivity => settings.camera_pan_sensitivity = event.value.clamp(0.0002, 0.01),
-        PlayerSettingControl::ZoomSensitivity => settings.camera_zoom_sensitivity = event.value.clamp(0.1, 2.0),
-        PlayerSettingControl::PitchSensitivity => settings.camera_pitch_sensitivity = event.value.clamp(0.002, 0.08),
-        PlayerSettingControl::MinCameraDistance => settings.camera_min_distance = event.value.clamp(4.0, settings.camera_max_distance),
-        PlayerSettingControl::MaxCameraDistance => settings.camera_max_distance = event.value.clamp(settings.camera_min_distance, 60.0),
+        PlayerSettingControl::PanSensitivity => {
+            settings.camera_pan_sensitivity = event.value.clamp(0.0002, 0.01)
+        }
+        PlayerSettingControl::ZoomSensitivity => {
+            settings.camera_zoom_sensitivity = event.value.clamp(0.1, 2.0)
+        }
+        PlayerSettingControl::PitchSensitivity => {
+            settings.camera_pitch_sensitivity = event.value.clamp(0.002, 0.08)
+        }
+        PlayerSettingControl::MinCameraDistance => {
+            settings.camera_min_distance = event.value.clamp(4.0, settings.camera_max_distance)
+        }
+        PlayerSettingControl::MaxCameraDistance => {
+            settings.camera_max_distance = event.value.clamp(settings.camera_min_distance, 60.0)
+        }
         PlayerSettingControl::WalkSpeed => settings.walk_speed = event.value.clamp(1.0, 12.0),
         PlayerSettingControl::SprintSpeed => settings.sprint_speed = event.value.clamp(1.0, 20.0),
     }

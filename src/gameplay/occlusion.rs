@@ -1,12 +1,7 @@
-use bevy::{
-    camera::primitives::Aabb,
-    prelude::*,
-};
+use bevy::{camera::primitives::Aabb, prelude::*};
 use std::collections::HashSet;
 
-use crate::gameplay::player::{
-    GameplayCamera, Player, PLAYER_VISUAL_HEIGHT,
-};
+use crate::gameplay::player::{GameplayCamera, PLAYER_VISUAL_HEIGHT, Player};
 
 const DEFAULT_OCCLUDED_OPACITY: f32 = 0.35;
 const OCCLUSION_FADE_SPEED: f32 = 9.0;
@@ -33,7 +28,7 @@ impl Default for PlayerOccluder {
 /// Per-renderable material data. A private material copy prevents fading one
 /// tagged object from changing other meshes that share its imported material.
 #[derive(Component)]
-struct PlayerOccluderMaterialState {
+pub struct PlayerOccluderMaterialState {
     original_base_color: Color,
     original_alpha_mode: AlphaMode,
     opacity: f32,
@@ -48,11 +43,14 @@ pub(super) fn fade_occluding_objects(
     occluders: Query<(Entity, &PlayerOccluder)>,
     children: Query<&Children>,
     mesh_bounds: Query<(&GlobalTransform, &Aabb), With<Mesh3d>>,
-    mut renderables: Query<(
-        Entity,
-        &MeshMaterial3d<StandardMaterial>,
-        Option<&mut PlayerOccluderMaterialState>,
-    ), With<Mesh3d>>,
+    mut renderables: Query<
+        (
+            Entity,
+            &MeshMaterial3d<StandardMaterial>,
+            Option<&mut PlayerOccluderMaterialState>,
+        ),
+        With<Mesh3d>,
+    >,
     mut materials: ResMut<Assets<StandardMaterial>>,
     time: Res<Time>,
 ) {
@@ -120,7 +118,7 @@ pub(super) fn fade_occluding_objects(
                     state.opacity = target_opacity;
                 }
 
-                let Some(material) = materials.get_mut(&material_handle.0) else {
+                let Some(mut material) = materials.get_mut(&material_handle.0) else {
                     continue;
                 };
                 material.base_color = state

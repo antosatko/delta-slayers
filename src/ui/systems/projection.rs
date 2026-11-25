@@ -18,10 +18,10 @@ use crate::{
     ui::{
         components::{
             DeveloperSettingsContentRoot, DeveloperSettingsPanelState, ExplorationDebugInfoText,
-            ExplorationDebugPanelRoot, ExplorationDebugPanelState, PlayerSettingControl, SettingsPanelRoot,
-            ExplorationParameterControl, ExplorationSetupRoot, ExplorationSetupTileCountText,
-            ExplorationSetupViewModel, FastTravelButton, FastTravelMenu, GameMenuModal,
-            MinimapExplorationDot, MinimapZoneDot, PanelRoot, PauseOverlay, PopupRoot,
+            ExplorationDebugPanelRoot, ExplorationDebugPanelState, ExplorationParameterControl,
+            ExplorationSetupRoot, ExplorationSetupTileCountText, ExplorationSetupViewModel,
+            FastTravelButton, FastTravelMenu, GameMenuModal, MinimapExplorationDot, MinimapZoneDot,
+            PanelRoot, PauseOverlay, PlayerSettingControl, PopupRoot, SettingsPanelRoot,
         },
         inventory::InventoryRoot,
         stack::UiStack,
@@ -230,20 +230,40 @@ pub fn game_menu_visibility_system(
     }
 }
 
-pub fn settings_panel_visibility_system(ui: Res<UiStack>, mut roots: Query<&mut Visibility, With<SettingsPanelRoot>>) {
+pub fn settings_panel_visibility_system(
+    ui: Res<UiStack>,
+    mut roots: Query<&mut Visibility, With<SettingsPanelRoot>>,
+) {
     for mut visibility in &mut roots {
-        *visibility = if ui.contains(crate::ui::stack::UiLayer::Settings) { Visibility::Visible } else { Visibility::Hidden };
+        *visibility = if ui.contains(crate::ui::stack::UiLayer::Settings) {
+            Visibility::Visible
+        } else {
+            Visibility::Hidden
+        };
     }
 }
 
-pub fn developer_settings_projection(state: Res<DeveloperSettingsPanelState>, mut content: Query<&mut Visibility, With<DeveloperSettingsContentRoot>>) {
+pub fn developer_settings_projection(
+    state: Res<DeveloperSettingsPanelState>,
+    mut content: Query<&mut Visibility, With<DeveloperSettingsContentRoot>>,
+) {
     for mut visibility in &mut content {
-        *visibility = if state.expanded { Visibility::Visible } else { Visibility::Hidden };
+        *visibility = if state.expanded {
+            Visibility::Visible
+        } else {
+            Visibility::Hidden
+        };
     }
 }
 
-pub fn player_settings_projection(settings: Res<PlayerSettings>, controls: Query<(Entity, &PlayerSettingControl, &NumberInputValue), With<FeathersNumberInput>>, mut commands: Commands) {
-    if !settings.is_changed() { return; }
+pub fn player_settings_projection(
+    settings: Res<PlayerSettings>,
+    controls: Query<(Entity, &PlayerSettingControl, &NumberInputValue), With<FeathersNumberInput>>,
+    mut commands: Commands,
+) {
+    if !settings.is_changed() {
+        return;
+    }
     for (entity, control, current) in &controls {
         let value = match control {
             PlayerSettingControl::PanSensitivity => settings.camera_pan_sensitivity,
@@ -255,7 +275,9 @@ pub fn player_settings_projection(settings: Res<PlayerSettings>, controls: Query
             PlayerSettingControl::SprintSpeed => settings.sprint_speed,
         };
         let next = NumberInputValue::F32(value);
-        if *current != next { commands.entity(entity).insert(next); }
+        if *current != next {
+            commands.entity(entity).insert(next);
+        }
     }
 }
 pub fn pause_overlay_visibility_system(
@@ -353,11 +375,7 @@ pub fn update_minimap(
         };
 
         let center = hex_center(coordinates.0, coordinates.1, map.config.tile_size);
-        let relative = Vec3::new(
-            center.x - local_player.x,
-            0.0,
-            center.y - local_player.z,
-        );
+        let relative = Vec3::new(center.x - local_player.x, 0.0, center.y - local_player.z);
         let (x, y) = minimap_position_with_scale(relative, *player_transform.forward(), 1.55);
 
         let marker_center = Vec2::new(x + 3.0, y + 3.0);
@@ -388,11 +406,7 @@ fn minimap_position(relative: Vec3, player_forward: Vec3) -> (f32, f32) {
     minimap_position_with_scale(relative, player_forward, 3.0)
 }
 
-fn minimap_position_with_scale(
-    relative: Vec3,
-    player_forward: Vec3,
-    scale: f32,
-) -> (f32, f32) {
+fn minimap_position_with_scale(relative: Vec3, player_forward: Vec3, scale: f32) -> (f32, f32) {
     let mut forward = player_forward;
     forward.y = 0.0;
     if forward.length_squared() < 1e-6 {

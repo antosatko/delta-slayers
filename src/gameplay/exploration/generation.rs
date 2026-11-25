@@ -6,11 +6,9 @@ use std::collections::{HashMap, HashSet, VecDeque};
 
 use crate::gameplay::player::MovementBlocker;
 
-use super::{
-    Biome, ExplorationPortal, ExplorationReturnPortal, ExplorationTile, UnreachableTile,
-};
-use super::hex::{hex_center, hex_corner, hex_layout_radius, HEX_CORNER_COUNT, HEX_NEIGHBORS};
+use super::hex::{HEX_CORNER_COUNT, HEX_NEIGHBORS, hex_center, hex_corner, hex_layout_radius};
 use super::terrain::{biome_at, cell_random, terrain_height, terrain_surface_height};
+use super::{Biome, ExplorationPortal, ExplorationReturnPortal, ExplorationTile, UnreachableTile};
 
 const TILE_MODEL_SOURCE_RADIUS: f32 = 5.0;
 
@@ -270,11 +268,7 @@ fn spawn_boundary_walls(
             }
 
             let a = hex_corner(tile.center, config.tile_size, side);
-            let b = hex_corner(
-                tile.center,
-                config.tile_size,
-                (side + 1) % HEX_CORNER_COUNT,
-            );
+            let b = hex_corner(tile.center, config.tile_size, (side + 1) % HEX_CORNER_COUNT);
             let midpoint = (a + b) * 0.5;
             let edge = b - a;
             let yaw = edge.x.atan2(edge.y);
@@ -293,5 +287,3 @@ fn spawn_boundary_walls(
         }
     }
 }
-
-

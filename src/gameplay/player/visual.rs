@@ -21,4 +21,3 @@ pub(in crate::gameplay) fn sync_player_visual(
 
     visual_transform.translation = player_transform.translation + Vec3::Y * PLAYER_VISUAL_HEIGHT;
 }
-

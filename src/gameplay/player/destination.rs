@@ -1,13 +1,10 @@
-use bevy::{
-    gizmos::config::GizmoConfigGroup,
-    prelude::*,
-};
+use bevy::{gizmos::config::GizmoConfigGroup, prelude::*};
 
 use super::{MovementTarget, Player};
 
 /// Dedicated depth configuration so path indicators can render through scene geometry.
 #[derive(Default, Reflect)]
-pub(super) struct TrajectoryGizmoConfigGroup;
+pub struct TrajectoryGizmoConfigGroup;
 
 impl GizmoConfigGroup for TrajectoryGizmoConfigGroup {}
 
@@ -85,5 +82,3 @@ pub(in crate::gameplay) fn draw_move_trajectory(
 pub(in crate::gameplay) fn trajectory_arrow_phase(elapsed_secs: f32) -> f32 {
     (elapsed_secs * TRAJECTORY_ARROW_SPEED).rem_euclid(TRAJECTORY_ARROW_SPACING)
 }
-
-

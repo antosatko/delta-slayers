@@ -127,4 +127,3 @@ pub(in crate::gameplay) fn movement_collision_contact(
         penetration,
     })
 }
-

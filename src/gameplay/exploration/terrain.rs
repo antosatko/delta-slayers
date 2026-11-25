@@ -2,11 +2,11 @@ use bevy::prelude::*;
 
 use crate::gameplay::{
     npc::Npc,
-    player::{Player, PLAYER_VISUAL_HEIGHT},
+    player::{PLAYER_VISUAL_HEIGHT, Player},
 };
 
-use super::{ActiveExplorationMap, Biome, ExplorationPortal};
 use super::hex::{hex_center, hex_layout_radius};
+use super::{ActiveExplorationMap, Biome, ExplorationPortal};
 
 const TERRAIN_OCTAVES: usize = 4;
 
@@ -159,4 +159,3 @@ fn smoothstep(value: f32) -> f32 {
 fn lerp(a: f32, b: f32, t: f32) -> f32 {
     a + (b - a) * t
 }
-

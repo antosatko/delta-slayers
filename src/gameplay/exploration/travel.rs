@@ -1,8 +1,4 @@
-use bevy::{
-    gltf::GltfAssetLabel,
-    prelude::*,
-    world_serialization::WorldAsset,
-};
+use bevy::{gltf::GltfAssetLabel, prelude::*, world_serialization::WorldAsset};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::{
@@ -13,14 +9,14 @@ use crate::{
     },
 };
 
+use super::generation::{ExplorationMapRoot, spawn_map_geometry};
+use super::hex::{hex_center, hex_layout_radius};
+use super::terrain::terrain_surface_height;
 use super::{
     ActiveExplorationMap, ActiveMapData, ExplorationPortal, ExplorationReturnPortal,
     ExplorationSession, ExplorationTravelRequest, NearbyExplorationPortal, PortalAction,
     TravelAnchor,
 };
-use super::generation::{spawn_map_geometry, ExplorationMapRoot};
-use super::hex::{hex_center, hex_layout_radius};
-use super::terrain::terrain_surface_height;
 
 const MAP_WORLD_OFFSET: f32 = 512.0;
 
@@ -171,4 +167,3 @@ pub(crate) fn generate_seed() -> u64 {
         .map(|duration| duration.as_nanos() as u64)
         .unwrap_or(0xD37A_51A7_0B5E_ED01)
 }
-

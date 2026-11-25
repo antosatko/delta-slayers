@@ -93,8 +93,7 @@ fn terrain_height_uses_smoothstep_between_adjacent_tiles() {
     assert_ne!(first_height, second_height);
     assert!((terrain_surface_height(config, 1234, first) - first_height).abs() < 1e-5);
     assert!(
-        (terrain_surface_height(config, 1234, midpoint)
-            - (first_height + second_height) * 0.5)
+        (terrain_surface_height(config, 1234, midpoint) - (first_height + second_height) * 0.5)
             .abs()
             < 1e-4
     );
@@ -103,21 +102,30 @@ fn terrain_height_uses_smoothstep_between_adjacent_tiles() {
 #[test]
 fn reachability_stops_at_transitions_above_the_jump_limit() {
     let tiles = HashMap::from([
-        ((0, 0), GeneratedTile {
-            center: Vec2::ZERO,
-            height: 0.0,
-            biome: Biome::Grassland,
-        }),
-        ((1, 0), GeneratedTile {
-            center: Vec2::X,
-            height: 0.75,
-            biome: Biome::Grassland,
-        }),
-        ((2, 0), GeneratedTile {
-            center: Vec2::X * 2.0,
-            height: 2.0,
-            biome: Biome::Highlands,
-        }),
+        (
+            (0, 0),
+            GeneratedTile {
+                center: Vec2::ZERO,
+                height: 0.0,
+                biome: Biome::Grassland,
+            },
+        ),
+        (
+            (1, 0),
+            GeneratedTile {
+                center: Vec2::X,
+                height: 0.75,
+                biome: Biome::Grassland,
+            },
+        ),
+        (
+            (2, 0),
+            GeneratedTile {
+                center: Vec2::X * 2.0,
+                height: 2.0,
+                biome: Biome::Highlands,
+            },
+        ),
     ]);
 
     let reachable = reachable_tiles(&tiles, (0, 0), 1.0);

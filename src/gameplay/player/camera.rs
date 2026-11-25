@@ -72,18 +72,25 @@ pub(in crate::gameplay) fn adjust_camera(
     }
 
     if let Ok(mut player) = player.single_mut() {
-        player.pitch = camera_pitch_after_scroll(
-            player.pitch,
-            scroll,
-            settings.camera_pitch_sensitivity,
-        );
+        player.pitch =
+            camera_pitch_after_scroll(player.pitch, scroll, settings.camera_pitch_sensitivity);
     }
     if let Ok(mut camera) = camera.single_mut() {
-        camera.distance = camera_distance_after_scroll(camera.distance, scroll, settings.camera_zoom_sensitivity, settings.camera_min_distance, settings.camera_max_distance);
+        camera.distance = camera_distance_after_scroll(
+            camera.distance,
+            scroll,
+            settings.camera_zoom_sensitivity,
+            settings.camera_min_distance,
+            settings.camera_max_distance,
+        );
     }
 }
 
-pub(in crate::gameplay) fn camera_pitch_after_scroll(pitch: f32, scroll: f32, sensitivity: f32) -> f32 {
+pub(in crate::gameplay) fn camera_pitch_after_scroll(
+    pitch: f32,
+    scroll: f32,
+    sensitivity: f32,
+) -> f32 {
     (pitch + scroll * sensitivity).clamp(CAMERA_MIN_PITCH, CAMERA_MAX_PITCH)
 }
 
@@ -134,7 +141,10 @@ pub(in crate::gameplay) fn follow_camera_rotation(player_yaw: f32, pitch: f32) -
 /// offset. Panning translates the camera and focus together without rotation.
 pub(in crate::gameplay) fn follow_camera(
     player: Query<(&Transform, &Player)>,
-    mut camera: Query<(&mut Transform, &mut GameplayCamera), (With<GameplayCamera>, Without<Player>)>,
+    mut camera: Query<
+        (&mut Transform, &mut GameplayCamera),
+        (With<GameplayCamera>, Without<Player>),
+    >,
     settings: Res<PlayerSettings>,
 ) {
     let Ok((player_transform, player)) = player.single() else {
@@ -147,13 +157,10 @@ pub(in crate::gameplay) fn follow_camera(
     camera_settings.distance = camera_settings
         .distance
         .clamp(settings.camera_min_distance, settings.camera_max_distance);
-    let target = player_transform.translation
-        + Vec3::Y * CAMERA_TARGET_HEIGHT
-        + camera_settings.pan_offset;
+    let target =
+        player_transform.translation + Vec3::Y * CAMERA_TARGET_HEIGHT + camera_settings.pan_offset;
     let orientation = follow_camera_rotation(player.yaw, player.pitch);
     let forward = orientation * Vec3::NEG_Z;
     camera_transform.translation = target - forward * camera_settings.distance;
     camera_transform.look_at(target, Vec3::Y);
 }
-
-
