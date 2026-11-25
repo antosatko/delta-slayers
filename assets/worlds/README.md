@@ -54,8 +54,8 @@ define the interaction volume, using the same local -1 to 1 bounds as
 `TriggerBox`. Place the cube around the player's upper body; for a ground-level
 portal, a cube centered about 1 unit above the ground with its default 1-unit
 half-height will contain the 1.7-unit interaction probe. Enter the volume and
-press **E** to generate and enter a procedural exploration map. The generated map is placed in a separate world
-area while the town remains loaded. A return beacon is created near the map's
+press **E** to generate and enter a procedural exploration map. The generated
+map is placed in a separate world area while the town remains loaded. A return beacon is created near the map's
 center; enter its volume and press **E** to return to the town.
 
 The portal exposes these settings:
@@ -74,9 +74,9 @@ Values outside the runtime ranges are clamped. For a reproducible test map,
 set a seed explicitly; leave it empty when each visit should be different.
 The generated terrain has grassland, woodland, dryland, and highland regions,
 with procedural height variation, subtle per-hex color variation, sparse trees
-and rocks, and a movement-blocked outer boundary. The map is a first exploration prototype: it does not yet
-persist its discovered state or add resource gathering, ecology simulation, or
-NPC populations.
+and rocks, and a movement-blocked outer boundary. The map is a first
+exploration prototype: it does not yet persist its discovered state or add
+resource gathering, ecology simulation, or NPC populations.
 
 ### Invisible movement walls
 
