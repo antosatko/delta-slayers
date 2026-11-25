@@ -100,8 +100,9 @@ Current authored components:
   marker is independent, its transform supplies placement, and its capacity
   is the largest object rank allowed at that point.
 - `SpawnableObject`: marks a root object in a biome-specific or shared general
-  objects collection as a spawnable prototype. Its size rank and rarity control
-  capacity consumption and weighted selection; it has no interaction behavior.
+  objects collection as a spawnable prototype. Its size rank determines which
+  authored spawn points may select it, and its rarity controls weighted
+  selection; it has no interaction behavior.
 - `Billboard`: camera-facing behavior for flat world objects. The player uses
   the existing full-body character image on an unlit, transparent 3D quad.
 - `PlayerOccluder`: opt-in transparency for Blender-authored objects that cross the camera-to-player line of sight. The component applies to descendant meshes, each of which receives a private material copy while its opacity fades down and back up.
