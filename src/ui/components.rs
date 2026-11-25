@@ -78,3 +78,24 @@ pub(super) struct ExplorationSetupRoot;
 
 #[derive(Component, Default, Clone, Copy)]
 pub(super) struct ExplorationSetupTileCountText;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn exploration_settings_reset_to_the_authored_portal_values() {
+        let mut view_model = ExplorationSetupViewModel::default();
+        let mut authored = ExplorationPortal::default();
+        authored.radius = 18;
+        authored.seed = Some(42);
+        view_model.open(authored);
+
+        view_model.config.radius = 32;
+        view_model.config.seed = Some(123);
+        view_model.reset();
+
+        assert_eq!(view_model.config.radius, 18);
+        assert_eq!(view_model.config.seed, Some(42));
+    }
+}
