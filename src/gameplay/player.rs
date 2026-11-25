@@ -192,7 +192,7 @@ pub(super) fn move_player_to_target(
     input: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
 ) {
-    let Ok((mut transform, mut player)) = player.single_mut() else {
+    let Ok((mut transform, player)) = player.single_mut() else {
         target.clear();
         return;
     };
