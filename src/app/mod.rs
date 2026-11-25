@@ -1,6 +1,10 @@
 pub mod state;
 
-use bevy::{prelude::*, window::PrimaryWindow};
+use bevy::{
+    feathers::{dark_theme::create_dark_theme, theme::UiTheme, FeathersPlugins},
+    prelude::*,
+    window::PrimaryWindow,
+};
 use bevy_skein::SkeinPlugin;
 use delta_slayers_ui::CarbonPlugin;
 
@@ -19,7 +23,8 @@ pub fn run() {
             ..default()
         })
         .init_state::<state::AppState>()
-        .add_plugins((CarbonPlugin, UiPlugin, GameplayPlugin))
+        .insert_resource(UiTheme(create_dark_theme()))
+        .add_plugins((FeathersPlugins, CarbonPlugin, UiPlugin, GameplayPlugin))
         .run();
 }
 
