@@ -94,12 +94,13 @@ Current authored components:
 The player entity stores its position on the ground. Zone detection uses a
 separate 1.7-unit interaction probe so existing Blender trigger volumes retain
 their previous behavior. A separate perspective camera follows above and
-behind the player from an orbitable heading, initially offset from the player's
+behind the player from a fixed heading, initially offset from the player's
 facing direction so the camera reveals the sides of world models. Holding the
-middle mouse button and dragging orbits the camera horizontally and vertically
-without changing the player's heading; dragging over UI does not orbit the
-camera. The wheel adjusts follow distance and vertical viewing angle. The mouse
-cursor remains visible and ungrabbed during gameplay.
+middle mouse button and dragging pans the camera and its focus together across
+the scene without rotating the view or changing the player's heading; dragging
+over UI does not pan the camera. The pan offset follows the player until the
+next gameplay session. The wheel adjusts follow distance and vertical viewing
+angle. The mouse cursor remains visible and ungrabbed during gameplay.
 Left-clicking the ground sets a movement destination; the player walks toward
 it continuously, and animated 3D arrows slowly travel along the remaining
 trajectory. Holding the left button for 300 ms starts periodic destination
