@@ -75,6 +75,7 @@ impl Plugin for GameplayPlugin {
                     player::adjust_camera.run_if(camera_input_enabled),
                     player::move_player_to_target.run_if(gameplay_simulation_enabled),
                     npc::chase_player.run_if(gameplay_simulation_enabled),
+                    exploration::apply_tile_materials,
                     exploration::sync_ground_height,
                     player::follow_camera,
                     player::draw_move_trajectory.run_if(gameplay_simulation_enabled),
