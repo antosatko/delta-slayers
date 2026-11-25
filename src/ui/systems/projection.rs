@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use bevy::{
     feathers::controls::{FeathersNumberInput, NumberInputValue},
     prelude::*,
@@ -6,7 +8,10 @@ use bevy::{
 
 use crate::{
     gameplay::{
-        exploration::{ActiveExplorationMap, NearbyExplorationPortal},
+        exploration::{
+            ActiveExplorationMap, Biome, ExplorationTile, NearbyExplorationPortal, UnreachableTile,
+            hex_center, world_to_axial,
+        },
         player::Player,
         zones::{NearbyZone, TriggerBox, VisitedZones},
     },
@@ -15,7 +20,7 @@ use crate::{
             ExplorationDebugInfoText, ExplorationDebugPanelRoot, ExplorationDebugPanelState,
             ExplorationParameterControl, ExplorationSetupRoot, ExplorationSetupTileCountText,
             ExplorationSetupViewModel, FastTravelButton, FastTravelMenu, GameMenuModal,
-            MinimapZoneDot, PanelRoot, PauseOverlay, PopupRoot,
+            MinimapExplorationDot, MinimapZoneDot, PanelRoot, PauseOverlay, PopupRoot,
         },
         inventory::InventoryRoot,
         stack::UiStack,
@@ -102,15 +107,15 @@ pub fn exploration_debug_panel_projection(
             let config = map.config;
             let tile_count = 1 + 3 * config.radius * (config.radius + 1);
             let details = format!(
-                "Seed: {}\nHex radius: {} ({} tiles)\nTile radius: {:.2} m\nHeight multiplier: {:.2}\nTerrain frequency: {:.3}\nBiome scale: {:.3}\nVegetation density: {:.0}%",
+                "Seed: {}\nHex radius: {} ({} tiles)\nTile radius: {:.2} m\nHeight multiplier: {:.2}\nMaximum jump: {:.2} m\nTerrain frequency: {:.3}\nBiome scale: {:.3}",
                 map.seed,
                 config.radius,
                 tile_count,
                 config.tile_size,
                 config.height_multiplier,
+                config.max_jump_height,
                 config.terrain_frequency,
                 config.biome_scale,
-                config.vegetation_density * 100.0,
             );
 
             for mut label in &mut labels {
@@ -187,8 +192,8 @@ pub fn exploration_setup_projection(
                 NumberInputValue::F32(config.terrain_frequency)
             }
             ExplorationParameterControl::BiomeScale => NumberInputValue::F32(config.biome_scale),
-            ExplorationParameterControl::VegetationDensity => {
-                NumberInputValue::F32(config.vegetation_density * 100.0)
+            ExplorationParameterControl::MaxJumpHeight => {
+                NumberInputValue::F32(config.max_jump_height)
             }
         };
 
@@ -245,15 +250,32 @@ pub fn sync_cursor(mut cursor: Single<&mut CursorOptions, With<PrimaryWindow>>) 
 pub fn update_minimap(
     player: Query<&Transform, With<Player>>,
     zones: Query<(&GlobalTransform, &TriggerBox)>,
-    mut dots: Query<(&MinimapZoneDot, &mut Node, &mut Visibility)>,
+    active_map: Res<ActiveExplorationMap>,
+    exploration_tiles: Query<(&ExplorationTile, Has<UnreachableTile>)>,
+    mut town_dots: Query<(&MinimapZoneDot, &mut Node, &mut Visibility)>,
+    mut exploration_dots: Query<(
+        &MinimapExplorationDot,
+        &mut Node,
+        &mut Visibility,
+        &mut BackgroundColor,
+    )>,
 ) {
     let Ok(player_transform) = player.single() else {
+        for (_, _, mut visibility, _) in &mut exploration_dots {
+            *visibility = Visibility::Hidden;
+        }
         return;
     };
 
     let player_position = player_transform.translation;
+    let map = active_map.0;
 
-    for (dot, mut node, mut visibility) in &mut dots {
+    for (dot, mut node, mut visibility) in &mut town_dots {
+        if map.is_some() {
+            *visibility = Visibility::Hidden;
+            continue;
+        }
+
         let Some((transform, _)) = zones.iter().find(|(_, zone)| zone.kind == dot.0) else {
             *visibility = Visibility::Hidden;
             continue;
@@ -270,6 +292,57 @@ pub fn update_minimap(
             node.top = px(y);
         }
     }
+
+    let Some(map) = map else {
+        for (_, _, mut visibility, _) in &mut exploration_dots {
+            *visibility = Visibility::Hidden;
+        }
+        return;
+    };
+
+    let local_player = player_position - map.origin;
+    let (center_q, center_r) = world_to_axial(
+        Vec2::new(local_player.x, local_player.z),
+        map.config.tile_size,
+    );
+    let tile_index: HashMap<(i32, i32), (Biome, bool)> = exploration_tiles
+        .iter()
+        .map(|(tile, unreachable)| ((tile.q, tile.r), (tile.biome, unreachable)))
+        .collect();
+
+    for (dot, mut node, mut visibility, mut background) in &mut exploration_dots {
+        let coordinates = (center_q + dot.q_offset, center_r + dot.r_offset);
+        let Some((biome, unreachable)) = tile_index.get(&coordinates) else {
+            *visibility = Visibility::Hidden;
+            continue;
+        };
+
+        let center = hex_center(coordinates.0, coordinates.1, map.config.tile_size);
+        let relative = Vec3::new(
+            center.x - local_player.x,
+            0.0,
+            center.y - local_player.z,
+        );
+        let (x, y) = minimap_position_with_scale(relative, *player_transform.forward(), 1.55);
+
+        let marker_center = Vec2::new(x + 3.0, y + 3.0);
+        if !(0.0..=114.0).contains(&x)
+            || !(0.0..=114.0).contains(&y)
+            || marker_center.distance(Vec2::splat(60.0)) > 53.0
+        {
+            *visibility = Visibility::Hidden;
+            continue;
+        }
+
+        *visibility = Visibility::Visible;
+        node.left = px(x);
+        node.top = px(y);
+        *background = BackgroundColor(if *unreachable {
+            Color::srgb(0.82, 0.18, 0.16)
+        } else {
+            biome.minimap_color()
+        });
+    }
 }
 
 /// Projects a world-space offset into a player-oriented minimap.
@@ -277,6 +350,14 @@ pub fn update_minimap(
 /// The player's horizontal forward direction always points toward the top
 /// edge of the map; the right vector defines its horizontal axis.
 fn minimap_position(relative: Vec3, player_forward: Vec3) -> (f32, f32) {
+    minimap_position_with_scale(relative, player_forward, 3.0)
+}
+
+fn minimap_position_with_scale(
+    relative: Vec3,
+    player_forward: Vec3,
+    scale: f32,
+) -> (f32, f32) {
     let mut forward = player_forward;
     forward.y = 0.0;
     if forward.length_squared() < 1e-6 {
@@ -286,8 +367,8 @@ fn minimap_position(relative: Vec3, player_forward: Vec3) -> (f32, f32) {
     }
 
     let right = forward.cross(Vec3::Y).normalize();
-    let map_x = 60.0 + relative.dot(right) * 3.0 - 3.0;
-    let map_y = 60.0 - relative.dot(forward) * 3.0 - 3.0;
+    let map_x = 60.0 + relative.dot(right) * scale - 3.0;
+    let map_y = 60.0 - relative.dot(forward) * scale - 3.0;
     (map_x, map_y)
 }
 
