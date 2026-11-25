@@ -6,7 +6,6 @@ mod spawning;
 mod systems;
 mod world;
 
-pub use billboard::SquashOnMove;
 pub mod inventory;
 pub mod player;
 pub mod zones;
