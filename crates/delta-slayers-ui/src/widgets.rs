@@ -1,4 +1,5 @@
 use bevy::{
+    app::Propagate,
     feathers::{
         controls::{ButtonVariant, FeathersButton},
         display::caption,
@@ -111,7 +112,7 @@ pub fn panel(width: Val) -> impl Scene {
             border_radius: BorderRadius::all(px(8)),
         }
         ThemeBackgroundColor(tokens::PANE_BODY_BG)
-        ThemeContext(SurfaceLevel::Higher)
+        Propagate::<ThemeContext>(ThemeContext(SurfaceLevel::Higher))
     }
 }
 
