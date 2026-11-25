@@ -30,7 +30,7 @@ pub(super) fn setup_game(
     mut movement_target: ResMut<player::MovementTarget>,
 ) {
     nearby.0 = None;
-    movement_target.0 = None;
+    movement_target.clear();
     ui_state.reset();
     request.0 = None;
 
