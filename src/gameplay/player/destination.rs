@@ -10,7 +10,9 @@ pub(super) const TRAJECTORY_ARROW_SPEED: f32 = 0.85;
 pub(super) const DESTINATION_RING_RADIUS: f32 = 0.48;
 pub(super) const DESTINATION_BEACON_HEIGHT: f32 = 0.72;
 
-pub(super) fn draw_move_trajectory(
+/// Draws a sequence of small 3D arrows from the player to the selected
+/// destination. The path follows the character as it moves.
+pub(super) fn draw_move_trajectory
     mut gizmos: Gizmos,
     player: Query<&Transform, With<Player>>,
     target: Res<MovementTarget>,
@@ -71,10 +73,8 @@ pub(super) fn draw_move_trajectory(
     );
 }
 
-fn trajectory_arrow_phase(elapsed_secs: f32) -> f32 {
+pub(super) fn trajectory_arrow_phase(elapsed_secs: f32) -> f32 {
     (elapsed_secs * TRAJECTORY_ARROW_SPEED).rem_euclid(TRAJECTORY_ARROW_SPACING)
 }
 
-/// Converts a pitch stored by the previous camera setup to the new, slightly
-/// shallower default while preserving the saved zoom adjustment.
 

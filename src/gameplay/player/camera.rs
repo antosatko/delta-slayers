@@ -105,9 +105,8 @@ pub(super) fn camera_distance_after_scroll(distance: f32, scroll: f32, sensitivi
     (distance - scroll * sensitivity).clamp(min, max)
 }
 
-/// A quick click sets one destination. Holding the button for a short
-/// delay switches to periodic retargeting from the current cursor position.
-
+/// Converts a pitch stored by the previous camera setup to the new, slightly
+/// shallower default while preserving the saved zoom adjustment.
 pub(super) fn migrate_saved_camera_pitch(pitch: f32) -> f32 {
     (pitch + CAMERA_PITCH_SAVE_ADJUSTMENT).clamp(CAMERA_MIN_PITCH, CAMERA_MAX_PITCH)
 }
@@ -149,5 +148,4 @@ pub(super) fn follow_camera(
     camera_transform.look_at(target, Vec3::Y);
 }
 
-/// Projects the player's ground position to the separate billboard entity.
 

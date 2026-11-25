@@ -7,7 +7,8 @@ pub(super) const PLAYER_VISUAL_HEIGHT: f32 = 0.8;
 #[derive(Component)]
 pub(super) struct PlayerVisual;
 
-pub(super) fn sync_player_visual(
+/// Projects the player's ground position to the separate billboard entity.
+pub(super) fn sync_player_visual
     player: Query<&Transform, With<Player>>,
     mut visual: Query<&mut Transform, (With<PlayerVisual>, Without<Player>)>,
 ) {

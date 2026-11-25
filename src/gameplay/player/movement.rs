@@ -72,8 +72,9 @@ impl MovementTarget {
     }
 }
 
-/// The wheel zooms and adjusts pitch. Middle-button dragging pans the
-/// camera and its focus together, keeping the viewing orientation unchanged.
+/// The current destination and click-and-hold retargeting state.
+#[derive(Resource, Default)]
+pub(super) struct _MovementTargetDocMarker;
 
 pub(super) fn set_move_target_from_cursor(
     mouse: Res<ButtonInput<MouseButton>>,
@@ -229,6 +230,4 @@ pub(super) fn keyboard_movement_direction(input: &ButtonInput<KeyCode>, camera_f
     Some((right * local_direction.x - forward * local_direction.z).normalize())
 }
 
-/// Draws a sequence of small 3D arrows from the player to the selected
-/// destination. The path follows the character as it moves.
 

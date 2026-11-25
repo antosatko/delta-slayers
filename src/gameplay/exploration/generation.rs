@@ -2,17 +2,24 @@ use bevy::{
     prelude::*,
     world_serialization::{WorldAsset, WorldAssetRoot},
 };
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap, HashSet, VecDeque};
 
 use crate::gameplay::player::MovementBlocker;
 
 use super::{
     Biome, ExplorationPortal, ExplorationReturnPortal, ExplorationTile, UnreachableTile,
 };
-use super::hex::{hex_corner, hex_layout_radius, HEX_CORNER_COUNT};
+use super::hex::{hex_center, hex_corner, hex_layout_radius, HEX_CORNER_COUNT, HEX_NEIGHBORS};
 use super::terrain::{biome_at, cell_random, terrain_height, terrain_surface_height};
 
 const TILE_MODEL_SOURCE_RADIUS: f32 = 5.0;
+
+#[derive(Clone, Copy)]
+pub(super) struct GeneratedTile {
+    pub(super) center: Vec2,
+    pub(super) height: f32,
+    pub(super) biome: Biome,
+}
 
 #[derive(Component)]
 pub(super) struct ExplorationMapRoot;
@@ -287,6 +294,4 @@ fn spawn_boundary_walls(
     }
 }
 
-/// Keeps the player and Godo on the smoothstep-interpolated terrain surface.
-/// The player transform remains the ground-position authority.
 
