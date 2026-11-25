@@ -3,6 +3,7 @@ use bevy::{
         controls::{ButtonVariant, FeathersButton},
         display::caption,
         theme::{SurfaceLevel, ThemeBackgroundColor, ThemeContext},
+        tokens,
     },
     picking::hover::Hovered,
     prelude::*,
@@ -12,7 +13,6 @@ use bevy::{
 use crate::{
     CarbonButtonTone, CarbonSelection, CarbonStatus, CarbonTheme,
     theme::{CarbonButtonStyle, CarbonHoverCard, CarbonHoverDelay, CarbonTab},
-    tokens,
 };
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -249,34 +249,13 @@ pub fn screen_tabs() -> impl Scene {
 /// A tab label for the second row below a page title. Attach the screen's
 /// navigation observer to this scene at the call site.
 pub fn screen_tab(label: &'static str, selected: bool) -> impl Scene {
+    let variant = ButtonVariant::selected(selected);
     bsn! {
-        Button
-        Hovered(false)
-        CarbonTab { selected }
-        CarbonButtonStyle { tone: CarbonButtonTone::Ghost, selected: false }
-        Node {
-            min_height: px(31),
-            padding: UiRect::axes(px(11), px(5)),
-            justify_content: JustifyContent::Center,
-            align_items: AlignItems::Center,
-            border_radius: BorderRadius::all(px(5)),
+        @FeathersButton {
+            @variant: variant,
+            @caption: bsn! { @caption(label) }
         }
-        template(|ctx| {
-            let theme = ctx.resource::<CarbonTheme>();
-            Ok(BackgroundColor(theme.button_background(
-                CarbonButtonTone::Ghost,
-                false,
-                false,
-            )))
-        })
-        Children [
-            Text(label)
-            TextFont { font_size: px(12) }
-            template(move |ctx| {
-                let theme = ctx.resource::<CarbonTheme>();
-                Ok(TextColor(if selected { theme.accent } else { theme.muted }))
-            })
-        ]
+        CarbonTab { selected }
     }
 }
 
