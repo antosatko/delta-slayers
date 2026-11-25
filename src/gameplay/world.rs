@@ -89,6 +89,22 @@ pub(super) fn setup_game(
         DespawnOnExit::<AppState>(AppState::InGame),
     ));
 
+    let godo_material = materials.add(StandardMaterial {
+        base_color_texture: Some(asset_server.load("npc/godo.png")),
+        alpha_mode: AlphaMode::Blend,
+        unlit: true,
+        ..default()
+    });
+    commands.spawn((
+        Mesh3d(meshes.add(Rectangle::new(0.95, 1.68))),
+        MeshMaterial3d(godo_material),
+        Transform::from_translation(spawn_pos + Vec3::new(3.0, 0.8, 3.0)),
+        super::npc::Npc,
+        Billboard,
+        SquashOnMove,
+        DespawnOnExit::<AppState>(AppState::InGame),
+    ));
+
     let player_mesh = meshes.add(Rectangle::new(0.95, 1.68));
     let player_material = materials.add(StandardMaterial {
         base_color_texture: Some(asset_server.load("character/portrait.png")),
