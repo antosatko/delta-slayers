@@ -24,6 +24,7 @@ Add these components to Blender Objects (or Empties where appropriate):
 | `delta_slayers::gameplay::zones::TriggerBox` | Oriented interaction / fast-travel volume. Choose `kind`; the object's transform defines its bounds. |
 | `delta_slayers::gameplay::spawning::SpawnPoint` | Spawn location. Choose `kind`; for Player points, a higher `priority` wins. |
 | `delta_slayers::gameplay::billboard::Billboard` | Makes a flat object face the player camera horizontally. |
+| `delta_slayers::gameplay::billboard::SquashOnMove` | Adds subtle movement-driven squashing to an entity's visual scale. |
 
 ### Trigger boxes
 
@@ -54,6 +55,13 @@ avoid tied priorities.
 
 `Enemy` and `Npc` are reserved spawn-point kinds for future systems. They are
 available as authoring metadata but do not spawn entities yet.
+
+### Moving sprite animation
+
+Add `SquashOnMove` alongside `Billboard` to a moving sprite object that
+should squash slightly as its transform changes. The animation affects only
+the visual X/Y scale, returns to the authored scale when movement stops, and
+ignores large one-frame displacements such as teleports.
 
 ### Export notes
 
