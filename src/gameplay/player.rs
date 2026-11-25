@@ -14,8 +14,7 @@ use camera::{
 pub(crate) use camera::GameplayCamera;
 pub use camera::{CAMERA_DEFAULT_PITCH, CAMERA_DISTANCE, CAMERA_MAX_PITCH, CAMERA_MIN_PITCH};
 pub(super) use camera::{
-    CAMERA_MAX_DISTANCE, CAMERA_MIN_DISTANCE, adjust_camera, follow_camera, follow_camera_rotation,
-    migrate_saved_camera_pitch,
+    adjust_camera, follow_camera, follow_camera_rotation, migrate_saved_camera_pitch,
 };
 pub use collision::MovementBlocker;
 pub(super) use collision::{

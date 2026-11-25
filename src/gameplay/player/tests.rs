@@ -1,4 +1,5 @@
 use super::*;
+use super::camera::{CAMERA_MAX_DISTANCE, CAMERA_MIN_DISTANCE};
 
 #[test]
 fn click_sets_a_destination_immediately() {
