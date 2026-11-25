@@ -42,7 +42,6 @@ impl ObjectSizeRank {
             Self::Large => 3,
         }
     }
-
 }
 
 /// Weighted spawn frequency. Rarer objects remain possible at points whose
@@ -880,19 +879,34 @@ mod tests {
     fn normalize_prototype_root_removes_collection_ancestors() {
         let mut world = World::new();
         let scene = world.spawn(Transform::IDENTITY).id();
-        let collection = world.spawn((Transform::IDENTITY, ChildOf(scene))).id();
-        let root = world.spawn((
-            Name::new("Prototype"), Transform::from_xyz(12.0, 3.0, -11.0), ChildOf(collection),
-        )).id();
+        let collection = world
+            .spawn((Transform::IDENTITY, ChildOf(scene)))
+            .id();
+        let root = world
+            .spawn((
+                Name::new("Prototype"),
+                Transform::from_xyz(12.0, 3.0, -11.0),
+                ChildOf(collection),
+            ))
+            .id();
         let mut asset = WorldAsset::new(world);
+
         assert_eq!(
-            normalize_prototype_root(&mut asset, Some(&Name::new("Prototype")), "test.glb"),
+            normalize_prototype_root(
+                &mut asset,
+                Some(&Name::new("Prototype")),
+                "test.glb"
+            ),
             Some(root)
         );
+
         assert!(asset.world.get::<ChildOf>(root).is_none());
         assert!(asset.world.get::<Transform>(scene).is_none());
         assert!(asset.world.get::<Transform>(collection).is_none());
-        assert_eq!(asset.world.get::<Transform>(root).unwrap().translation, Vec3::ZERO);
+        assert_eq!(
+            asset.world.get::<Transform>(root).unwrap().translation,
+            Vec3::ZERO
+        );
     }
 
     #[test]
