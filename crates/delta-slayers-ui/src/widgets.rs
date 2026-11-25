@@ -67,7 +67,6 @@ impl CarbonIcon {
 #[derive(Clone, Copy)]
 enum GlyphTone {
     Muted,
-    Accent,
     Button(CarbonButtonTone),
     Item(bool),
 }
@@ -149,6 +148,7 @@ pub fn page_header(
                     align_items: AlignItems::Center,
                     border_radius: BorderRadius::all(px(14)),
                 }
+                template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().button_background(CarbonButtonTone::Secondary, false, false))))
                 Children [
                     Text("?")
                     TextFont { font_size: px(14) }
@@ -219,6 +219,7 @@ pub fn screen_tab(label: &'static str, selected: bool) -> impl Scene {
             align_items: AlignItems::Center,
             border_radius: BorderRadius::all(px(5)),
         }
+        template(move |ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().button_background(CarbonButtonTone::Ghost, false, false))))
         Children [
             Text(label)
             TextFont { font_size: px(12) }
@@ -269,6 +270,7 @@ pub fn action_button(
             column_gap: px(8),
             border_radius: BorderRadius::all(px(6)),
         }
+        template(move |ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().button_background(tone, false, false))))
         Children [
             @glyph(icon, 15.0, GlyphTone::Button(tone))
             --
@@ -352,7 +354,26 @@ pub fn stat_bar(
 pub fn item_tile(
     icon: CarbonIcon,
     label: &'static str,
+    quantity: &'static str,
+    selected: bool,
+) -> impl Scene {
+    item_tile_scene(icon, label, quantity, selected)
+}
+
+/// Optional-quantity variant for items that may not be stackable.
+pub fn item_tile_optional(
+    icon: CarbonIcon,
+    label: &'static str,
     quantity: Option<&'static str>,
+    selected: bool,
+) -> impl Scene {
+    item_tile_scene(icon, label, quantity.unwrap_or(""), selected)
+}
+
+fn item_tile_scene(
+    icon: CarbonIcon,
+    label: &'static str,
+    quantity: &'static str,
     selected: bool,
 ) -> impl Scene {
     bsn! {
@@ -370,6 +391,11 @@ pub fn item_tile(
             align_items: AlignItems::Center,
             border_radius: BorderRadius::all(px(7)),
         }
+        template(move |ctx| Ok(BackgroundColor(if selected {
+            ctx.resource::<CarbonTheme>().panel_raised
+        } else {
+            ctx.resource::<CarbonTheme>().panel_alt
+        })))
         Children [
             @glyph(icon, 31.0, GlyphTone::Item(selected))
             --
@@ -388,7 +414,7 @@ pub fn item_tile(
                 TextFont { font_size: px(11) }
                 template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().ink)))
                 --
-                Text(quantity.unwrap_or(""))
+                Text(quantity)
                 TextFont { font_size: px(10) }
                 template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().quiet)))
             ]
@@ -466,7 +492,6 @@ fn glyph(icon: CarbonIcon, size: f32, tone: GlyphTone) -> impl Scene {
             let theme = ctx.resource::<CarbonTheme>();
             let color = match tone {
                 GlyphTone::Muted => theme.quiet,
-                GlyphTone::Accent => theme.accent,
                 GlyphTone::Button(button_tone) => theme.button_foreground(button_tone),
                 GlyphTone::Item(selected) => {
                     if selected { theme.accent } else { theme.muted }
