@@ -329,21 +329,28 @@ pub fn stat_bar(
         }
         Children [
             Node {
+                width: percent(100),
+                min_width: px(0),
                 flex_direction: FlexDirection::Row,
                 align_items: AlignItems::Center,
                 column_gap: px(7),
             }
-            @glyph(icon, 13.0, GlyphTone::Muted)
-            --
-            Text(label)
-            TextFont { font_size: px(12) }
-            template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().muted)))
-            --
-            Node { flex_grow: 1.0 }
-            --
-            Text(value)
-            TextFont { font_size: px(12) }
-            template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().ink)))
+            Children [
+                @glyph(icon, 13.0, GlyphTone::Muted)
+                --
+                Text(label)
+                TextFont { font_size: px(12) }
+                template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().muted)))
+                --
+                Node {
+                    flex_grow: 1.0,
+                    min_width: px(0),
+                }
+                --
+                Text(value)
+                TextFont { font_size: px(12) }
+                template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().ink)))
+            ]
             --
             Node {
                 width: percent(100),
