@@ -6,14 +6,16 @@
   <meta name="theme-color" content="#1b2024">
   <title>Delta Slayers — UI prototype</title>
   <link rel="stylesheet" href="styles.css">
+  <script src="palette.js" defer></script>
 </head>
 <body>
   <main class="gallery-shell">
     <header class="gallery-header">
       <p class="eyebrow">Delta Slayers · Interface prototype</p>
       <h1>Field Folio</h1>
-      <p>The Slate direction, carried across a wider set of in-game screens. These layouts vary in density and structure while sharing consistent typography, quiet surface tones, clear spacing, restrained shadows, and contextual reference cards.</p>
+      <p>Seven connected in-game screens with a live palette switcher. Compare neutral surfaces, accent colors, and semantic states in real layouts; your selection carries across every screen.</p>
     </header>
+    <div class="gallery-toolbar"><span class="gallery-note">Color study</span><label class="palette-control"><span class="palette-label">Palette</span><select class="palette-select" data-palette-select aria-label="Prototype color palette"><option value="slate">Slate / Ice</option><option value="carbon">Carbon / Blue</option><option value="indigo">Midnight / Indigo</option><option value="jade">Pine / Jade</option><option value="ocean">Ocean / Teal</option><option value="copper">Cinder / Copper</option><option value="plum">Plum / Lilac</option></select></label><p>Choose a palette, then open any screen. Your choice stays active as you move between pages.</p></div>
     <nav class="screen-grid" aria-label="Prototype screens">
       <a class="screen-card" href="screens/contract.html"><div><span>01 · READING</span><h2>Contract details</h2><p>Long-form text, inline references, objectives, and a compact summary column.</p></div><strong>Open screen →</strong></a>
       <a class="screen-card" href="screens/inventory.html"><div><span>02 · GRID</span><h2>Inventory</h2><p>Item grid, category filters, search, and a persistent selection panel.</p></div><strong>Open screen →</strong></a>
