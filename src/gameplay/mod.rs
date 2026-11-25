@@ -56,7 +56,7 @@ impl Plugin for GameplayPlugin {
             .add_systems(
                 Update,
                 (
-                    player::adjust_camera.run_if(gameplay_input_enabled),
+                    player::adjust_camera.run_if(camera_input_enabled),
                     player::move_player_to_target.run_if(gameplay_input_enabled),
                     player::follow_camera,
                     player::draw_move_trajectory.run_if(gameplay_input_enabled),
@@ -84,5 +84,9 @@ impl Plugin for GameplayPlugin {
 }
 
 fn gameplay_input_enabled(ui_state: Res<UiStack>) -> bool {
+    !ui_state.paused() && !ui_state.game_menu_open()
+}
+
+fn camera_input_enabled(ui_state: Res<UiStack>) -> bool {
     !ui_state.paused() && !ui_state.inventory_open() && !ui_state.game_menu_open()
 }
