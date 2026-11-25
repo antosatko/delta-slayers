@@ -3,7 +3,7 @@ use delta_slayers_ui::{
     CarbonButtonTone, CarbonIcon, CarbonTheme, action_button, page_title, panel, section_header,
 };
 
-use crate::app::state::AppState;
+use crate::{app::state::AppState, gameplay::GameStartMode};
 
 pub(in crate::ui) fn scene() -> impl SceneList {
     bsn_list! {
@@ -43,17 +43,9 @@ fn main_menu() -> impl Scene {
                 Children [
                     @section_header(CarbonIcon::Compass, "Continue your journey")
                     --
-                    @menu_button(
-                        "Quick Load",
-                        CarbonIcon::Back,
-                        AppState::Continue
-                    )
+                    @start_game_button("Quick Load", CarbonIcon::Back, GameStartMode::QuickLoad)
                     --
-                    @menu_button(
-                        "New game",
-                        CarbonIcon::Sword,
-                        AppState::Loading
-                    )
+                    @start_game_button("New game", CarbonIcon::Sword, GameStartMode::NewGame)
                     --
                     @menu_button(
                         "Load Save",
@@ -71,6 +63,22 @@ fn main_menu() -> impl Scene {
                 ]
             ]
         ]
+    }
+}
+
+fn start_game_button(
+    label: &'static str,
+    icon: CarbonIcon,
+    mode: GameStartMode,
+) -> impl Scene {
+    bsn! {
+        @action_button(label, icon, CarbonButtonTone::Secondary)
+        on(move |_activate: On<Activate>,
+            mut start_mode: ResMut<GameStartMode>,
+            mut next_state: ResMut<NextState<AppState>>| {
+            *start_mode = mode;
+            next_state.set(AppState::Loading);
+        })
     }
 }
 
