@@ -188,13 +188,13 @@ pub(super) fn set_move_target_from_cursor(
 /// Moves with WASD/arrows when pressed, otherwise follows the last clicked
 /// destination. Keyboard movement takes priority and cancels the current path.
 pub(super) fn move_player_to_target(
-    mut player: Query<(&mut Transform, &Player)>,
+    mut player: Query<&mut Transform, With<Player>>,
     camera: Query<&Transform, (With<GameplayCamera>, Without<Player>)>,
     mut target: ResMut<MovementTarget>,
     input: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
 ) {
-    let Ok((mut transform, player)) = player.single_mut() else {
+    let Ok(mut transform) = player.single_mut() else {
         target.clear();
         return;
     };
