@@ -25,6 +25,8 @@ const TRAJECTORY_HEIGHT: f32 = 0.12;
 const TRAJECTORY_ARROW_SPEED: f32 = 0.85;
 const DESTINATION_RING_RADIUS: f32 = 0.48;
 const DESTINATION_BEACON_HEIGHT: f32 = 0.72;
+const MOVE_TARGET_HOLD_DELAY: f32 = 0.3;
+const MOVE_TARGET_REFRESH_INTERVAL: f32 = 0.1;
 
 #[derive(Component)]
 pub struct Player {
@@ -41,9 +43,53 @@ pub(super) struct GameplayCamera {
 #[derive(Component)]
 pub(super) struct PlayerVisual;
 
-/// The most recent ground position selected by the player.
+/// The current ground destination plus click-and-hold retargeting state.
 #[derive(Resource, Default)]
-pub(super) struct MovementTarget(pub(super) Option<Vec3>);
+pub(super) struct MovementTarget(
+    pub(super) Option<Vec3>,
+    hold_elapsed: f32,
+    refresh_elapsed: f32,
+);
+
+impl MovementTarget {
+    pub(super) fn clear(&mut self) {
+        self.0 = None;
+        self.hold_elapsed = 0.0;
+        self.refresh_elapsed = 0.0;
+    }
+
+    fn should_update_from_cursor(
+        &mut self,
+        pressed: bool,
+        just_pressed: bool,
+        delta_secs: f32,
+    ) -> bool {
+        if just_pressed {
+            self.hold_elapsed = 0.0;
+            self.refresh_elapsed = 0.0;
+            return true;
+        }
+
+        if !pressed {
+            self.hold_elapsed = 0.0;
+            self.refresh_elapsed = 0.0;
+            return false;
+        }
+
+        self.hold_elapsed += delta_secs;
+        if self.hold_elapsed < MOVE_TARGET_HOLD_DELAY {
+            return false;
+        }
+
+        self.refresh_elapsed += delta_secs;
+        if self.refresh_elapsed >= MOVE_TARGET_REFRESH_INTERVAL {
+            self.refresh_elapsed %= MOVE_TARGET_REFRESH_INTERVAL;
+            return true;
+        }
+
+        false
+    }
+}
 
 /// Scroll changes the follow camera's distance and vertical viewing angle.
 pub(super) fn adjust_camera(
@@ -73,16 +119,19 @@ fn camera_distance_after_scroll(distance: f32, scroll: f32) -> f32 {
     (distance - scroll * CAMERA_ZOOM_PER_LINE).clamp(CAMERA_MIN_DISTANCE, CAMERA_MAX_DISTANCE)
 }
 
-/// Turns a left click into a world-space destination on the player's ground
-/// plane. The camera is a root entity, so its local transform is world-space.
+/// A quick click sets one destination. Holding the button for a short
+/// delay switches to periodic retargeting from the current cursor position.
 pub(super) fn set_move_target_from_cursor(
     mouse: Res<ButtonInput<MouseButton>>,
     window: Single<&Window, With<PrimaryWindow>>,
     camera: Single<(&Camera, &Transform), With<GameplayCamera>>,
     player: Query<&Transform, With<Player>>,
     mut target: ResMut<MovementTarget>,
+    time: Res<Time>,
 ) {
-    if !mouse.just_pressed(MouseButton::Left) {
+    let just_pressed = mouse.just_pressed(MouseButton::Left);
+    let pressed = mouse.pressed(MouseButton::Left);
+    if !target.should_update_from_cursor(pressed, just_pressed, time.delta_secs()) {
         return;
     }
 
@@ -278,6 +327,44 @@ pub(super) fn sync_player_visual(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn click_sets_a_destination_immediately() {
+        let mut target = MovementTarget::default();
+
+        assert!(target.should_update_from_cursor(true, true, 0.016));
+        assert!(!target.should_update_from_cursor(true, false, 0.1));
+    }
+
+    #[test]
+    fn held_click_waits_then_refreshes_periodically() {
+        let mut target = MovementTarget::default();
+
+        assert!(target.should_update_from_cursor(true, true, 0.016));
+        assert!(!target.should_update_from_cursor(true, false, 0.2));
+        assert!(target.should_update_from_cursor(true, false, 0.1));
+        assert!(!target.should_update_from_cursor(true, false, 0.04));
+        assert!(target.should_update_from_cursor(true, false, 0.06));
+    }
+
+    #[test]
+    fn releasing_stops_periodic_retargeting() {
+        let mut target = MovementTarget::default();
+
+        assert!(target.should_update_from_cursor(true, true, 0.016));
+        assert!(!target.should_update_from_cursor(false, false, 0.016));
+        assert!(!target.should_update_from_cursor(true, false, 0.2));
+    }
+
+    #[test]
+    fn clearing_destination_also_resets_hold_state() {
+        let mut target = MovementTarget::default();
+        assert!(target.should_update_from_cursor(true, true, 0.016));
+        target.clear();
+
+        assert!(target.0.is_none());
+        assert!(!target.should_update_from_cursor(true, false, 0.2));
+    }
 
     #[test]
     fn camera_relative_ground_target_stays_on_the_ground_plane() {
