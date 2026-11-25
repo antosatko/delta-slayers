@@ -2,10 +2,8 @@ use bevy::{prelude::*, world_serialization::WorldAssetRoot};
 use std::collections::{HashMap, HashSet, VecDeque};
 
 use crate::gameplay::{
-    environment::{
-        EnvironmentAssets, ObjectSizeRank, ObjectSpawner, RemainingObjectCapacity,
-    },
-    player::MovementBlocker,
+    environment::{EnvironmentAssets, ObjectSpawnPoint},
+    player::{MovementBlocker, PLAYER_COLLIDER_RADIUS},
 };
 
 use super::hex::{HEX_CORNER_COUNT, HEX_NEIGHBORS, hex_center, hex_corner, hex_layout_radius};
@@ -15,16 +13,8 @@ use super::{Biome, ExplorationPortal, ExplorationReturnPortal, ExplorationTile, 
 const TILE_MODEL_SOURCE_RADIUS: f32 = 5.0;
 const TILE_VARIANT_SALT: u64 = 0xA24B_5F31_7C91_02D7;
 const OBJECT_SPAWN_SALT: u64 = 0x83D2_EA19_6C45_B70F;
-
-/// Approximate half-extents matched to the current exported object meshes:
-/// the small cone is about 0.86 m wide; the medium Suzanne mesh is 2.74 m wide.
-fn object_collision_dimensions(size: ObjectSizeRank) -> (f32, f32) {
-    match size {
-        ObjectSizeRank::Small => (0.5, 0.5),
-        ObjectSizeRank::Medium => (1.4, 0.85),
-        ObjectSizeRank::Large => (2.0, 1.2),
-    }
-}
+const SPAWN_POINT_SALT_STRIDE: u64 = 0x9E37_79B9_7F4A_7C15;
+const OBJECT_COLLIDER_PADDING: Vec3 = Vec3::new(0.08, 0.04, 0.08);
 
 #[derive(Clone, Copy)]
 pub(super) struct GeneratedTile {
@@ -205,7 +195,7 @@ fn spawn_terrain_tiles(
 ) {
     let model_scale = config.tile_size / TILE_MODEL_SOURCE_RADIUS;
     let base_surface_offset = 0.016_821_861 * model_scale;
-    let mut tiles_with_spawners = 0;
+    let mut authored_spawn_points = 0;
     let mut spawned_objects = 0;
 
     for (&(q, r), tile) in tiles {
@@ -249,125 +239,115 @@ fn spawn_terrain_tiles(
             tile_entity.insert(UnreachableTile);
         }
 
-        if let Some(spawner) = prototype.spawner {
-            let tile_entity = tile_entity.id();
-            commands.entity(tile_entity).insert((
-                spawner,
-                RemainingObjectCapacity(Some(spawner.capacity)),
-            ));
-            tiles_with_spawners += 1;
+        if !prototype.spawn_points.is_empty() {
+            authored_spawn_points += prototype.spawn_points.len();
             spawned_objects += spawn_objects_on_tile(
                 commands,
                 root,
-                tile_entity,
-                config,
+                model_scale,
+                base_surface_offset,
                 seed,
                 (q, r),
                 tile,
-                spawner,
+                &prototype.spawn_points,
                 environment,
             );
         }
     }
 
     info!(
-        "Generated {spawned_objects} objects across {tiles_with_spawners} object-spawning tiles"
+        "Generated {spawned_objects} objects from {authored_spawn_points} authored spawn points"
     );
 }
 
-/// Performs deterministic, size-budgeted object placement for a tile prototype
-/// that has an ObjectSpawner component.
+/// Places at most one object at each Blender-authored spawn point.
+///
+/// Marker transforms define exact placement; the collision box is derived
+/// from the complete transformed mesh bounds of the selected prototype.
 fn spawn_objects_on_tile(
     commands: &mut Commands,
     map_root: Entity,
-    tile_entity: Entity,
-    config: ExplorationPortal,
+    model_scale: f32,
+    base_surface_offset: f32,
     seed: u64,
     coordinates: (i32, i32),
     tile: &GeneratedTile,
-    spawner: ObjectSpawner,
+    spawn_points: &[ObjectSpawnPoint],
     environment: &EnvironmentAssets,
 ) -> usize {
-    let mut remaining = spawner.capacity.units();
     let mut spawned_count = 0;
-    let spawn_chance = spawner.effective_spawn_chance();
 
-    for attempt in 0..spawner.capacity.units() {
-        if spawn_chance <= 0.0 {
-            break;
-        }
-
-        let attempt_salt = OBJECT_SPAWN_SALT
-            .wrapping_add(u64::from(attempt).wrapping_mul(0x9E37_79B9_7F4A_7C15));
-        let attempt_roll = cell_random(seed, coordinates.0, coordinates.1, attempt_salt);
-        if attempt_roll > spawn_chance {
-            break;
+    for (point_index, point) in spawn_points.iter().enumerate() {
+        let point_salt = OBJECT_SPAWN_SALT
+            .wrapping_add((point_index as u64).wrapping_mul(SPAWN_POINT_SALT_STRIDE));
+        let chance_roll = cell_random(
+            seed,
+            coordinates.0,
+            coordinates.1,
+            point_salt ^ 0xA076_1D64_78BD_642F,
+        );
+        if chance_roll >= point.spawner.effective_spawn_chance() {
+            continue;
         }
 
         let selection_roll = cell_random(
             seed,
             coordinates.0,
             coordinates.1,
-            attempt_salt ^ 0xD1B5_4A32_D192_ED03,
+            point_salt ^ 0xE703_7ED1_A0B4_28DB,
         );
-        let Some(object) = environment.choose_spawnable(tile.biome, remaining, selection_roll) else {
-            break;
+        let Some(object) = environment.choose_spawnable(
+            tile.biome,
+            point.spawner.capacity.units(),
+            selection_roll,
+        ) else {
+            continue;
         };
 
-        let placement_roll = cell_random(
-            seed,
-            coordinates.0,
-            coordinates.1,
-            attempt_salt ^ 0x94D0_49BB_1331_11EB,
+        // Marker coordinates are relative to the tile model's root. The
+        // tile root is uniformly scaled when instanced into the map.
+        let marker_surface_y =
+            tile.height + base_surface_offset + point.position.y * model_scale;
+        let mesh_bottom = object.bounds.center.y - object.bounds.half_extents.y;
+        let position = Vec3::new(
+            tile.center.x + point.position.x * model_scale,
+            marker_surface_y - mesh_bottom,
+            tile.center.y + point.position.z * model_scale,
         );
-        let angle = placement_roll * std::f32::consts::TAU;
-        let radius_roll = cell_random(
-            seed,
-            coordinates.0,
-            coordinates.1,
-            attempt_salt ^ 0xBF58_476D_1CE4_E5B9,
-        );
-        let (collision_radius, collision_half_height) =
-            object_collision_dimensions(object.definition.size);
-        let minimum_offset = collision_radius + 0.32 + 0.1;
-        let offset_radius =
-            (config.tile_size * (0.12 + radius_roll * 0.32)).max(minimum_offset);
-        let local_position = tile.center
-            + Vec2::new(angle.cos(), angle.sin()) * offset_radius;
-        let height = super::terrain::terrain_surface_height(config, seed, local_position);
+        let rotation = point.rotation;
+        let collider_center = position + rotation * object.bounds.center;
+        let collider_half_extents =
+            object.bounds.half_extents + OBJECT_COLLIDER_PADDING;
+
+        // The player starts at the center of axial tile (0, 2). Avoid a
+        // prototype whose actual bounds would overlap that starting body.
+        if coordinates == (0, 2) {
+            let center_offset = Vec2::new(
+                collider_center.x - tile.center.x,
+                collider_center.z - tile.center.y,
+            );
+            let clearance =
+                Vec2::new(collider_half_extents.x, collider_half_extents.z).length()
+                    + PLAYER_COLLIDER_RADIUS;
+            if center_offset.length() < clearance {
+                continue;
+            }
+        }
 
         commands.spawn((
             WorldAssetRoot(object.handle.clone()),
-            Transform::from_xyz(local_position.x, height, local_position.y)
-                .with_rotation(Quat::from_rotation_y(angle)),
+            Transform::from_translation(position).with_rotation(rotation),
             ChildOf(map_root),
         ));
 
-        // Spawn a separate invisible collider so the prototype's authored
-        // render transform and hierarchy remain untouched.
         commands.spawn((
             MovementBlocker,
-            Transform::from_xyz(
-                local_position.x,
-                height + collision_half_height,
-                local_position.y,
-            )
-            .with_scale(Vec3::new(
-                collision_radius,
-                collision_half_height,
-                collision_radius,
-            )),
+            Transform::from_translation(collider_center)
+                .with_rotation(rotation)
+                .with_scale(collider_half_extents),
             ChildOf(map_root),
         ));
         spawned_count += 1;
-
-        remaining = remaining.saturating_sub(object.definition.size.units());
-        commands.entity(tile_entity).insert(RemainingObjectCapacity(
-            ObjectSizeRank::from_units(remaining),
-        ));
-        if remaining == 0 {
-            break;
-        }
     }
 
     spawned_count

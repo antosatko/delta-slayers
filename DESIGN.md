@@ -38,7 +38,7 @@ Within those areas:
 | `gameplay/zones.rs` | Town interaction zones, proximity detection, visited-zone data, and fast-travel requests |
 | `gameplay/exploration.rs` | Exploration domain data and stable module façade |
 | `gameplay/exploration/travel.rs` | Portal detection, entering/returning from maps, and travel anchors |
-| `gameplay/exploration/generation.rs` | Seeded tile generation, reachability, biome tile selection, and capacity-limited object placement |
+| `gameplay/exploration/generation.rs` | Seeded tile generation, reachability, biome tile selection, authored object placement, and mesh-derived blockers |
 | `gameplay/exploration/terrain.rs` | Biome/noise sampling and smooth terrain elevation synchronization |
 | `gameplay/exploration/hex.rs` | Axial coordinates, hex layout, and neighbor geometry |
 | `gameplay/inventory.rs` | Authoritative inventory data |
@@ -95,9 +95,10 @@ Current authored components:
 - `SpawnPoint`: spawn role and priority. The highest-priority Player point
   supplies the player's ground position and initial horizontal heading; saved
   player positions take precedence.
-- `ObjectSpawner`: marks a tile prototype as eligible for procedural object
-  placement. Its capacity rank supplies the tile's total size budget, and
-  spawn chance controls successive placement attempts.
+- `ObjectSpawner`: marks one procedural object spawn point on a tile
+  prototype. It may be attached to the tile root or an Empty child; every
+  marker is independent, its transform supplies placement, and its capacity
+  is the largest object rank allowed at that point.
 - `SpawnableObject`: marks a root object in a biome-specific or shared general
   objects collection as a spawnable prototype. Its size rank and rarity control
   capacity consumption and weighted selection; it has no interaction behavior.
@@ -177,23 +178,26 @@ the configured maximum jump height; steeper edges receive movement blockers.
 Reachability is flood-filled from the spawn tile, and tiles outside that
 connected area carry the gameplay-only `UnreachableTile` marker for future
 systems. The markers are also highlighted on the exploration minimap. Tiles
-are tinted by biome, and Skein-authored components on tile variants are
-retained.
+are tinted by biome. Marker-only Empty nodes and their authoring components
+are removed after spawn metadata is collected; mesh-bearing transform
+hierarchy is retained.
 
 The shared general object pool is loaded from
 `assets/enviroment/general.glb`'s `objects` collection. Its root prototypes
 are eligible in every biome, in addition to the current biome's object pool.
 For example, woodland mushrooms belong in the woodland file's `objects`
 collection, while a golden sword that can appear anywhere belongs in
-`general.glb`. A tile variant with `ObjectSpawner` receives deterministic
-placement attempts during map generation. Size ranks consume capacity units
-(S = 1, M = 2, L = 3), so an L capacity tile supports one L object, one M
-plus one S, or three S objects. Rarity weights are applied across both
-eligible object pools. Generated objects currently have no interactions or separate gameplay behavior.
-They receive invisible, size-rank-based movement blockers so the player and NPC
-cannot walk through them. Horizontal half-extents are 0.5 m for Small, 1.4 m
-for Medium, and 2.0 m for Large, matching the current exported object bounds.
-These are approximate upright box colliders, not mesh-accurate physics. Procedural vegetation is not generated. A
+`general.glb`. Each `ObjectSpawner` marker on a tile is an independent
+placement point; its exact position and orientation are preserved. Its
+capacity is a maximum object size (S, M, or L), not a shared tile budget.
+Chance and weighted object selection are deterministic from the map seed,
+tile coordinates, and marker position. Marker-only Empty entities are
+removed from runtime prototypes, and collection/scene ancestors are detached
+so they cannot appear at every tile. Each spawned object's aggregate mesh AABB
+is computed through the full descendant transform hierarchy, then used for an
+invisible movement blocker with small padding. The upright box is conservative,
+not mesh-accurate physics. Generated objects do not yet expose interaction
+prompts or gameplay actions. Procedural vegetation is not generated. A
 collision-blocked perimeter and return beacon complete this exploration pass;
 the beacon restores the town-side position captured on entry.
 

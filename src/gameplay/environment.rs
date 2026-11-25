@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use bevy::{
     asset::LoadState,
+    camera::primitives::MeshAabb,
     ecs::reflect::AppTypeRegistry,
     gltf::GltfAssetLabel,
     prelude::*,
@@ -19,10 +20,10 @@ const BIOME_FILES: [(Biome, &str); 4] = [
 
 const GENERAL_OBJECTS_FILE: &str = "enviroment/general.glb";
 
-/// Relative size and capacity rank used by environment object placement.
+/// Relative object size used by authored spawn points.
 ///
-/// The numeric budget is intentionally small and discrete: S = 1, M = 2,
-/// L = 3. A tile with L capacity can hold one L, one M plus one S, or three S.
+/// S = 1, M = 2, and L = 3. A spawn point's capacity is the largest size
+/// rank that it can host.
 #[derive(Reflect, Default, Clone, Copy, Debug, PartialEq, Eq)]
 #[reflect(Default)]
 #[type_path = "delta_slayers::gameplay::environment"]
@@ -52,8 +53,8 @@ impl ObjectSizeRank {
     }
 }
 
-/// Weighted spawn frequency. Rarer objects remain possible when a tile has
-/// enough remaining capacity, but common objects are selected more often.
+/// Weighted spawn frequency. Rarer objects remain possible at points whose
+/// maximum size allows them, but common objects are selected more often.
 #[derive(Reflect, Default, Clone, Copy, Debug, PartialEq, Eq)]
 #[reflect(Default)]
 #[type_path = "delta_slayers::gameplay::environment"]
@@ -91,16 +92,18 @@ pub struct SpawnableObject {
     pub rarity: ObjectRarity,
 }
 
-/// Marks a tile prototype as eligible to receive generated objects.
+/// Marks one authored object spawn point on a tile prototype.
 ///
-/// capacity is the complete size budget for the tile. Each spawned object
-/// consumes its own size rank from that budget.
+/// Attach it to the tile root for a center spawn point, or to an Empty child
+/// to place a point elsewhere on the tile. Each marked entity is an
+/// independent point; capacity is the largest object size that may use it.
 #[derive(Component, Reflect, Clone, Copy, Debug)]
 #[reflect(Component, Default)]
 #[type_path = "delta_slayers::gameplay::environment"]
 pub struct ObjectSpawner {
+    /// Largest object size that can use this point.
     pub capacity: ObjectSizeRank,
-    /// Chance for each successive placement attempt, from 0 to 1.
+    /// Probability that an object is placed at this point, from 0 to 1.
     pub spawn_chance: f32,
 }
 
@@ -123,10 +126,6 @@ impl ObjectSpawner {
     }
 }
 
-/// Runtime remainder of a tile's authored object-spawn capacity.
-#[derive(Component, Clone, Copy, Debug)]
-pub(crate) struct RemainingObjectCapacity(pub(crate) Option<ObjectSizeRank>);
-
 #[derive(Clone, Copy)]
 enum AssetSourceKind {
     Biome(Biome),
@@ -140,14 +139,28 @@ struct AssetSource {
     processed: bool,
 }
 
+#[derive(Clone, Copy, Debug)]
+pub(crate) struct ObjectSpawnPoint {
+    pub(crate) position: Vec3,
+    pub(crate) rotation: Quat,
+    pub(crate) spawner: ObjectSpawner,
+}
+
+#[derive(Clone, Copy, Debug)]
+pub(crate) struct PrototypeBounds {
+    pub(crate) center: Vec3,
+    pub(crate) half_extents: Vec3,
+}
+
 pub(crate) struct TilePrototype {
     pub(crate) handle: Handle<WorldAsset>,
-    pub(crate) spawner: Option<ObjectSpawner>,
+    pub(crate) spawn_points: Vec<ObjectSpawnPoint>,
 }
 
 pub(crate) struct SpawnablePrototype {
     pub(crate) handle: Handle<WorldAsset>,
     pub(crate) definition: SpawnableObject,
+    pub(crate) bounds: PrototypeBounds,
 }
 
 /// Loaded prototype pools extracted from named Blender collection nodes.
@@ -175,7 +188,7 @@ impl EnvironmentAssets {
     pub(crate) fn choose_spawnable(
         &self,
         biome: Biome,
-        remaining_capacity: u8,
+        max_size_units: u8,
         roll: f32,
     ) -> Option<&SpawnablePrototype> {
         let biome_objects = self
@@ -186,7 +199,7 @@ impl EnvironmentAssets {
         choose_spawnable(
             biome_objects,
             &self.general_objects,
-            remaining_capacity,
+            max_size_units,
             roll,
         )
     }
@@ -230,6 +243,7 @@ pub(super) fn collect_assets(
     mut environment: ResMut<EnvironmentAssets>,
     mut world_assets: ResMut<Assets<WorldAsset>>,
     app_type_registry: Res<AppTypeRegistry>,
+    meshes: Res<Assets<Mesh>>,
     asset_server: Res<AssetServer>,
 ) {
     let type_registry = app_type_registry.read();
@@ -283,14 +297,19 @@ pub(super) fn collect_assets(
         let object_roots = extracted.1;
         let mut tile_count = 0;
         let mut tile_mesh_count = 0;
+        let mut tile_spawn_point_count = 0;
+        let mut removed_authoring_nodes = 0;
         for root in tile_roots {
             let Ok(mut asset) = WorldAsset::from_dynamic_world(&root.world, &type_registry) else {
                 warn!("Could not create a tile prototype from {path}");
                 continue;
             };
-            if !normalize_prototype_root(&mut asset, root.root_name.as_ref(), &path) {
+            let Some(root_entity) =
+                normalize_prototype_root(&mut asset, root.root_name.as_ref(), &path)
+            else {
                 continue;
-            }
+            };
+            let spawn_points = collect_object_spawn_points(&asset.world, root_entity);
             let mesh_count = count_meshes(&asset.world);
             if mesh_count == 0 {
                 warn!(
@@ -299,6 +318,7 @@ pub(super) fn collect_assets(
                 continue;
             }
 
+            removed_authoring_nodes += strip_prototype_markers(&mut asset.world, root_entity);
             let handle = world_assets.add(asset);
             if let AssetSourceKind::Biome(biome) = kind {
                 environment
@@ -307,10 +327,11 @@ pub(super) fn collect_assets(
                     .or_default()
                     .push(TilePrototype {
                         handle,
-                        spawner: root.spawner,
+                        spawn_points: spawn_points.clone(),
                     });
                 tile_count += 1;
                 tile_mesh_count += mesh_count;
+                tile_spawn_point_count += spawn_points.len();
             }
         }
 
@@ -324,9 +345,15 @@ pub(super) fn collect_assets(
                 warn!("Could not create a spawnable object prototype from {path}");
                 continue;
             };
-            if !normalize_prototype_root(&mut asset, root.root_name.as_ref(), &path) {
+            let Some(root_entity) =
+                normalize_prototype_root(&mut asset, root.root_name.as_ref(), &path)
+            else {
                 continue;
-            }
+            };
+            let Some(bounds) = prototype_mesh_bounds(&asset.world, &meshes) else {
+                warn!("Could not calculate mesh bounds for spawnable object in {path}");
+                continue;
+            };
             let mesh_count = count_meshes(&asset.world);
             if mesh_count == 0 {
                 warn!(
@@ -335,8 +362,13 @@ pub(super) fn collect_assets(
                 continue;
             }
 
+            removed_authoring_nodes += strip_prototype_markers(&mut asset.world, root_entity);
             let handle = world_assets.add(asset);
-            let prototype = SpawnablePrototype { handle, definition };
+            let prototype = SpawnablePrototype {
+                handle,
+                definition,
+                bounds,
+            };
 
             match kind {
                 AssetSourceKind::Biome(biome) => {
@@ -360,7 +392,7 @@ pub(super) fn collect_assets(
         }
 
         info!(
-            "Loaded {tile_count} tile variants ({tile_mesh_count} meshes) and {object_count} object prototypes ({object_mesh_count} meshes) from {path}"
+            "Loaded {tile_count} tile variants ({tile_mesh_count} meshes, {tile_spawn_point_count} authored object spawn points) and {object_count} object prototypes ({object_mesh_count} meshes); removed {removed_authoring_nodes} authoring-only nodes from {path}"
         );
         environment.sources[index].processed = true;
     }
@@ -378,10 +410,10 @@ fn normalize_prototype_root(
     asset: &mut WorldAsset,
     root_name: Option<&Name>,
     path: &str,
-) -> bool {
+) -> Option<Entity> {
     let Some(root_name) = root_name else {
         warn!("Cannot normalize an unnamed prototype root from {path}");
-        return false;
+        return None;
     };
     let Some(root_entity) = asset
         .world
@@ -390,14 +422,135 @@ fn normalize_prototype_root(
         .map(|entity| entity.id())
     else {
         warn!("Cannot find prototype root {root_name} in extracted asset {path}");
-        return false;
+        return None;
     };
 
     if let Some(mut transform) = asset.world.get_mut::<Transform>(root_entity) {
         transform.translation = Vec3::ZERO;
     }
 
-    true
+    let mut ancestors = Vec::new();
+    let mut ancestor = asset.world.get::<ChildOf>(root_entity).map(ChildOf::parent);
+    while let Some(entity) = ancestor {
+        ancestors.push(entity);
+        ancestor = asset.world.get::<ChildOf>(entity).map(ChildOf::parent);
+    }
+    asset.world.entity_mut(root_entity).remove::<ChildOf>();
+    for entity in ancestors {
+        let _ = asset.world.despawn(entity);
+    }
+
+    Some(root_entity)
+}
+
+fn asset_world_transform(world: &World, entity: Entity) -> GlobalTransform {
+    let mut ancestry = Vec::new();
+    let mut current = Some(entity);
+    while let Some(entity) = current {
+        ancestry.push(entity);
+        current = world.get::<ChildOf>(entity).map(ChildOf::parent);
+    }
+    let mut transform = GlobalTransform::IDENTITY;
+    for ancestor in ancestry.into_iter().rev() {
+        transform = transform.mul_transform(
+            world.get::<Transform>(ancestor).copied().unwrap_or_default()
+        );
+    }
+    transform
+}
+
+/// Reads spawn markers only from the selected prototype subtree.
+fn collect_object_spawn_points(world: &World, prototype_root: Entity) -> Vec<ObjectSpawnPoint> {
+    let mut pending = vec![(prototype_root, GlobalTransform::IDENTITY)];
+    let mut points = Vec::new();
+    while let Some((entity, parent_transform)) = pending.pop() {
+        let transform = parent_transform.mul_transform(
+            world.get::<Transform>(entity).copied().unwrap_or_default()
+        );
+        if let Some(spawner) = world.get::<ObjectSpawner>(entity).copied() {
+            let (_, rotation, position) = transform.to_scale_rotation_translation();
+            points.push(ObjectSpawnPoint { position, rotation, spawner });
+        }
+        if let Some(children) = world.get::<Children>(entity) {
+            pending.extend(children.iter().copied().map(|child| (child, transform)));
+        }
+    }
+    points.sort_by(|a, b| {
+        a.position.x.total_cmp(&b.position.x)
+            .then(a.position.y.total_cmp(&b.position.y))
+            .then(a.position.z.total_cmp(&b.position.z))
+            .then(a.spawner.capacity.units().cmp(&b.spawner.capacity.units()))
+            .then(a.spawner.spawn_chance.total_cmp(&b.spawner.spawn_chance))
+    });
+    points
+}
+
+/// Computes the union of mesh local AABBs after applying all prototype transforms.
+fn prototype_mesh_bounds(world: &World, meshes: &Assets<Mesh>) -> Option<PrototypeBounds> {
+    let mut minimum = Vec3::splat(f32::INFINITY);
+    let mut maximum = Vec3::splat(f32::NEG_INFINITY);
+    let mut found = false;
+
+    for entity in world.iter_entities() {
+        let Some(mesh_3d) = entity.get::<Mesh3d>() else { continue };
+        let Some(mesh) = meshes.get(&mesh_3d.0) else { continue };
+        let Some(aabb) = mesh.get_aabb() else { continue };
+
+        let center = Vec3::new(aabb.center.x, aabb.center.y, aabb.center.z);
+        let half = Vec3::new(aabb.half_extents.x, aabb.half_extents.y, aabb.half_extents.z);
+        let transform = asset_world_transform(world, entity.id());
+        for x in [-1.0, 1.0] {
+            for y in [-1.0, 1.0] {
+                for z in [-1.0, 1.0] {
+                    let point = transform.transform_point(center + half * Vec3::new(x, y, z));
+                    minimum = minimum.min(point);
+                    maximum = maximum.max(point);
+                }
+            }
+        }
+        found = true;
+    }
+
+    if !found || !minimum.is_finite() || !maximum.is_finite() { return None; }
+    Some(PrototypeBounds {
+        center: (minimum + maximum) * 0.5,
+        half_extents: (maximum - minimum) * 0.5,
+    })
+}
+
+/// Removes authoring metadata and descendant Empty-only branches.
+fn strip_prototype_markers(world: &mut World, root: Entity) -> usize {
+    let entities = world.iter_entities().map(|entity| entity.id()).collect::<Vec<_>>();
+    for entity in entities {
+        world.entity_mut(entity).remove::<ObjectSpawner>();
+        world.entity_mut(entity).remove::<SpawnableObject>();
+    }
+    prune_non_rendering_descendants(world, root)
+}
+
+fn prune_non_rendering_descendants(world: &mut World, parent: Entity) -> usize {
+    let children = world.get::<Children>(parent)
+        .map(|children| children.iter().copied().collect::<Vec<_>>())
+        .unwrap_or_default();
+    let mut removed = 0;
+    for child in children {
+        if hierarchy_contains_mesh(world, child) {
+            removed += prune_non_rendering_descendants(world, child);
+        } else {
+            removed += despawn_subtree(world, child);
+        }
+    }
+    removed
+}
+
+fn despawn_subtree(world: &mut World, entity: Entity) -> usize {
+    let children = world.get::<Children>(entity)
+        .map(|children| children.iter().copied().collect::<Vec<_>>())
+        .unwrap_or_default();
+    let mut removed = 1;
+    for child in children { removed += despawn_subtree(world, child); }
+    let _ = world.despawn(entity);
+    removed
 }
 
 fn count_meshes(world: &World) -> usize {
@@ -416,7 +569,6 @@ enum PrototypeKind {
 struct ExtractedRoot {
     world: DynamicWorld,
     root_name: Option<Name>,
-    spawner: Option<ObjectSpawner>,
     spawnable: Option<SpawnableObject>,
 }
 
@@ -464,7 +616,6 @@ fn extract_collection_roots(
             }
 
             let root_name = source.world.get::<Name>(root).cloned();
-            let spawner = find_object_spawner(&source.world, root);
             let spawnable = source.world.get::<SpawnableObject>(root).copied();
 
             if matches!(prototype_kind, PrototypeKind::Spawnable) && spawnable.is_none() {
@@ -490,7 +641,6 @@ fn extract_collection_roots(
             Some(ExtractedRoot {
                 world,
                 root_name,
-                spawner,
                 spawnable,
             })
         })
@@ -508,15 +658,6 @@ fn hierarchy_contains_mesh(world: &World, entity: Entity) -> bool {
             })
 }
 
-fn find_object_spawner(world: &World, entity: Entity) -> Option<ObjectSpawner> {
-    world.get::<ObjectSpawner>(entity).copied().or_else(|| {
-        world
-            .get::<Children>(entity)?
-            .iter()
-            .find_map(|child| find_object_spawner(world, child))
-    })
-}
-
 fn collect_hierarchy_entities(world: &World, entity: Entity, output: &mut Vec<Entity>) {
     output.push(entity);
     if let Some(children) = world.get::<Children>(entity) {
@@ -527,17 +668,17 @@ fn collect_hierarchy_entities(world: &World, entity: Entity, output: &mut Vec<En
 }
 
 /// Selects from the current biome's object prototypes and the shared general
-/// prototypes. Objects that exceed the remaining tile capacity are excluded.
+/// prototypes. Objects larger than a spawn point's maximum size are excluded.
 fn choose_spawnable<'a>(
     biome_objects: &'a [SpawnablePrototype],
     general_objects: &'a [SpawnablePrototype],
-    remaining_capacity: u8,
+    max_size_units: u8,
     roll: f32,
 ) -> Option<&'a SpawnablePrototype> {
     let total_weight = biome_objects
         .iter()
         .chain(general_objects.iter())
-        .filter(|object| object.definition.size.units() <= remaining_capacity)
+        .filter(|object| object.definition.size.units() <= max_size_units)
         .map(|object| object.definition.rarity.selection_weight())
         .sum::<f32>();
 
@@ -549,7 +690,7 @@ fn choose_spawnable<'a>(
     for object in biome_objects
         .iter()
         .chain(general_objects.iter())
-        .filter(|object| object.definition.size.units() <= remaining_capacity)
+        .filter(|object| object.definition.size.units() <= max_size_units)
     {
         let weight = object.definition.rarity.selection_weight();
         if target < weight {
@@ -578,6 +719,94 @@ mod tests {
     }
 
     #[test]
+    fn all_authored_spawn_points_keep_nested_transforms_and_ignore_ancestors() {
+        let mut world = World::new();
+        let scene_root = world.spawn((Transform::IDENTITY, ObjectSpawner::default())).id();
+        let root = world.spawn((
+            Transform::from_xyz(10.0, 1.0, -4.0).with_scale(Vec3::new(2.0, 1.0, 2.0)),
+            ChildOf(scene_root),
+        )).id();
+        world.spawn((
+            Transform::from_xyz(1.0, 0.0, 2.0),
+            ObjectSpawner { capacity: ObjectSizeRank::Small, spawn_chance: 0.5 },
+            ChildOf(root),
+        ));
+        world.spawn((
+            Transform::from_xyz(-2.0, 0.0, 0.0),
+            ObjectSpawner { capacity: ObjectSizeRank::Large, spawn_chance: 1.0 },
+            ChildOf(root),
+        ));
+        let points = collect_object_spawn_points(&world, root);
+        assert_eq!(points.len(), 2);
+        assert!(points.iter().any(|point| point.position.abs_diff_eq(Vec3::new(12.0, 1.0, 0.0), 1e-5)));
+        assert!(points.iter().any(|point| point.position.abs_diff_eq(Vec3::new(6.0, 1.0, -4.0), 1e-5)));
+    }
+
+    #[test]
+    fn marker_only_empty_nodes_are_removed_but_mesh_hierarchy_is_kept() {
+        let mut world = World::new();
+        let root = world.spawn((
+            Name::new("Tile"), Transform::IDENTITY,
+            Mesh3d(Handle::<Mesh>::default()), ObjectSpawner::default(),
+        )).id();
+        let marker = world.spawn((
+            Name::new("Spawn marker"), Transform::from_xyz(2.0, 0.0, 1.0),
+            ObjectSpawner::default(), ChildOf(root),
+        )).id();
+        let group = world.spawn((Name::new("Mesh group"), Transform::IDENTITY, ChildOf(root))).id();
+        let mesh_child = world.spawn((
+            Transform::IDENTITY, Mesh3d(Handle::<Mesh>::default()), ChildOf(group),
+        )).id();
+        let empty_branch = world.spawn((
+            Name::new("Unsupported empty"), Transform::IDENTITY, ChildOf(root),
+        )).id();
+
+        let removed = strip_prototype_markers(&mut world, root);
+        assert_eq!(removed, 2);
+        assert!(world.get::<ObjectSpawner>(root).is_none());
+        assert!(world.get::<ObjectSpawner>(marker).is_none());
+        assert!(world.get::<Transform>(marker).is_none());
+        assert!(world.get::<Transform>(empty_branch).is_none());
+        assert!(world.get::<Transform>(group).is_some());
+        assert!(world.get::<Mesh3d>(mesh_child).is_some());
+    }
+
+    #[test]
+    fn object_bounds_include_mesh_and_ancestor_transforms() {
+        let mut meshes = Assets::<Mesh>::default();
+        let mesh_handle = meshes.add(Cuboid::new(2.0, 1.0, 4.0));
+        let mut world = World::new();
+        let root = world.spawn(
+            Transform::from_xyz(10.0, 0.0, 4.0).with_scale(Vec3::new(2.0, 1.0, 1.0)),
+        ).id();
+        world.spawn((
+            Mesh3d(mesh_handle), Transform::from_xyz(1.0, 0.0, 0.0), ChildOf(root),
+        ));
+        let bounds = prototype_mesh_bounds(&world, &meshes).unwrap();
+        assert!(bounds.center.abs_diff_eq(Vec3::new(12.0, 0.0, 4.0), 1e-5));
+        assert!(bounds.half_extents.abs_diff_eq(Vec3::new(2.0, 0.5, 2.0), 1e-5));
+    }
+
+    #[test]
+    fn normalize_prototype_root_removes_collection_ancestors() {
+        let mut world = World::new();
+        let scene = world.spawn(Transform::IDENTITY).id();
+        let collection = world.spawn((Transform::IDENTITY, ChildOf(scene))).id();
+        let root = world.spawn((
+            Name::new("Prototype"), Transform::from_xyz(12.0, 3.0, -11.0), ChildOf(collection),
+        )).id();
+        let mut asset = WorldAsset::new(world);
+        assert_eq!(
+            normalize_prototype_root(&mut asset, Some(&Name::new("Prototype")), "test.glb"),
+            Some(root)
+        );
+        assert!(asset.world.get::<ChildOf>(root).is_none());
+        assert!(asset.world.get::<Transform>(scene).is_none());
+        assert!(asset.world.get::<Transform>(collection).is_none());
+        assert_eq!(asset.world.get::<Transform>(root).unwrap().translation, Vec3::ZERO);
+    }
+
+    #[test]
     fn default_spawner_has_large_capacity_and_a_bounded_spawn_chance() {
         let spawner = ObjectSpawner::default();
 
@@ -602,11 +831,14 @@ mod tests {
             .id();
         let mut asset = WorldAsset::new(world);
 
-        assert!(normalize_prototype_root(
-            &mut asset,
-            Some(&Name::new("Prototype")),
-            "test.glb"
-        ));
+        assert_eq!(
+            normalize_prototype_root(
+                &mut asset,
+                Some(&Name::new("Prototype")),
+                "test.glb"
+            ),
+            Some(root)
+        );
 
         let transform = asset.world.get::<Transform>(root).unwrap();
         assert_eq!(transform.translation, Vec3::ZERO);

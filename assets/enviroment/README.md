@@ -54,26 +54,24 @@ Root rotation, scale, and descendant transforms are retained. One root model
 is chosen deterministically for each generated tile from the variants in that
 biome's GLB.
 
-Attach `delta_slayers::gameplay::environment::ObjectSpawner` to a tile root
-or to a marker Empty anywhere below that root. The first spawner found in
-root-first hierarchy order supplies the tile's capacity and spawn chance.
+Attach `delta_slayers::gameplay::environment::ObjectSpawner` to the tile root
+or to an Empty child in the tile model. Every marked entity is one independent
+spawn point. Its full transform relative to the tile root determines the
+object's position and orientation. A marker on the root itself places an
+object at the tile origin.
 
 | Field | Default | Meaning |
 | --- | --- | --- |
-| `capacity` | `Large` | Total size budget available on this tile |
-| `spawn_chance` | `0.65` | Probability for each successive placement attempt, clamped to 0–1 |
+| `capacity` | `Large` | Largest object size this point can host |
+| `spawn_chance` | `0.65` | Probability this point receives one object, clamped to 0–1 |
 
-Size ranks use these capacity units:
+A point accepts any object whose rank is no larger than its capacity. Each
+point receives at most one object; capacity is not shared between points.
 
-| Rank | Units |
-| --- | ---: |
-| `Small` (S) | 1 |
-| `Medium` (M) | 2 |
-| `Large` (L) | 3 |
-
-The budget decreases by the size of each placed object. For example, an L
-capacity tile can hold one L object, one M plus one S, or three S objects.
-A tile without `ObjectSpawner` does not receive generated objects.
+The size ranks are ordered `Small` (S), `Medium` (M), and `Large` (L).
+A tile without any `ObjectSpawner` markers does not receive generated
+objects. Marker-only Empty nodes are read as authoring data and removed from
+the instantiated tile hierarchy; mesh-bearing transform parents remain.
 
 ## Spawnable object prototypes
 
@@ -89,26 +87,22 @@ belongs there.
 
 | Field | Default | Meaning |
 | --- | --- | --- |
-| `size` | `Small` | Capacity consumed when this object is placed |
-| `rarity` | `Common` | Relative selection weight among objects that fit the remaining budget |
+| `size` | `Small` | Rank used when matching an object to a spawn point |
+| `rarity` | `Common` | Relative selection weight among objects allowed by that point |
 
 Rarity weights are relative, not guaranteed percentages: Common 100, Uncommon
-35, Rare 12, Epic 4, and Legendary 1. Objects too large for the remaining
-tile budget are excluded from that placement attempt. Biome-specific and
-general objects participate in the same weighted selection.
+35, Rare 12, Epic 4, and Legendary 1. At each point, objects larger than its
+capacity are excluded. Biome-specific and general objects participate in the
+same weighted selection.
 
-Placement is seeded from the exploration map seed and tile coordinates, so
-the same map seed produces the same tile variants and object placements. Each
-placement receives a small deterministic offset around the tile center and
-uses the terrain's interpolated surface height.
-
-Generated objects have invisible movement blockers. The blocker uses a
-conservative upright box sized by the object's rank: Small 0.5 m, Medium
-1.4 m, and Large 2.0 m horizontal half-extents. These values cover the
-current small cone and medium Suzanne prototype bounds. The player and NPC
-cannot walk through these blockers, but the shape is approximate rather than
-mesh-accurate. Objects do not yet expose interaction prompts or gameplay
-actions.
+Placement is reproducible from the exploration map seed, tile coordinates,
+and sorted spawn-point position. The object's position and orientation come
+from the marker rather than a generated random offset. The complete mesh
+hierarchy is used to compute an aggregate AABB, including descendant mesh
+transforms. An invisible upright movement blocker uses those bounds with a
+small padding, so the player and NPC cannot walk through the visible object.
+The blocker is conservative rather than mesh-accurate physics. Objects do not
+yet expose interaction prompts or gameplay actions.
 
 ## Export checklist
 
@@ -119,6 +113,9 @@ actions.
   named nodes in the exported GLB.
 - Export as GLB (`.glb`) with mesh data, materials, and Skein custom
   properties included.
-- Attach `ObjectSpawner` and `SpawnableObject` to the relevant root objects.
-- Keep source object transforms and child hierarchy intact.
+- Attach `SpawnableObject` to each object root in the object collection.
+- Attach `ObjectSpawner` to each intended point on the tile root or an Empty
+  child; do not place it on the scene or collection container.
+- Keep model transforms and mesh hierarchy intact. Marker-only Empty nodes
+  are consumed as spawn metadata and removed from runtime tile instances.
 - Re-export the affected GLB whenever its models or component values change.
