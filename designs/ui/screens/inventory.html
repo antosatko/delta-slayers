@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1b2024">
+  <title>Pack and equipment — Delta Slayers</title>
+  <link rel="stylesheet" href="../styles.css">
+  <script src="../interaction.js" defer></script>
+  <script src="../palette.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="../index.html">Delta Slayers</a>
+      <div class="top-meta"><span>Greybridge</span><span>Late autumn · Day 214</span><label class="palette-control"><span class="palette-label">Palette</span><select class="palette-select" data-palette-select aria-label="Prototype color palette"><option value="carbon">Carbon & Azure</option><option value="harbor">Harbor & Coral</option><option value="citrine">Aubergine & Saffron</option><option value="moss">Moss & Orchid</option><option value="cobalt">Cobalt & Tangerine</option><option value="night-market">Night Market</option></select></label></div>
+    </header>
+    <div class="app-layout">
+      <nav class="rail" aria-label="Main navigation">
+        <p class="rail-caption">Guild office</p>
+        <a class="nav-item" href="contract.html"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.75h7l4 4v12.5H7z"/><path d="M14 3.75v4h4M10 12h5M10 15.5h5"/></svg><span class="nav-label">Contracts</span><span class="nav-count">4</span></a>
+        <a class="nav-item active" href="inventory.html" aria-current="page"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.5 12 4l8 4.5-8 4.5z"/><path d="M4 8.5V17l8 4 8-4V8.5M12 13v8"/></svg><span class="nav-label">Inventory</span></a>
+        <a class="nav-item" href="character.html"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.25"/><path d="M5 20c.5-3.5 2.8-5.25 7-5.25s6.5 1.75 7 5.25"/></svg><span class="nav-label">Character</span></a>
+        <a class="nav-item" href="journal.html"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h13v16H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="M8.5 8h7M8.5 12h7M8.5 16h5"/></svg><span class="nav-label">Journal</span><span class="nav-count">3</span></a>
+        <a class="nav-item" href="map.html"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3.5 6 5-2 7 2 5-2v14l-5 2-7-2-5 2z"/><path d="M8.5 4v14M15.5 6v14"/></svg><span class="nav-label">Map</span></a>
+        <a class="nav-item" href="trade.html"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h14M14 4l4 4-4 4M20 16H6M10 12l-4 4 4 4"/></svg><span class="nav-label">Trade</span></a>
+        <a class="nav-item" href="workshop.html"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 5.5 18.5 10 9 19.5a2.1 2.1 0 0 1-3-3z"/><path d="m12.5 7 4.5-4.5 4.5 4.5L17 11.5M5 4l4 4M4 5l4 4"/></svg><span class="nav-label">Workshop</span></a>
+        <div class="rail-note"><strong>Greybridge Chapter</strong>North road, river quarter</div>
+      </nav>
+      <main class="workspace">
+        <header class="page-heading">
+          <div class="page-heading-row">
+            <h1>Pack and equipment</h1>
+            <button class="screen-help" type="button" data-entry-trigger="screen-help-inventory" data-hover-only aria-label="About inventory"><span aria-hidden="true">?</span></button>
+          </div>
+        </header>
+<div class="inventory-layout" data-selection-scope>
+  <section class="panel" data-filter-scope data-selection-scope>
+    <header class="panel-head"><h2>Carried items</h2><span class="panel-heading-side">18 items · 4 categories</span></header>
+    <div class="panel-body">
+      <div class="toolbar">
+        <div class="filter-row">
+          <button class="filter-button active" type="button" data-filter-value="all" aria-label="All items" ><svg class="ui-icon filter-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg><span>All</span></button>
+          <button class="filter-button" type="button" data-filter-value="equipment" aria-label="Equipment" ><svg class="ui-icon filter-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m14 4 6 6-3 3-6-6z"/><path d="m11 7-7 7a2.1 2.1 0 0 0 3 3l7-7M4 20h5"/></svg><span>Equipment</span></button>
+          <button class="filter-button" type="button" data-filter-value="consumable" aria-label="Consumables" ><svg class="ui-icon filter-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v5l-4 9a3 3 0 0 0 2.7 4h6.6A3 3 0 0 0 18 17l-4-9V3"/><path d="M8 15h8"/></svg><span>Consumables</span></button>
+          <button class="filter-button" type="button" data-filter-value="material" aria-label="Materials" ><svg class="ui-icon filter-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9"/></svg><span>Materials</span></button>
+        </div>
+        <label class="search-wrap"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.3"/><path d="m16 16 4 4"/></svg><input class="search-input" type="search" placeholder="Search inventory" aria-label="Search inventory" data-filter-search></label>
+      </div>
+      <div class="item-grid">
+        <button class="item-display item-tile selectable" type="button" data-filter-item data-category="equipment" data-search="iron longsword weapon" data-select-item data-item-inspect data-selection-target="#inventory-detail" data-item-title="Iron longsword" data-item-meta="Weapon · One-handed · 3.2 kg" data-item-description="A serviceable guild issue blade. The edge has been sharpened recently; the leather wrap is worn but secure." data-item-facts="Condition|Good;Value|24 crowns;Durability|81 / 100" data-item-visual="⚔">
+          <span class="item-image" aria-hidden="true">⚔</span><span class="item-caption"><span class="item-name">Iron longsword</span><span class="item-quantity">1</span></span>
+        </button>
+        <button class="item-display item-tile selectable" type="button" data-filter-item data-category="equipment" data-search="round shield iron" data-select-item data-item-inspect data-selection-target="#inventory-detail" data-item-title="Round shield" data-item-meta="Off-hand · 4.8 kg" data-item-description="A small iron-rimmed shield with a repaired central boss. It is heavy, but the straps are intact." data-item-facts="Condition|Worn;Value|16 crowns;Durability|69 / 100" data-item-visual="◉">
+          <span class="item-image" aria-hidden="true">◉</span><span class="item-caption"><span class="item-name">Round shield</span><span class="item-quantity">1</span></span>
+        </button>
+        <button class="item-display item-tile selectable" type="button" data-filter-item data-category="equipment" data-search="leather coat armour" data-select-item data-item-inspect data-selection-target="#inventory-detail" data-item-title="Reinforced coat" data-item-meta="Body armour · 6.1 kg" data-item-description="Layered leather with a few iron plates sewn beneath the outer panels. Provides modest protection without restricting movement." data-item-facts="Condition|Good;Value|31 crowns;Durability|76 / 100" data-item-visual="▤">
+          <span class="item-image" aria-hidden="true">▤</span><span class="item-caption"><span class="item-name">Reinforced coat</span><span class="item-quantity">1</span></span>
+        </button>
+        <button class="item-display item-tile selectable" type="button" data-filter-item data-category="consumable" data-search="healing draught potion" data-select-item data-item-inspect data-selection-target="#inventory-detail" data-item-title="Healing draught" data-item-meta="Consumable · 0.4 kg" data-item-description="A bitter herbal preparation. Restores a moderate amount of health when consumed." data-item-facts="Contents|Full;Value|18 crowns;Stack|3" data-item-visual="瓶">
+          <span class="item-image" aria-hidden="true">瓶</span><span class="item-caption"><span class="item-name">Healing draught</span><span class="item-quantity">3</span></span>
+        </button>
+        <button class="item-display item-tile selectable" type="button" data-filter-item data-category="consumable" data-search="stamina tonic" data-select-item data-item-inspect data-selection-target="#inventory-detail" data-item-title="Stamina tonic" data-item-meta="Consumable · 0.3 kg" data-item-description="A sharp, warming tonic used to recover strength after prolonged exertion." data-item-facts="Contents|Full;Value|11 crowns;Stack|2" data-item-visual="◒">
+          <span class="item-image" aria-hidden="true">◒</span><span class="item-caption"><span class="item-name">Stamina tonic</span><span class="item-quantity">2</span></span>
+        </button>
+        <button class="item-display item-tile selectable" type="button" data-filter-item data-category="material" data-search="brine sample vial" data-select-item data-item-inspect data-selection-target="#inventory-detail" data-item-title="Brine sample" data-item-meta="Material · Quest item · 0.2 kg" data-item-description="A sealed sample collected from the old watercourse. Its salt content has not yet been tested." data-item-facts="Seal|Intact;Value|Quest item;Stack|1" data-item-visual="◍">
+          <span class="item-image" aria-hidden="true">◍</span><span class="item-caption"><span class="item-name">Brine sample</span><span class="item-quantity">1</span></span>
+        </button>
+        <button class="item-display item-tile selectable" type="button" data-filter-item data-category="material" data-search="iron ore" data-select-item data-item-inspect data-selection-target="#inventory-detail" data-item-title="Iron ore" data-item-meta="Material · 2.5 kg" data-item-description="A small bundle of low-grade ore. Useful for basic repairs or as a trade good." data-item-facts="Grade|Low;Value|3 crowns each;Stack|5" data-item-visual="◆">
+          <span class="item-image" aria-hidden="true">◆</span><span class="item-caption"><span class="item-name">Iron ore</span><span class="item-quantity">5</span></span>
+        </button>
+        <button class="item-display item-tile selectable" type="button" data-filter-item data-category="material" data-search="hemp rope" data-select-item data-item-inspect data-selection-target="#inventory-detail" data-item-title="Hemp rope" data-item-meta="Material · Utility · 1.4 kg" data-item-description="Ten metres of rough rope. Strong enough for ordinary hauling and climbing." data-item-facts="Length|10 metres;Condition|Good;Value|6 crowns" data-item-visual="⟲">
+          <span class="item-image" aria-hidden="true">⟲</span><span class="item-caption"><span class="item-name">Hemp rope</span><span class="item-quantity">1</span></span>
+        </button>
+      </div>
+      <p class="empty-state" data-filter-empty hidden>No items match these filters.</p>
+    </div>
+    <footer class="panel-head"><span class="panel-heading-side" data-filter-count>8 matching items</span><span class="panel-heading-side">Sort: Recent</span></footer>
+  </section>
+  <aside class="panel" id="inventory-detail" aria-live="polite" data-detail-panel hidden>
+    <header class="panel-head"><h2>Item details</h2><button class="detail-close" type="button" data-detail-close aria-label="Close item details">×</button></header>
+    <div class="panel-body">
+      <span class="item-visual item-detail-visual" data-selection-visual>⚔</span>
+      <h2 class="selection-title" data-selection-title>Iron longsword</h2>
+      <p class="inline-meta" data-selection-meta>Weapon · One-handed · 3.2 kg</p>
+      <p class="selection-description" data-selection-description>A serviceable guild issue blade. The edge has been sharpened recently; the leather wrap is worn but secure.</p>
+      <dl class="fact-list" data-selection-facts style="padding:0">
+        <div class="fact-row"><dt>Condition</dt><dd>Good</dd></div>
+        <div class="fact-row"><dt>Value</dt><dd>24 crowns</dd></div>
+        <div class="fact-row"><dt>Durability</dt><dd>81 / 100</dd></div>
+      </dl>
+      <div class="detail-actions" data-action-scope>
+        <button class="button primary" type="button" data-demo-action="Equipment state changed in this preview only."><svg class="ui-icon button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg><span>Equip</span></button>
+        <button class="button" type="button" data-demo-action="Item split preview opened."><svg class="ui-icon button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5v14M17 5v14M7 12h10"/></svg><span>Split</span></button>
+        <button class="button" type="button" data-demo-action="Drop action previewed."><svg class="ui-icon button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 20h14"/></svg><span>Drop</span></button>
+        <p class="action-feedback" data-action-feedback role="status" aria-live="polite"></p>
+      </div>
+    </div>
+  </aside>
+</div>
+<footer class="page-footer"><span><span class="keycap">Esc</span> Close inventory</span><span>Carry capacity includes equipped items</span></footer>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

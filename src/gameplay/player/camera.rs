@@ -1,0 +1,234 @@
+use bevy::{
+    input::mouse::{AccumulatedMouseMotion, AccumulatedMouseScroll, MouseScrollPixelsPerLine},
+    prelude::*,
+    ui::RelativeCursorPosition,
+};
+
+use super::{Player, PlayerSettings};
+
+pub const CAMERA_DISTANCE: f32 = 18.0;
+pub const CAMERA_HORIZONTAL_OFFSET: f32 = 0.45;
+pub const CAMERA_DEFAULT_PITCH: f32 = -0.82;
+pub const CAMERA_MIN_PITCH: f32 = -0.97;
+pub const CAMERA_MAX_PITCH: f32 = -0.67;
+pub(in crate::gameplay) const CAMERA_MIN_DISTANCE: f32 = 14.0;
+pub(in crate::gameplay) const CAMERA_MAX_DISTANCE: f32 = 22.0;
+
+const CAMERA_PITCH_SAVE_ADJUSTMENT: f32 = 0.08;
+const CAMERA_TARGET_HEIGHT: f32 = 0.8;
+
+/// Camera transform state, kept separate from the player's movement transform.
+#[derive(Component)]
+pub(crate) struct GameplayCamera {
+    pub(crate) distance: f32,
+    /// World-space translation applied to the camera and its look target.
+    pub(crate) pan_offset: Vec3,
+    /// Player position from the previous follow update, used to keep an
+    /// unlocked camera fixed in world space.
+    pub(crate) last_player_position: Option<Vec3>,
+}
+
+pub(in crate::gameplay) fn adjust_camera(
+    mut player: Query<&mut Player>,
+    mut camera: Query<&mut GameplayCamera>,
+    mouse_buttons: Res<ButtonInput<MouseButton>>,
+    mouse_motion: Res<AccumulatedMouseMotion>,
+    mouse_scroll: Res<AccumulatedMouseScroll>,
+    scroll_conversion: Res<MouseScrollPixelsPerLine>,
+    settings: Res<PlayerSettings>,
+    ui_surfaces: Query<(&RelativeCursorPosition, &InheritedVisibility)>,
+    mut pan_blocked_until_release: Local<bool>,
+) {
+    let pointer_over_ui = ui_surfaces
+        .iter()
+        .any(|(cursor, visibility)| visibility.get() && cursor.cursor_over);
+
+    if mouse_buttons.just_pressed(MouseButton::Middle) {
+        *pan_blocked_until_release = pointer_over_ui;
+    }
+    if mouse_buttons.pressed(MouseButton::Middle) && pointer_over_ui {
+        *pan_blocked_until_release = true;
+    }
+    if mouse_buttons.just_released(MouseButton::Middle) {
+        *pan_blocked_until_release = false;
+    }
+
+    let motion = mouse_motion.delta;
+    if mouse_buttons.pressed(MouseButton::Middle)
+        && !*pan_blocked_until_release
+        && motion.is_finite()
+        && motion != Vec2::ZERO
+        && let (Ok(player), Ok(mut camera)) = (player.single_mut(), camera.single_mut()) {
+            let orientation = follow_camera_rotation(player.yaw, player.pitch);
+            let right = horizontal_camera_axis(orientation * Vec3::X);
+            let up = horizontal_camera_axis(orientation * Vec3::Y);
+            let scale = camera.distance * settings.camera_pan_sensitivity;
+            camera.pan_offset =
+                camera_pan_offset_after_drag(camera.pan_offset, motion, right, up, scale);
+        }
+
+    let scroll = mouse_scroll.to_lines(&scroll_conversion).delta.y;
+    if !camera_scroll_allowed(pointer_over_ui, scroll) {
+        return;
+    }
+
+    if let Ok(mut player) = player.single_mut() {
+        player.pitch = camera_pitch_after_scroll(
+            player.pitch,
+            scroll,
+            settings.camera_pitch_sensitivity,
+        );
+    }
+    if let Ok(mut camera) = camera.single_mut() {
+        camera.distance = camera_distance_after_scroll(
+            camera.distance,
+            scroll,
+            settings.camera_zoom_sensitivity,
+        );
+    }
+}
+
+/// UI owns wheel input while the pointer is over one of its visible hit regions.
+fn camera_scroll_allowed(pointer_over_ui: bool, scroll: f32) -> bool {
+    !pointer_over_ui && scroll.is_finite() && scroll != 0.0
+}
+
+pub(in crate::gameplay) fn camera_pitch_after_scroll(
+    pitch: f32,
+    scroll: f32,
+    sensitivity: f32,
+) -> f32 {
+    (pitch + scroll * sensitivity).clamp(CAMERA_MIN_PITCH, CAMERA_MAX_PITCH)
+}
+
+fn camera_pan_offset_after_player_movement(
+    offset: Vec3,
+    player_delta: Vec3,
+    auto_lock: bool,
+) -> Vec3 {
+    if player_delta == Vec3::ZERO {
+        offset
+    } else if auto_lock {
+        Vec3::ZERO
+    } else {
+        offset - player_delta
+    }
+}
+
+fn horizontal_camera_axis(axis: Vec3) -> Vec3 {
+    Vec3::new(axis.x, 0.0, axis.z).normalize_or_zero()
+}
+
+pub(in crate::gameplay) fn camera_pan_offset_after_drag(
+    offset: Vec3,
+    delta: Vec2,
+    camera_right: Vec3,
+    camera_up: Vec3,
+    scale: f32,
+) -> Vec3 {
+    let offset = offset.with_y(0.0);
+    offset - horizontal_camera_axis(camera_right) * delta.x * scale
+        + horizontal_camera_axis(camera_up) * delta.y * scale
+}
+
+pub(in crate::gameplay) fn camera_distance_after_scroll(
+    distance: f32,
+    scroll: f32,
+    sensitivity: f32,
+) -> f32 {
+    (distance - scroll * sensitivity).clamp(CAMERA_MIN_DISTANCE, CAMERA_MAX_DISTANCE)
+}
+
+/// Converts a pitch stored by the previous camera setup to the new, slightly
+/// shallower default while preserving the saved zoom adjustment.
+pub(in crate::gameplay) fn migrate_saved_camera_pitch(pitch: f32) -> f32 {
+    (pitch + CAMERA_PITCH_SAVE_ADJUSTMENT).clamp(CAMERA_MIN_PITCH, CAMERA_MAX_PITCH)
+}
+
+/// Builds the follow-camera orientation with a slight horizontal offset from
+/// the player's heading, revealing the sides of world geometry.
+pub(in crate::gameplay) fn follow_camera_rotation(player_yaw: f32, pitch: f32) -> Quat {
+    Quat::from_euler(
+        EulerRot::YXZ,
+        player_yaw + CAMERA_HORIZONTAL_OFFSET,
+        pitch,
+        0.0,
+    )
+}
+
+/// Keeps the camera following the player while preserving a world-space pan
+/// offset. With auto-lock disabled, player displacement is cancelled from the
+/// offset so the camera remains stationary in world space.
+pub(in crate::gameplay) fn follow_camera(
+    player: Query<(&Transform, &Player)>,
+    mut camera: Query<
+        (&mut Transform, &mut GameplayCamera),
+        (With<GameplayCamera>, Without<Player>),
+    >,
+    settings: Res<PlayerSettings>,
+) {
+    let Ok((player_transform, player)) = player.single() else {
+        return;
+    };
+    let Ok((mut camera_transform, mut camera_settings)) = camera.single_mut() else {
+        return;
+    };
+
+    let player_position = player_transform.translation;
+    if let Some(previous_position) = camera_settings.last_player_position {
+        let player_delta = player_position - previous_position;
+        camera_settings.pan_offset = camera_pan_offset_after_player_movement(
+            camera_settings.pan_offset,
+            player_delta,
+            settings.camera_auto_lock,
+        );
+    }
+    camera_settings.last_player_position = Some(player_position);
+
+    camera_settings.distance = camera_settings
+        .distance
+        .clamp(CAMERA_MIN_DISTANCE, CAMERA_MAX_DISTANCE);
+    let target =
+        player_transform.translation + Vec3::Y * CAMERA_TARGET_HEIGHT + camera_settings.pan_offset;
+    let orientation = follow_camera_rotation(player.yaw, player.pitch);
+    let forward = orientation * Vec3::NEG_Z;
+    camera_transform.translation = target - forward * camera_settings.distance;
+    camera_transform.look_at(target, Vec3::Y);
+}
+
+
+#[cfg(test)]
+mod free_camera_tests {
+    use super::*;
+
+    #[test]
+    fn pointer_over_ui_consumes_camera_wheel_input() {
+        assert!(!camera_scroll_allowed(true, 1.0));
+        assert!(camera_scroll_allowed(false, 1.0));
+        assert!(!camera_scroll_allowed(false, 0.0));
+        assert!(!camera_scroll_allowed(false, f32::NAN));
+    }
+
+    #[test]
+    fn unlocked_camera_anchor_stays_fixed_when_player_moves() {
+        let player_start = Vec3::new(4.0, 2.0, 7.0);
+        let offset = Vec3::new(12.0, 3.0, -5.0);
+        let player_delta = Vec3::new(2.5, 0.75, -1.25);
+        let camera_anchor = player_start + offset;
+
+        let next_offset =
+            camera_pan_offset_after_player_movement(offset, player_delta, false);
+        let next_anchor = player_start + player_delta + next_offset;
+
+        assert!(next_anchor.abs_diff_eq(camera_anchor, 1e-6));
+    }
+
+    #[test]
+    fn auto_lock_clears_camera_offset_after_player_moves() {
+        let offset = Vec3::new(12.0, 3.0, -5.0);
+        let next_offset =
+            camera_pan_offset_after_player_movement(offset, Vec3::X, true);
+
+        assert_eq!(next_offset, Vec3::ZERO);
+    }
+}

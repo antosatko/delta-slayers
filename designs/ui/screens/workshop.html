@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1b2024">
+  <title>Workshop — Delta Slayers</title>
+  <link rel="stylesheet" href="../styles.css">
+  <script src="../interaction.js" defer></script>
+  <script src="../palette.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="../index.html">Delta Slayers</a>
+      <div class="top-meta"><span>Greybridge</span><span>Late autumn · Day 214</span><label class="palette-control"><span class="palette-label">Palette</span><select class="palette-select" data-palette-select aria-label="Prototype color palette"><option value="carbon">Carbon & Azure</option><option value="harbor">Harbor & Coral</option><option value="citrine">Aubergine & Saffron</option><option value="moss">Moss & Orchid</option><option value="cobalt">Cobalt & Tangerine</option><option value="night-market">Night Market</option></select></label></div>
+    </header>
+    <div class="app-layout">
+      <nav class="rail" aria-label="Main navigation">
+        <p class="rail-caption">Guild office</p>
+        <a class="nav-item" href="contract.html"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.75h7l4 4v12.5H7z"/><path d="M14 3.75v4h4M10 12h5M10 15.5h5"/></svg><span class="nav-label">Contracts</span><span class="nav-count">4</span></a>
+        <a class="nav-item" href="inventory.html"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.5 12 4l8 4.5-8 4.5z"/><path d="M4 8.5V17l8 4 8-4V8.5M12 13v8"/></svg><span class="nav-label">Inventory</span></a>
+        <a class="nav-item" href="character.html"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.25"/><path d="M5 20c.5-3.5 2.8-5.25 7-5.25s6.5 1.75 7 5.25"/></svg><span class="nav-label">Character</span></a>
+        <a class="nav-item" href="journal.html"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h13v16H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="M8.5 8h7M8.5 12h7M8.5 16h5"/></svg><span class="nav-label">Journal</span><span class="nav-count">3</span></a>
+        <a class="nav-item" href="map.html"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3.5 6 5-2 7 2 5-2v14l-5 2-7-2-5 2z"/><path d="M8.5 4v14M15.5 6v14"/></svg><span class="nav-label">Map</span></a>
+        <a class="nav-item" href="trade.html"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h14M14 4l4 4-4 4M20 16H6M10 12l-4 4 4 4"/></svg><span class="nav-label">Trade</span></a>
+        <a class="nav-item active" href="workshop.html" aria-current="page"><svg class="ui-icon nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 5.5 18.5 10 9 19.5a2.1 2.1 0 0 1-3-3z"/><path d="m12.5 7 4.5-4.5 4.5 4.5L17 11.5M5 4l4 4M4 5l4 4"/></svg><span class="nav-label">Workshop</span></a>
+        <div class="rail-note"><strong>Greybridge Chapter</strong>North road, river quarter</div>
+      </nav>
+      <main class="workspace">
+        <header class="page-heading">
+          <div class="page-heading-row">
+            <h1>Workshop</h1>
+            <button class="screen-help" type="button" data-entry-trigger="screen-help-workshop" data-hover-only aria-label="About workshop"><span aria-hidden="true">?</span></button>
+          </div>
+        </header>
+        <section class="panel workshop-resources" aria-label="Available materials">
+          <header class="panel-head"><h2>Available materials</h2><span class="panel-heading-side">Storage</span></header>
+          <div class="resource-strip">
+            <button class="item-display" type="button" data-item-inspect data-item-key="marshroot" data-item-title="Marshroot" data-item-meta="Material · Herbal ingredient" data-item-description="A bitter marsh herb used in restorative preparations." data-item-facts="Available|5;Type|Herbal ingredient" aria-label="Inspect Marshroot"><span class="item-image" aria-hidden="true">✿</span><span class="item-caption"><span class="item-name">Marshroot</span><strong class="item-quantity">5</strong></span></button>
+            <button class="item-display" type="button" data-item-inspect data-item-key="clean-water" data-item-title="Clean water" data-item-meta="Material · Ingredient" data-item-description="Filtered water suitable for alchemy and field preparations." data-item-facts="Available|12;Type|Ingredient" aria-label="Inspect Clean water"><span class="item-image" aria-hidden="true">◍</span><span class="item-caption"><span class="item-name">Clean water</span><strong class="item-quantity">12</strong></span></button>
+            <button class="item-display" type="button" data-item-inspect data-item-key="empty-vial" data-item-title="Empty vial" data-item-meta="Container · Glass" data-item-description="A small stoppered glass vial, ready to be filled." data-item-facts="Available|7;Type|Container" aria-label="Inspect Empty vial"><span class="item-image" aria-hidden="true">瓶</span><span class="item-caption"><span class="item-name">Empty vial</span><strong class="item-quantity">7</strong></span></button>
+            <button class="item-display" type="button" data-item-inspect data-item-key="dry-herbs" data-item-title="Dry herbs" data-item-meta="Material · Herbal ingredient" data-item-description="A bundle of dried leaves used in tonics and infusions." data-item-facts="Available|9;Type|Herbal ingredient" aria-label="Inspect Dry herbs"><span class="item-image" aria-hidden="true">❋</span><span class="item-caption"><span class="item-name">Dry herbs</span><strong class="item-quantity">9</strong></span></button>
+            <button class="item-display" type="button" data-item-inspect data-item-key="resin-strip" data-item-title="Resin strip" data-item-meta="Material · Binding agent" data-item-description="A strip treated with resin for waterproof field dressings." data-item-facts="Available|2;Type|Binding agent" aria-label="Inspect Resin strip"><span class="item-image" aria-hidden="true">▤</span><span class="item-caption"><span class="item-name">Resin strip</span><strong class="item-quantity">2</strong></span></button>
+            <button class="item-display" type="button" data-item-inspect data-item-key="rendered-oil" data-item-title="Rendered oil" data-item-meta="Material · Fuel" data-item-description="Filtered oil suitable for filling lamps." data-item-facts="Available|1;Type|Fuel" aria-label="Inspect Rendered oil"><span class="item-image" aria-hidden="true">◉</span><span class="item-caption"><span class="item-name">Rendered oil</span><strong class="item-quantity">1</strong></span></button>
+          </div>
+        </section>
+        <div class="workshop-layout" data-selection-scope>
+          <section class="panel workshop-recipes">
+            <header class="panel-head"><h2>Known recipes</h2><span class="panel-heading-side">Select a recipe</span></header>
+            <div class="recipe-list">
+              <button class="recipe-button item-display selectable" type="button" data-item-inspect data-select-item data-selection-target="#recipe-detail" data-item-facts="Marshroot|2 required · 5 available;Clean water|1 required · 12 available;Empty vial|1 required · 7 available" data-item-title="Healing draught" data-item-meta="Alchemy · Consumable · 15 minutes" data-item-description="A concentrated herbal preparation that restores health. Its bitter taste comes from the ground root and the iron-rich water used in the final infusion." data-item-visual="瓶"><span class="item-image" aria-hidden="true">瓶</span><span class="item-caption"><strong class="item-name">Healing draught</strong></span></button>
+              <button class="recipe-button item-display selectable" type="button" data-item-inspect data-select-item data-selection-target="#recipe-detail" data-item-facts="Dry herbs|2 required · 9 available;Clean water|1 required · 12 available;Empty vial|1 required · 7 available" data-item-title="Stamina tonic" data-item-meta="Alchemy · Consumable · 10 minutes" data-item-description="A warming tonic used to recover strength after exertion. It is easier to prepare but has a shorter shelf life." data-item-visual="◒"><span class="item-image" aria-hidden="true">◒</span><span class="item-caption"><strong class="item-name">Stamina tonic</strong></span></button>
+              <button class="recipe-button item-display selectable" type="button" data-item-inspect data-select-item data-selection-target="#recipe-detail" data-item-facts="Resin strip|1 required · 2 available;Clean cloth|1 required · 0 available;Clean water|1 required · 12 available" data-item-title="Reinforced bandage" data-item-meta="Field craft · Medical · 5 minutes" data-item-description="A clean wrap treated with resin. It holds its shape when wet and can be applied without a full medical kit." data-item-visual="▤"><span class="item-image" aria-hidden="true">▤</span><span class="item-caption"><strong class="item-name">Reinforced bandage</strong></span></button>
+              <button class="recipe-button item-display selectable" type="button" data-item-inspect data-select-item data-selection-target="#recipe-detail" data-item-facts="Rendered oil|1 required · 1 available;Empty bottle|1 required · 0 available;Wick|1 required · 0 available" data-item-title="Lantern oil" data-item-meta="Field craft · Utility · 8 minutes" data-item-description="A rendered oil blend suited to enclosed lamps. The mixture burns steadily but produces a little smoke." data-item-visual="◉"><span class="item-image" aria-hidden="true">◉</span><span class="item-caption"><strong class="item-name">Lantern oil</strong></span></button>
+            </div>
+          </section>
+          <aside class="panel workshop-detail" id="recipe-detail" aria-live="polite" data-detail-panel hidden>
+            <header class="panel-head"><h2>Recipe</h2><button class="detail-close" type="button" data-detail-close aria-label="Close recipe details">×</button></header>
+            <div class="panel-body">
+              <span class="item-visual item-detail-visual" data-selection-visual>瓶</span>
+              <h2 class="selection-title" data-selection-title>Healing draught</h2>
+              <p class="inline-meta" data-selection-meta>Alchemy · Consumable · 15 minutes</p>
+              <p class="selection-description" data-selection-description>A concentrated herbal preparation that restores health. Its bitter taste comes from the ground root and the iron-rich water used in the final infusion.</p>
+              <h3 class="section-label workshop-ingredients-heading">Ingredients</h3>
+              <dl class="fact-list workshop-ingredients" data-selection-facts>
+                <div class="fact-row"><dt>Marshroot</dt><dd>2 required · 5 available</dd></div>
+                <div class="fact-row"><dt>Clean water</dt><dd>1 required · 12 available</dd></div>
+                <div class="fact-row"><dt>Empty vial</dt><dd>1 required · 7 available</dd></div>
+              </dl>
+              <div class="action-row" data-action-scope><button class="button primary" type="button" data-demo-action="One item crafted in the preview.">Craft one</button><button class="button" type="button" data-demo-action="Batch crafting preview opened.">Craft batch</button><p class="action-feedback" data-action-feedback role="status" aria-live="polite"></p></div>
+            </div>
+          </aside>
+        </div>
+        <footer class="page-footer"><span><span class="keycap">Esc</span> Leave workshop</span><span>Ingredient counts are illustrative prototype values</span></footer>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
