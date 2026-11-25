@@ -149,7 +149,7 @@ fn showcase() -> impl Scene {
                                 CarbonStatus::Neutral
                             )
                         ]
-                    }
+                    ]
                     --
                     Node {
                         width: px(280),
@@ -222,7 +222,7 @@ fn showcase() -> impl Scene {
                         ]
                     ]
                 ]
-            }
+            ]
         ]
     }
 }
