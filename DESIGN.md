@@ -150,10 +150,12 @@ and data-driven destination UI before authoring multiple destinations of the
 same kind. Enemy and NPC spawn point kinds are metadata only until their runtime
 spawn systems are implemented.
 
-Removing the reflected `vegetation_density` field and adding
-`max_jump_height` changes the `ExplorationPortal` authoring schema. Refresh
-Skein's remote type registry and re-export any Blender-authored GLB that stores
-an `ExplorationPortal`; set the new field to configure its jump limit.
+The reflected `vegetation_density` field is retained as a legacy
+compatibility field because existing Blender GLB exports may still contain it.
+It is ignored by generation and has no setup control; procedural vegetation
+remains disabled. The new `max_jump_height` field defaults when absent from
+older exports, so existing exploration portals can continue to instantiate
+without an immediate GLB re-export.
 
 See `assets/worlds/README.md` for the Blender workflow and component schema.
 
