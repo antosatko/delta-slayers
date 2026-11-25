@@ -48,7 +48,7 @@ bsn! {
     Children [
         @section_header(CarbonIcon::Inventory, "Pack")
         --
-        @item_tile(CarbonIcon::Sword, "Iron longsword", None, false)
+        @item_tile_optional(CarbonIcon::Sword, "Iron longsword", None, false)
         --
         @action_button("Equip", CarbonIcon::Confirm, CarbonButtonTone::Primary)
         on(|_activate: On<Activate>| {
@@ -68,7 +68,7 @@ bsn! {
 - section_header, action_button, and badge provide common hierarchy and
   action/status treatments.
 - stat_bar displays a value and semantic progress fill.
-- item_tile is a square, artwork-first item control. Pass None for items
+- item_tile and item_tile_optional are square, artwork-first item controls. Use the optional variant and pass None for items
   without a stack quantity.
 - reference_term opens a contextual information card after a 600 ms hover
   dwell.
