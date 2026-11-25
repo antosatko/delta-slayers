@@ -78,9 +78,9 @@ Current authored components:
   box with local extents of -1 to 1. Blockers are upright and may rotate around
   the vertical Y axis.
 - `ExplorationPortal`: configured oriented interaction volume that generates
-  a seeded, bounded hex wilderness. It exposes the map radius, rendered tile radius in meters,
-  elevation scale, terrain/biome frequency, vegetation density, and optional
-  seed to Blender through Skein.
+  a seeded, bounded hex wilderness. It exposes the map radius, rendered tile
+  radius in meters, elevation scale, maximum jump height, terrain/biome
+  frequency, and optional seed to Blender through Skein.
 - `SpawnPoint`: spawn role and priority. The highest-priority Player point
   supplies the player's ground position and initial horizontal heading; saved
   player positions take precedence.
@@ -128,13 +128,19 @@ slower speed, stopping at a small personal-space distance. NPC movement calls
 the same collision resolver as player movement, so Blender-authored
 `MovementBlocker` volumes block both. The town remains the existing
 Blender-authored scene, while an `ExplorationPortal` can create a separate
-procedural hex map at runtime. The per-tile height field drives the imported tile models and player/NPC ground elevation. The map instances the supplied `assets/tiles/1.glb` and `assets/tiles/2.glb`
-models and tints them by biome. Their full-depth cylinder sides remain visible
-where neighboring tiles have different elevations; tile heights are discrete
-per-cell values rather than a smoothed surface. Tile 2 keeps its Skein-authored
-`MovementBlocker`. Sparse trees and a collision-blocked perimeter complete
-the first pass. A return
-beacon restores the town-side position captured on entry.
+procedural hex map at runtime. The generated tile heights position the
+imported `assets/tiles/1.glb` and `assets/tiles/2.glb` models, while a
+smoothstep-weighted triangular height field keeps the player and NPC elevation
+continuous between neighboring hex centers. The full-depth cylinder sides
+remain visible at tile seams. Neighboring tiles can be crossed only when their
+height difference is within the configured maximum jump height; steeper edges
+receive movement blockers. Reachability is flood-filled from the spawn tile,
+and tiles outside that connected area carry the gameplay-only
+`UnreachableTile` marker for future systems. The markers are also highlighted
+on the exploration minimap. Tiles are tinted by biome, and tile 2 keeps its
+Skein-authored `MovementBlocker`. Procedural vegetation is intentionally not
+generated. A collision-blocked perimeter and return beacon complete this
+exploration pass; the beacon restores the town-side position captured on entry.
 
 The TriggerZone-to-TriggerBox rename is a reflected authoring API break.
 Existing Blender files must replace the old component using the refreshed
@@ -144,6 +150,11 @@ and data-driven destination UI before authoring multiple destinations of the
 same kind. Enemy and NPC spawn point kinds are metadata only until their runtime
 spawn systems are implemented.
 
+Removing the reflected `vegetation_density` field and adding
+`max_jump_height` changes the `ExplorationPortal` authoring schema. Refresh
+Skein's remote type registry and re-export any Blender-authored GLB that stores
+an `ExplorationPortal`; set the new field to configure its jump limit.
+
 See `assets/worlds/README.md` for the Blender workflow and component schema.
 
 
@@ -152,17 +163,21 @@ See `assets/worlds/README.md` for the Blender workflow and component schema.
 An exploration portal is an interaction volume, not an automatic touch trigger:
 the player enters its bounds and presses E to open a setup dialog. The dialog
 starts with the portal's authored values and exposes the seed, hex radius,
-rendered tile radius, height multiplier, terrain frequency, biome scale, and
-vegetation density. A seed of 0 generates a new map per visit; **Randomize
+rendered tile radius, height multiplier, maximum jump height, terrain
+frequency, and biome scale. A seed of 0 generates a new map per visit; **Randomize
 seed** chooses a visible, reproducible seed without changing the other
 parameters. Number inputs enforce the generator's safe runtime ranges, and a
 live tile count reflects the selected radius. Reset restores the portal's
 authored values; Generate submits the selected configuration to gameplay.
 Tile radius defaults to 6 m. The supplied meshes have a 5 m source radius and
 are scaled to the selected radius. Tile centers use the full rendered radius
-for regular hex spacing. Each tile keeps its own elevation: adjacent heights
-are not interpolated or smoothed, allowing the thick cylinder sides of a
-higher tile to remain exposed above a lower neighbor.
+for regular hex spacing. The player and NPC use a smoothstep-weighted
+interpolation over the triangular grid between tile centers. Tile-to-tile
+height differences up to the configured maximum jump height are traversable;
+steeper edges are blocked. A flood fill from the spawn tile marks the other
+tiles as unreachable with an `UnreachableTile` component, which is available
+to future gameplay systems and highlighted on the minimap. The imported tile
+models retain their vertical sides. No procedural vegetation is spawned.
 While the dialog is open, UiStack owns its visibility and world simulation is
 suspended. Debug builds also show a dismissible panel on map entry with the
 resolved seed and effective generation parameters. The town scene stays loaded
