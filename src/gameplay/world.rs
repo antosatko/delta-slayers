@@ -96,6 +96,7 @@ pub(super) fn setup_game(
         Camera3d::default(),
         GameplayCamera {
             distance: player::CAMERA_DISTANCE,
+            orbit_yaw_offset: 0.0,
         },
         Transform::from_translation(camera_position).looking_at(camera_target, Vec3::Y),
         DespawnOnExit::<AppState>(AppState::InGame),
