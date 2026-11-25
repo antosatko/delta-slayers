@@ -82,8 +82,9 @@ impl MovementTarget {
         }
 
         self.refresh_elapsed += delta_secs;
-        if self.refresh_elapsed >= MOVE_TARGET_REFRESH_INTERVAL {
-            self.refresh_elapsed %= MOVE_TARGET_REFRESH_INTERVAL;
+        if self.refresh_elapsed + 1e-5 >= MOVE_TARGET_REFRESH_INTERVAL {
+            self.refresh_elapsed =
+                (self.refresh_elapsed - MOVE_TARGET_REFRESH_INTERVAL).max(0.0);
             return true;
         }
 
