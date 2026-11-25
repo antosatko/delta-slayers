@@ -14,9 +14,9 @@ using subtle tinted surfaces rather than bright fills.
 
 Panels rely on spacing, tonal surfaces, and soft elevation instead of decorative
 outlines. Item tiles are square and artwork-first, with the item name and an
-optional quantity overlaid at the bottom. Use a hoverable help affordance only where contextual guidance adds useful
-information; simple screens use a plain title. Screens with multiple views can
-place a tab row directly underneath.
+optional quantity overlaid at the bottom. Use a hoverable help affordance only
+where contextual guidance adds useful information; simple screens use a plain
+title. Screens with multiple views can place a tab row directly underneath.
 
 ## Setup
 
@@ -71,7 +71,8 @@ bsn! {
 - stat_bar displays a value and semantic progress fill.
 - item_tile and item_tile_optional are square glyph-first controls;
   item_art_tile is a passive image-first tile for inventory presentation.
-  equipment_slot provides a caption-free equipment placeholder.
+  equipment_slot provides a caption-free placeholder, while gear_slot creates
+  labelled square equipment positions for character gear grids.
   Each tile exposes CarbonSelection so a screen can change its selected
   appearance without rebuilding the scene.
 - reference_term opens a contextual information card after a 600 ms hover
