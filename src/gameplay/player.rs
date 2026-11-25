@@ -4,6 +4,8 @@ use bevy::{
     window::PrimaryWindow,
 };
 
+use crate::ui::stack::UiStack;
+
 pub const CAMERA_DISTANCE: f32 = 18.0;
 pub const CAMERA_HORIZONTAL_OFFSET: f32 = 0.45;
 pub const CAMERA_DEFAULT_PITCH: f32 = -0.82;
@@ -49,6 +51,7 @@ pub(super) struct MovementTarget {
     pub(super) destination: Option<Vec3>,
     hold_elapsed: f32,
     refresh_elapsed: f32,
+    ignore_click_until_release: bool,
 }
 
 impl MovementTarget {
@@ -56,6 +59,7 @@ impl MovementTarget {
         self.destination = None;
         self.hold_elapsed = 0.0;
         self.refresh_elapsed = 0.0;
+        self.ignore_click_until_release = false;
     }
 
     fn should_update_from_cursor(
@@ -63,16 +67,27 @@ impl MovementTarget {
         pressed: bool,
         just_pressed: bool,
         delta_secs: f32,
+        blocked_by_ui: bool,
     ) -> bool {
         if just_pressed {
             self.hold_elapsed = 0.0;
             self.refresh_elapsed = 0.0;
-            return true;
+            self.ignore_click_until_release = blocked_by_ui;
+            return !blocked_by_ui;
         }
 
         if !pressed {
             self.hold_elapsed = 0.0;
             self.refresh_elapsed = 0.0;
+            self.ignore_click_until_release = false;
+            return false;
+        }
+
+        if blocked_by_ui {
+            self.ignore_click_until_release = true;
+            return false;
+        }
+        if self.ignore_click_until_release {
             return false;
         }
 
@@ -129,10 +144,22 @@ pub(super) fn set_move_target_from_cursor(
     player: Query<&Transform, With<Player>>,
     mut target: ResMut<MovementTarget>,
     time: Res<Time>,
+    ui_state: Res<UiStack>,
+    ui_surfaces: Query<&RelativeCursorPosition>,
 ) {
     let just_pressed = mouse.just_pressed(MouseButton::Left);
     let pressed = mouse.pressed(MouseButton::Left);
-    if !target.should_update_from_cursor(pressed, just_pressed, time.delta_secs()) {
+    let pointer_over_ui = ui_surfaces.iter().any(|cursor| cursor.cursor_over);
+    let blocked_by_ui = pointer_over_ui
+        || ui_state.paused()
+        || ui_state.inventory_open()
+        || ui_state.game_menu_open();
+    if !target.should_update_from_cursor(
+        pressed,
+        just_pressed,
+        time.delta_secs(),
+        blocked_by_ui,
+    ) {
         return;
     }
 
@@ -333,38 +360,59 @@ mod tests {
     fn click_sets_a_destination_immediately() {
         let mut target = MovementTarget::default();
 
-        assert!(target.should_update_from_cursor(true, true, 0.016));
-        assert!(!target.should_update_from_cursor(true, false, 0.1));
+        assert!(target.should_update_from_cursor(true, true, 0.016, false));
+        assert!(!target.should_update_from_cursor(true, false, 0.1, false));
     }
 
     #[test]
     fn held_click_waits_then_refreshes_periodically() {
         let mut target = MovementTarget::default();
 
-        assert!(target.should_update_from_cursor(true, true, 0.016));
-        assert!(!target.should_update_from_cursor(true, false, 0.2));
-        assert!(target.should_update_from_cursor(true, false, 0.1));
-        assert!(!target.should_update_from_cursor(true, false, 0.04));
-        assert!(target.should_update_from_cursor(true, false, 0.06));
+        assert!(target.should_update_from_cursor(true, true, 0.016, false));
+        assert!(!target.should_update_from_cursor(true, false, 0.2, false));
+        assert!(target.should_update_from_cursor(true, false, 0.1, false));
+        assert!(!target.should_update_from_cursor(true, false, 0.04, false));
+        assert!(target.should_update_from_cursor(true, false, 0.06, false));
     }
 
     #[test]
     fn releasing_stops_periodic_retargeting() {
         let mut target = MovementTarget::default();
 
-        assert!(target.should_update_from_cursor(true, true, 0.016));
-        assert!(!target.should_update_from_cursor(false, false, 0.016));
-        assert!(!target.should_update_from_cursor(true, false, 0.2));
+        assert!(target.should_update_from_cursor(true, true, 0.016, false));
+        assert!(!target.should_update_from_cursor(false, false, 0.016, false));
+        assert!(!target.should_update_from_cursor(true, false, 0.2, false));
     }
 
     #[test]
     fn clearing_destination_also_resets_hold_state() {
         let mut target = MovementTarget::default();
-        assert!(target.should_update_from_cursor(true, true, 0.016));
+        assert!(target.should_update_from_cursor(true, true, 0.016, false));
         target.clear();
 
         assert!(target.destination.is_none());
-        assert!(!target.should_update_from_cursor(true, false, 0.2));
+        assert!(!target.should_update_from_cursor(true, false, 0.2, false));
+    }
+
+    #[test]
+    fn clicking_ui_does_not_start_movement_even_after_dragging_into_world() {
+        let mut target = MovementTarget::default();
+
+        assert!(!target.should_update_from_cursor(true, true, 0.016, true));
+        assert!(!target.should_update_from_cursor(true, false, 0.5, false));
+        assert!(!target.should_update_from_cursor(false, false, 0.016, false));
+        assert!(target.should_update_from_cursor(true, true, 0.016, false));
+    }
+
+    #[test]
+    fn moving_pointer_over_ui_stops_held_retargeting_until_release() {
+        let mut target = MovementTarget::default();
+
+        assert!(target.should_update_from_cursor(true, true, 0.016, false));
+        assert!(!target.should_update_from_cursor(true, false, 0.1, true));
+        assert!(!target.should_update_from_cursor(true, false, 0.5, false));
+        assert!(!target.should_update_from_cursor(false, false, 0.016, false));
+        assert!(target.should_update_from_cursor(true, true, 0.016, false));
     }
 
     #[test]
