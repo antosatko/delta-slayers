@@ -431,7 +431,11 @@ fn hierarchy_contains_mesh(world: &World, entity: Entity) -> bool {
     world.get::<Mesh3d>(entity).is_some()
         || world
             .get::<Children>(entity)
-            .is_some_and(|children| children.iter().any(|child| hierarchy_contains_mesh(world, child)))
+            .is_some_and(|children| {
+                children
+                    .iter()
+                    .any(|child| hierarchy_contains_mesh(world, child))
+            })
 }
 
 fn find_object_spawner(world: &World, entity: Entity) -> Option<ObjectSpawner> {
