@@ -24,11 +24,10 @@ pub struct SpawnPoint {
     pub priority: i32,
 }
 
-/// Tracks the initial world/spawn-point handshake for the current game session.
+/// Tracks whether the saved position or an authored spawn point initialized
+/// the player for the current world instance.
 #[derive(Resource, Default)]
 pub(super) struct WorldStartup {
-    pub(super) scene_ready: bool,
-    pub(super) has_saved_position: bool,
     pub(super) spawn_point_applied: bool,
 }
 
@@ -39,15 +38,11 @@ pub(super) fn apply_player_spawn_point(
     spawn_points: Query<(&GlobalTransform, &SpawnPoint)>,
     mut player: Query<(&mut Transform, &mut Player)>,
 ) {
-    if !startup.scene_ready || startup.spawn_point_applied {
+    if startup.spawn_point_applied {
         return;
     }
 
     startup.spawn_point_applied = true;
-    if startup.has_saved_position {
-        return;
-    }
-
     let selected = spawn_points
         .iter()
         .filter(|(_, point)| point.kind == SpawnPointKind::Player)
