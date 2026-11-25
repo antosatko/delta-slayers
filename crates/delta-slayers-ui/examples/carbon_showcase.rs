@@ -16,7 +16,7 @@ fn main() {
             ..default()
         }))
         .add_plugins(CarbonPlugin)
-        .add_systems(Startup, scene().spawn())
+        .add_systems(Startup, scene.spawn())
         .run();
 }
 
@@ -28,21 +28,23 @@ fn scene() -> impl SceneList {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 enum ShowcasePage {
+    #[default]
     Items,
     Equipment,
     Materials,
 }
 
-#[derive(Component, Clone, Copy)]
+#[derive(Component, Default, Clone, Copy)]
 struct ShowcaseTab(ShowcasePage);
 
-#[derive(Component, Clone, Copy)]
+#[derive(Component, Default, Clone, Copy)]
 struct ShowcaseContent(ShowcasePage);
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 enum ShowcaseItemKind {
+    #[default]
     Sword,
     Shield,
     Draught,
@@ -96,11 +98,12 @@ impl ShowcaseItemKind {
     }
 }
 
-#[derive(Component, Clone, Copy)]
+#[derive(Component, Default, Clone, Copy)]
 struct ShowcaseItem(ShowcaseItemKind);
 
-#[derive(Component, Clone, Copy)]
+#[derive(Component, Default, Clone, Copy)]
 enum ShowcaseDetailField {
+    #[default]
     Icon,
     Title,
     Category,
@@ -108,7 +111,7 @@ enum ShowcaseDetailField {
     Value,
 }
 
-#[derive(Component)]
+#[derive(Component, Default, Clone, Copy)]
 struct ShowcaseFeedback;
 
 fn showcase() -> impl Scene {
