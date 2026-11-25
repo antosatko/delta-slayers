@@ -317,7 +317,7 @@ fn exploration_setup_panel() -> impl Scene {
                     Children [
                         @pane_body()
                         Children [
-                            @label_dim("Adjust the map before entering. A seed of 0 generates a new map each visit.")
+                            @label_dim("Adjust the map before entering. Seed 0 is always random; Randomize seed picks a value you can reuse.")
                             --
                             @exploration_integer_control(
                                 "Seed",
@@ -340,13 +340,13 @@ fn exploration_setup_panel() -> impl Scene {
                             )
                             --
                             @exploration_float_control(
-                                "Tile size",
-                                "Hex side length in world units",
+                                "Tile radius (m)",
+                                "Rendered tile radius; adjacent tiles intentionally overlap",
                                 ExplorationParameterControl::TileSize,
                                 defaults.tile_size,
-                                1.0,
-                                3.0,
-                                0.05,
+                                4.0,
+                                8.0,
+                                0.25,
                                 2
                             )
                             --
@@ -416,6 +416,11 @@ fn exploration_setup_panel() -> impl Scene {
                         row_gap: px(8),
                     }
                     Children [
+                        @action_button("Randomize seed", CarbonIcon::Compass, CarbonButtonTone::Secondary)
+                        on(|_activate: On<Activate>, mut draft: ResMut<ExplorationSetupViewModel>| {
+                            draft.randomize_seed();
+                        })
+                        --
                         @action_button("Reset", CarbonIcon::Back, CarbonButtonTone::Ghost)
                         on(|_activate: On<Activate>, mut draft: ResMut<ExplorationSetupViewModel>| {
                             draft.reset();
