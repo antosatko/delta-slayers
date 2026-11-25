@@ -24,7 +24,7 @@ use super::terrain::terrain_surface_height;
 
 const MAP_WORLD_OFFSET: f32 = 512.0;
 
-pub(super) fn detect_portal(
+pub(in crate::gameplay) fn detect_portal(
     player: Query<&Transform, With<Player>>,
     portals: Query<(&GlobalTransform, &ExplorationPortal)>,
     return_portals: Query<&GlobalTransform, With<ExplorationReturnPortal>>,
@@ -56,7 +56,7 @@ fn contains_point(transform: &GlobalTransform, point: Vec3) -> bool {
 /// Consumes an interaction request and either creates an exploration instance
 /// or restores the town-side transform captured when the player entered it.
 
-pub(super) fn process_travel_request(
+pub(in crate::gameplay) fn process_travel_request(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut request: ResMut<ExplorationTravelRequest>,

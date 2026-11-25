@@ -5,16 +5,12 @@ mod hex;
 mod terrain;
 mod travel;
 
-pub(super) use generation::{reachable_tiles, GeneratedTile};
+use generation::{reachable_tiles, GeneratedTile};
 pub use generation::{apply_tile_materials, ExplorationTileTint, ExplorationTileTintApplied};
-pub(super) use hex::{
-    hex_center, hex_corner, hex_distance, hex_layout_radius, world_to_axial,
-    HEX_CORNER_COUNT,
-};
-pub(super) use terrain::{
-    biome_at, cell_random, fractal_noise, sync_ground_height, terrain_height,
-    terrain_surface_height,
-};
+use hex::{hex_corner, hex_distance, hex_layout_radius, HEX_CORNER_COUNT};
+pub(crate) use hex::{hex_center, world_to_axial};
+use terrain::{biome_at, cell_random, fractal_noise, terrain_height, terrain_surface_height};
+pub(super) use terrain::sync_ground_height;
 pub(super) use travel::{detect_portal, process_travel_request};
 pub(crate) use travel::generate_seed;
 
