@@ -59,6 +59,8 @@ pub(in crate::ui) fn scene() -> impl SceneList {
         --
         @exploration_debug_panel()
         --
+        @exploration_setup_panel()
+        --
         @inventory_scene()
         --
         @game_menu_modal()
