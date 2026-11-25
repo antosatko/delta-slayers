@@ -12,12 +12,13 @@ use crate::{
             ActiveExplorationMap, Biome, ExplorationTile, NearbyExplorationPortal, UnreachableTile,
             hex_center, world_to_axial,
         },
-        player::Player,
+        player::{Player, PlayerSettings},
         zones::{NearbyZone, TriggerBox, VisitedZones},
     },
     ui::{
         components::{
-            ExplorationDebugInfoText, ExplorationDebugPanelRoot, ExplorationDebugPanelState,
+            DeveloperSettingsContentRoot, DeveloperSettingsPanelState, ExplorationDebugInfoText,
+            ExplorationDebugPanelRoot, ExplorationDebugPanelState, PlayerSettingControl, SettingsPanelRoot,
             ExplorationParameterControl, ExplorationSetupRoot, ExplorationSetupTileCountText,
             ExplorationSetupViewModel, FastTravelButton, FastTravelMenu, GameMenuModal,
             MinimapExplorationDot, MinimapZoneDot, PanelRoot, PauseOverlay, PopupRoot,
@@ -229,6 +230,34 @@ pub fn game_menu_visibility_system(
     }
 }
 
+pub fn settings_panel_visibility_system(ui: Res<UiStack>, mut roots: Query<&mut Visibility, With<SettingsPanelRoot>>) {
+    for mut visibility in &mut roots {
+        *visibility = if ui.contains(crate::ui::stack::UiLayer::Settings) { Visibility::Visible } else { Visibility::Hidden };
+    }
+}
+
+pub fn developer_settings_projection(state: Res<DeveloperSettingsPanelState>, mut content: Query<&mut Visibility, With<DeveloperSettingsContentRoot>>) {
+    for mut visibility in &mut content {
+        *visibility = if state.expanded { Visibility::Visible } else { Visibility::Hidden };
+    }
+}
+
+pub fn player_settings_projection(settings: Res<PlayerSettings>, controls: Query<(Entity, &PlayerSettingControl, &NumberInputValue), With<FeathersNumberInput>>, mut commands: Commands) {
+    if !settings.is_changed() { return; }
+    for (entity, control, current) in &controls {
+        let value = match control {
+            PlayerSettingControl::PanSensitivity => settings.camera_pan_sensitivity,
+            PlayerSettingControl::ZoomSensitivity => settings.camera_zoom_sensitivity,
+            PlayerSettingControl::PitchSensitivity => settings.camera_pitch_sensitivity,
+            PlayerSettingControl::MinCameraDistance => settings.camera_min_distance,
+            PlayerSettingControl::MaxCameraDistance => settings.camera_max_distance,
+            PlayerSettingControl::WalkSpeed => settings.walk_speed,
+            PlayerSettingControl::SprintSpeed => settings.sprint_speed,
+        };
+        let next = NumberInputValue::F32(value);
+        if *current != next { commands.entity(entity).insert(next); }
+    }
+}
 pub fn pause_overlay_visibility_system(
     ui: Res<UiStack>,
     mut overlays: Query<&mut Visibility, With<PauseOverlay>>,
