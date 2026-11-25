@@ -21,7 +21,8 @@ pub(super) use collision::{
     move_with_collisions, movement_collision_contact, PLAYER_COLLIDER_RADIUS,
 };
 pub(super) use destination::{
-    draw_move_trajectory, trajectory_arrow_phase, DESTINATION_RING_RADIUS,
+    draw_move_trajectory, trajectory_arrow_phase, TrajectoryGizmoConfigGroup,
+    DESTINATION_RING_RADIUS,
     TRAJECTORY_ARROW_LENGTH, TRAJECTORY_ARROW_SPACING, TRAJECTORY_ARROW_SPEED,
 };
 pub(super) use movement::{

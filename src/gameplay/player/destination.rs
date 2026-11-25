@@ -1,6 +1,15 @@
-use bevy::prelude::*;
+use bevy::{
+    gizmos::config::GizmoConfigGroup,
+    prelude::*,
+};
 
 use super::{MovementTarget, Player};
+
+/// Dedicated depth configuration so path indicators can render through scene geometry.
+#[derive(Default, Reflect)]
+pub(super) struct TrajectoryGizmoConfigGroup;
+
+impl GizmoConfigGroup for TrajectoryGizmoConfigGroup {}
 
 const TRAJECTORY_HEIGHT: f32 = 0.12;
 
@@ -13,7 +22,7 @@ pub(in crate::gameplay) const DESTINATION_BEACON_HEIGHT: f32 = 0.72;
 /// Draws a sequence of small 3D arrows from the player to the selected
 /// destination. The path follows the character as it moves.
 pub(in crate::gameplay) fn draw_move_trajectory(
-    mut gizmos: Gizmos,
+    mut gizmos: Gizmos<TrajectoryGizmoConfigGroup>,
     player: Query<&Transform, With<Player>>,
     target: Res<MovementTarget>,
     time: Res<Time>,

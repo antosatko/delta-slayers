@@ -1,6 +1,7 @@
 mod billboard;
 pub(crate) mod exploration;
 mod npc;
+mod occlusion;
 mod persistence;
 mod spawning;
 mod systems;
@@ -29,7 +30,15 @@ pub struct GameplayPlugin;
 
 impl Plugin for GameplayPlugin {
     fn build(&self, app: &mut App) {
-        app.register_type::<zones::ZoneKind>()
+        app.insert_gizmo_config(
+            player::TrajectoryGizmoConfigGroup,
+            GizmoConfig {
+                depth_bias: -1.0,
+                ..default()
+            },
+        )
+            .register_type::<occlusion::PlayerOccluder>()
+            .register_type::<zones::ZoneKind>()
             .register_type::<zones::TriggerBox>()
             .register_type::<exploration::ExplorationPortal>()
             .register_type::<player::MovementBlocker>()
@@ -79,6 +88,7 @@ impl Plugin for GameplayPlugin {
                     exploration::apply_tile_materials,
                     exploration::sync_ground_height,
                     player::follow_camera,
+                    occlusion::fade_occluding_objects,
                     player::draw_move_trajectory.run_if(gameplay_simulation_enabled),
                     player::sync_player_visual,
                     billboard::animate_moving_sprites,

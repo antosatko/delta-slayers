@@ -45,7 +45,7 @@ Within those areas:
 | `gameplay/npc.rs` | NPC movement that reuses the player collision resolver |
 | `gameplay/systems.rs` | Gameplay actions such as fast travel and returning to the menu |
 | `gameplay/persistence.rs` | Save-file serialization and loading |
-| `gameplay/billboard.rs` | Camera-facing billboard transform |
+| `gameplay/billboard.rs` | Camera-facing billboard transform |\n| `gameplay/occlusion.rs` | Blender-authored player occluders and per-object material fading |
 | `ui/stack.rs` | UI overlay navigation stack |
 | `ui/components.rs` | UI marker components and UI-only requests |
 | `ui/inventory.rs` | Inventory ViewModel, UI labels, and model-to-view projection |
@@ -95,7 +95,7 @@ Current authored components:
   player positions take precedence.
 - `Billboard`: camera-facing behavior for flat world objects. The player uses
   the existing full-body character image on an unlit, transparent 3D quad.
-- `SquashOnMove`: opt-in movement animation for visual entities. It detects
+- `PlayerOccluder`: opt-in transparency for Blender-authored objects that cross the camera-to-player line of sight. The component applies to descendant meshes, each of which receives a private material copy while its opacity fades down and back up.\n- `SquashOnMove`: opt-in movement animation for visual entities. It detects
   transform displacement and applies a subtle horizontal stretch / vertical
   squash to the sprite scale. It does not move the entity or alter gameplay
   position; large one-frame displacements are treated as teleports and ignored.
@@ -112,7 +112,7 @@ next gameplay session. The wheel adjusts follow distance and vertical viewing
 angle. The mouse cursor remains visible and ungrabbed during gameplay.
 Left-clicking the ground sets a movement destination; the player walks toward
 it continuously, and animated 3D arrows slowly travel along the remaining
-trajectory. Holding the left button for 300 ms starts periodic destination
+trajectory; its dedicated gizmo depth bias keeps it visible through other geometry. Holding the left button for 300 ms starts periodic destination
 updates from the cursor until release. A highlighted ground ring and vertical
 beacon mark the endpoint. A new click replaces the destination, and holding
 Shift increases movement speed. WASD and arrow keys also move relative to the
