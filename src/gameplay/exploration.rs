@@ -16,7 +16,6 @@ use crate::{
 const MAP_WORLD_OFFSET: f32 = 512.0;
 const HEX_CORNER_COUNT: usize = 6;
 const TILE_MODEL_SOURCE_RADIUS: f32 = 5.0;
-pub(crate) const TILE_SPACING_FACTOR: f32 = 0.82;
 const TERRAIN_OCTAVES: usize = 4;
 const MIN_MAP_RADIUS: u32 = 8;
 const MAX_MAP_RADIUS: u32 = 32;
@@ -338,7 +337,7 @@ pub(super) fn apply_tile_materials(
     renderables: Query<(Option<&Children>, Has<Mesh3d>)>,
 ) {
     for (tile, tint, children) in &tiles {
-        let mut pending = children.iter().copied().collect::<Vec<_>>();
+        let mut pending = children.iter().collect::<Vec<_>>();
         let mut applied = false;
 
         while let Some(entity) = pending.pop() {
@@ -354,7 +353,7 @@ pub(super) fn apply_tile_materials(
             }
 
             if let Some(nested_children) = nested_children {
-                pending.extend(nested_children.iter().copied());
+                pending.extend(nested_children.iter());
             }
         }
 
@@ -503,8 +502,8 @@ fn spawn_boundary_walls(commands: &mut Commands, root: Entity, config: Explorati
                     continue;
                 }
 
-                // Wall segments follow the visible outer edge of the larger
-                // overhanging tile models, not the tighter center spacing.
+                // The tile's side walls remain visible where neighboring tiles
+                // have different elevations.
                 let a = hex_corner(center, config.tile_size, side);
                 let b = hex_corner(center, config.tile_size, (side + 1) % HEX_CORNER_COUNT);
                 let midpoint = (a + b) * 0.5;
@@ -650,7 +649,7 @@ fn lerp(a: f32, b: f32, t: f32) -> f32 {
 }
 
 fn hex_layout_radius(config: ExplorationPortal) -> f32 {
-    config.tile_size * TILE_SPACING_FACTOR
+    config.tile_size
 }
 
 fn hex_center(q: i32, r: i32, size: f32) -> Vec2 {
@@ -759,11 +758,11 @@ mod tests {
     }
 
     #[test]
-    fn tile_radius_uses_the_imported_model_scale_and_overhang_spacing() {
+    fn tile_layout_uses_the_full_imported_model_radius() {
         let config = ExplorationPortal::default();
 
         assert_eq!(config.tile_size, 6.0);
-        assert!((hex_layout_radius(config) - 4.92).abs() < 0.0001);
+        assert_eq!(hex_layout_radius(config), 6.0);
 
         let too_small = ExplorationPortal {
             tile_size: 2.0,
@@ -778,6 +777,20 @@ mod tests {
 
         assert_eq!(too_small.tile_size, 4.0);
         assert_eq!(too_large.tile_size, 8.0);
+    }
+
+    #[test]
+    fn terrain_height_is_discrete_between_adjacent_tiles() {
+        let config = ExplorationPortal::default();
+        let first = hex_center(0, 0, hex_layout_radius(config));
+        let second = hex_center(1, 0, hex_layout_radius(config));
+        let first_height = terrain_height(config, 1234, first);
+        let second_height = terrain_height(config, 1234, second);
+        let midpoint = (first + second) * 0.5;
+
+        assert_ne!(first_height, second_height);
+        let sampled = terrain_surface_height(config, 1234, midpoint);
+        assert!(sampled == first_height || sampled == second_height);
     }
 
     #[test]
