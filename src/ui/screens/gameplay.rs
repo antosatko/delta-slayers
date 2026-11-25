@@ -107,36 +107,44 @@ fn interaction_prompt() -> impl Scene {
     bsn! {
         Node {
             position_type: PositionType::Absolute,
+            left: px(0),
+            right: px(0),
             bottom: px(28),
-            left: percent(50),
-            margin: UiRect::left(px(-165)),
-            width: px(330),
-            max_width: percent(90),
-            padding: UiRect::all(px(10)),
-            border_radius: BorderRadius::all(px(8)),
+            width: percent(100),
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
         }
-        template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().panel)))
         bevy::ui::GlobalZIndex(8)
         PopupRoot
         Visibility::Hidden
         DespawnOnExit::<AppState>(AppState::InGame)
         Children [
             Node {
-                width: percent(100),
-                flex_direction: FlexDirection::Row,
-                flex_wrap: FlexWrap::Wrap,
-                align_items: AlignItems::Center,
-                justify_content: JustifyContent::SpaceBetween,
-                column_gap: px(12),
-                row_gap: px(8),
+                width: px(330),
+                max_width: percent(90),
+                min_width: px(0),
+                padding: UiRect::all(px(10)),
+                border_radius: BorderRadius::all(px(8)),
             }
+            template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().panel)))
             Children [
-                @key_hint("E", "Interact")
-                --
-                @action_button("Open", CarbonIcon::Confirm, CarbonButtonTone::Primary)
-                on(|_activate: On<Activate>, mut request: ResMut<PopupConfirmRequested>| {
-                    request.0 = true;
-                })
+                Node {
+                    width: percent(100),
+                    flex_direction: FlexDirection::Row,
+                    flex_wrap: FlexWrap::Wrap,
+                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::SpaceBetween,
+                    column_gap: px(12),
+                    row_gap: px(8),
+                }
+                Children [
+                    @key_hint("E", "Interact")
+                    --
+                    @action_button("Open", CarbonIcon::Confirm, CarbonButtonTone::Primary)
+                    on(|_activate: On<Activate>, mut request: ResMut<PopupConfirmRequested>| {
+                        request.0 = true;
+                    })
+                ]
             ]
         ]
     }
