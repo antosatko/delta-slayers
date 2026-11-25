@@ -6,6 +6,7 @@ use bevy::{
 use crate::ui::stack::UiStack;
 
 pub const CAMERA_DISTANCE: f32 = 18.0;
+pub const CAMERA_HORIZONTAL_OFFSET: f32 = 0.45;
 pub const CAMERA_DEFAULT_PITCH: f32 = -0.9;
 pub const CAMERA_MIN_PITCH: f32 = -1.05;
 pub const CAMERA_MAX_PITCH: f32 = -0.75;
@@ -100,8 +101,19 @@ pub fn player_move(
     }
 }
 
-/// Keeps the camera aimed at the player from a fixed horizontal heading.
-/// Scrolling only changes its distance and vertical viewing angle.
+/// Builds the follow-camera orientation with a slight horizontal offset from
+/// the player's heading, revealing the sides of world geometry.
+pub(super) fn follow_camera_rotation(player_yaw: f32, pitch: f32) -> Quat {
+    Quat::from_euler(
+        EulerRot::YXZ,
+        player_yaw + CAMERA_HORIZONTAL_OFFSET,
+        pitch,
+        0.0,
+    )
+}
+
+/// Keeps the camera aimed at the player from a fixed, offset horizontal
+/// heading. Scrolling only changes its distance and vertical viewing angle.
 pub(super) fn follow_camera(
     player: Query<(&Transform, &Player)>,
     mut camera: Query<
@@ -117,7 +129,7 @@ pub(super) fn follow_camera(
     };
 
     let target = player_transform.translation + Vec3::Y * CAMERA_TARGET_HEIGHT;
-    let orientation = Quat::from_euler(EulerRot::YXZ, player.yaw, player.pitch, 0.0);
+    let orientation = follow_camera_rotation(player.yaw, player.pitch);
     let forward = orientation * Vec3::NEG_Z;
     camera_transform.translation = target - forward * camera_settings.distance;
     camera_transform.look_at(target, Vec3::Y);
