@@ -38,7 +38,8 @@ produces a 2-by-2-by-2 world-unit trigger.
 Give the cube a transparent material so it does not obstruct the level view.
 The trigger test uses the transformed cube bounds, not the rendered material.
 Available kinds are `Shop` and `Guild`, which map to the existing UI panels
-and fast-travel buttons.
+and fast-travel buttons. Fast travel uses the trigger's world-space X/Z center,
+but keeps the player's current Y elevation regardless of the trigger's height.
 
 The current UI and visited-zone model treats each kind as one destination. The
 component API can be extended with stable zone IDs before adding multiple
