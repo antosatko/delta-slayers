@@ -41,6 +41,10 @@ impl Plugin for GameplayPlugin {
                 ..default()
             },
         )
+        .register_type::<Mesh3d>()
+        .register_type::<MeshMaterial3d<StandardMaterial>>()
+        .register_type::<Transform>()
+        .register_type::<ChildOf>()
         .register_type::<occlusion::PlayerOccluder>()
         .register_type::<environment::ObjectSizeRank>()
         .register_type::<environment::ObjectRarity>()

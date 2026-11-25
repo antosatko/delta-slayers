@@ -284,13 +284,22 @@ pub(super) fn collect_assets(
         let tile_count = tile_roots.len();
         let object_count = object_roots.len();
 
+        let mut tile_count = 0;
+        let mut tile_mesh_count = 0;
         for root in tile_roots {
             let Ok(asset) = WorldAsset::from_dynamic_world(&root.world, &type_registry) else {
                 warn!("Could not create a tile prototype from {path}");
                 continue;
             };
-            let handle = world_assets.add(asset);
+            let mesh_count = count_meshes(&asset.world);
+            if mesh_count == 0 {
+                warn!(
+                    "Tile prototype from {path} lost all Mesh3d components during extraction"
+                );
+                continue;
+            }
 
+            let handle = world_assets.add(asset);
             if let AssetSourceKind::Biome(biome) = kind {
                 environment
                     .tiles
@@ -300,9 +309,13 @@ pub(super) fn collect_assets(
                         handle,
                         spawner: root.spawner,
                     });
+                tile_count += 1;
+                tile_mesh_count += mesh_count;
             }
         }
 
+        let mut object_count = 0;
+        let mut object_mesh_count = 0;
         for root in object_roots {
             let Some(definition) = root.spawnable else {
                 continue;
@@ -311,6 +324,14 @@ pub(super) fn collect_assets(
                 warn!("Could not create a spawnable object prototype from {path}");
                 continue;
             };
+            let mesh_count = count_meshes(&asset.world);
+            if mesh_count == 0 {
+                warn!(
+                    "Spawnable object prototype from {path} lost all Mesh3d components during extraction"
+                );
+                continue;
+            }
+
             let handle = world_assets.add(asset);
             let prototype = SpawnablePrototype { handle, definition };
 
@@ -324,6 +345,8 @@ pub(super) fn collect_assets(
                 }
                 AssetSourceKind::General => environment.general_objects.push(prototype),
             }
+            object_count += 1;
+            object_mesh_count += mesh_count;
         }
 
         if tile_count == 0 && matches!(kind, AssetSourceKind::Biome(_)) {
@@ -334,7 +357,7 @@ pub(super) fn collect_assets(
         }
 
         info!(
-            "Loaded {tile_count} tile variants and {object_count} object prototypes from {path}"
+            "Loaded {tile_count} tile variants ({tile_mesh_count} meshes) and {object_count} object prototypes ({object_mesh_count} meshes) from {path}"
         );
         environment.sources[index].processed = true;
     }
@@ -346,6 +369,13 @@ pub(super) fn collect_assets(
             }
         }
     }
+}
+
+fn count_meshes(world: &World) -> usize {
+    world
+        .iter_entities()
+        .filter(|entity| entity.get::<Mesh3d>().is_some())
+        .count()
 }
 
 #[derive(Clone, Copy)]
