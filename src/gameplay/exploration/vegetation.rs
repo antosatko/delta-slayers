@@ -6,7 +6,7 @@ use bevy_grass::prelude::*;
 use crate::gameplay::player::Player;
 
 use super::{
-    ActiveExplorationMap, Biome, ExplorationPortal,
+    Biome, ExplorationPortal,
     generation::GeneratedTile,
     hex::{HEX_NEIGHBORS, hex_center, hex_corner, world_to_axial},
     terrain::fractal_noise,
@@ -216,7 +216,8 @@ fn biome_density(
     let local = point - center;
     if !inside_hex(local, config.tile_size)
         || tile.has_feature
-        || point.length() < config.tile_size * 2.5
+        || point.length() < config.tile_size * 1.6
+        || point.distance(hex_center(0, 2, config.tile_size)) < config.tile_size * 1.75
     {
         return 0.0;
     }
@@ -291,7 +292,7 @@ fn cliff_edge_fade(
     for (index, (dq, dr)) in HEX_NEIGHBORS.into_iter().enumerate() {
         let neighbor = tiles.get(&(coordinates.0 + dq, coordinates.1 + dr));
         let steep = neighbor.is_none_or(|other| {
-            (other.height - tile.height).abs() > config.max_jump_height.max(0.55)
+            (other.height - tile.height).abs() > config.max_jump_height
         });
         if !steep {
             continue;

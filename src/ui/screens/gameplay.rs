@@ -385,9 +385,9 @@ fn vegetation_slider_control(
         Children [
             Node {
                 width: percent(100),
-                flex_direction: FlexDirection::Row,
-                align_items: AlignItems::Center,
-                justify_content: JustifyContent::SpaceBetween,
+                flex_direction: FlexDirection::Column,
+                align_items: AlignItems::FlexStart,
+                row_gap: px(2),
             }
             Children [
                 @label(title)

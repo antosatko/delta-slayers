@@ -34,7 +34,7 @@ pub struct ExplorationPortal {
     /// Controls the scale of biome regions.
     pub biome_scale: f32,
     /// Legacy Skein field retained so older town-map.glb exports still instantiate.
-    /// No procedural vegetation is generated from this value.
+    /// The runtime's F4 vegetation lab controls grass density instead.
     pub vegetation_density: f32,
     /// Maximum elevation difference the player can jump between adjacent tiles, in meters.
     pub max_jump_height: f32,

@@ -22,6 +22,10 @@ pub fn handle_ui_input(
     mut confirm_request: ResMut<PopupConfirmRequested>,
     active_map: Res<ActiveExplorationMap>,
 ) {
+    if active_map.0.is_none() {
+        ui.remove(UiLayer::VegetationLab);
+    }
+
     let confirm = keys.just_pressed(KeyCode::KeyE) || confirm_request.0;
     confirm_request.0 = false;
 
