@@ -157,8 +157,8 @@ pub(super) fn adjust_camera(
     {
         if let (Ok(player), Ok(mut camera)) = (player.single_mut(), camera.single_mut()) {
             let orientation = follow_camera_rotation(player.yaw, player.pitch);
-            let right = orientation * Vec3::X;
-            let up = orientation * Vec3::Y;
+            let right = horizontal_camera_axis(orientation * Vec3::X);
+            let up = horizontal_camera_axis(orientation * Vec3::Y);
             let scale = camera.distance * CAMERA_PAN_SENSITIVITY;
             camera.pan_offset =
                 camera_pan_offset_after_drag(camera.pan_offset, motion, right, up, scale);
@@ -182,6 +182,10 @@ fn camera_pitch_after_scroll(pitch: f32, scroll: f32) -> f32 {
     (pitch + scroll * CAMERA_PITCH_PER_LINE).clamp(CAMERA_MIN_PITCH, CAMERA_MAX_PITCH)
 }
 
+fn horizontal_camera_axis(axis: Vec3) -> Vec3 {
+    Vec3::new(axis.x, 0.0, axis.z).normalize_or_zero()
+}
+
 fn camera_pan_offset_after_drag(
     offset: Vec3,
     delta: Vec2,
@@ -189,7 +193,9 @@ fn camera_pan_offset_after_drag(
     camera_up: Vec3,
     scale: f32,
 ) -> Vec3 {
-    offset - camera_right * delta.x * scale + camera_up * delta.y * scale
+    let offset = offset.with_y(0.0);
+    offset - horizontal_camera_axis(camera_right) * delta.x * scale
+        + horizontal_camera_axis(camera_up) * delta.y * scale
 }
 
 fn camera_distance_after_scroll(distance: f32, scroll: f32) -> f32 {
@@ -807,18 +813,18 @@ mod tests {
     }
 
     #[test]
-    fn middle_drag_translates_camera_without_changing_orientation() {
+    fn middle_drag_keeps_camera_pan_on_the_horizontal_plane() {
         let offset = camera_pan_offset_after_drag(
-            Vec3::ZERO,
+            Vec3::new(0.0, 4.0, 0.0),
             Vec2::new(100.0, 50.0),
-            Vec3::X,
-            Vec3::Y,
+            Vec3::new(1.0, 0.4, 0.0),
+            Vec3::new(0.0, 0.8, -0.6),
             0.05,
         );
 
         assert!(offset.x < 0.0);
-        assert!(offset.y > 0.0);
-        assert_eq!(offset.z, 0.0);
+        assert!(offset.z < 0.0);
+        assert_eq!(offset.y, 0.0);
     }
 
     #[test]
