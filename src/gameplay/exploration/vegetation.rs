@@ -6,7 +6,7 @@ use bevy_grass::prelude::*;
 use crate::gameplay::player::Player;
 
 use super::{
-    Biome, ExplorationPortal,
+    ActiveExplorationMap, Biome, ExplorationPortal,
     generation::GeneratedTile,
     hex::{HEX_NEIGHBORS, hex_center, hex_corner, world_to_axial},
     terrain::fractal_noise,
@@ -287,7 +287,7 @@ fn cliff_edge_fade(
     let Some(tile) = tiles.get(&coordinates) else {
         return 0.0;
     };
-    let mut fade = 1.0;
+    let mut fade: f32 = 1.0;
 
     for (index, (dq, dr)) in HEX_NEIGHBORS.into_iter().enumerate() {
         let neighbor = tiles.get(&(coordinates.0 + dq, coordinates.1 + dr));

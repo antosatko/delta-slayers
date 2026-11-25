@@ -4,7 +4,7 @@ use bevy::{
     feathers::controls::{FeathersCheckbox, FeathersNumberInput, FeathersSlider, NumberInputValue},
     prelude::*,
     ui::Checked,
-    ui_widgets::{SliderValue},
+    ui_widgets::SliderValue,
     window::{CursorGrabMode, CursorOptions, PrimaryWindow},
 };
 
@@ -27,7 +27,8 @@ use crate::{
             ExplorationSetupRoot, ExplorationSetupTileCountText, ExplorationSetupViewModel,
             FastTravelButton, FastTravelMenu, GameMenuModal, MinimapExplorationDot, MinimapZoneDot,
             PanelRoot, PauseOverlay, PlayerSettingControl, PlayerSettingToggle, PopupRoot,
-            SettingsPanelRoot, VegetationLabRoot, VegetationSliderControl, VegetationSupportText,
+            SettingsPanelRoot, VegetationLabRoot, VegetationPerformanceText,
+            VegetationPerformanceViewModel, VegetationSliderControl, VegetationSupportText,
             VegetationToggle,
         },
         inventory::InventoryRoot,
@@ -505,12 +506,15 @@ mod developer_settings_tests {
 
 /// Projects the vegetation tuning overlay from the active map and live model values.
 pub fn vegetation_lab_projection(
+    time: Res<Time<Real>>,
+    mut performance: ResMut<VegetationPerformanceViewModel>,
     ui: Res<UiStack>,
     active_map: Res<ActiveExplorationMap>,
     tuning: Res<VegetationTuning>,
     support: Res<GrassSupport>,
     mut roots: Query<&mut Visibility, With<VegetationLabRoot>>,
     mut status_labels: Query<&mut Text, With<VegetationSupportText>>,
+    mut performance_labels: Query<&mut Text, With<VegetationPerformanceText>>,
     sliders: Query<(Entity, &VegetationSliderControl, &SliderValue), With<FeathersSlider>>,
     toggles: Query<(Entity, &VegetationToggle, Has<Checked>), With<FeathersCheckbox>>,
     mut commands: Commands,
@@ -532,6 +536,31 @@ pub fn vegetation_lab_projection(
     for mut label in &mut status_labels {
         if label.0 != status {
             label.0.clone_from(&status);
+        }
+    }
+
+    let delta = time.delta_secs();
+    if delta.is_finite() && delta > 0.0 {
+        if performance.average_update_seconds <= 0.0 {
+            performance.average_update_seconds = delta;
+        } else {
+            let response = 1.0 - (-delta * 3.0).exp();
+            performance.average_update_seconds +=
+                (delta - performance.average_update_seconds) * response;
+        }
+
+        performance.refresh_elapsed += delta;
+        if performance.refresh_elapsed >= 0.25 {
+            performance.refresh_elapsed %= 0.25;
+            let average = performance.average_update_seconds;
+            let update_rate = 1.0 / average;
+            let update_ms = average * 1000.0;
+            let display = format!("APP UPDATE RATE  {update_rate:.0} Hz  ·  {update_ms:.1} ms/update");
+            for mut label in &mut performance_labels {
+                if label.0 != display {
+                    label.0.clone_from(&display);
+                }
+            }
         }
     }
 

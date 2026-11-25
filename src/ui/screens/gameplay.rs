@@ -317,6 +317,11 @@ fn vegetation_lab_panel() -> impl Scene {
                     VegetationSupportText
                     TextFont { font_size: px(11) }
                     template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().muted)))
+                    --
+                    Text("APP UPDATE RATE  ·  measuring…")
+                    VegetationPerformanceText
+                    TextFont { font_size: px(12) }
+                    template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().accent)))
                 ]
                 --
                 @section_header(CarbonIcon::Settings, "Field quality")

@@ -25,6 +25,7 @@ impl Plugin for UiPlugin {
             .init_resource::<components::ExplorationDebugPanelState>()
             .init_resource::<components::DeveloperSettingsPanelState>()
             .init_resource::<components::ExplorationSetupViewModel>()
+            .init_resource::<components::VegetationPerformanceViewModel>()
             .configure_sets(Update, (UiSet::Input, UiSet::Projection).chain())
             .add_systems(OnEnter(AppState::MainMenu), screens::menu::scene.spawn())
             .add_systems(

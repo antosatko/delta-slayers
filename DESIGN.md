@@ -49,7 +49,7 @@ Within those areas:
 | `gameplay/billboard.rs` | Camera-facing billboard transform |
 | `gameplay/occlusion.rs` | Blender-authored player occluders and per-object material fading |
 | `ui/stack.rs` | UI overlay navigation stack |
-| `ui/components.rs` | UI marker components and UI-only requests |
+| `ui/components.rs` | UI marker components, UI-only requests, and compact presentation ViewModels |
 | `ui/inventory.rs` | Inventory ViewModel, UI labels, and model-to-view projection |
 | `ui/screens/` | BSN scene definitions for loading, gameplay, main menu, player settings, and placeholder screens |
 | `ui/systems/input.rs` | UI input and navigation actions |

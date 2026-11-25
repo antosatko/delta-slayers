@@ -182,7 +182,18 @@ pub(super) enum VegetationSliderControl {
     WindSpeed,
 }
 
-#[derive(Component, Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Component, Default, Clone, Copy, Debug, PartialEq, Eq)]
 pub(super) enum VegetationToggle {
+    #[default]
     Shadows,
+}
+
+#[derive(Component, Default, Clone, Copy)]
+pub(super) struct VegetationPerformanceText;
+
+/// Display-only sampling state for the vegetation lab's app update counter.
+#[derive(Resource, Default)]
+pub(super) struct VegetationPerformanceViewModel {
+    pub(super) average_update_seconds: f32,
+    pub(super) refresh_elapsed: f32,
 }
