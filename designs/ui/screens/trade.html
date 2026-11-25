@@ -28,16 +28,18 @@
       </nav>
       <main class="workspace">
         <header class="page-heading">
-          <div><p class="eyebrow">Trading · Greybridge market</p><h1>Provisioner</h1><p class="page-subtitle">Buy supplies for the road or exchange surplus gear for crowns.</p></div>
-          <span class="page-mark">312 crowns</span>
+          <div class="page-heading-row">
+            <h1>Provisioner</h1>
+            <button class="screen-help" type="button" data-entry-trigger="screen-help-trade" data-hover-only aria-label="About trading" title="About trading"><span aria-hidden="true">?</span></button>
+          </div>
+          <nav class="screen-pages" role="tablist" aria-label="Trading pages" data-tab-group="trade">
+            <button class="tab-button screen-page active" type="button" role="tab" aria-selected="true" data-tab="buy">Buy supplies</button>
+            <button class="tab-button screen-page" type="button" role="tab" aria-selected="false" data-tab="sell">Sell goods</button>
+          </nav>
         </header>
         <div class="trade-layout">
           <section class="panel trade-market">
             <header class="panel-head"><h2>Market</h2><span class="panel-heading-side">Greybridge provisioner</span></header>
-            <div class="trade-tabs" role="tablist" aria-label="Market inventory" data-tab-group="trade">
-              <button class="tab-button active" type="button" role="tab" aria-selected="true" data-tab="buy">Buy supplies</button>
-              <button class="tab-button" type="button" role="tab" aria-selected="false" data-tab="sell">Sell goods</button>
-            </div>
             <section class="trade-items" role="tabpanel" data-tab-panel-group="trade" data-tab-panel="buy">
               <div class="trade-row"><button class="item-display" type="button" data-item-inspect data-item-key="healing-draught" data-item-title="Healing draught" data-item-meta="Consumable · Restorative" data-item-description="A bitter herbal preparation kept in a sealed glass vial." data-item-facts="Effect|Restores health;Stock|3;Price|18 crowns" aria-label="Inspect Healing draught"><span class="item-image" aria-hidden="true">瓶</span><span class="item-caption"><strong class="item-name">Healing draught</strong><small class="item-quantity">3</small></span></button><div class="trade-price"><strong>18 cr</strong><button class="button" type="button" data-trade-add data-trade-name="Healing draught" data-trade-price="18">Add</button></div></div>
               <div class="trade-row"><button class="item-display" type="button" data-item-inspect data-item-key="lantern-oil" data-item-title="Lantern oil" data-item-meta="Utility · Fuel" data-item-description="A rendered oil blend that burns steadily in enclosed lamps." data-item-facts="Use|Lamp fuel;Stock|6;Price|7 crowns" aria-label="Inspect Lantern oil"><span class="item-image" aria-hidden="true">◉</span><span class="item-caption"><strong class="item-name">Lantern oil</strong><small class="item-quantity">6</small></span></button><div class="trade-price"><strong>7 cr</strong><button class="button" type="button" data-trade-add data-trade-name="Lantern oil" data-trade-price="7">Add</button></div></div>
