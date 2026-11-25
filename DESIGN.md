@@ -148,9 +148,9 @@ This prevents stale visibility and multiple systems fighting over cursor state.
 
 The in-game menu is a root-level BSN scene, independent of the inventory
 hierarchy. Escape opens it directly when no other overlay is active; Escape or
-right click closes the topmost layer. The inventory's Menu button opens the
-same layer, preserving the inventory underneath it. Its open state is
-represented by UiLayer::GameMenu, and a projection system controls Visibility.
+right click closes the topmost layer. The inventory no longer duplicates that navigation with a separate Menu
+button. Its open state is represented by UiLayer::GameMenu, and a projection
+system controls Visibility.
 
 ## Visual hierarchy and Carbon UI principles
 
@@ -196,7 +196,8 @@ layer. It is deliberately game-specific rather than a generic widget framework.
   its help affordance.
 - `muted_text`, `eyebrow_text`, and `key_hint` provide consistent secondary
   copy and keyboard affordances. `item_art_tile` is a passive square image tile;
-  `equipment_slot` is a caption-free equipment placeholder.
+  `gear_slot` provides a labelled square equipment position while
+  `equipment_slot` remains a caption-free generic placeholder.
 - All controls are declared with BSN. Library systems only project interaction
   state into existing components; they do not create or rebuild UI trees.
 
