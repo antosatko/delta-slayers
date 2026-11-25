@@ -4,7 +4,7 @@ use bevy::{
 };
 use delta_slayers_ui::{
     CarbonButtonTone, CarbonIcon, CarbonPlugin, CarbonStatus, CarbonTheme, action_button, badge,
-    item_tile, page_header, panel, reference_term, root, screen_tab, screen_tabs,
+    item_tile_optional, page_header, panel, reference_term, root, screen_tab, screen_tabs,
     section_header, stat_bar,
 };
 
