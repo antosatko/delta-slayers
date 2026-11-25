@@ -288,14 +288,17 @@ fn spawn_map_geometry(
     spawn_boundary_walls(commands, root, config, seed);
 
     let return_height = terrain_surface_height(config, seed, Vec2::ZERO);
-    let return_portal = commands
-        .spawn((
-            ExplorationReturnPortal,
-            Transform::from_xyz(0.0, return_height, 0.0)
-                .with_scale(Vec3::new(1.6, 2.0, 1.6)),
-            ChildOf(root),
-        ))
-        .id();
+    // Keep the interaction volume independent from the beacon's visual scale.
+    // Its vertical bounds cover the entire configured terrain height range.
+    commands.spawn((
+        ExplorationReturnPortal,
+        Transform::from_scale(Vec3::new(
+            1.6,
+            config.height_multiplier + 2.0,
+            1.6,
+        )),
+        ChildOf(root),
+    ));
 
     let portal_base = meshes.add(Cylinder::new(0.9, 0.1));
     let portal_beam = meshes.add(Cylinder::new(0.075, 1.8));
@@ -308,14 +311,14 @@ fn spawn_map_geometry(
     commands.spawn((
         Mesh3d(portal_base),
         MeshMaterial3d(portal_material.clone()),
-        Transform::from_xyz(0.0, 0.08, 0.0),
-        ChildOf(return_portal),
+        Transform::from_xyz(0.0, return_height + 0.08, 0.0),
+        ChildOf(root),
     ));
     commands.spawn((
         Mesh3d(portal_beam),
         MeshMaterial3d(portal_material),
-        Transform::from_xyz(0.0, 0.95, 0.0),
-        ChildOf(return_portal),
+        Transform::from_xyz(0.0, return_height + 0.95, 0.0),
+        ChildOf(root),
     ));
 }
 
