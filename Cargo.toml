@@ -14,7 +14,6 @@ edition = "2024"
 delta-slayers-ui = { path = "crates/delta-slayers-ui" }
 bevy = { workspace = true }
 bevy_skein = "0.7.0"
-bevy_grass = "0.20.6"
 
 # Enable a small amount of optimization in the dev profile.
 [profile.dev]

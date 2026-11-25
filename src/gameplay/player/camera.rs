@@ -67,13 +67,8 @@ pub(in crate::gameplay) fn adjust_camera(
                 camera_pan_offset_after_drag(camera.pan_offset, motion, right, up, scale);
         }
 
-    // Scrolling over a panel belongs to that UI panel, not the camera.
-    if pointer_over_ui {
-        return;
-    }
-
     let scroll = mouse_scroll.to_lines(&scroll_conversion).delta.y;
-    if !scroll.is_finite() || scroll == 0.0 {
+    if !camera_scroll_allowed(pointer_over_ui, scroll) {
         return;
     }
 
@@ -91,6 +86,11 @@ pub(in crate::gameplay) fn adjust_camera(
             settings.camera_zoom_sensitivity,
         );
     }
+}
+
+/// UI owns wheel input while the pointer is over one of its visible hit regions.
+fn camera_scroll_allowed(pointer_over_ui: bool, scroll: f32) -> bool {
+    !pointer_over_ui && scroll.is_finite() && scroll != 0.0
 }
 
 pub(in crate::gameplay) fn camera_pitch_after_scroll(
@@ -200,6 +200,14 @@ pub(in crate::gameplay) fn follow_camera(
 #[cfg(test)]
 mod free_camera_tests {
     use super::*;
+
+    #[test]
+    fn pointer_over_ui_consumes_camera_wheel_input() {
+        assert!(!camera_scroll_allowed(true, 1.0));
+        assert!(camera_scroll_allowed(false, 1.0));
+        assert!(!camera_scroll_allowed(false, 0.0));
+        assert!(!camera_scroll_allowed(false, f32::NAN));
+    }
 
     #[test]
     fn unlocked_camera_anchor_stays_fixed_when_player_moves() {

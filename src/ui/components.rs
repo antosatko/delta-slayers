@@ -161,39 +161,3 @@ mod tests {
         assert_eq!(view_model.config.seed, None);
     }
 }
-
-
-#[derive(Component, Default, Clone, Copy)]
-pub(super) struct VegetationLabRoot;
-
-#[derive(Component, Default, Clone, Copy)]
-pub(super) struct VegetationSupportText;
-
-#[derive(Component, Clone, Copy, Debug, PartialEq, Eq)]
-pub(super) enum VegetationSliderControl {
-    GlobalDensity,
-    ViewDistance,
-    BladeHeight,
-    GrasslandDensity,
-    WoodlandDensity,
-    DrylandDensity,
-    HighlandDensity,
-    WindStrength,
-    WindSpeed,
-}
-
-#[derive(Component, Default, Clone, Copy, Debug, PartialEq, Eq)]
-pub(super) enum VegetationToggle {
-    #[default]
-    Shadows,
-}
-
-#[derive(Component, Default, Clone, Copy)]
-pub(super) struct VegetationPerformanceText;
-
-/// Display-only sampling state for the vegetation lab's app update counter.
-#[derive(Resource, Default)]
-pub(super) struct VegetationPerformanceViewModel {
-    pub(super) average_update_seconds: f32,
-    pub(super) refresh_elapsed: f32,
-}

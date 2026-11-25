@@ -97,8 +97,7 @@ pub(in crate::gameplay) fn set_move_target_from_cursor(
     let blocked_by_ui = pointer_over_ui
         || ui_state.paused()
         || ui_state.inventory_open()
-        || ui_state.game_menu_open()
-        || ui_state.exploration_setup_open();
+        || ui_state.game_menu_open();
     if !target.should_update_from_cursor(pressed, just_pressed, time.delta_secs(), blocked_by_ui) {
         return;
     }
@@ -264,6 +263,16 @@ pub(in crate::gameplay) fn keyboard_movement_direction(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn pointer_over_ui_consumes_click_to_move_until_release() {
+        let mut target = MovementTarget::default();
+
+        assert!(!target.should_update_from_cursor(true, true, 0.016, true));
+        assert!(!target.should_update_from_cursor(true, false, 0.5, false));
+        assert!(!target.should_update_from_cursor(false, false, 0.0, false));
+        assert!(target.should_update_from_cursor(true, true, 0.016, false));
+    }
 
     #[test]
     fn cancelling_a_stalled_click_path_does_not_disable_keyboard_movement() {

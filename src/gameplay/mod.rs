@@ -56,7 +56,6 @@ impl Plugin for GameplayPlugin {
         .init_resource::<exploration::NearbyExplorationPortal>()
         .init_resource::<exploration::ExplorationTravelRequest>()
         .init_resource::<exploration::ActiveExplorationMap>()
-        .init_resource::<exploration::VegetationTuning>()
         .init_resource::<exploration::ExplorationSession>()
         .init_resource::<inventory::InventoryModel>()
         .init_resource::<GameStartMode>()
@@ -90,8 +89,6 @@ impl Plugin for GameplayPlugin {
                 player::move_player_to_target.run_if(gameplay_simulation_enabled),
                 npc::chase_player.run_if(gameplay_simulation_enabled),
                 exploration::apply_tile_materials,
-                exploration::apply_vegetation_tuning,
-                exploration::ensure_player_interactor,
                 exploration::sync_ground_height,
                 player::follow_camera,
                 occlusion::fade_occluding_objects,

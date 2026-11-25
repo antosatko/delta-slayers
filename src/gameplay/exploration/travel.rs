@@ -15,7 +15,7 @@ use super::terrain::terrain_surface_height;
 use super::{
     ActiveExplorationMap, ActiveMapData, ExplorationPortal, ExplorationReturnPortal,
     ExplorationSession, ExplorationTravelRequest, NearbyExplorationPortal, PortalAction,
-    TravelAnchor, VegetationTuning,
+    TravelAnchor,
 };
 
 const MAP_WORLD_OFFSET: f32 = 512.0;
@@ -63,8 +63,6 @@ pub(in crate::gameplay) fn process_travel_request(
     mut npcs: Query<&mut Transform, (With<Npc>, Without<Player>)>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    mut images: ResMut<Assets<Image>>,
-    tuning: Res<VegetationTuning>,
 ) {
     let Some(action) = request.0.take() else {
         return;
@@ -118,9 +116,6 @@ pub(in crate::gameplay) fn process_travel_request(
                 &tile_assets,
                 &mut meshes,
                 &mut materials,
-                &asset_server,
-                &mut images,
-                &tuning,
             );
 
             let spawn_local = hex_center(0, 2, hex_layout_radius(config));

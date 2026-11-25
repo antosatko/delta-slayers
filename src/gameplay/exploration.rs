@@ -4,10 +4,8 @@ mod generation;
 mod hex;
 mod terrain;
 mod travel;
-mod vegetation;
 
 pub use generation::apply_tile_materials;
-pub(crate) use vegetation::{VegetationTuning, apply_tuning as apply_vegetation_tuning, ensure_player_interactor};
 pub(crate) use hex::{hex_center, world_to_axial};
 pub(super) use terrain::sync_ground_height;
 pub(crate) use travel::generate_seed;
@@ -34,7 +32,7 @@ pub struct ExplorationPortal {
     /// Controls the scale of biome regions.
     pub biome_scale: f32,
     /// Legacy Skein field retained so older town-map.glb exports still instantiate.
-    /// The runtime's F4 vegetation lab controls grass density instead.
+    /// No procedural vegetation is generated from this value.
     pub vegetation_density: f32,
     /// Maximum elevation difference the player can jump between adjacent tiles, in meters.
     pub max_jump_height: f32,

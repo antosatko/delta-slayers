@@ -17,7 +17,7 @@ pub(in crate::ui) fn credits_screen() -> impl SceneList {
     placeholder_screen(
         AppState::Credits,
         "Credits",
-        "Vegetation presets: bevy_grass 0.20.6 by Gediminas Mikelenas (MIT License), using the WILDFLOWER_MEADOW, FOREST_FLOOR, DUNE_MARRAM, and FROSTED_MEADOW demo styles. Source: github.com/GEMI/bevy-grass. Full attribution and license: THIRD_PARTY_NOTICES.md.",
+        "Project credits and acknowledgements will be listed here.",
     )
 }
 

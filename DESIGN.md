@@ -39,7 +39,6 @@ Within those areas:
 | `gameplay/exploration/travel.rs` | Portal detection, entering/returning from maps, and travel anchors |
 | `gameplay/exploration/generation.rs` | Seeded tile generation, reachability, imported tile spawning, and biome materials |
 | `gameplay/exploration/terrain.rs` | Biome/noise sampling and smooth terrain elevation synchronization |
-| `gameplay/exploration/vegetation.rs` | Continuous biome-weighted grass fields, one-metre tile-height masks, live density/wind tuning, and GPU support status |
 | `gameplay/exploration/hex.rs` | Axial coordinates, hex layout, and neighbor geometry |
 | `gameplay/inventory.rs` | Authoritative inventory data |
 | `gameplay/world.rs` | In-game world setup and the world-ready transition |
@@ -49,7 +48,7 @@ Within those areas:
 | `gameplay/billboard.rs` | Camera-facing billboard transform |
 | `gameplay/occlusion.rs` | Blender-authored player occluders and per-object material fading |
 | `ui/stack.rs` | UI overlay navigation stack |
-| `ui/components.rs` | UI marker components, UI-only requests, and compact presentation ViewModels |
+| `ui/components.rs` | UI marker components and UI-only requests |
 | `ui/inventory.rs` | Inventory ViewModel, UI labels, and model-to-view projection |
 | `ui/screens/` | BSN scene definitions for loading, gameplay, main menu, player settings, and placeholder screens |
 | `ui/systems/input.rs` | UI input and navigation actions |
@@ -110,7 +109,7 @@ behind the player from a fixed heading, initially offset from the player's
 facing direction so the camera reveals the sides of world models. Holding the
 middle mouse button and dragging pans the camera and its focus together across
 the horizontal ground plane without changing camera height, rotating the view,
-or changing the player's heading; dragging over UI does not pan the camera.
+or changing the player's heading; dragging over UI does not pan the camera. The mouse wheel also does not zoom or tilt the camera while over UI.
 By default, keyboard or click-to-move input clears the pan offset and recenters
 the camera on the player. The auto-lock setting can be disabled to preserve an
 independent free-camera view: player movement does not translate the camera.
@@ -161,27 +160,9 @@ receive movement blockers. Reachability is flood-filled from the spawn tile,
 and tiles outside that connected area carry the gameplay-only
 `UnreachableTile` marker for future systems. The markers are also highlighted
 on the exploration minimap. Tiles are tinted by biome, and tile 2 keeps its
-Skein-authored `MovementBlocker`. Four overlapping `bevy_grass` fields cover
-the map as continuous biome-weighted vegetation rather than one field per
-hex. Their density masks use the same seeded elevation and moisture noise,
-cut out the spawn clearing and raised feature tiles, and fade across steep
-cliff edges. The grass ground mask samples the flat top elevation of each
-rendered tile; it deliberately does not use the smoothed player movement
-surface. The four overlapping fields load the crate's demo-authored
-`WILDFLOWER_MEADOW`, `FOREST_FLOOR`, `DUNE_MARRAM`, and
-`FROSTED_MEADOW` `.grass.ron` assets from `assets/grass_styles/`. These
-presets bring their original flowers, fern and leaf species, tufts, colour
-patches, and bare-ground variation into the game; the density and ground masks
-sample at one-metre intervals to avoid visible square cells. The low-cost GPU
-profile keeps an 80,000-blade budget and disables grass shadows, while retaining
-the crate's normal curved near-field blade geometry. The F4 vegetation lab is
-bounded to the viewport and supports mouse-wheel and trackpad scrolling. Its
-live controls tune view distance, global and biome-specific density, blade
-height, wind, and optional near-field shadows. `GrassSupport` is shown in the
-panel; GPUs without the required compute, indirect-draw, and vertex-storage
-support will not render this GPU-driven vegetation. The copied preset files
-and their MIT attribution are recorded in `THIRD_PARTY_NOTICES.md`. A collision-blocked perimeter
-and return beacon complete this exploration pass; the beacon restores the town-side position captured on entry.
+Skein-authored `MovementBlocker`. Procedural vegetation is intentionally not
+generated. A collision-blocked perimeter and return beacon complete this
+exploration pass; the beacon restores the town-side position captured on entry.
 
 The TriggerZone-to-TriggerBox rename is a reflected authoring API break.
 Existing Blender files must replace the old component using the refreshed
@@ -193,8 +174,8 @@ spawn systems are implemented.
 
 The reflected `vegetation_density` field is retained as a legacy
 compatibility field because existing Blender GLB exports may still contain it.
-It is ignored by generation and has no setup control; vegetation density is
-controlled by the in-game vegetation lab instead. The new `max_jump_height` field defaults when absent from
+It is ignored by generation and has no setup control; procedural vegetation
+remains disabled. The new `max_jump_height` field defaults when absent from
 older exports, so existing exploration portals can continue to instantiate
 without an immediate GLB re-export.
 
@@ -220,8 +201,7 @@ height differences up to the configured maximum jump height are traversable;
 steeper edges are blocked. A flood fill from the spawn tile marks the other
 tiles as unreachable with an `UnreachableTile` component, which is available
 to future gameplay systems and highlighted on the minimap. The imported tile
-models retain their vertical sides. Procedural vegetation is generated from
-continuous biome masks over the complete map rather than per-hex fields.
+models retain their vertical sides. No procedural vegetation is spawned.
 While the dialog is open, UiStack owns its visibility and world simulation is
 suspended. Debug builds also show a dismissible panel on map entry with the
 resolved seed and effective generation parameters. The town scene stays loaded
@@ -293,13 +273,12 @@ The gameplay cursor is always visible and ungrabbed. It is configured when
 entering InGame rather than rewritten every frame. Opening an overlay does not
 change cursor mode. Inventory is a non-pausing overlay: world
 simulation and player movement continue behind it, but cursor-based movement
-targeting and camera scrolling are blocked over the UI. Pause and GameMenu
-suspend gameplay simulation. UI hit regions expose their pointer-over state to
-movement targeting and camera input: clicks over UI do not set a destination,
-mouse-wheel input scrolls the hovered vegetation panel instead of zooming the
-camera, and camera panning cannot begin over a panel. A click that begins over
-UI remains blocked until release. This prevents click-through when an overlay
-closes during a held click.
+targeting and camera pan/zoom are blocked over the UI. Every interactive
+gameplay overlay root exposes a `RelativeCursorPosition` hit region; this lets
+the gameplay input systems ignore raw mouse input while the pointer is over a
+visible UI surface. Clicks over UI do not set a destination, and a click that
+begins over UI remains blocked until release. This prevents click-through when
+an overlay closes during a held click.
 
 System ordering is explicit:
 

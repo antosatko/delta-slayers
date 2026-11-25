@@ -6,7 +6,6 @@ use bevy::{
     window::PrimaryWindow,
 };
 use bevy_skein::SkeinPlugin;
-use bevy_grass::prelude::{GrassPlugin, GrassPlugins, GrassSettings, GrassShadows};
 use delta_slayers_ui::CarbonPlugin;
 
 use crate::{gameplay::GameplayPlugin, ui::UiPlugin};
@@ -15,17 +14,6 @@ use crate::{gameplay::GameplayPlugin, ui::UiPlugin};
 pub fn run() {
     App::new()
         .add_plugins(DefaultPlugins)
-        .add_plugins(GrassPlugins.set(GrassPlugin {
-            settings: GrassSettings {
-                radius: 36.0,
-                density_scale: 0.68,
-                shadows: GrassShadows::Off,
-                instance_capacity: 80_000,
-                max_interactors: 32,
-                ..GrassSettings::LOW
-            },
-            ..default()
-        }))
         .add_systems(Startup, maximize_primary_window)
         .add_plugins(SkeinPlugin::default())
         .insert_resource(ClearColor(Color::srgb(0.53, 0.78, 0.98)))

@@ -25,7 +25,6 @@ impl Plugin for UiPlugin {
             .init_resource::<components::ExplorationDebugPanelState>()
             .init_resource::<components::DeveloperSettingsPanelState>()
             .init_resource::<components::ExplorationSetupViewModel>()
-            .init_resource::<components::VegetationPerformanceViewModel>()
             .configure_sets(Update, (UiSet::Input, UiSet::Projection).chain())
             .add_systems(OnEnter(AppState::MainMenu), screens::menu::scene.spawn())
             .add_systems(
@@ -47,7 +46,7 @@ impl Plugin for UiPlugin {
             )
             .add_systems(
                 Update,
-                (systems::handle_ui_input, systems::vegetation_lab_scroll)
+                systems::handle_ui_input
                     .in_set(UiSet::Input)
                     .run_if(in_state(AppState::InGame)),
             )
@@ -73,7 +72,6 @@ impl Plugin for UiPlugin {
                     systems::update_minimap,
                     systems::exploration_debug_panel_projection,
                     systems::exploration_setup_projection,
-                    systems::vegetation_lab_projection,
                     inventory::sync_inventory_view_model,
                 )
                     .chain()
