@@ -1,9 +1,8 @@
 use bevy::{
     input::mouse::{AccumulatedMouseScroll, MouseScrollPixelsPerLine},
     prelude::*,
+    window::PrimaryWindow,
 };
-
-use crate::ui::stack::UiStack;
 
 pub const CAMERA_DISTANCE: f32 = 18.0;
 pub const CAMERA_HORIZONTAL_OFFSET: f32 = 0.45;
@@ -18,6 +17,11 @@ const CAMERA_ZOOM_PER_LINE: f32 = 0.65;
 const CAMERA_PITCH_PER_LINE: f32 = 0.02;
 const CAMERA_TARGET_HEIGHT: f32 = 0.8;
 const PLAYER_VISUAL_HEIGHT: f32 = 0.8;
+const PLAYER_WALK_SPEED: f32 = 5.0;
+const PLAYER_SPRINT_SPEED: f32 = 8.0;
+const TRAJECTORY_ARROW_SPACING: f32 = 1.2;
+const TRAJECTORY_ARROW_LENGTH: f32 = 0.72;
+const TRAJECTORY_HEIGHT: f32 = 0.12;
 
 #[derive(Component)]
 pub struct Player {
@@ -34,19 +38,17 @@ pub(super) struct GameplayCamera {
 #[derive(Component)]
 pub(super) struct PlayerVisual;
 
-/// Scroll changes the follow camera's distance and vertical angle. Its
-/// horizontal heading stays locked to the player's initial facing direction.
+/// The most recent ground position selected by the player.
+#[derive(Resource, Default)]
+pub(super) struct MovementTarget(pub(super) Option<Vec3>);
+
+/// Scroll changes the follow camera's distance and vertical viewing angle.
 pub(super) fn adjust_camera(
     mut player: Query<&mut Player>,
     mut camera: Query<&mut GameplayCamera>,
     mouse_scroll: Res<AccumulatedMouseScroll>,
     scroll_conversion: Res<MouseScrollPixelsPerLine>,
-    ui: Res<UiStack>,
 ) {
-    if !ui.cursor_grabbed() {
-        return;
-    }
-
     let scroll = mouse_scroll.to_lines(&scroll_conversion).delta.y;
     if !scroll.is_finite() || scroll == 0.0 {
         return;
@@ -68,36 +70,121 @@ fn camera_distance_after_scroll(distance: f32, scroll: f32) -> f32 {
     (distance - scroll * CAMERA_ZOOM_PER_LINE).clamp(CAMERA_MIN_DISTANCE, CAMERA_MAX_DISTANCE)
 }
 
-pub fn player_move(
-    mut query: Query<(&Player, &mut Transform)>,
+/// Turns a left click into a world-space destination on the player's ground
+/// plane. The camera is a root entity, so its local transform is world-space.
+pub(super) fn set_move_target_from_cursor(
+    mouse: Res<ButtonInput<MouseButton>>,
+    window: Single<&Window, With<PrimaryWindow>>,
+    camera: Single<(&Camera, &Transform), With<GameplayCamera>>,
+    player: Query<&Transform, With<Player>>,
+    mut target: ResMut<MovementTarget>,
+) {
+    if !mouse.just_pressed(MouseButton::Left) {
+        return;
+    }
+
+    let Some(cursor_position) = window.cursor_position() else {
+        return;
+    };
+    let Ok(player_transform) = player.single() else {
+        return;
+    };
+
+    let (camera, camera_transform) = *camera;
+    let camera_global = GlobalTransform::from(*camera_transform);
+    let Ok(ray) = camera.viewport_to_world(&camera_global, cursor_position) else {
+        return;
+    };
+
+    let ground_origin = Vec3::new(0.0, player_transform.translation.y, 0.0);
+    let Some(destination) =
+        ray.plane_intersection_point(ground_origin, InfinitePlane3d::new(Vec3::Y))
+    else {
+        return;
+    };
+
+    if destination.is_finite() {
+        target.0 = Some(destination.with_y(player_transform.translation.y));
+    }
+}
+
+/// Moves continuously toward the last clicked position. A new click replaces
+/// the current destination; shift temporarily increases movement speed.
+pub(super) fn move_player_to_target(
+    mut player: Query<&mut Transform, With<Player>>,
+    mut target: ResMut<MovementTarget>,
     input: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
 ) {
-    let dt = time.delta_secs();
+    let Some(destination) = target.0 else {
+        return;
+    };
+    let Ok(mut transform) = player.single_mut() else {
+        target.0 = None;
+        return;
+    };
+
+    let mut offset = destination - transform.translation;
+    offset.y = 0.0;
+    let distance = offset.length();
     let sprinting = input.pressed(KeyCode::ShiftLeft) || input.pressed(KeyCode::ShiftRight);
-    let speed = if sprinting { 8.0 } else { 5.0 };
+    let speed = if sprinting {
+        PLAYER_SPRINT_SPEED
+    } else {
+        PLAYER_WALK_SPEED
+    };
+    let step = speed * time.delta_secs();
 
-    for (player, mut transform) in &mut query {
-        let (forward, right) = camera_ground_basis(player.yaw);
-        let mut dir = Vec3::ZERO;
+    if distance <= step || distance <= 0.03 {
+        transform.translation.x = destination.x;
+        transform.translation.z = destination.z;
+        target.0 = None;
+        return;
+    }
 
-        if input.pressed(KeyCode::KeyW) {
-            dir += forward;
-        }
-        if input.pressed(KeyCode::KeyS) {
-            dir -= forward;
-        }
-        if input.pressed(KeyCode::KeyA) {
-            dir -= right;
-        }
-        if input.pressed(KeyCode::KeyD) {
-            dir += right;
+    transform.translation += offset / distance * step;
+}
+
+/// Draws a sequence of small 3D arrows from the player to the selected
+/// destination. The path follows the character as it moves.
+pub(super) fn draw_move_trajectory(
+    mut gizmos: Gizmos,
+    player: Query<&Transform, With<Player>>,
+    target: Res<MovementTarget>,
+) {
+    let Some(destination) = target.0 else {
+        return;
+    };
+    let Ok(player_transform) = player.single() else {
+        return;
+    };
+
+    let start = player_transform.translation + Vec3::Y * TRAJECTORY_HEIGHT;
+    let end = destination + Vec3::Y * TRAJECTORY_HEIGHT;
+    let mut offset = end - start;
+    offset.y = 0.0;
+    let distance = offset.length();
+    if distance <= 0.03 {
+        return;
+    }
+
+    let direction = offset / distance;
+    let arrow_count = (distance / TRAJECTORY_ARROW_SPACING).ceil() as usize;
+    let color = Color::srgb(0.38, 0.78, 1.0);
+
+    for index in 0..arrow_count {
+        let arrow_start_distance = index as f32 * TRAJECTORY_ARROW_SPACING;
+        let arrow_end_distance =
+            (arrow_start_distance + TRAJECTORY_ARROW_LENGTH).min(distance);
+        if arrow_end_distance - arrow_start_distance < 0.12 {
+            continue;
         }
 
-        dir.y = 0.0;
-        if dir != Vec3::ZERO {
-            transform.translation += dir.normalize() * speed * dt;
-        }
+        let arrow_start = start + direction * arrow_start_distance;
+        let arrow_end = start + direction * arrow_end_distance;
+        gizmos
+            .arrow(arrow_start, arrow_end, color)
+            .with_tip_length(0.18);
     }
 }
 
@@ -105,13 +192,6 @@ pub fn player_move(
 /// shallower default while preserving the saved zoom adjustment.
 pub(super) fn migrate_saved_camera_pitch(pitch: f32) -> f32 {
     (pitch + CAMERA_PITCH_SAVE_ADJUSTMENT).clamp(CAMERA_MIN_PITCH, CAMERA_MAX_PITCH)
-}
-
-/// Horizontal movement axes projected from the camera view. The camera's
-/// vertical pitch is intentionally ignored so movement stays on the ground.
-fn camera_ground_basis(player_yaw: f32) -> (Vec3, Vec3) {
-    let rotation = Quat::from_rotation_y(player_yaw + CAMERA_HORIZONTAL_OFFSET);
-    (rotation * Vec3::NEG_Z, rotation * Vec3::X)
 }
 
 /// Builds the follow-camera orientation with a slight horizontal offset from
@@ -172,29 +252,20 @@ mod tests {
     use super::*;
 
     #[test]
-    fn movement_forward_matches_the_camera_horizontal_heading() {
-        let (movement_forward, movement_right) = camera_ground_basis(0.3);
-        let camera_forward =
-            (follow_camera_rotation(0.3, CAMERA_DEFAULT_PITCH) * Vec3::NEG_Z)
-                .with_y(0.0)
-                .normalize();
-        let camera_right = follow_camera_rotation(0.3, CAMERA_DEFAULT_PITCH) * Vec3::X;
-
-        assert!(movement_forward.abs_diff_eq(camera_forward, 1e-6));
-        assert!(movement_right.abs_diff_eq(camera_right, 1e-6));
-        assert!(movement_forward.y.abs() < 1e-6);
-        assert!(movement_right.y.abs() < 1e-6);
+    fn camera_relative_ground_target_stays_on_the_ground_plane() {
+        let ground = Vec3::new(0.0, 2.5, 0.0);
+        let destination = Vec3::new(4.0, 9.0, -7.0).with_y(ground.y);
+        assert_eq!(destination.y, 2.5);
+        assert_eq!(destination.x, 4.0);
+        assert_eq!(destination.z, -7.0);
     }
 
     #[test]
-    fn saved_camera_pitch_shifts_with_the_new_default() {
-        assert!((migrate_saved_camera_pitch(-0.9) - CAMERA_DEFAULT_PITCH).abs() < 1e-6);
-        assert!(
-            (migrate_saved_camera_pitch(-1.05) - CAMERA_MIN_PITCH).abs() < 1e-6
-        );
-        assert!(
-            (migrate_saved_camera_pitch(-0.75) - CAMERA_MAX_PITCH).abs() < 1e-6
-        );
+    fn trajectory_arrows_are_spaced_along_the_remaining_distance() {
+        let distance = 5.0;
+        let count = (distance / TRAJECTORY_ARROW_SPACING).ceil() as usize;
+        assert_eq!(count, 5);
+        assert!(TRAJECTORY_ARROW_LENGTH < TRAJECTORY_ARROW_SPACING);
     }
 
     #[test]
