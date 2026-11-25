@@ -37,6 +37,8 @@ The source is grouped by responsibility rather than by individual file type:
 - `ui/` owns overlay navigation, BSN screens, input handling, and projection
   systems. Screen definitions live in `ui/screens/`; systems that synchronize
   state into presentation components live in `ui/systems/`.
+- `crates/delta-slayers-ui/` owns the reusable Carbon palette, BSN components,
+  and presentation-only hover/selection behavior. It does not own game state.
 
 Gameplay data is authoritative. The UI reads it and sends requests; it does not
 own gameplay rules or construct gameplay entities.
