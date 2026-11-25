@@ -351,17 +351,16 @@ fn inventory_scene() -> impl Scene {
                             width: px(250),
                             flex_basis: px(240),
                             min_width: px(190),
-                            flex_grow: 1.0,
                             flex_shrink: 1.0,
                             flex_direction: FlexDirection::Column,
-                        row_gap: px(12),
-                    }
-                    Children [
-                        @character_panel()
+                            row_gap: px(12),
+                        }
+                        Children [
+                            @character_panel()
+                            --
+                            @resources_panel()
+                        ]
                         --
-                        @resources_panel()
-                    ]
-                    --
                         Node {
                             flex_grow: 1.0,
                             flex_basis: px(420),
