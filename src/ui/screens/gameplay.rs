@@ -9,6 +9,7 @@ use crate::{
     gameplay::zones::{FastTravelRequest, ZoneKind},
     ui::{
         components::{
+            ExplorationDebugInfoText, ExplorationDebugPanelRoot, ExplorationDebugPanelState,
             FastTravelButton, FastTravelMenu, GameMenuModal, MinimapZoneDot, PanelRoot,
             PauseOverlay, PopupConfirmRequested, PopupRoot,
         },
@@ -36,6 +37,8 @@ pub(in crate::ui) fn scene() -> impl SceneList {
         @fast_travel_menu()
         --
         @minimap()
+        --
+        @exploration_debug_panel()
         --
         @inventory_scene()
         --
@@ -191,6 +194,40 @@ fn fast_travel_button(kind: ZoneKind, label: &'static str, icon: CarbonIcon) -> 
         on(move |_activate: On<Activate>, mut request: ResMut<FastTravelRequest>| {
             request.0 = Some(kind);
         })
+    }
+}
+
+fn exploration_debug_panel() -> impl Scene {
+    bsn! {
+        Node {
+            position_type: PositionType::Absolute,
+            top: px(14),
+            left: px(14),
+            width: px(330),
+            max_width: percent(90),
+            min_width: px(0),
+        }
+        template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().overlay)))
+        bevy::ui::GlobalZIndex(16)
+        ExplorationDebugPanelRoot
+        Visibility::Hidden
+        DespawnOnExit::<AppState>(AppState::InGame)
+        Children [
+            @panel(percent(100))
+            Children [
+                @section_header(CarbonIcon::Map, "Exploration settings (DEV)")
+                --
+                Text("Generated map parameters")
+                ExplorationDebugInfoText
+                TextFont { font_size: px(12) }
+                template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().muted)))
+                --
+                @action_button("Hide details", CarbonIcon::Close, CarbonButtonTone::Secondary)
+                on(|_activate: On<Activate>, mut state: ResMut<ExplorationDebugPanelState>| {
+                    state.visible = false;
+                })
+            ]
+        ]
     }
 }
 
