@@ -409,7 +409,7 @@ fn showcase_item(
         ShowcaseItem(item)
         on(move |_activate: On<Activate>,
             mut items: Query<(&ShowcaseItem, &mut CarbonSelection)>,
-            mut details: Query<(&ShowcaseDetailField, &mut Text)>,
+            mut details: Query<(&ShowcaseDetailField, &mut Text), Without<ShowcaseFeedback>>,
             mut feedback: Query<&mut Text, With<ShowcaseFeedback>>| {
             for (tile, mut selection) in &mut items {
                 selection.selected = tile.0 == item;
