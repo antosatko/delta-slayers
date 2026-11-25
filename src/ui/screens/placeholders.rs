@@ -8,7 +8,7 @@ use crate::app::state::AppState;
 pub(in crate::ui) fn load_screen() -> impl SceneList {
     placeholder_screen(
         AppState::Load,
-        "Load game",
+        "Load Save",
         "Saved-game selection and loading are not connected yet.",
     )
 }
