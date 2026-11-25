@@ -42,13 +42,13 @@ impl Plugin for GameplayPlugin {
             .add_systems(
                 Update,
                 spawning::apply_player_spawn_point
-                    .before(player::player_look)
+                    .before(player::follow_camera)
                     .run_if(in_state(AppState::InGame)),
             )
             .add_systems(
                 Update,
                 (
-                    player::player_look.run_if(gameplay_input_enabled),
+                    player::adjust_camera.run_if(gameplay_input_enabled),
                     player::player_move.run_if(gameplay_input_enabled),
                     player::follow_camera,
                     player::sync_player_visual,
