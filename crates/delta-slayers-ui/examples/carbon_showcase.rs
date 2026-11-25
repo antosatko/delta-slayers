@@ -40,7 +40,7 @@ fn showcase() -> impl Scene {
                 @page_header(
                     "Inventory",
                     "Carried items",
-                    "Everything currently carried by the party. Select an item to inspect its condition, value, and other details."
+                    "Items currently carried by the party. Select one to inspect its details."
                 )
                 --
                 @screen_tabs()
@@ -82,13 +82,33 @@ fn showcase() -> impl Scene {
                                 row_gap: px(8),
                             }
                             Children [
-                                @item_tile_optional(CarbonIcon::Sword, "Iron longsword", None, false)
+                                @item_tile_optional(
+                                    CarbonIcon::Sword,
+                                    "Iron longsword",
+                                    None,
+                                    false
+                                )
                                 --
-                                @item_tile_optional(CarbonIcon::Shield, "Round shield", None, false)
+                                @item_tile_optional(
+                                    CarbonIcon::Shield,
+                                    "Round shield",
+                                    None,
+                                    false
+                                )
                                 --
-                                @item_tile_optional(CarbonIcon::Flask, "Healing draught", Some("3"), true)
+                                @item_tile_optional(
+                                    CarbonIcon::Flask,
+                                    "Healing draught",
+                                    Some("3"),
+                                    true
+                                )
                                 --
-                                @item_tile_optional(CarbonIcon::Coin, "Crowns", Some("312"), false)
+                                @item_tile_optional(
+                                    CarbonIcon::Coin,
+                                    "Crowns",
+                                    Some("312"),
+                                    false
+                                )
                             ]
                             --
                             Node {
@@ -105,11 +125,29 @@ fn showcase() -> impl Scene {
                         Children [
                             @section_header(CarbonIcon::Health, "Party condition")
                             --
-                            @stat_bar(CarbonIcon::Health, "Health", "86 / 100", 0.86, CarbonStatus::Positive)
+                            @stat_bar(
+                                CarbonIcon::Health,
+                                "Health",
+                                "86 / 100",
+                                0.86,
+                                CarbonStatus::Positive
+                            )
                             --
-                            @stat_bar(CarbonIcon::Stamina, "Stamina", "62 / 80", 0.775, CarbonStatus::Warning)
+                            @stat_bar(
+                                CarbonIcon::Stamina,
+                                "Stamina",
+                                "62 / 80",
+                                0.775,
+                                CarbonStatus::Warning
+                            )
                             --
-                            @stat_bar(CarbonIcon::Shield, "Armour", "18%", 0.18, CarbonStatus::Neutral)
+                            @stat_bar(
+                                CarbonIcon::Shield,
+                                "Armour",
+                                "18%",
+                                0.18,
+                                CarbonStatus::Neutral
+                            )
                         ]
                     }
                     --
@@ -124,11 +162,16 @@ fn showcase() -> impl Scene {
                         Children [
                             @section_header(CarbonIcon::Flask, "Selected item")
                             --
-                            @item_tile_optional(CarbonIcon::Flask, "Healing draught", Some("3"), true)
+                            @item_tile_optional(
+                                CarbonIcon::Flask,
+                                "Healing draught",
+                                Some("3"),
+                                true
+                            )
                             --
                             @badge("CONSUMABLE", CarbonStatus::Neutral)
                             --
-                            Text("A bitter herbal preparation. Restores a moderate amount of health when consumed.")
+                            Text("A bitter herbal draught. Restores a moderate amount of health.")
                             TextFont { font_size: px(12) }
                             template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().muted)))
                             --
@@ -147,7 +190,11 @@ fn showcase() -> impl Scene {
                                 template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().ink)))
                             ]
                             --
-                            @action_button("Use item", CarbonIcon::Confirm, CarbonButtonTone::Primary)
+                            @action_button(
+                                "Use item",
+                                CarbonIcon::Confirm,
+                                CarbonButtonTone::Primary
+                            )
                             on(|_activate: On<Activate>| info!("Use item clicked (showcase only)"))
                             --
                             @action_button("Drop", CarbonIcon::Close, CarbonButtonTone::Ghost)
@@ -166,7 +213,11 @@ fn showcase() -> impl Scene {
                                 "Brine-wight",
                                 "Brine-wight",
                                 "LOCAL FOLKLORE · UNCONFIRMED",
-                                "A coastal name for something believed to return from the water. The surviving reports do not establish whether it describes a creature, a condition of the watercourse, or an old debt given a shape."
+                                concat!(
+                                    "A coastal name for something believed to return from the water. ",
+                                    "The surviving reports do not establish whether it describes ",
+                                    "a creature, a condition of the watercourse, or an old debt."
+                                )
                             )
                         ]
                     ]
