@@ -183,9 +183,12 @@ System ordering is explicit:
 1. UiSet::Input processes input and changes state.
 2. Gameplay input runs after the UI input set and checks whether gameplay is
    allowed.
-3. UiSet::Projection derives visibility and cursor settings from state.
+3. UiSet::Projection derives visibility and other presentation state from the
+   current model.
+4. The gameplay cursor is configured once on entering InGame.
 
-This prevents stale visibility and multiple systems fighting over cursor state.
+This prevents stale visibility and avoids rewriting an unchanged cursor mode
+every frame.
 
 ## In-game menu overlay
 
