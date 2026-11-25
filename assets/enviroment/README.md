@@ -1,37 +1,54 @@
-# Environment tile and object collections
+# Biome environment assets
 
-These assets are exported from Blender collections with the glTF Collection
-Exporter. Configure each collection to export a GLB and use Skein's **Trigger
-all Collection Exporters** action when refreshing the asset set.
+Each biome is exported as a single GLB containing two Blender collections:
+`tiles` and `objects`. This keeps the terrain variants and that biome's
+spawnable object pool together. A separate `general.glb` supplies objects
+that may appear in any biome.
 
-The loader expects one tile collection export per supported biome:
+```text
+assets/enviroment/
+├── biomes/
+│   ├── grassland.glb   # tiles + objects
+│   ├── woodland.glb    # tiles + objects
+│   ├── dryland.glb     # tiles + objects
+│   └── highlands.glb   # tiles + objects
+└── general.glb         # objects
+```
 
-| Blender collection | Export path | Contents |
-| --- | --- | --- |
-| `tiles` | `assets/enviroment/biomes/grassland.glb` | All grassland tile variants |
-| `tiles` | `assets/enviroment/biomes/woodland.glb` | All woodland tile variants |
-| `tiles` | `assets/enviroment/biomes/dryland.glb` | All dryland tile variants |
-| `tiles` | `assets/enviroment/biomes/highlands.glb` | All highland tile variants |
-| `objects` | `assets/enviroment/general.glb` | Shared spawnable object prototypes |
+The path spelling `enviroment` is intentional; it matches the runtime asset
+paths. The same filename convention can be used for future biomes, for
+example `assets/enviroment/biomes/lava.glb`. The current generator supports
+Grassland, Woodland, Dryland, and Highlands; a new biome also needs a
+gameplay biome type and a loader entry.
 
-The path spelling `enviroment` is intentional; it matches the requested asset
-layout. The filename follows the biome name, for example
-`assets/enviroment/biomes/lava.glb` for a future Lava biome export. The current
-generator supports Grassland, Woodland, Dryland, and Highlands; adding another
-biome also requires adding its gameplay classification and loader entry.
+## Collection hierarchy and export
 
-Each exported GLB is a standalone collection scene. All root objects in the
-collection scene are loaded, then split into individual reusable world assets.
-Keep each tile or spawnable model as a root object in its collection. The
-object's children remain part of that model, so nested mesh objects are
-supported. The collection itself is not a runtime object container.
+Use the normal glTF Binary scene export for each file, not one Collection
+Exporter output per collection. Keep the Blender scene hierarchy intact and
+enable the glTF export option **Data > Scene Graph > Full Collection
+Hierarchy**. This exports collections as named empty nodes, allowing the
+loader to find the `tiles` and `objects` collection roots in the same scene.
+
+For each biome file:
+
+- Put all tile model roots in the collection named `tiles`.
+- Put all biome-specific spawnable object roots in the collection named
+  `objects`.
+
+For `general.glb`, put shared spawnable object roots in its `objects`
+collection. Do not put a second `tiles` collection in that file.
+
+The loader reads the direct object roots inside each named collection, then
+splits them into reusable prototypes while keeping each object's descendants
+and Skein components together. Keep the component on the root object of the
+model, not just on one of its mesh children.
 
 ## Tile variants
 
-Put every interchangeable tile model in the matching biome's `tiles`
+Put every interchangeable tile model in the matching biome file's `tiles`
 collection. Keep the source tile radius at 5 m; the generator scales it to
 the configured hex radius. One root model is chosen deterministically for
-each generated tile from the available variants in that biome's GLB.
+each generated tile from the variants in that biome's GLB.
 
 Attach `delta_slayers::gameplay::environment::ObjectSpawner` to a tile root
 that should be eligible for object placement.
@@ -55,10 +72,15 @@ A tile without `ObjectSpawner` does not receive generated objects.
 
 ## Spawnable object prototypes
 
-Place reusable object models in the shared Blender `objects` collection and
-export it to `assets/enviroment/general.glb`. Attach
-`delta_slayers::gameplay::environment::SpawnableObject` to each eligible root
-object.
+Attach `delta_slayers::gameplay::environment::SpawnableObject` to each
+eligible root object in a biome's `objects` collection or in the shared
+`general.glb` `objects` collection.
+
+Objects in a biome file are available only when generating tiles of that
+biome. For example, woodland mushrooms belong in
+`biomes/woodland.glb`'s `objects` collection. Objects in `general.glb` are
+available in every biome; a golden sword or other biome-independent prop
+belongs there.
 
 | Field | Default | Meaning |
 | --- | --- | --- |
@@ -67,7 +89,8 @@ object.
 
 Rarity weights are relative, not guaranteed percentages: Common 100, Uncommon
 35, Rare 12, Epic 4, and Legendary 1. Objects too large for the remaining
-tile budget are excluded from that placement attempt.
+tile budget are excluded from that placement attempt. Biome-specific and
+general objects participate in the same weighted selection.
 
 Placement is seeded from the exploration map seed and tile coordinates, so
 the same map seed produces the same tile variants and object placements. Each
@@ -79,11 +102,13 @@ interaction prompts, collision behavior, or gameplay actions.
 
 ## Export checklist
 
-- Configure each collection with a glTF Collection Exporter and the exact path
-  shown above.
-- Export as GLB (`.glb`) with mesh data and materials included.
-- Attach Skein components to the root Blender objects, not only to mesh
-  descendants.
-- Keep the source object transforms and child hierarchy intact.
-- Re-export the affected collection whenever its component values or models
-  change.
+- Export one GLB per biome with both `tiles` and `objects` collections in the
+  same scene.
+- Export `general.glb` with its shared `objects` collection.
+- Enable **Full Collection Hierarchy** so the collection names survive as
+  named nodes in the exported GLB.
+- Export as GLB (`.glb`) with mesh data, materials, and Skein custom
+  properties included.
+- Attach `ObjectSpawner` and `SpawnableObject` to the relevant root objects.
+- Keep source object transforms and child hierarchy intact.
+- Re-export the affected GLB whenever its models or component values change.

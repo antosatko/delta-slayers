@@ -98,8 +98,8 @@ Current authored components:
 - `ObjectSpawner`: marks a tile prototype as eligible for procedural object
   placement. Its capacity rank supplies the tile's total size budget, and
   spawn chance controls successive placement attempts.
-- `SpawnableObject`: marks a root object in the shared environment object
-  collection as a spawnable prototype. Its size rank and rarity control
+- `SpawnableObject`: marks a root object in a biome-specific or shared general
+  objects collection as a spawnable prototype. Its size rank and rarity control
   capacity consumption and weighted selection; it has no interaction behavior.
 - `Billboard`: camera-facing behavior for flat world objects. The player uses
   the existing full-body character image on an unlit, transparent 3D quad.
@@ -159,29 +159,33 @@ the same collision resolver as player movement, so Blender-authored
 Blender-authored scene, while an `ExplorationPortal` can create a separate
 procedural hex map at runtime. The generated tile heights position imported biome tile variants from
 `assets/enviroment/biomes/{grassland,woodland,dryland,highlands}.glb`. Each
-file is a Blender Collection Exporter output from the `tiles` collection;
-the loader splits its root objects into individual reusable world assets and
-selects a variant deterministically for each generated tile. Tile meshes use a
-5 m source radius and are scaled to the configured tile radius. A
-smoothstep-weighted triangular height field keeps player and NPC elevation
-continuous between neighboring hex centers. Neighboring tiles can be crossed
-only when their height difference is within the configured maximum jump
-height; steeper edges receive movement blockers. Reachability is flood-filled
-from the spawn tile, and tiles outside that connected area carry the
-gameplay-only `UnreachableTile` marker for future systems. The markers are
-also highlighted on the exploration minimap. Tiles are tinted by biome, and
-Skein-authored components on tile variants are retained.
+biome GLB contains named `tiles` and `objects` collections in the same scene.
+The loader extracts tile roots only from `tiles` and biome-specific spawnable
+object roots only from `objects`, keeping their hierarchies and Skein
+components. Tile meshes use a 5 m source radius and are scaled to the
+configured tile radius. A smoothstep-weighted triangular height field keeps
+player and NPC elevation continuous between neighboring hex centers.
+Neighboring tiles can be crossed only when their height difference is within
+the configured maximum jump height; steeper edges receive movement blockers.
+Reachability is flood-filled from the spawn tile, and tiles outside that
+connected area carry the gameplay-only `UnreachableTile` marker for future
+systems. The markers are also highlighted on the exploration minimap. Tiles
+are tinted by biome, and Skein-authored components on tile variants are
+retained.
 
-The shared object library is loaded from `assets/enviroment/general.glb`,
-exported from the Blender collection named `objects`. Root objects with a
-`SpawnableObject` component become eligible prototypes. A tile variant with
-`ObjectSpawner` receives deterministic placement attempts during map
-generation. Size ranks consume capacity units (S = 1, M = 2, L = 3), so an L
-capacity tile supports one L object, one M plus one S, or three S objects.
-Rarity affects weighted selection. Generated objects currently have no
-interactions or separate gameplay behavior. Procedural vegetation is not
-generated. A collision-blocked perimeter and return beacon complete this
-exploration pass; the beacon restores the town-side position captured on entry.
+The shared general object pool is loaded from
+`assets/enviroment/general.glb`'s `objects` collection. Its root prototypes
+are eligible in every biome, in addition to the current biome's object pool.
+For example, woodland mushrooms belong in the woodland file's `objects`
+collection, while a golden sword that can appear anywhere belongs in
+`general.glb`. A tile variant with `ObjectSpawner` receives deterministic
+placement attempts during map generation. Size ranks consume capacity units
+(S = 1, M = 2, L = 3), so an L capacity tile supports one L object, one M
+plus one S, or three S objects. Rarity weights are applied across both
+eligible object pools. Generated objects currently have no interactions or
+separate gameplay behavior. Procedural vegetation is not generated. A
+collision-blocked perimeter and return beacon complete this exploration pass;
+the beacon restores the town-side position captured on entry.
 
 The TriggerZone-to-TriggerBox rename is a reflected authoring API break.
 Existing Blender files must replace the old component using the refreshed
