@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 
-use crate::gameplay::zones::ZoneKind;
+use crate::{
+    gameplay::{exploration::ExplorationPortal, zones::ZoneKind},
+};
 
 #[derive(Component, Default, Clone)]
 pub(super) struct PanelRoot(pub(super) ZoneKind);
@@ -30,3 +32,49 @@ pub(super) struct ExplorationDebugPanelRoot;
 
 #[derive(Component, Default, Clone)]
 pub(super) struct ExplorationDebugInfoText;
+
+#[derive(Resource, Clone, Copy, Debug)]
+pub(super) struct ExplorationSetupViewModel {
+    pub(super) authored: ExplorationPortal,
+    pub(super) config: ExplorationPortal,
+}
+
+impl Default for ExplorationSetupViewModel {
+    fn default() -> Self {
+        let config = ExplorationPortal::default();
+        Self {
+            authored: config,
+            config,
+        }
+    }
+}
+
+impl ExplorationSetupViewModel {
+    pub(super) fn open(&mut self, authored: ExplorationPortal) {
+        let authored = authored.sanitized();
+        self.authored = authored;
+        self.config = authored;
+    }
+
+    pub(super) fn reset(&mut self) {
+        self.config = self.authored;
+    }
+}
+
+#[derive(Component, Default, Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) enum ExplorationParameterControl {
+    #[default]
+    Seed,
+    Radius,
+    TileSize,
+    HeightMultiplier,
+    TerrainFrequency,
+    BiomeScale,
+    VegetationDensity,
+}
+
+#[derive(Component, Default, Clone, Copy)]
+pub(super) struct ExplorationSetupRoot;
+
+#[derive(Component, Default, Clone, Copy)]
+pub(super) struct ExplorationSetupTileCountText;
