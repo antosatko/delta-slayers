@@ -44,38 +44,27 @@ fn main_menu() -> impl Scene {
                     @section_header(CarbonIcon::Compass, "Continue your journey")
                     --
                     @menu_button(
-                        "Play",
-                        CarbonIcon::Sword,
-                        AppState::Loading,
-                        CarbonButtonTone::Primary
-                    )
-                    --
-                    @menu_button(
-                        "Continue",
+                        "Quick Load",
                         CarbonIcon::Back,
-                        AppState::Continue,
-                        CarbonButtonTone::Secondary
+                        AppState::Continue
                     )
                     --
                     @menu_button(
-                        "Load game",
+                        "New game",
+                        CarbonIcon::Sword,
+                        AppState::Loading
+                    )
+                    --
+                    @menu_button(
+                        "Load Save",
                         CarbonIcon::Inventory,
-                        AppState::Load,
-                        CarbonButtonTone::Secondary
-                    )
-                    --
-                    @menu_button(
-                        "Settings",
-                        CarbonIcon::Settings,
-                        AppState::Settings,
-                        CarbonButtonTone::Secondary
+                        AppState::Load
                     )
                     --
                     @menu_button(
                         "Credits",
                         CarbonIcon::Book,
-                        AppState::Credits,
-                        CarbonButtonTone::Ghost
+                        AppState::Credits
                     )
                     --
                     @exit_button()
@@ -89,10 +78,9 @@ fn menu_button(
     label: &'static str,
     icon: CarbonIcon,
     target: AppState,
-    tone: CarbonButtonTone,
 ) -> impl Scene {
     bsn! {
-        @action_button(label, icon, tone)
+        @action_button(label, icon, CarbonButtonTone::Secondary)
         on(move |_activate: On<Activate>, mut next_state: ResMut<NextState<AppState>>| {
             info!("Transition: Moving to {:?}", target);
             next_state.set(target);
@@ -102,7 +90,7 @@ fn menu_button(
 
 fn exit_button() -> impl Scene {
     bsn! {
-        @action_button("Exit", CarbonIcon::Close, CarbonButtonTone::Danger)
+        @action_button("Exit to Desktop", CarbonIcon::Close, CarbonButtonTone::Secondary)
         on(|_activate: On<Activate>, mut app_exit: MessageWriter<AppExit>| {
             app_exit.write(AppExit::Success);
         })
