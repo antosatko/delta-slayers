@@ -100,15 +100,68 @@ behaviour only progresses when the player advances the simulation.
 Describe the repeated sequence of activities that gives the player a reason to
 explore, interact, fight, collect, and return to safe locations.
 
+**Proposed direction**
+
+- Mainline quests may impose hard deadlines.
+- The world should offer many other activities and opportunities competing for
+  the player's available time. Choosing what to pursue, postpone, or abandon
+  should matter.
+- Time pressure should create meaningful prioritization rather than simply
+  forcing the player to rush through every activity.
+
 ## Exploration
 
-**Open**
+**Proposed direction**
 
-Questions to resolve:
-- What makes locations worth visiting?
+- Exploration and combat happen in the same world and on the same map. Engaging
+  an enemy does not load a separate combat arena or switch to a different
+  encounter map.
+- The player explores procedurally generated maps where enemies and other
+  entities already inhabit the environment. Encounters can arise during
+  exploration rather than only at predefined combat locations.
+- The same action-driven simulation applies throughout the map. When the
+  player acts, the rest of the world advances alongside them; when the player
+  stops and the simulation freezes, the other entities stop as well.
+- Maps should feel like places with their own ecosystems and activity, worth
+  exploring beyond simply moving between objectives.
+
+**Open questions**
+
+- What makes locations worth visiting, beyond enemies and rewards?
 - How are points of interest discovered and communicated?
 - What role do the hex regions play beyond organizing terrain?
 - How does the handmade town connect to the wider procedural world?
+- Which entities and environmental processes make up a map's ecosystem, and
+  how do they interact with one another?
+- How does large-scale time passage work alongside the frozen/active
+  simulation? For example, what advances quest deadlines, schedules, or
+  opportunities when the player is not actively moving through the world?
+- Should the player be able to deliberately spend time through activities such
+  as resting, travelling, or interacting, and what consequences should those
+  choices have?
+
+## Time constraints
+
+**Proposed direction**
+
+Action-driven simulation and broader gameplay time constraints are related,
+but they do not necessarily need identical rules.
+
+- The action-driven simulation governs moment-to-moment activity on the map.
+- Deadlines, limited opportunities, and other longer-term constraints can use
+  a larger-scale notion of elapsed time.
+- Different activities may advance that larger-scale time in ways appropriate
+  to their purpose. This should not be assumed to mean that every interaction
+  or system needs a real-time timer.
+
+**Open questions**
+
+- Are quest deadlines measured in elapsed world time, completed activities,
+  milestones, or some combination?
+- What actions or transitions advance large-scale time?
+- Can the player intentionally advance time, and what risks or opportunities
+  accompany doing so?
+- How visible should deadlines and expiring opportunities be to the player?
 
 ## Encounters and combat
 
@@ -116,6 +169,8 @@ Questions to resolve:
 
 The action-driven simulation is a decided foundation for gameplay, but combat
 rules, enemy roles, and encounter structure have not yet been committed.
+Combat is intended to take place directly in the explored environment rather
+than in a separate arena or mode.
 
 ## Progression and rewards
 
