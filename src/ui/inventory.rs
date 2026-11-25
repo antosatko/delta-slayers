@@ -4,9 +4,9 @@ use crate::gameplay::inventory::InventoryModel;
 
 #[derive(Resource, Clone, Debug, Default)]
 pub(super) struct InventoryViewModel {
-    pub(super) gold_label: String,
-    pub(super) wood_label: String,
-    pub(super) stone_label: String,
+    gold_label: String,
+    wood_label: String,
+    stone_label: String,
 }
 
 #[derive(Component, Clone, Copy, Debug, Default)]
@@ -20,28 +20,21 @@ pub(super) enum CurrencyLabel {
 #[derive(Component, Default, Clone)]
 pub(super) struct InventoryRoot;
 
-/// Projects domain data into presentation-ready labels. Text components are
-/// updated only when their displayed value differs, so newly spawned BSN
-/// entities receive the current model even if the model itself did not change
-/// during the same frame.
+/// Projects authoritative inventory values into presentation-ready labels.
 pub(super) fn sync_inventory_view_model(
     model: Res<InventoryModel>,
     mut view_model: ResMut<InventoryViewModel>,
     mut labels: Query<(&CurrencyLabel, &mut Text)>,
 ) {
-    let gold = format!("Gold: {}", model.gold);
-    let wood = format!("Wood: {}", model.wood);
-    let stone = format!("Stone: {}", model.stone);
-
-    view_model.gold_label.clone_from(&gold);
-    view_model.wood_label.clone_from(&wood);
-    view_model.stone_label.clone_from(&stone);
+    view_model.gold_label = format!("Gold: {}", model.gold);
+    view_model.wood_label = format!("Wood: {}", model.wood);
+    view_model.stone_label = format!("Stone: {}", model.stone);
 
     for (label, mut text) in &mut labels {
         let value = match label {
-            CurrencyLabel::Gold => &gold,
-            CurrencyLabel::Wood => &wood,
-            CurrencyLabel::Stone => &stone,
+            CurrencyLabel::Gold => &view_model.gold_label,
+            CurrencyLabel::Wood => &view_model.wood_label,
+            CurrencyLabel::Stone => &view_model.stone_label,
         };
         if text.0 != *value {
             text.0.clone_from(value);
