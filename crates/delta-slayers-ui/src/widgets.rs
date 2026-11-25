@@ -78,7 +78,10 @@ pub fn root() -> impl Scene {
         Node {
             width: percent(100),
             height: percent(100),
+            min_width: px(0),
+            min_height: px(0),
             flex_direction: FlexDirection::Row,
+            align_items: AlignItems::Stretch,
             column_gap: px(16),
         }
         template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().page)))
@@ -93,6 +96,7 @@ pub fn panel(width: Val) -> impl Scene {
             min_width: px(0),
             padding: UiRect::all(px(15)),
             flex_direction: FlexDirection::Column,
+            align_items: AlignItems::Stretch,
             row_gap: px(12),
             border_radius: BorderRadius::all(px(8)),
         }
@@ -394,6 +398,7 @@ fn item_tile_scene(
         Button
         Hovered(false)
         CarbonButtonStyle { tone: CarbonButtonTone::Secondary, selected }
+        CarbonSelection { selected }
         Node {
             width: px(112),
             height: px(112),
@@ -418,8 +423,11 @@ fn item_tile_scene(
                 left: px(0),
                 right: px(0),
                 bottom: px(0),
+                width: percent(100),
+                min_width: px(0),
                 padding: UiRect::axes(px(7), px(6)),
                 flex_direction: FlexDirection::Column,
+                align_items: AlignItems::Start,
                 row_gap: px(2),
             }
             template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().surface_deep)))
