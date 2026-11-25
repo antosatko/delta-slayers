@@ -321,19 +321,16 @@ fn spawn_map_geometry(
 }
 
 #[derive(Component)]
-struct ExplorationTileTint(Handle<StandardMaterial>);
+pub struct ExplorationTileTint(Handle<StandardMaterial>);
 
 #[derive(Component)]
-struct ExplorationTileTintApplied;
+pub struct ExplorationTileTintApplied;
 
 /// Applies biome materials to imported meshes, including nested GLB children.
 /// Instancing the complete world preserves Skein-authored components on tile 2.
-pub(super) fn apply_tile_materials(
+pub fn apply_tile_materials(
     mut commands: Commands,
-    tiles: Query<
-        (Entity, &ExplorationTileTint, &Children),
-        Without<ExplorationTileTintApplied>,
-    >,
+    tiles: Query<(Entity, &ExplorationTileTint, &Children), Without<ExplorationTileTintApplied>>,
     renderables: Query<(Option<&Children>, Has<Mesh3d>)>,
 ) {
     for (tile, tint, children) in &tiles {
@@ -384,7 +381,11 @@ fn spawn_terrain_tiles(
             let biome = biome_at(config, seed, center);
             let variant_roll = cell_random(seed, q, r, 0xA24B_5F31_7C91_02D7);
             let protected_area = center.length() < layout_radius * 2.5 || (q == 0 && r == 2);
-            let feature_chance = if biome == Biome::Highlands { 0.55 } else { 0.08 };
+            let feature_chance = if biome == Biome::Highlands {
+                0.55
+            } else {
+                0.08
+            };
             let use_feature_tile = !protected_area && variant_roll < feature_chance;
             let tile_index = if use_feature_tile { 1 } else { 0 };
 
@@ -421,7 +422,10 @@ fn spawn_vegetation(
     materials: &mut Assets<StandardMaterial>,
 ) {
     let vegetation_scale = config.tile_size / 2.0;
-    let trunk = meshes.add(Cylinder::new(0.12 * vegetation_scale, 0.7 * vegetation_scale));
+    let trunk = meshes.add(Cylinder::new(
+        0.12 * vegetation_scale,
+        0.7 * vegetation_scale,
+    ));
     let canopy = meshes.add(Cone::new(0.62 * vegetation_scale, 1.35 * vegetation_scale));
     let wood_material = materials.add(Color::srgb(0.31, 0.19, 0.11));
     let leaf_material = materials.add(Color::srgb(0.17, 0.38, 0.18));
@@ -441,7 +445,11 @@ fn spawn_vegetation(
 
             let biome = biome_at(config, seed, center);
             let feature_roll = cell_random(seed, q, r, 0xA24B_5F31_7C91_02D7);
-            let feature_chance = if biome == Biome::Highlands { 0.55 } else { 0.08 };
+            let feature_chance = if biome == Biome::Highlands {
+                0.55
+            } else {
+                0.08
+            };
             if feature_roll < feature_chance {
                 continue;
             }
@@ -452,21 +460,13 @@ fn spawn_vegetation(
                     commands.spawn((
                         Mesh3d(trunk.clone()),
                         MeshMaterial3d(wood_material.clone()),
-                        Transform::from_xyz(
-                            center.x,
-                            height + 0.35 * vegetation_scale,
-                            center.y,
-                        ),
+                        Transform::from_xyz(center.x, height + 0.35 * vegetation_scale, center.y),
                         ChildOf(root),
                     ));
                     commands.spawn((
                         Mesh3d(canopy.clone()),
                         MeshMaterial3d(leaf_material.clone()),
-                        Transform::from_xyz(
-                            center.x,
-                            height + 1.05 * vegetation_scale,
-                            center.y,
-                        ),
+                        Transform::from_xyz(center.x, height + 1.05 * vegetation_scale, center.y),
                         ChildOf(root),
                     ));
                 }
