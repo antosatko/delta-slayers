@@ -56,7 +56,7 @@ impl Default for ExplorationPortal {
 }
 
 impl ExplorationPortal {
-    fn sanitized(self) -> Self {
+    pub(crate) fn sanitized(self) -> Self {
         Self {
             radius: self.radius.clamp(MIN_MAP_RADIUS, MAX_MAP_RADIUS),
             tile_size: finite_clamp(self.tile_size, 1.5, 1.0, 3.0),
