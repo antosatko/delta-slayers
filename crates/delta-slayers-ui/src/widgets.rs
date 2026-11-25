@@ -77,8 +77,11 @@ pub fn root() -> impl Scene {
             min_width: px(0),
             min_height: px(0),
             flex_direction: FlexDirection::Row,
+            flex_wrap: FlexWrap::Wrap,
             align_items: AlignItems::Stretch,
+            align_content: AlignContent::Start,
             column_gap: px(16),
+            row_gap: px(16),
         }
         template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().page)))
     }
@@ -90,6 +93,7 @@ pub fn panel(width: Val) -> impl Scene {
         Node {
             width,
             min_width: px(0),
+            flex_shrink: 1.0,
             padding: UiRect::all(px(15)),
             flex_direction: FlexDirection::Column,
             align_items: AlignItems::Stretch,
@@ -126,8 +130,9 @@ pub fn page_header(
             Children [
                 Text(title)
                 Node {
-                    flex_grow: 1.0,
                     min_width: px(0),
+                    flex_grow: 1.0,
+                    flex_shrink: 1.0,
                 }
                 TextFont { font_size: px(28) }
                 template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().ink)))
@@ -162,6 +167,7 @@ pub fn page_header(
                         top: px(34),
                         right: px(0),
                         width: px(300),
+                        max_width: percent(85),
                         padding: UiRect::all(px(14)),
                         flex_direction: FlexDirection::Column,
                         row_gap: px(7),
@@ -194,8 +200,10 @@ pub fn screen_tabs() -> impl Scene {
             width: percent(100),
             min_height: px(32),
             flex_direction: FlexDirection::Row,
+            flex_wrap: FlexWrap::Wrap,
             align_items: AlignItems::Center,
             column_gap: px(4),
+            row_gap: px(4),
         }
     }
 }
@@ -261,6 +269,7 @@ pub fn action_button(label: &'static str, icon: CarbonIcon, tone: CarbonButtonTo
         Hovered(false)
         CarbonButtonStyle { tone, selected: false }
         Node {
+            min_width: px(0),
             min_height: px(36),
             padding: UiRect::axes(px(12), px(7)),
             flex_direction: FlexDirection::Row,
@@ -334,6 +343,7 @@ pub fn item_art_tile(
             width: px(112),
             height: px(112),
             min_width: px(0),
+            flex_shrink: 0.0,
             position_type: PositionType::Relative,
             overflow: Overflow::clip(),
             flex_direction: FlexDirection::Column,
@@ -447,6 +457,7 @@ pub fn stat_bar(
                 @glyph(icon, 13.0, GlyphTone::Muted)
                 --
                 Text(label)
+                Node { min_width: px(0), flex_shrink: 1.0 }
                 TextFont { font_size: px(12) }
                 template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().muted)))
                 --
