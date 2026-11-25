@@ -30,7 +30,11 @@ impl UiStack {
         self.contains(UiLayer::Inventory)
     }
 
-    pub fn exploration_setup_open(&self) -> bool {\n        self.contains(UiLayer::ExplorationSetup)\n    }\n\n    pub fn game_menu_open(&self) -> bool {
+    pub fn exploration_setup_open(&self) -> bool {
+        self.contains(UiLayer::ExplorationSetup)
+    }
+
+    pub fn game_menu_open(&self) -> bool {
         self.contains(UiLayer::GameMenu)
     }
 
