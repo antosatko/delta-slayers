@@ -45,7 +45,7 @@ pub(super) fn spawn_godo(
         Npc,
         super::billboard::Billboard,
         super::billboard::SquashOnMove,
-        DespawnOnExit::<crate::app::state::AppState>(crate::app::state::AppState::InGame),
+        DespawnOnExit(crate::app::state::AppState::InGame),
     ));
 }
 
