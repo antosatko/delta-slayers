@@ -1,9 +1,9 @@
 use bevy::prelude::*;
 
-pub(super) const PLAYER_COLLIDER_RADIUS: f32 = 0.32;
-pub(super) const PLAYER_COLLIDER_HEIGHT: f32 = 1.6;
-pub(super) const MAX_COLLISION_STEP: f32 = 0.1;
-pub(super) const MAX_COLLISION_RESOLVE_PASSES: usize = 6;
+pub(in crate::gameplay) const PLAYER_COLLIDER_RADIUS: f32 = 0.32;
+pub(in crate::gameplay) const PLAYER_COLLIDER_HEIGHT: f32 = 1.6;
+pub(in crate::gameplay) const MAX_COLLISION_STEP: f32 = 0.1;
+pub(in crate::gameplay) const MAX_COLLISION_RESOLVE_PASSES: usize = 6;
 
 /// An invisible, Blender-authored box that blocks player movement.
 ///
@@ -17,7 +17,7 @@ pub struct MovementBlocker;
 /// Advances in small increments so a fast frame or sprint cannot tunnel
 /// through a thin authored wall. Contact correction preserves tangential
 /// movement so the player can slide along the blocker.
-pub(super) fn move_with_collisions(
+pub(in crate::gameplay) fn move_with_collisions(
     start: Vec3,
     delta: Vec3,
     mut collision_contact: impl FnMut(Vec3, Vec3) -> Option<MovementContact>,
@@ -53,16 +53,16 @@ pub(super) fn move_with_collisions(
 }
 
 #[derive(Clone, Copy)]
-pub(super) struct MovementContact {
-    pub(super) normal: Vec3,
-    pub(super) penetration: f32,
+pub(in crate::gameplay) struct MovementContact {
+    pub(in crate::gameplay) normal: Vec3,
+    pub(in crate::gameplay) penetration: f32,
 }
 
 /// Returns the outward horizontal contact normal and penetration depth when
 /// the player's circular footprint overlaps an upright, oriented box.
 /// Blockers are rotated around Y; their vertical scale and position determine
 /// whether they overlap the body.
-pub(super) fn movement_collision_contact(
+pub(in crate::gameplay) fn movement_collision_contact(
     player_position: Vec3,
     blocker: &GlobalTransform,
 ) -> Option<MovementContact> {

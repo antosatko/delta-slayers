@@ -4,15 +4,15 @@ use super::{MovementTarget, Player};
 
 const TRAJECTORY_HEIGHT: f32 = 0.12;
 
-pub(super) const TRAJECTORY_ARROW_SPACING: f32 = 1.2;
-pub(super) const TRAJECTORY_ARROW_LENGTH: f32 = 0.72;
-pub(super) const TRAJECTORY_ARROW_SPEED: f32 = 0.85;
-pub(super) const DESTINATION_RING_RADIUS: f32 = 0.48;
-pub(super) const DESTINATION_BEACON_HEIGHT: f32 = 0.72;
+pub(in crate::gameplay) const TRAJECTORY_ARROW_SPACING: f32 = 1.2;
+pub(in crate::gameplay) const TRAJECTORY_ARROW_LENGTH: f32 = 0.72;
+pub(in crate::gameplay) const TRAJECTORY_ARROW_SPEED: f32 = 0.85;
+pub(in crate::gameplay) const DESTINATION_RING_RADIUS: f32 = 0.48;
+pub(in crate::gameplay) const DESTINATION_BEACON_HEIGHT: f32 = 0.72;
 
 /// Draws a sequence of small 3D arrows from the player to the selected
 /// destination. The path follows the character as it moves.
-pub(super) fn draw_move_trajectory(
+pub(in crate::gameplay) fn draw_move_trajectory(
     mut gizmos: Gizmos,
     player: Query<&Transform, With<Player>>,
     target: Res<MovementTarget>,
@@ -73,7 +73,7 @@ pub(super) fn draw_move_trajectory(
     );
 }
 
-pub(super) fn trajectory_arrow_phase(elapsed_secs: f32) -> f32 {
+pub(in crate::gameplay) fn trajectory_arrow_phase(elapsed_secs: f32) -> f32 {
     (elapsed_secs * TRAJECTORY_ARROW_SPEED).rem_euclid(TRAJECTORY_ARROW_SPACING)
 }
 

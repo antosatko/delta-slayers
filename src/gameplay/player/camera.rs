@@ -13,8 +13,8 @@ pub const CAMERA_HORIZONTAL_OFFSET: f32 = 0.45;
 pub const CAMERA_DEFAULT_PITCH: f32 = -0.82;
 pub const CAMERA_MIN_PITCH: f32 = -1.45;
 pub const CAMERA_MAX_PITCH: f32 = -0.15;
-pub(super) const CAMERA_MIN_DISTANCE: f32 = 14.0;
-pub(super) const CAMERA_MAX_DISTANCE: f32 = 22.0;
+pub(in crate::gameplay) const CAMERA_MIN_DISTANCE: f32 = 14.0;
+pub(in crate::gameplay) const CAMERA_MAX_DISTANCE: f32 = 22.0;
 
 const CAMERA_PITCH_SAVE_ADJUSTMENT: f32 = 0.08;
 const CAMERA_TARGET_HEIGHT: f32 = 0.8;
@@ -27,7 +27,7 @@ pub(crate) struct GameplayCamera {
     pub(crate) pan_offset: Vec3,
 }
 
-pub(super) fn adjust_camera(
+pub(in crate::gameplay) fn adjust_camera(
     mut player: Query<&mut Player>,
     mut camera: Query<&mut GameplayCamera>,
     mouse_buttons: Res<ButtonInput<MouseButton>>,
@@ -81,7 +81,7 @@ pub(super) fn adjust_camera(
     }
 }
 
-pub(super) fn camera_pitch_after_scroll(pitch: f32, scroll: f32, sensitivity: f32) -> f32 {
+pub(in crate::gameplay) fn camera_pitch_after_scroll(pitch: f32, scroll: f32, sensitivity: f32) -> f32 {
     (pitch + scroll * sensitivity).clamp(CAMERA_MIN_PITCH, CAMERA_MAX_PITCH)
 }
 
@@ -89,7 +89,7 @@ fn horizontal_camera_axis(axis: Vec3) -> Vec3 {
     Vec3::new(axis.x, 0.0, axis.z).normalize_or_zero()
 }
 
-pub(super) fn camera_pan_offset_after_drag(
+pub(in crate::gameplay) fn camera_pan_offset_after_drag(
     offset: Vec3,
     delta: Vec2,
     camera_right: Vec3,
@@ -101,19 +101,19 @@ pub(super) fn camera_pan_offset_after_drag(
         + horizontal_camera_axis(camera_up) * delta.y * scale
 }
 
-pub(super) fn camera_distance_after_scroll(distance: f32, scroll: f32, sensitivity: f32, min: f32, max: f32) -> f32 {
+pub(in crate::gameplay) fn camera_distance_after_scroll(distance: f32, scroll: f32, sensitivity: f32, min: f32, max: f32) -> f32 {
     (distance - scroll * sensitivity).clamp(min, max)
 }
 
 /// Converts a pitch stored by the previous camera setup to the new, slightly
 /// shallower default while preserving the saved zoom adjustment.
-pub(super) fn migrate_saved_camera_pitch(pitch: f32) -> f32 {
+pub(in crate::gameplay) fn migrate_saved_camera_pitch(pitch: f32) -> f32 {
     (pitch + CAMERA_PITCH_SAVE_ADJUSTMENT).clamp(CAMERA_MIN_PITCH, CAMERA_MAX_PITCH)
 }
 
 /// Builds the follow-camera orientation with a slight horizontal offset from
 /// the player's heading, revealing the sides of world geometry.
-pub(super) fn follow_camera_rotation(player_yaw: f32, pitch: f32) -> Quat {
+pub(in crate::gameplay) fn follow_camera_rotation(player_yaw: f32, pitch: f32) -> Quat {
     Quat::from_euler(
         EulerRot::YXZ,
         player_yaw + CAMERA_HORIZONTAL_OFFSET,
@@ -124,7 +124,7 @@ pub(super) fn follow_camera_rotation(player_yaw: f32, pitch: f32) -> Quat {
 
 /// Keeps the camera following the player while preserving a world-space pan
 /// offset. Panning translates the camera and focus together without rotation.
-pub(super) fn follow_camera(
+pub(in crate::gameplay) fn follow_camera(
     player: Query<(&Transform, &Player)>,
     mut camera: Query<(&mut Transform, &mut GameplayCamera), (With<GameplayCamera>, Without<Player>)>,
     settings: Res<PlayerSettings>,

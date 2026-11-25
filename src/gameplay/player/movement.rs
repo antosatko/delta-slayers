@@ -14,22 +14,22 @@ const MOVE_TARGET_REFRESH_INTERVAL: f32 = 0.1;
 
 /// The active click destination and click-and-hold retargeting state.
 #[derive(Resource, Default)]
-pub(super) struct MovementTarget {
-    pub(super) destination: Option<Vec3>,
+pub(in crate::gameplay) struct MovementTarget {
+    pub(in crate::gameplay) destination: Option<Vec3>,
     hold_elapsed: f32,
     refresh_elapsed: f32,
     ignore_click_until_release: bool,
 }
 
 impl MovementTarget {
-    pub(super) fn clear(&mut self) {
+    pub(in crate::gameplay) fn clear(&mut self) {
         self.destination = None;
         self.hold_elapsed = 0.0;
         self.refresh_elapsed = 0.0;
         self.ignore_click_until_release = false;
     }
 
-    pub(super) fn should_update_from_cursor(
+    pub(in crate::gameplay) fn should_update_from_cursor(
         &mut self,
         pressed: bool,
         just_pressed: bool,
@@ -75,7 +75,7 @@ impl MovementTarget {
 
 /// A quick click sets one destination. Holding the button for a short
 /// delay switches to periodic retargeting from the current cursor position.
-pub(super) fn set_move_target_from_cursor(
+pub(in crate::gameplay) fn set_move_target_from_cursor(
     mouse: Res<ButtonInput<MouseButton>>,
     window: Single<&Window, With<PrimaryWindow>>,
     camera: Single<(&Camera, &Transform), With<GameplayCamera>>,
@@ -125,7 +125,7 @@ pub(super) fn set_move_target_from_cursor(
 
 /// Moves with WASD/arrows when pressed, otherwise follows the last clicked
 /// destination. Keyboard movement takes priority and cancels the current path.
-pub(super) fn move_player_to_target(
+pub(in crate::gameplay) fn move_player_to_target(
     mut player: Query<&mut Transform, With<Player>>,
     camera: Query<&Transform, (With<GameplayCamera>, Without<Player>)>,
     blockers: Query<&GlobalTransform, With<MovementBlocker>>,
@@ -205,7 +205,7 @@ pub(super) fn move_player_to_target(
 /// through a thin authored wall. Overlapping steps are corrected to the wall
 /// surface, preserving tangential movement so the player can slide along it.
 
-pub(super) fn keyboard_movement_direction(input: &ButtonInput<KeyCode>, camera_forward: Vec3) -> Option<Vec3> {
+pub(in crate::gameplay) fn keyboard_movement_direction(input: &ButtonInput<KeyCode>, camera_forward: Vec3) -> Option<Vec3> {
     let left = input.pressed(KeyCode::KeyA) || input.pressed(KeyCode::ArrowLeft);
     let right = input.pressed(KeyCode::KeyD) || input.pressed(KeyCode::ArrowRight);
     let forward = input.pressed(KeyCode::KeyW) || input.pressed(KeyCode::ArrowUp);
