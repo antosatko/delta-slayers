@@ -129,9 +129,11 @@ the same collision resolver as player movement, so Blender-authored
 `MovementBlocker` volumes block both. The town remains the existing
 Blender-authored scene, while an `ExplorationPortal` can create a separate
 procedural hex map at runtime. The per-tile height field drives the imported tile models and player/NPC ground elevation. The map instances the supplied `assets/tiles/1.glb` and `assets/tiles/2.glb`
-models, tints them by biome, and leaves their edges overlapping. Tile 2 keeps
-its Skein-authored `MovementBlocker`. Sparse trees and a collision-blocked
-perimeter complete the first pass. A return
+models and tints them by biome. Their full-depth cylinder sides remain visible
+where neighboring tiles have different elevations; tile heights are discrete
+per-cell values rather than a smoothed surface. Tile 2 keeps its Skein-authored
+`MovementBlocker`. Sparse trees and a collision-blocked perimeter complete
+the first pass. A return
 beacon restores the town-side position captured on entry.
 
 The TriggerZone-to-TriggerBox rename is a reflected authoring API break.
@@ -157,8 +159,10 @@ parameters. Number inputs enforce the generator's safe runtime ranges, and a
 live tile count reflects the selected radius. Reset restores the portal's
 authored values; Generate submits the selected configuration to gameplay.
 Tile radius defaults to 6 m. The supplied meshes have a 5 m source radius and
-are scaled to the selected radius; their grid centers are spaced at 82% of that
-radius so neighboring tiles visibly overhang one another.
+are scaled to the selected radius. Tile centers use the full rendered radius
+for regular hex spacing. Each tile keeps its own elevation: adjacent heights
+are not interpolated or smoothed, allowing the thick cylinder sides of a
+higher tile to remain exposed above a lower neighbor.
 While the dialog is open, UiStack owns its visibility and world simulation is
 suspended. Debug builds also show a dismissible panel on map entry with the
 resolved seed and effective generation parameters. The town scene stays loaded
