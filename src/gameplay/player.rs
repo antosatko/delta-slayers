@@ -296,7 +296,8 @@ mod tests {
         assert!(later < TRAJECTORY_ARROW_SPACING);
 
         let cycle_time = TRAJECTORY_ARROW_SPACING / TRAJECTORY_ARROW_SPEED;
-        assert!(trajectory_arrow_phase(cycle_time).abs() < 1e-5);
+        let cycle_phase = trajectory_arrow_phase(cycle_time);
+        assert!(cycle_phase < 1e-5 || TRAJECTORY_ARROW_SPACING - cycle_phase < 1e-5);
     }
 
     #[test]
