@@ -1,4 +1,8 @@
-use bevy::{prelude::*, ui_widgets::Activate};
+use bevy::{
+    feathers::{dark_theme::create_dark_theme, theme::UiTheme, FeathersPlugins},
+    prelude::*,
+    ui_widgets::Activate,
+};
 use delta_slayers_ui::{
     CarbonButtonTone, CarbonIcon, CarbonPlugin, CarbonSelection, CarbonStatus, CarbonTab,
     CarbonTheme, action_button, badge, item_tile_optional, page_header, panel, reference_term,
@@ -15,6 +19,8 @@ fn main() {
             }),
             ..default()
         }))
+        .add_plugins(FeathersPlugins)
+        .insert_resource(UiTheme(create_dark_theme()))
         .add_plugins(CarbonPlugin)
         .add_systems(Startup, scene.spawn())
         .run();
