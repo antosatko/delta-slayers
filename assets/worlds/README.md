@@ -71,8 +71,8 @@ The portal exposes these settings:
 Values outside the runtime ranges are clamped. For a reproducible test map,
 set a seed explicitly; leave it empty when each visit should be different.
 The generated terrain has grassland, woodland, dryland, and highland regions,
-with procedural height variation, sparse trees and rocks, and a movement-blocked
-outer boundary. The map is a first exploration prototype: it does not yet
+with procedural height variation, subtle per-hex color variation, sparse trees
+and rocks, and a movement-blocked outer boundary. The map is a first exploration prototype: it does not yet
 persist its discovered state or add resource gathering, ecology simulation, or
 NPC populations.
 
