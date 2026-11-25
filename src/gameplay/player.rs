@@ -35,6 +35,8 @@ pub const INTERACTION_HEIGHT: f32 = 1.7;
 pub struct PlayerSettings {
     pub camera_pan_sensitivity: f32,
     pub camera_zoom_sensitivity: f32,
+    pub camera_pitch_sensitivity: f32,
+    pub camera_auto_lock: bool,
     pub camera_min_distance: f32,
     pub camera_max_distance: f32,
     pub walk_speed: f32,
@@ -46,6 +48,8 @@ impl Default for PlayerSettings {
         Self {
             camera_pan_sensitivity: 0.0025,
             camera_zoom_sensitivity: 0.65,
+            camera_pitch_sensitivity: 0.02,
+            camera_auto_lock: true,
             camera_min_distance: CAMERA_MIN_DISTANCE,
             camera_max_distance: CAMERA_MAX_DISTANCE,
             walk_speed: 5.0,

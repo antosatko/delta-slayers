@@ -246,10 +246,12 @@ fn middle_drag_pan_accumulates_from_existing_camera_position() {
 }
 
 #[test]
-fn scroll_tilt_keeps_the_original_fixed_increment() {
-    let tilted = camera_pitch_after_scroll(CAMERA_DEFAULT_PITCH, 1.0);
+fn scroll_tilt_uses_the_default_configurable_increment_and_previous_range() {
+    let sensitivity = PlayerSettings::default().camera_pitch_sensitivity;
+    let tilted = camera_pitch_after_scroll(CAMERA_DEFAULT_PITCH, 1.0, sensitivity);
 
     assert!((tilted - (CAMERA_DEFAULT_PITCH + 0.02)).abs() < 1e-6);
+    assert!((CAMERA_MAX_PITCH - CAMERA_MIN_PITCH - 0.30).abs() < 1e-6);
 }
 
 #[test]
@@ -263,7 +265,9 @@ fn scrolling_in_zooms_in_and_flattens_the_view() {
             CAMERA_MAX_DISTANCE
         ) < CAMERA_DISTANCE
     );
-    assert!(camera_pitch_after_scroll(CAMERA_DEFAULT_PITCH, 1.0) > CAMERA_DEFAULT_PITCH);
+    assert!(
+        camera_pitch_after_scroll(CAMERA_DEFAULT_PITCH, 1.0, 0.02) > CAMERA_DEFAULT_PITCH
+    );
 }
 
 #[test]
@@ -277,7 +281,9 @@ fn scrolling_out_zooms_out_and_raises_the_view() {
             CAMERA_MAX_DISTANCE
         ) > CAMERA_DISTANCE
     );
-    assert!(camera_pitch_after_scroll(CAMERA_DEFAULT_PITCH, -1.0) < CAMERA_DEFAULT_PITCH);
+    assert!(
+        camera_pitch_after_scroll(CAMERA_DEFAULT_PITCH, -1.0, 0.02) < CAMERA_DEFAULT_PITCH
+    );
 }
 
 #[test]
@@ -303,11 +309,11 @@ fn camera_adjustments_stay_within_their_limits() {
         CAMERA_MAX_DISTANCE
     );
     assert_eq!(
-        camera_pitch_after_scroll(CAMERA_MIN_PITCH, -10.0),
+        camera_pitch_after_scroll(CAMERA_MIN_PITCH, -10.0, 0.02),
         CAMERA_MIN_PITCH
     );
     assert_eq!(
-        camera_pitch_after_scroll(CAMERA_MAX_PITCH, 10.0),
+        camera_pitch_after_scroll(CAMERA_MAX_PITCH, 10.0, 0.02),
         CAMERA_MAX_PITCH
     );
 }

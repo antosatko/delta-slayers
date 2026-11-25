@@ -47,10 +47,17 @@ pub(super) enum PlayerSettingControl {
     #[default]
     PanSensitivity,
     ZoomSensitivity,
+    PitchSensitivity,
     MinCameraDistance,
     MaxCameraDistance,
     WalkSpeed,
     SprintSpeed,
+}
+
+#[derive(Component, Default, Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) enum PlayerSettingToggle {
+    #[default]
+    CameraAutoLock,
 }
 
 #[derive(Component, Default, Clone)]

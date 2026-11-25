@@ -109,12 +109,19 @@ behind the player from a fixed heading, initially offset from the player's
 facing direction so the camera reveals the sides of world models. Holding the
 middle mouse button and dragging pans the camera and its focus together across
 the horizontal ground plane without changing camera height, rotating the view,
-or changing the player's heading; dragging over UI does not pan the camera. The pan offset follows the player until the
-next gameplay session. The wheel adjusts follow distance and vertical viewing
-angle. The mouse cursor remains visible and ungrabbed during gameplay.
+or changing the player's heading; dragging over UI does not pan the camera.
+By default, keyboard or click-to-move input clears the pan offset and recenters
+the camera on the player. The auto-lock setting can be disabled to preserve an
+independent free-camera offset while moving. The wheel adjusts follow distance
+and vertical viewing angle; tilt stays within the previous -0.97 to -0.67 radian
+range, and its scroll speed is configurable. The mouse cursor remains visible
+and ungrabbed during gameplay.
 Left-clicking the ground sets a movement destination; the player walks toward
 it continuously, and animated 3D arrows slowly travel along the remaining
-trajectory; its dedicated gizmo depth bias keeps it visible through other geometry. Holding the left button for 300 ms starts periodic destination
+trajectory; its dedicated gizmo depth bias keeps it visible through other
+geometry. If collision-resolved click movement falls below 0.5 world units per
+second, the destination and its trajectory are cancelled. Keyboard movement
+remains available independently. Holding the left button for 300 ms starts periodic destination
 updates from the cursor until release. A highlighted ground ring and vertical
 beacon mark the endpoint. A new click replaces the destination, and holding
 Shift increases movement speed. WASD and arrow keys also move relative to the
@@ -287,9 +294,8 @@ every frame.
 
 The in-game menu is a root-level BSN scene, independent of the inventory
 hierarchy. Its Settings action opens live camera and movement tuning controls:
-pan and zoom sensitivity; minimum and maximum camera distance; walk speed;
-and sprint speed. Scroll-wheel camera tilt retains its original fixed rate and
-is not exposed as a user setting. The same basic settings screen is available
+pan, zoom, and tilt scroll sensitivity; camera auto-lock while moving; minimum
+and maximum camera distance; walk speed; and sprint speed. The same basic settings screen is available
 from the main menu. Changes apply immediately and can be restored to
 defaults. A collapsed Developer settings section exposes a toggle for the
 exploration-generation diagnostics and a control to reset the free-camera pan

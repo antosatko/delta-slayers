@@ -7,6 +7,7 @@ use super::{GameplayCamera, MovementBlocker, Player, PlayerSettings};
 
 const MOVE_TARGET_HOLD_DELAY: f32 = 0.3;
 const MOVE_TARGET_REFRESH_INTERVAL: f32 = 0.1;
+const MIN_CLICK_MOVE_SPEED: f32 = 0.5;
 
 /// The active click destination and click-and-hold retargeting state.
 #[derive(Resource, Default)]
@@ -23,6 +24,13 @@ impl MovementTarget {
         self.hold_elapsed = 0.0;
         self.refresh_elapsed = 0.0;
         self.ignore_click_until_release = false;
+    }
+
+    fn cancel_destination_until_release(&mut self) {
+        self.destination = None;
+        self.hold_elapsed = 0.0;
+        self.refresh_elapsed = 0.0;
+        self.ignore_click_until_release = true;
     }
 
     pub(in crate::gameplay) fn should_update_from_cursor(
@@ -124,6 +132,7 @@ pub(in crate::gameplay) fn set_move_target_from_cursor(
 pub(in crate::gameplay) fn move_player_to_target(
     mut player: Query<&mut Transform, With<Player>>,
     camera: Query<&Transform, (With<GameplayCamera>, Without<Player>)>,
+    mut camera_settings: Query<&mut GameplayCamera, Without<Player>>,
     blockers: Query<&GlobalTransform, With<MovementBlocker>>,
     mut target: ResMut<MovementTarget>,
     settings: Res<PlayerSettings>,
@@ -147,37 +156,45 @@ pub(in crate::gameplay) fn move_player_to_target(
     }
     let step = speed * delta_secs;
 
-    let movement = if let Some(camera_transform) = camera.iter().next() {
-        let camera_forward = camera_transform.forward().as_vec3();
-        let camera_forward = Vec3::new(camera_forward.x, 0.0, camera_forward.z);
-        keyboard_movement_direction(&input, camera_forward).map(|direction| {
+    let keyboard_direction = camera.iter().next().and_then(|camera_transform| {
+        keyboard_movement_direction(&input, camera_transform.forward().as_vec3())
+    });
+    let click_move_active = keyboard_direction.is_none() && target.destination.is_some();
+
+    // A movement input recenters the follow camera by default. Disabling
+    // auto-lock leaves the free-camera offset untouched.
+    if settings.camera_auto_lock && (keyboard_direction.is_some() || click_move_active) {
+        if let Ok(mut camera) = camera_settings.single_mut() {
+            camera.pan_offset = Vec3::ZERO;
+        }
+    }
+
+    let movement = keyboard_direction
+        .map(|direction| {
             target.clear();
             direction * step
         })
-    } else {
-        None
-    };
+        .or_else(|| {
+            let destination = target.destination?;
+            let mut offset = destination - transform.translation;
+            offset.y = 0.0;
+            let distance = offset.length();
 
-    let movement = movement.or_else(|| {
-        let destination = target.destination?;
-        let mut offset = destination - transform.translation;
-        offset.y = 0.0;
-        let distance = offset.length();
+            if distance <= 0.03 {
+                target.destination = None;
+                return None;
+            }
 
-        if distance <= 0.03 {
-            target.destination = None;
-            return None;
-        }
-
-        Some(offset / distance * distance.min(step))
-    });
+            Some(offset / distance * distance.min(step))
+        });
 
     let Some(movement) = movement else {
         return;
     };
 
+    let start_position = transform.translation;
     let next_position = move_with_collisions(
-        transform.translation,
+        start_position,
         movement,
         |candidate, intended_movement| {
             blockers.iter().find_map(|blocker| {
@@ -187,8 +204,19 @@ pub(in crate::gameplay) fn move_player_to_target(
         },
     );
 
+    let actual_speed = Vec2::new(
+        next_position.x - start_position.x,
+        next_position.z - start_position.z,
+    )
+    .length()
+        / delta_secs;
+
     transform.translation.x = next_position.x;
     transform.translation.z = next_position.z;
+
+    if click_move_active && actual_speed < MIN_CLICK_MOVE_SPEED {
+        target.cancel_destination_until_release();
+    }
 
     if let Some(destination) = target.destination {
         let remaining = Vec2::new(
@@ -230,4 +258,25 @@ pub(in crate::gameplay) fn keyboard_movement_direction(
     let right = forward.cross(Vec3::Y);
 
     Some((right * local_direction.x - forward * local_direction.z).normalize())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn cancelling_a_stalled_click_path_does_not_disable_keyboard_movement() {
+        let mut target = MovementTarget {
+            destination: Some(Vec3::new(10.0, 0.0, 0.0)),
+            ..default()
+        };
+        target.cancel_destination_until_release();
+
+        let mut input = ButtonInput::<KeyCode>::default();
+        input.press(KeyCode::KeyW);
+
+        assert!(target.destination.is_none());
+        assert!(keyboard_movement_direction(&input, Vec3::NEG_Z).is_some());
+        assert!(!target.should_update_from_cursor(true, false, 1.0, false));
+    }
 }

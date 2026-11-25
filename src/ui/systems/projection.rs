@@ -1,8 +1,9 @@
 use std::collections::HashMap;
 
 use bevy::{
-    feathers::controls::{FeathersNumberInput, NumberInputValue},
+    feathers::controls::{FeathersCheckbox, FeathersNumberInput, NumberInputValue},
     prelude::*,
+    ui::Checked,
     window::{CursorGrabMode, CursorOptions, PrimaryWindow},
 };
 
@@ -21,7 +22,8 @@ use crate::{
             ExplorationDebugPanelRoot, ExplorationDebugPanelState, ExplorationParameterControl,
             ExplorationSetupRoot, ExplorationSetupTileCountText, ExplorationSetupViewModel,
             FastTravelButton, FastTravelMenu, GameMenuModal, MinimapExplorationDot, MinimapZoneDot,
-            PanelRoot, PauseOverlay, PlayerSettingControl, PopupRoot, SettingsPanelRoot,
+            PanelRoot, PauseOverlay, PlayerSettingControl, PlayerSettingToggle, PopupRoot,
+            SettingsPanelRoot,
         },
         inventory::InventoryRoot,
         stack::UiStack,
@@ -259,12 +261,14 @@ pub fn developer_settings_projection(
 pub fn player_settings_projection(
     settings: Res<PlayerSettings>,
     controls: Query<(Entity, &PlayerSettingControl, &NumberInputValue), With<FeathersNumberInput>>,
+    toggles: Query<(Entity, &PlayerSettingToggle, Has<Checked>), With<FeathersCheckbox>>,
     mut commands: Commands,
 ) {
     for (entity, control, current) in &controls {
         let value = match control {
             PlayerSettingControl::PanSensitivity => settings.camera_pan_sensitivity,
             PlayerSettingControl::ZoomSensitivity => settings.camera_zoom_sensitivity,
+            PlayerSettingControl::PitchSensitivity => settings.camera_pitch_sensitivity,
             PlayerSettingControl::MinCameraDistance => settings.camera_min_distance,
             PlayerSettingControl::MaxCameraDistance => settings.camera_max_distance,
             PlayerSettingControl::WalkSpeed => settings.walk_speed,
@@ -273,6 +277,19 @@ pub fn player_settings_projection(
         let next = NumberInputValue::F32(value);
         if *current != next {
             commands.entity(entity).insert(next);
+        }
+    }
+
+    for (entity, control, is_checked) in &toggles {
+        let should_be_checked = match control {
+            PlayerSettingToggle::CameraAutoLock => settings.camera_auto_lock,
+        };
+        if is_checked != should_be_checked {
+            if should_be_checked {
+                commands.entity(entity).insert(Checked);
+            } else {
+                commands.entity(entity).remove::<Checked>();
+            }
         }
     }
 }

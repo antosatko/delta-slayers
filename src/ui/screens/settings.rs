@@ -10,7 +10,7 @@ use crate::{
     ui::components::PlayerSettingControl,
 };
 
-use super::gameplay::player_setting_control;
+use super::gameplay::{player_auto_lock_setting, player_setting_control};
 
 pub(in crate::ui) fn scene() -> impl SceneList {
     bsn_list! {
@@ -77,6 +77,19 @@ fn settings_screen() -> impl Scene {
                         0.05,
                         2
                     )
+                    --
+                    @player_setting_control(
+                        "Tilt scroll speed",
+                        "Camera tilt change per scroll line.",
+                        PlayerSettingControl::PitchSensitivity,
+                        defaults.camera_pitch_sensitivity,
+                        0.002,
+                        0.06,
+                        0.002,
+                        3
+                    )
+                    --
+                    @player_auto_lock_setting()
                     --
                     @player_setting_control(
                         "Minimum camera distance",
