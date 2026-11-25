@@ -13,26 +13,21 @@ use crate::{
 pub(super) fn fast_travel(
     mut request: ResMut<FastTravelRequest>,
     mut movement_target: ResMut<MovementTarget>,
-    mut queries: ParamSet<(
-        Query<&mut Transform, With<Player>>,
-        Query<(&GlobalTransform, &TriggerBox)>,
-    )>,
+    mut player: Query<&mut Transform, With<Player>>,
+    zones: Query<(&GlobalTransform, &TriggerBox)>,
 ) {
     let Some(kind) = request.0.take() else {
         return;
     };
     movement_target.clear();
 
-    let destination = {
-        let zones = queries.p1();
-        zones
-            .iter()
-            .find(|(_, zone)| zone.kind == kind)
-            .map(|(transform, _)| transform.translation())
-    };
+    let destination = zones
+        .iter()
+        .find(|(_, zone)| zone.kind == kind)
+        .map(|(transform, _)| transform.translation());
 
     if let Some(position) = destination {
-        if let Ok(mut player_transform) = queries.p0().single_mut() {
+        if let Ok(mut player_transform) = player.single_mut() {
             player_transform.translation = fast_travel_spawn_position(position);
         }
     }
@@ -73,7 +68,10 @@ pub(super) fn return_to_menu(
     }
 
     if let Ok((transform, player)) = player_query.single() {
-        save_game(transform.translation, player.yaw, player.pitch, &visited.0);
+        if let Err(error) = save_game(transform.translation, player.yaw, player.pitch, &visited.0)
+        {
+            warn!("Could not save the current game: {error}");
+        }
     }
     next_state.set(AppState::MainMenu);
 }
