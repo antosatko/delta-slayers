@@ -6,7 +6,7 @@ use bevy::{
 
 use crate::{
     gameplay::{
-        exploration::{ActiveExplorationMap, NearbyExplorationPortal},
+        exploration::{ActiveExplorationMap, NearbyExplorationPortal, TILE_SPACING_FACTOR},
         player::Player,
         zones::{NearbyZone, TriggerBox, VisitedZones},
     },
@@ -102,7 +102,7 @@ pub fn exploration_debug_panel_projection(
             let config = map.config;
             let tile_count = 1 + 3 * config.radius * (config.radius + 1);
             let details = format!(
-                "Seed: {}\nHex radius: {} ({} tiles)\nTile size: {:.2}\nHeight multiplier: {:.2}\nTerrain frequency: {:.3}\nBiome scale: {:.3}\nVegetation density: {:.0}%",
+                "Seed: {}\nHex radius: {} ({} tiles)\nTile radius: {:.2} m\nHeight multiplier: {:.2}\nTerrain frequency: {:.3}\nBiome scale: {:.3}\nVegetation density: {:.0}%",
                 map.seed,
                 config.radius,
                 tile_count,
@@ -159,7 +159,7 @@ pub fn exploration_setup_projection(
     let tile_count = 1 + 3 * config.radius * (config.radius + 1);
     let summary = format!(
         "{tile_count} hexes · approx. {:.0} world units across",
-        config.radius as f32 * config.tile_size * 3.0
+        config.radius as f32 * config.tile_size * TILE_SPACING_FACTOR * 3.0
     );
     for mut text in &mut summaries {
         if text.0 != summary {
