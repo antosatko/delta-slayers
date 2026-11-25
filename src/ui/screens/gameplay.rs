@@ -1,7 +1,7 @@
 use bevy::{prelude::*, ui_widgets::Activate};
 use delta_slayers_ui::{
-    CarbonButtonTone, CarbonIcon, CarbonStatus, CarbonTheme, action_button, badge, equipment_slot,
-    eyebrow_text, item_art_tile, key_hint, muted_text, page_header, panel, section_header,
+    CarbonButtonTone, CarbonIcon, CarbonTheme, action_button, equipment_slot, eyebrow_text,
+    item_art_tile, key_hint, muted_text, page_header, panel, section_header,
 };
 
 use crate::{
