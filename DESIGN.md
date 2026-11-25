@@ -29,7 +29,8 @@ Within those areas:
 | `app/state.rs` | Top-level application states, including the Loading transition |
 | `gameplay/player.rs` | Player ground position, shared collision movement, look, follow camera, and visual synchronization |
 | `gameplay/spawning.rs` | Reflected spawn-point authoring types and initial player spawn selection |
-| `gameplay/zones.rs` | Zone types, proximity detection, visited-zone data, and travel requests |
+| `gameplay/zones.rs` | Town interaction zones, proximity detection, visited-zone data, and fast-travel requests |
+| `gameplay/exploration.rs` | Reflected exploration-portal settings, seeded hex terrain generation, map travel, and terrain elevation sampling |
 | `gameplay/inventory.rs` | Authoritative inventory data |
 | `gameplay/world.rs` | In-game world setup, initial Godo NPC spawn, and the world-ready transition |
 | `gameplay/npc.rs` | NPC movement that reuses the player collision resolver |
@@ -76,6 +77,10 @@ Current authored components:
   horizontal movement. Attach it to a Blender Empty; its transform defines a
   box with local extents of -1 to 1. Blockers are upright and may rotate around
   the vertical Y axis.
+- `ExplorationPortal`: configured oriented interaction volume that generates
+  a seeded, bounded hex wilderness. It exposes the map radius, tile size,
+  elevation scale, terrain/biome frequency, vegetation density, and optional
+  seed to Blender through Skein.
 - `SpawnPoint`: spawn role and priority. The highest-priority Player point
   supplies the player's ground position and initial horizontal heading; saved
   player positions take precedence.
@@ -135,6 +140,22 @@ spawn systems are implemented.
 
 See `assets/worlds/README.md` for the Blender workflow and component schema.
 
+
+## Exploration maps
+
+An exploration portal is an interaction volume, not an automatic touch trigger:
+the player enters its bounds and presses E. A fixed optional seed reproduces the
+same map; an empty seed is randomized per visit. Map dimensions, tile size,
+terrain height/frequency, biome scale, and vegetation density are clamped to
+safe runtime ranges. The town scene stays loaded while the generated map is
+placed in a distant world area. Its return beacon restores the town-side
+transform. The current save format stores town state only; using Backspace
+while exploring saves the return anchor so a subsequent Quick Load starts back
+in town rather than at the generated map's world offset.
+
+The generator is a first exploration pass, not the final ecosystem system. It
+does not yet save map discovery, resource nodes, time progression, tribal
+relations, or NPC populations.
 
 ## Persistence
 
