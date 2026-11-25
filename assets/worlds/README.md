@@ -22,6 +22,7 @@ Add these components to Blender Objects (or Empties where appropriate):
 | Component type path | Use |
 | --- | --- |
 | `delta_slayers::gameplay::zones::TriggerBox` | Oriented interaction / fast-travel volume. Choose `kind`; the object's transform defines its bounds. |
+| `delta_slayers::gameplay::player::MovementBlocker` | Invisible oriented box that blocks player movement; the object's transform defines its bounds. |
 | `delta_slayers::gameplay::spawning::SpawnPoint` | Spawn location. Choose `kind`; for Player points, a higher `priority` wins. |
 | `delta_slayers::gameplay::billboard::Billboard` | Makes a flat object face the player camera horizontally. |
 | `delta_slayers::gameplay::billboard::SquashOnMove` | Adds subtle movement-driven squashing to an entity's visual scale. |
@@ -44,6 +45,25 @@ but keeps the player's current Y elevation regardless of the trigger's height.
 The current UI and visited-zone model treats each kind as one destination. The
 component API can be extended with stable zone IDs before adding multiple
 shops or guilds.
+
+### Invisible movement walls
+
+Add `MovementBlocker` to a Blender Empty. The Empty's world transform defines
+an invisible box with local bounds from -1 to 1 on each axis; use its location,
+rotation, and scale to place and size the wall. For example, make the Empty
+thin on X (or Z) and long along the wall. Rotate it around the vertical Y axis
+to align it with angled walls. Keep the wall upright; pitch and roll are not
+supported.
+
+The player has a circular horizontal footprint with a radius of 0.32 world
+units and a height of 1.6 units. Extend the blocker vertically far enough to
+overlap that body. Walls only block horizontal movement; the player can slide
+along their edges. Both click-to-move and WASD / arrow movement respect them.
+Spawn points and fast-travel teleports intentionally bypass wall collision.
+
+Use an Empty rather than a visible mesh, so the blocker is not rendered. For
+editing, Blender's Empty display shape and size can be adjusted independently
+of its transform scale.
 
 ### Spawn points
 
