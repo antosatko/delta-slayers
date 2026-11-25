@@ -1,10 +1,17 @@
-use bevy::{prelude::*, ui_widgets::{Activate, Button}};
+use bevy::{prelude::*, ui_widgets::Activate};
+use delta_slayers_ui::{
+    CarbonButtonTone, CarbonIcon, CarbonStatus, CarbonTheme, action_button, badge, equipment_slot,
+    eyebrow_text, item_art_tile, key_hint, muted_text, page_header, panel, section_header,
+};
 
 use crate::{
     app::state::AppState,
     gameplay::zones::{FastTravelRequest, ZoneKind},
     ui::{
-        components::{FastTravelButton, FastTravelMenu, GameMenuModal, MinimapZoneDot, PanelRoot, PauseOverlay, PopupConfirmRequested, PopupRoot},
+        components::{
+            FastTravelButton, FastTravelMenu, GameMenuModal, MinimapZoneDot, PanelRoot,
+            PauseOverlay, PopupConfirmRequested, PopupRoot,
+        },
         inventory::{CurrencyLabel, InventoryRoot},
         stack::{UiLayer, UiStack},
     },
@@ -38,48 +45,61 @@ pub(in crate::ui) fn scene() -> impl SceneList {
     }
 }
 
-fn panel(kind: ZoneKind, title: &'static str, color: Color) -> impl Scene {
+fn zone_panel(
+    kind: ZoneKind,
+    title: &'static str,
+    icon: CarbonIcon,
+    section: &'static str,
+    description: &'static str,
+) -> impl Scene {
     bsn! {
         Node {
             position_type: PositionType::Absolute,
-            top: px(80),
-            left: px(80),
-            width: px(340),
-            height: px(240),
-            padding: UiRect::all(px(16)),
-            flex_direction: FlexDirection::Column,
-            row_gap: px(8),
-            border_radius: BorderRadius::all(px(16)),
+            top: px(32),
+            left: px(32),
+            width: px(390),
+            max_width: percent(90),
+            min_width: px(0),
         }
-        BackgroundColor(color)
+        template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().overlay)))
+        bevy::ui::GlobalZIndex(10)
         PanelRoot(kind)
         Visibility::Hidden
         DespawnOnExit::<AppState>(AppState::InGame)
         Children [
-            Text(title)
-            TextFont {
-                font_size: px(28),
-            }
-            TextColor(Color::WHITE)
-            --
-            Text("Walk out of the zone or press Esc to close.")
-            TextFont {
-                font_size: px(14),
-            }
-            TextColor(Color::srgb(0.8, 0.8, 0.8))
+            @panel(percent(100))
+            Children [
+                @page_header(title, "Location", description)
+                --
+                @section_header(icon, section)
+                --
+                @eyebrow_text("NOT AVAILABLE YET")
+                --
+                @muted_text(description, 13.0)
+                --
+                @key_hint("ESC", "Close this window")
+            ]
         ]
     }
 }
 
 fn shop_panel() -> impl Scene {
-    panel(ZoneKind::Shop, "Shop", Color::srgba(0.1, 0.1, 0.15, 0.92))
+    zone_panel(
+        ZoneKind::Shop,
+        "Shop",
+        CarbonIcon::Trade,
+        "Merchant stock",
+        "Trading is not connected yet. This panel will hold merchant offers and purchase details.",
+    )
 }
 
 fn guild_panel() -> impl Scene {
-    panel(
+    zone_panel(
         ZoneKind::Guild,
         "Guild",
-        Color::srgba(0.15, 0.12, 0.08, 0.92),
+        CarbonIcon::Contracts,
+        "Guild board",
+        "Guild contracts and party services will be shown here when those systems are implemented.",
     )
 }
 
@@ -87,43 +107,36 @@ fn interaction_prompt() -> impl Scene {
     bsn! {
         Node {
             position_type: PositionType::Absolute,
-            bottom: px(120),
+            bottom: px(28),
             left: percent(50),
-            margin: UiRect::left(px(-140)),
-            width: px(280),
-            padding: UiRect::all(px(12)),
-            flex_direction: FlexDirection::Column,
-            align_items: AlignItems::Center,
-            row_gap: px(8),
-            border_radius: BorderRadius::all(px(12)),
+            margin: UiRect::left(px(-165)),
+            width: px(330),
+            max_width: percent(90),
+            padding: UiRect::all(px(10)),
+            border_radius: BorderRadius::all(px(8)),
         }
-        BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 0.8))
+        template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().panel)))
+        bevy::ui::GlobalZIndex(8)
         PopupRoot
         Visibility::Hidden
         DespawnOnExit::<AppState>(AppState::InGame)
         Children [
-            Text("Press E to open")
-            TextFont {
-                font_size: px(18),
-            }
-            TextColor(Color::WHITE)
-            --
-            Button
             Node {
-                padding: UiRect::axes(px(12), px(6)),
-                justify_content: JustifyContent::Center,
+                width: percent(100),
+                flex_direction: FlexDirection::Row,
+                flex_wrap: FlexWrap::Wrap,
                 align_items: AlignItems::Center,
+                justify_content: JustifyContent::SpaceBetween,
+                column_gap: px(12),
+                row_gap: px(8),
             }
-            BackgroundColor(Color::srgb(0.3, 0.3, 0.3))
-            on(|_activate: On<Activate>, mut request: ResMut<PopupConfirmRequested>| {
-                request.0 = true;
-            })
             Children [
-                Text("Open")
-                TextFont {
-                    font_size: px(16),
-                }
-                TextColor(Color::WHITE)
+                @key_hint("E", "Interact")
+                --
+                @action_button("Open", CarbonIcon::Confirm, CarbonButtonTone::Primary)
+                on(|_activate: On<Activate>, mut request: ResMut<PopupConfirmRequested>| {
+                    request.0 = true;
+                })
             ]
         ]
     }
@@ -133,53 +146,39 @@ fn fast_travel_menu() -> impl Scene {
     bsn! {
         Node {
             position_type: PositionType::Absolute,
-            top: px(16),
-            right: px(16),
-            width: px(200),
-            padding: UiRect::all(px(10)),
-            flex_direction: FlexDirection::Column,
-            row_gap: px(6),
-            border_radius: BorderRadius::all(px(12)),
+            top: px(20),
+            right: px(20),
+            width: px(224),
+            max_width: percent(90),
+            min_width: px(0),
         }
-        BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 0.75))
+        bevy::ui::GlobalZIndex(18)
         FastTravelMenu
         Visibility::Hidden
         DespawnOnExit::<AppState>(AppState::InGame)
         Children [
-            Text("Fast Travel")
-            TextFont {
-                font_size: px(16),
-            }
-            TextColor(Color::WHITE)
-            --
-            @fast_travel_button(ZoneKind::Shop, "Shop")
-            --
-            @fast_travel_button(ZoneKind::Guild, "Guild")
+            @panel(percent(100))
+            Children [
+                @section_header(CarbonIcon::Map, "Fast travel")
+                --
+                @muted_text("Travel to places you have already visited.", 11.0)
+                --
+                @fast_travel_button(ZoneKind::Shop, "Shop", CarbonIcon::Trade)
+                --
+                @fast_travel_button(ZoneKind::Guild, "Guild", CarbonIcon::Contracts)
+            ]
         ]
     }
 }
 
-fn fast_travel_button(kind: ZoneKind, label: &'static str) -> impl Scene {
+fn fast_travel_button(kind: ZoneKind, label: &'static str, icon: CarbonIcon) -> impl Scene {
     bsn! {
-        Button
-        Node {
-            padding: UiRect::axes(px(8), px(4)),
-            justify_content: JustifyContent::Center,
-            align_items: AlignItems::Center,
-        }
-        BackgroundColor(Color::srgb(0.25, 0.25, 0.25))
-        Visibility::Hidden
+        @action_button(label, icon, CarbonButtonTone::Secondary)
         FastTravelButton(kind)
+        Visibility::Hidden
         on(move |_activate: On<Activate>, mut request: ResMut<FastTravelRequest>| {
             request.0 = Some(kind);
         })
-        Children [
-            Text(label)
-            TextFont {
-                font_size: px(14),
-            }
-            TextColor(Color::WHITE)
-        ]
     }
 }
 
@@ -189,41 +188,62 @@ fn minimap() -> impl Scene {
             position_type: PositionType::Absolute,
             bottom: px(16),
             right: px(16),
-            width: px(120),
-            height: px(120),
-            border_radius: BorderRadius::all(px(12)),
+            width: px(144),
+            height: px(144),
+            padding: UiRect::all(px(8)),
+            border_radius: BorderRadius::all(px(9)),
         }
-        BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 0.5))
+        template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().panel)))
+        bevy::ui::GlobalZIndex(2)
         DespawnOnExit::<AppState>(AppState::InGame)
         Children [
             Node {
-                position_type: PositionType::Absolute,
-                left: px(56),
-                top: px(56),
-                width: px(8),
-                height: px(8),
+                position_type: PositionType::Relative,
+                width: px(120),
+                height: px(120),
+                overflow: Overflow::clip(),
+                border_radius: BorderRadius::all(px(5)),
             }
-            BackgroundColor(Color::WHITE)
-            --
-            @minimap_zone_dot(ZoneKind::Shop, Color::srgb(0.2, 0.6, 0.9))
-            --
-            @minimap_zone_dot(ZoneKind::Guild, Color::srgb(0.9, 0.7, 0.2))
+            template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().surface_deep)))
+            Children [
+                Node {
+                    position_type: PositionType::Absolute,
+                    left: px(56),
+                    top: px(56),
+                    width: px(8),
+                    height: px(8),
+                    border_radius: BorderRadius::all(px(4)),
+                }
+                template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().ink)))
+                --
+                @minimap_zone_dot(ZoneKind::Shop)
+                --
+                @minimap_zone_dot(ZoneKind::Guild)
+            ]
         ]
     }
 }
 
-fn minimap_zone_dot(kind: ZoneKind, color: Color) -> impl Scene {
+fn minimap_zone_dot(kind: ZoneKind) -> impl Scene {
     bsn! {
         Node {
             position_type: PositionType::Absolute,
             left: px(0),
             top: px(0),
-            width: px(6),
-            height: px(6),
+            width: px(7),
+            height: px(7),
+            border_radius: BorderRadius::all(px(4)),
         }
-        BackgroundColor(color)
-        Visibility::Hidden
         MinimapZoneDot(kind)
+        Visibility::Hidden
+        template(move |ctx| {
+            let theme = ctx.resource::<CarbonTheme>();
+            let color = match kind {
+                ZoneKind::Shop => theme.accent,
+                ZoneKind::Guild => theme.warning,
+            };
+            Ok(BackgroundColor(color))
+        })
     }
 }
 
@@ -231,69 +251,216 @@ fn inventory_scene() -> impl Scene {
     bsn! {
         Node {
             position_type: PositionType::Absolute,
-            top: px(40),
-            left: px(40),
-            width: px(820),
-            height: px(600),
-            padding: UiRect::all(px(12)),
-            flex_direction: FlexDirection::Row,
-            column_gap: px(12),
-            border_radius: BorderRadius::all(px(16)),
+            top: px(0),
+            left: px(0),
+            width: percent(100),
+            height: percent(100),
+            padding: UiRect::all(px(20)),
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
         }
-        BackgroundColor(Color::srgba(0.08, 0.08, 0.12, 0.95))
+        template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().overlay)))
+        bevy::ui::GlobalZIndex(12)
         InventoryRoot
         Visibility::Hidden
         DespawnOnExit::<AppState>(AppState::InGame)
         Children [
-            @inventory_character()
-            --
-            @inventory_items()
-            --
-            @inventory_top_bar()
-        ]
-    }
-}
-
-fn inventory_top_bar() -> impl Scene {
-    bsn! {
-        Node {
-            position_type: PositionType::Absolute,
-            top: px(0),
-            left: px(0),
-            width: percent(100),
-            height: px(32),
-            flex_direction: FlexDirection::Row,
-            align_items: AlignItems::Center,
-            column_gap: px(8),
-            padding: UiRect::horizontal(px(8)),
-        }
-        Children [
-            Button
             Node {
-                padding: UiRect::axes(px(12), px(6)),
-                justify_content: JustifyContent::Center,
-                align_items: AlignItems::Center,
+                width: percent(100),
+                height: percent(100),
+                max_width: px(1160),
+                max_height: px(780),
+                min_width: px(0),
+                min_height: px(0),
+                padding: UiRect::all(px(18)),
+                flex_direction: FlexDirection::Column,
+                align_items: AlignItems::Stretch,
+                row_gap: px(14),
+                border_radius: BorderRadius::all(px(9)),
             }
-            BackgroundColor(Color::srgb(0.3, 0.3, 0.35))
-            on(|_activate: On<Activate>, mut ui: ResMut<UiStack>| {
-                if ui.game_menu_open() {
-                    ui.remove(UiLayer::GameMenu);
-                } else {
-                    ui.push(UiLayer::GameMenu);
-                }
-            })
+            template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().panel)))
             Children [
-                Text("Menu")
-                TextFont {
-                    font_size: px(14),
+                @page_header(
+                    "Inventory",
+                    "Party inventory",
+                    "Review carried items, equipment, and party resources. Item tiles are visual inventory entries."
+                )
+                --
+                Node {
+                    width: percent(100),
+                    flex_direction: FlexDirection::Row,
+                    flex_wrap: FlexWrap::Wrap,
+                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::SpaceBetween,
+                    column_gap: px(12),
+                    row_gap: px(8),
                 }
-                TextColor(Color::WHITE)
+                Children [
+                    @key_hint("RMB", "Close inventory")
+                    --
+                    Node {
+                        flex_direction: FlexDirection::Row,
+                        flex_wrap: FlexWrap::Wrap,
+                        align_items: AlignItems::Center,
+                        column_gap: px(8),
+                    }
+                    Children [
+                        @action_button("Game menu", CarbonIcon::Settings, CarbonButtonTone::Ghost)
+                        on(|_activate: On<Activate>, mut ui: ResMut<UiStack>| {
+                            ui.push(UiLayer::GameMenu);
+                        })
+                        --
+                        @action_button("Close", CarbonIcon::Close, CarbonButtonTone::Secondary)
+                        on(|_activate: On<Activate>, mut ui: ResMut<UiStack>| {
+                            ui.remove(UiLayer::Inventory);
+                        })
+                    ]
+                ]
+                --
+                Node {
+                    width: percent(100),
+                    flex_grow: 1.0,
+                    min_width: px(0),
+                    min_height: px(0),
+                    flex_direction: FlexDirection::Row,
+                    flex_wrap: FlexWrap::Wrap,
+                    align_content: AlignContent::Start,
+                    align_items: AlignItems::Start,
+                    column_gap: px(14),
+                    row_gap: px(14),
+                }
+                Children [
+                    Node {
+                        width: px(260),
+                        min_width: px(230),
+                        flex_shrink: 0.0,
+                        flex_direction: FlexDirection::Column,
+                        row_gap: px(12),
+                    }
+                    Children [
+                        @character_panel()
+                        --
+                        @resources_panel()
+                    ]
+                    --
+                    Node {
+                        flex_grow: 1.0,
+                        flex_basis: px(440),
+                        min_width: px(320),
+                        flex_direction: FlexDirection::Column,
+                        row_gap: px(12),
+                    }
+                    Children [
+                        @inventory_items()
+                    ]
+                ]
             ]
         ]
     }
 }
 
-/// Root-level overlay so it can be opened directly with Escape, without the inventory.
+fn character_panel() -> impl Scene {
+    bsn! {
+        @panel(percent(100))
+        Children [
+            @section_header(CarbonIcon::Character, "Character")
+            --
+            Node {
+                width: percent(100),
+                height: px(230),
+                min_width: px(0),
+                border_radius: BorderRadius::all(px(6)),
+                overflow: Overflow::clip(),
+            }
+            template(|ctx| {
+                Ok(ImageNode::new(
+                    ctx.resource::<AssetServer>().load("character/portrait.png"),
+                ))
+            })
+            --
+            @section_header(CarbonIcon::Shield, "Equipment")
+            --
+            Node {
+                width: percent(100),
+                flex_direction: FlexDirection::Row,
+                flex_wrap: FlexWrap::Wrap,
+                align_content: AlignContent::Start,
+                column_gap: px(7),
+                row_gap: px(7),
+            }
+            Children [
+                @equipment_slot(CarbonIcon::Shield)
+                --
+                @equipment_slot(CarbonIcon::Book)
+                --
+                @equipment_slot(CarbonIcon::Sword)
+                --
+                @equipment_slot(CarbonIcon::Sword)
+                --
+                @equipment_slot(CarbonIcon::Flask)
+                --
+                @equipment_slot(CarbonIcon::Shield)
+                --
+                @equipment_slot(CarbonIcon::Compass)
+            ]
+        ]
+    }
+}
+
+fn resources_panel() -> impl Scene {
+    bsn! {
+        @panel(percent(100))
+        Children [
+            @section_header(CarbonIcon::Coin, "Resources")
+            --
+            Text("Gold: 0")
+            CurrencyLabel::Gold
+            TextFont { font_size: px(12) }
+            template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().muted)))
+            --
+            Text("Wood: 0")
+            CurrencyLabel::Wood
+            TextFont { font_size: px(12) }
+            template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().muted)))
+            --
+            Text("Stone: 0")
+            CurrencyLabel::Stone
+            TextFont { font_size: px(12) }
+            template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().muted)))
+        ]
+    }
+}
+
+fn inventory_items() -> impl Scene {
+    bsn! {
+        @panel(percent(100))
+        Children [
+            @section_header(CarbonIcon::Inventory, "Carried items")
+            --
+            Node {
+                width: percent(100),
+                min_width: px(0),
+                flex_direction: FlexDirection::Row,
+                flex_wrap: FlexWrap::Wrap,
+                align_content: AlignContent::Start,
+                column_gap: px(8),
+                row_gap: px(8),
+            }
+            Children [
+                @item_art_tile("items/evil-pup.png", "Evil pup", None)
+                --
+                @item_art_tile("items/maurice.webp", "Maurice", None)
+                --
+                @item_art_tile("items/salad.jpg", "Salad", None)
+                --
+                @item_art_tile("items/scooby.webp", "Scooby", None)
+                --
+                @item_art_tile("items/theo.jpg", "Theo", None)
+            ]
+        ]
+    }
+}
+
 fn game_menu_modal() -> impl Scene {
     bsn! {
         Node {
@@ -302,37 +469,38 @@ fn game_menu_modal() -> impl Scene {
             left: px(0),
             width: percent(100),
             height: percent(100),
+            padding: UiRect::all(px(20)),
             justify_content: JustifyContent::Center,
             align_items: AlignItems::Center,
         }
-        BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 0.6))
-        bevy::ui::GlobalZIndex(20)
+        template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().overlay)))
+        bevy::ui::GlobalZIndex(30)
         GameMenuModal
         Visibility::Hidden
+        DespawnOnExit::<AppState>(AppState::InGame)
         Children [
             Node {
-                width: px(260),
-                padding: UiRect::all(px(16)),
-                flex_direction: FlexDirection::Column,
-                row_gap: px(8),
-                align_items: AlignItems::Center,
-                border_radius: BorderRadius::all(px(16)),
+                width: px(360),
+                max_width: percent(92),
+                min_width: px(0),
             }
-            BackgroundColor(Color::srgb(0.15, 0.15, 0.2))
             Children [
-                Text("Menu")
-                TextFont {
-                    font_size: px(24),
-                }
-                TextColor(Color::WHITE)
-                --
-                @game_menu_action("Continue", GameMenuAction::Continue)
-                --
-                @game_menu_action("Exit to Main", GameMenuAction::ExitToMain)
-                --
-                @game_menu_action("Exit to Desktop", GameMenuAction::ExitToDesktop)
-                --
-                @game_menu_action("Cancel", GameMenuAction::Continue)
+                @panel(percent(100))
+                Children [
+                    @page_header(
+                        "Game menu",
+                        "Paused session",
+                        "Return to the game, change application screens, or exit the application."
+                    )
+                    --
+                    @muted_text("The current session is suspended while this menu is open.", 12.0)
+                    --
+                    @game_menu_action("Continue", CarbonIcon::Back, GameMenuAction::Continue, CarbonButtonTone::Primary)
+                    --
+                    @game_menu_action("Exit to main menu", CarbonIcon::Compass, GameMenuAction::ExitToMain, CarbonButtonTone::Secondary)
+                    --
+                    @game_menu_action("Exit to desktop", CarbonIcon::Close, GameMenuAction::ExitToDesktop, CarbonButtonTone::Danger)
+                ]
             ]
         ]
     }
@@ -345,18 +513,18 @@ enum GameMenuAction {
     ExitToDesktop,
 }
 
-fn game_menu_action(label: &'static str, action: GameMenuAction) -> impl Scene {
+fn game_menu_action(
+    label: &'static str,
+    icon: CarbonIcon,
+    action: GameMenuAction,
+    tone: CarbonButtonTone,
+) -> impl Scene {
     bsn! {
-        Button
-        Node {
-            width: px(200),
-            padding: UiRect::axes(px(12), px(8)),
-            justify_content: JustifyContent::Center,
-            align_items: AlignItems::Center,
-            border_radius: BorderRadius::all(px(8)),
-        }
-        BackgroundColor(Color::srgb(0.25, 0.25, 0.3))
-        on(move |_activate: On<Activate>, mut ui: ResMut<UiStack>, mut next: ResMut<NextState<AppState>>, mut exit: MessageWriter<AppExit>| {
+        @action_button(label, icon, tone)
+        on(move |_activate: On<Activate>,
+            mut ui: ResMut<UiStack>,
+            mut next: ResMut<NextState<AppState>>,
+            mut exit: MessageWriter<AppExit>| {
             ui.remove(UiLayer::GameMenu);
             match action {
                 GameMenuAction::Continue => {}
@@ -369,275 +537,6 @@ fn game_menu_action(label: &'static str, action: GameMenuAction) -> impl Scene {
                 }
             }
         })
-        Children [
-            Text(label)
-            TextFont {
-                font_size: px(16),
-            }
-            TextColor(Color::WHITE)
-        ]
-    }
-}
-
-fn inventory_character() -> impl Scene {
-    bsn! {
-        Node {
-            position_type: PositionType::Relative,
-            width: px(360),
-            height: px(560),
-        }
-        Children [
-            Node {
-                position_type: PositionType::Absolute,
-                top: px(0),
-                left: px(0),
-                width: percent(100),
-                height: percent(100),
-            }
-            template(|ctx| {
-                Ok(ImageNode::new(
-                    ctx.resource::<AssetServer>().load("character/portrait.png"),
-                ))
-            })
-            --
-            Node {
-                position_type: PositionType::Absolute,
-                top: px(8),
-                left: px(8),
-                flex_direction: FlexDirection::Column,
-                row_gap: px(8),
-                align_items: AlignItems::Center,
-            }
-            Children [
-                @gear_slot("Head")
-                --
-                @gear_slot("Neck")
-                --
-                @gear_row_three()
-                --
-                @gear_row_two()
-                --
-                @gear_slot("Legs")
-                --
-                @gear_slot("Feet")
-            ]
-        ]
-    }
-}
-
-fn gear_slot(label: &'static str) -> impl Scene {
-    bsn! {
-        Node {
-            width: px(72),
-            height: px(36),
-            padding: UiRect::all(px(4)),
-            flex_direction: FlexDirection::Row,
-            column_gap: px(4),
-            align_items: AlignItems::Center,
-        }
-        BackgroundColor(Color::srgba(0.25, 0.25, 0.3, 0.85))
-        Children [
-            Node {
-                width: px(28),
-                height: px(28),
-            }
-            BackgroundColor(Color::srgba(0.4, 0.4, 0.45, 0.8))
-            --
-            Text(label)
-            TextFont {
-                font_size: px(10),
-            }
-            TextColor(Color::WHITE)
-        ]
-    }
-}
-
-fn gear_row_three() -> impl Scene {
-    bsn! {
-        Node {
-            flex_direction: FlexDirection::Row,
-            column_gap: px(8),
-        }
-        Children [
-            @gear_slot("L Shldr")
-            --
-            @gear_slot("Torso")
-            --
-            @gear_slot("R Shldr")
-        ]
-    }
-}
-
-fn gear_row_two() -> impl Scene {
-    bsn! {
-        Node {
-            flex_direction: FlexDirection::Row,
-            column_gap: px(8),
-        }
-        Children [
-            @gear_slot("L Hand")
-            --
-            @gear_slot("R Hand")
-        ]
-    }
-}
-
-fn inventory_items() -> impl Scene {
-    bsn! {
-        Node {
-            flex_direction: FlexDirection::Column,
-            row_gap: px(8),
-            flex_grow: 1.0,
-            padding: UiRect::all(px(8)),
-        }
-        BackgroundColor(Color::srgba(0.12, 0.12, 0.16, 0.9))
-        Children [
-            Node {
-                flex_wrap: FlexWrap::Wrap,
-                row_gap: px(4),
-                column_gap: px(4),
-            }
-            Children [
-                @filled_item_slot(evil_pup_icon())
-                --
-                @filled_item_slot(maurice_icon())
-                --
-                @filled_item_slot(salad_icon())
-                --
-                @filled_item_slot(scooby_icon())
-                --
-                @filled_item_slot(theo_icon())
-                --
-                @empty_item_slot()
-                --
-                @empty_item_slot()
-                --
-                @empty_item_slot()
-                --
-                @empty_item_slot()
-                --
-                @empty_item_slot()
-                --
-                @empty_item_slot()
-                --
-                @empty_item_slot()
-            ]
-            --
-            Node {
-                padding: UiRect::all(px(8)),
-                flex_direction: FlexDirection::Column,
-                row_gap: px(2),
-            }
-            BackgroundColor(Color::srgb(0.12, 0.12, 0.16))
-            Children [
-                Text("Resources")
-                TextFont {
-                    font_size: px(14),
-                }
-                TextColor(Color::WHITE)
-                --
-                Text("Gold: 0")
-                TextFont {
-                    font_size: px(12),
-                }
-                TextColor(Color::srgb(0.8, 0.8, 0.8))
-                CurrencyLabel::Gold
-                --
-                Text("Wood: 0")
-                TextFont {
-                    font_size: px(12),
-                }
-                TextColor(Color::srgb(0.8, 0.8, 0.8))
-                CurrencyLabel::Wood
-                --
-                Text("Stone: 0")
-                TextFont {
-                    font_size: px(12),
-                }
-                TextColor(Color::srgb(0.8, 0.8, 0.8))
-                CurrencyLabel::Stone
-            ]
-        ]
-    }
-}
-
-fn filled_item_slot(icon: impl Scene) -> impl Scene {
-    bsn! {
-        Node {
-            width: px(64),
-            height: px(32),
-            padding: UiRect::all(px(2)),
-            flex_direction: FlexDirection::Row,
-            column_gap: px(2),
-        }
-        BackgroundColor(Color::srgb(0.18, 0.18, 0.22))
-        Children [
-            @{icon}
-            --
-            Text("A12 D5")
-            TextFont {
-                font_size: px(8),
-            }
-            TextColor(Color::srgb(0.85, 0.85, 0.85))
-        ]
-    }
-}
-
-fn item_icon(path: &'static str) -> impl Scene {
-    bsn! {
-        Node {
-            width: px(32),
-            height: px(32),
-        }
-        template(move |ctx| {
-            Ok(ImageNode::new(ctx.resource::<AssetServer>().load(path)))
-        })
-    }
-}
-
-fn evil_pup_icon() -> impl Scene {
-    item_icon("items/evil-pup.png")
-}
-
-fn maurice_icon() -> impl Scene {
-    item_icon("items/maurice.webp")
-}
-
-fn salad_icon() -> impl Scene {
-    item_icon("items/salad.jpg")
-}
-
-fn scooby_icon() -> impl Scene {
-    item_icon("items/scooby.webp")
-}
-
-fn theo_icon() -> impl Scene {
-    item_icon("items/theo.jpg")
-}
-
-fn empty_item_slot() -> impl Scene {
-    bsn! {
-        Node {
-            width: px(64),
-            height: px(32),
-            padding: UiRect::all(px(2)),
-            flex_direction: FlexDirection::Row,
-            column_gap: px(2),
-        }
-        BackgroundColor(Color::srgb(0.18, 0.18, 0.22))
-        Children [
-            Node {
-                width: px(32),
-                height: px(32),
-            }
-            BackgroundColor(Color::srgba(0.3, 0.3, 0.35, 0.6))
-            --
-            Text(" ")
-            TextFont {
-                font_size: px(8),
-            }
-            TextColor(Color::srgb(0.85, 0.85, 0.85))
-        ]
     }
 }
 
@@ -645,21 +544,47 @@ fn pause_overlay() -> impl Scene {
     bsn! {
         Node {
             position_type: PositionType::Absolute,
+            top: px(0),
+            left: px(0),
             width: percent(100),
             height: percent(100),
+            padding: UiRect::all(px(20)),
             justify_content: JustifyContent::Center,
             align_items: AlignItems::Center,
         }
-        BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 0.6))
+        template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().overlay)))
+        bevy::ui::GlobalZIndex(25)
         PauseOverlay
         Visibility::Hidden
         DespawnOnExit::<AppState>(AppState::InGame)
         Children [
-            Text("PAUSED  (P to resume)")
-            TextFont {
-                font_size: px(48),
+            Node {
+                width: px(340),
+                max_width: percent(92),
+                min_width: px(0),
             }
-            TextColor(Color::WHITE)
+            Children [
+                @panel(percent(100))
+                Children [
+                    @page_header(
+                        "Paused",
+                        "Game paused",
+                        "Gameplay input is suspended until you resume the session."
+                    )
+                    --
+                    @muted_text("Press P to resume or use the actions below.", 12.0)
+                    --
+                    @action_button("Resume", CarbonIcon::Back, CarbonButtonTone::Primary)
+                    on(|_activate: On<Activate>, mut ui: ResMut<UiStack>| {
+                        ui.remove(UiLayer::Pause);
+                    })
+                    --
+                    @action_button("Open game menu", CarbonIcon::Settings, CarbonButtonTone::Secondary)
+                    on(|_activate: On<Activate>, mut ui: ResMut<UiStack>| {
+                        ui.push(UiLayer::GameMenu);
+                    })
+                ]
+            ]
         ]
     }
 }
