@@ -1026,6 +1026,9 @@ fn player_settings_panel() -> impl Scene {
                 Children [
                     @page_title("Settings")
                     --
+                    @action_button("Restore defaults", CarbonIcon::Back, CarbonButtonTone::Ghost)
+                    on(|_activate: On<Activate>, mut settings: ResMut<crate::gameplay::player::PlayerSettings>| { *settings = default(); })
+                    --
                     @section_header(CarbonIcon::Settings, "Camera")
                     --
                     @player_setting_control("Pan sensitivity", "Middle-mouse drag speed.", PlayerSettingControl::PanSensitivity, defaults.camera_pan_sensitivity, 0.0002, 0.01, 0.0001, 4)
