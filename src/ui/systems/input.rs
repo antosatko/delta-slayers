@@ -17,6 +17,7 @@ pub fn handle_ui_input(
     nearby: Res<NearbyZone>,
     nearby_portal: Res<NearbyExplorationPortal>,
     mut travel_request: ResMut<ExplorationTravelRequest>,
+    mut setup: ResMut<ExplorationSetupViewModel>,
     mut ui: ResMut<UiStack>,
     mut confirm_request: ResMut<PopupConfirmRequested>,
 ) {
