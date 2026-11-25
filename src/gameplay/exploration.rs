@@ -6,10 +6,10 @@ mod terrain;
 mod travel;
 
 use generation::{reachable_tiles, GeneratedTile};
-pub use generation::{apply_tile_materials, ExplorationTileTint, ExplorationTileTintApplied};
-use hex::{hex_corner, hex_distance, hex_layout_radius, HEX_CORNER_COUNT};
+pub use generation::apply_tile_materials;
+use hex::{hex_corner, hex_layout_radius, HEX_CORNER_COUNT};
 pub(crate) use hex::{hex_center, world_to_axial};
-use terrain::{biome_at, cell_random, fractal_noise, terrain_height, terrain_surface_height};
+use terrain::{fractal_noise, terrain_height, terrain_surface_height};
 pub(super) use terrain::sync_ground_height;
 pub(super) use travel::{detect_portal, process_travel_request};
 pub(crate) use travel::generate_seed;

@@ -50,7 +50,3 @@ pub(crate) fn world_to_axial(point: Vec2, size: f32) -> (i32, i32) {
     (rx as i32, rz as i32)
 }
 
-pub(super) fn hex_distance(q: i32, r: i32) -> i32 {
-    q.abs().max(r.abs()).max((-q - r).abs())
-}
-

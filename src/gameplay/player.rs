@@ -7,7 +7,7 @@ mod movement;
 mod visual;
 
 pub use camera::{
-    CAMERA_DEFAULT_PITCH, CAMERA_DISTANCE, CAMERA_HORIZONTAL_OFFSET, CAMERA_MAX_PITCH,
+    CAMERA_DEFAULT_PITCH, CAMERA_DISTANCE, CAMERA_MAX_PITCH,
     CAMERA_MIN_PITCH,
 };
 pub use collision::MovementBlocker;
@@ -18,14 +18,11 @@ pub(super) use camera::{
     migrate_saved_camera_pitch, CAMERA_MAX_DISTANCE, CAMERA_MIN_DISTANCE,
 };
 pub(super) use collision::{
-    move_with_collisions, movement_collision_contact, MovementContact,
-    MAX_COLLISION_RESOLVE_PASSES, MAX_COLLISION_STEP, PLAYER_COLLIDER_HEIGHT,
-    PLAYER_COLLIDER_RADIUS,
+    move_with_collisions, movement_collision_contact, PLAYER_COLLIDER_RADIUS,
 };
 pub(super) use destination::{
-    draw_move_trajectory, trajectory_arrow_phase, DESTINATION_BEACON_HEIGHT,
-    DESTINATION_RING_RADIUS, TRAJECTORY_ARROW_LENGTH, TRAJECTORY_ARROW_SPACING,
-    TRAJECTORY_ARROW_SPEED,
+    draw_move_trajectory, trajectory_arrow_phase, DESTINATION_RING_RADIUS,
+    TRAJECTORY_ARROW_LENGTH, TRAJECTORY_ARROW_SPACING, TRAJECTORY_ARROW_SPEED,
 };
 pub(super) use movement::{
     keyboard_movement_direction, move_player_to_target, set_move_target_from_cursor,
