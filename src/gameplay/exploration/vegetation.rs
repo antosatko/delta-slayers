@@ -50,7 +50,7 @@ impl Default for VegetationTuning {
 }
 
 #[derive(Component, Clone, Copy)]
-struct BiomeVegetationField(Biome);
+pub struct BiomeVegetationField(Biome);
 
 /// Builds four overlapping, biome-weighted fields. Each field spans the whole
 /// map, while its density mask selects a smoothly blended biome contribution.
@@ -73,13 +73,7 @@ pub(super) fn spawn_vegetation(
     let shared_ground = ground.ground.clone();
 
     let grassland = ground.with_density_from_fn(images, MASK_CELL_SIZE, |point| {
-        biome_density(
-            tiles,
-            config,
-            seed,
-            point,
-            Biome::Grassland,
-        )
+        biome_density(tiles, config, seed, point, Biome::Grassland)
     });
     spawn_biome_field(commands, root, grassland, Biome::Grassland, tuning);
 
@@ -291,20 +285,15 @@ fn cliff_edge_fade(
 
     for (index, (dq, dr)) in HEX_NEIGHBORS.into_iter().enumerate() {
         let neighbor = tiles.get(&(coordinates.0 + dq, coordinates.1 + dr));
-        let steep = neighbor.is_none_or(|other| {
-            (other.height - tile.height).abs() > config.max_jump_height
-        });
+        let steep = neighbor
+            .is_none_or(|other| (other.height - tile.height).abs() > config.max_jump_height);
         if !steep {
             continue;
         }
 
         let side = NEIGHBOR_EDGE[index];
         let a = hex_corner(center, config.tile_size, side);
-        let b = hex_corner(
-            center,
-            config.tile_size,
-            (side + 1) % 6,
-        );
+        let b = hex_corner(center, config.tile_size, (side + 1) % 6);
         let midpoint = (a + b) * 0.5;
         let inward = (center - midpoint).normalize_or_zero();
         let distance_from_edge = (point - midpoint).dot(inward).max(0.0);
@@ -317,8 +306,7 @@ fn cliff_edge_fade(
 fn inside_hex(local: Vec2, size: f32) -> bool {
     let x = local.x.abs();
     let y = local.y.abs();
-    x <= size * 3.0_f32.sqrt() * 0.5 + 0.02
-        && y <= size - x / 3.0_f32.sqrt() + 0.02
+    x <= size * 3.0_f32.sqrt() * 0.5 + 0.02 && y <= size - x / 3.0_f32.sqrt() + 0.02
 }
 
 fn smoothstep(value: f32) -> f32 {

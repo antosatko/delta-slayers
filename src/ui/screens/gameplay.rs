@@ -22,7 +22,9 @@ use delta_slayers_ui::{
 use crate::{
     app::state::AppState,
     gameplay::{
-        exploration::{ExplorationPortal, ExplorationTravelRequest, PortalAction, VegetationTuning},
+        exploration::{
+            ExplorationPortal, ExplorationTravelRequest, PortalAction, VegetationTuning,
+        },
         zones::{FastTravelRequest, ZoneKind},
     },
     ui::{
@@ -32,8 +34,8 @@ use crate::{
             ExplorationSetupRoot, ExplorationSetupTileCountText, ExplorationSetupViewModel,
             FastTravelButton, FastTravelMenu, GameMenuModal, MinimapExplorationDot, MinimapZoneDot,
             PanelRoot, PauseOverlay, PlayerSettingControl, PlayerSettingToggle,
-            PopupConfirmRequested, PopupRoot,
-            SettingsPanelRoot, VegetationLabRoot, VegetationSliderControl, VegetationSupportText,
+            PopupConfirmRequested, PopupRoot, SettingsPanelRoot, VegetationLabRoot,
+            VegetationPerformanceText, VegetationSliderControl, VegetationSupportText,
             VegetationToggle,
         },
         inventory::{CurrencyLabel, InventoryRoot},
@@ -427,17 +429,31 @@ fn vegetation_slider_value_changed(
     }
 
     match control {
-        VegetationSliderControl::GlobalDensity => tuning.global_density = event.value.clamp(0.0, 1.4),
-        VegetationSliderControl::ViewDistance => tuning.view_distance = event.value.clamp(18.0, 52.0),
+        VegetationSliderControl::GlobalDensity => {
+            tuning.global_density = event.value.clamp(0.0, 1.4)
+        }
+        VegetationSliderControl::ViewDistance => {
+            tuning.view_distance = event.value.clamp(18.0, 52.0)
+        }
         VegetationSliderControl::BladeHeight => tuning.blade_height = event.value.clamp(0.35, 1.6),
-        VegetationSliderControl::GrasslandDensity => tuning.grassland_density = event.value.clamp(0.0, 1.8),
-        VegetationSliderControl::WoodlandDensity => tuning.woodland_density = event.value.clamp(0.0, 1.8),
-        VegetationSliderControl::DrylandDensity => tuning.dryland_density = event.value.clamp(0.0, 1.8),
-        VegetationSliderControl::HighlandDensity => tuning.highland_density = event.value.clamp(0.0, 1.8),
+        VegetationSliderControl::GrasslandDensity => {
+            tuning.grassland_density = event.value.clamp(0.0, 1.8)
+        }
+        VegetationSliderControl::WoodlandDensity => {
+            tuning.woodland_density = event.value.clamp(0.0, 1.8)
+        }
+        VegetationSliderControl::DrylandDensity => {
+            tuning.dryland_density = event.value.clamp(0.0, 1.8)
+        }
+        VegetationSliderControl::HighlandDensity => {
+            tuning.highland_density = event.value.clamp(0.0, 1.8)
+        }
         VegetationSliderControl::WindStrength => tuning.wind_strength = event.value.clamp(0.0, 1.0),
         VegetationSliderControl::WindSpeed => tuning.wind_speed = event.value.clamp(0.0, 12.0),
     }
-    commands.entity(event.source).insert(SliderValue(event.value));
+    commands
+        .entity(event.source)
+        .insert(SliderValue(event.value));
 }
 
 fn vegetation_shadow_toggle() -> impl Scene {
