@@ -74,8 +74,9 @@ above and behind the player, and its pitch is controlled independently.
 If several Player points exist, the one with the highest priority is selected;
 avoid tied priorities.
 
-`Enemy` and `Npc` are reserved spawn-point kinds for future systems. They are
-available as authoring metadata but do not spawn entities yet.
+`Enemy` and `Npc` remain reserved spawn-point kinds. Godo is currently spawned
+by gameplay setup at a fixed offset from the player's initial position; NPC
+spawn points are not yet consumed.
 
 ### Moving sprite animation
 
