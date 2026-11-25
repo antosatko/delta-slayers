@@ -8,9 +8,9 @@ use bevy::{prelude::*, ui::Pressed};
 #[derive(Resource, Clone, Debug)]
 pub struct CarbonTheme {
     pub page: Color,
-    pub surface: Color,
-    pub surface_alt: Color,
-    pub surface_raised: Color,
+    pub panel: Color,
+    pub panel_alt: Color,
+    pub panel_raised: Color,
     pub surface_deep: Color,
     pub ink: Color,
     pub muted: Color,
@@ -32,9 +32,9 @@ impl Default for CarbonTheme {
     fn default() -> Self {
         Self {
             page: Color::srgb(0.086, 0.098, 0.118),             // #16191e
-            surface: Color::srgb(0.133, 0.157, 0.192),          // #222831
-            surface_alt: Color::srgb(0.169, 0.204, 0.251),      // #2b3440
-            surface_raised: Color::srgb(0.224, 0.271, 0.329),   // #394554
+            panel: Color::srgb(0.133, 0.157, 0.192),          // #222831
+            panel_alt: Color::srgb(0.169, 0.204, 0.251),      // #2b3440
+            panel_raised: Color::srgb(0.224, 0.271, 0.329),   // #394554
             surface_deep: Color::srgb(0.114, 0.145, 0.180),    // #1d252e
             ink: Color::srgb(0.945, 0.957, 0.969),             // #f1f4f7
             muted: Color::srgb(0.780, 0.820, 0.863),           // #c7d1dc
@@ -64,9 +64,9 @@ impl CarbonTheme {
         match tone {
             CarbonButtonTone::Primary if hovered || pressed => self.accent_hover,
             CarbonButtonTone::Primary => self.accent,
-            CarbonButtonTone::Secondary if hovered || pressed => self.surface_raised,
-            CarbonButtonTone::Secondary => self.surface_alt,
-            CarbonButtonTone::Ghost if hovered || pressed => self.surface_alt,
+            CarbonButtonTone::Secondary if hovered || pressed => self.panel_raised,
+            CarbonButtonTone::Secondary => self.panel_alt,
+            CarbonButtonTone::Ghost if hovered || pressed => self.panel_alt,
             CarbonButtonTone::Ghost => Color::NONE,
             CarbonButtonTone::Danger if hovered || pressed => self.danger_background,
             CarbonButtonTone::Danger => Color::NONE,
@@ -93,7 +93,7 @@ impl CarbonTheme {
 
     pub(crate) fn status_background(&self, status: CarbonStatus) -> Color {
         match status {
-            CarbonStatus::Neutral => self.surface_alt,
+            CarbonStatus::Neutral => self.panel_alt,
             CarbonStatus::Positive => self.positive_background,
             CarbonStatus::Warning => self.warning_background,
             CarbonStatus::Danger => self.danger_background,
