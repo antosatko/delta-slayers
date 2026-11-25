@@ -34,18 +34,22 @@ pub(super) fn setup_game(
     ui_state.reset();
     request.0 = None;
 
-    let (saved_pos, saved_yaw, saved_pitch, saved_visited) = match *start_mode {
+    let loaded_game = match *start_mode {
         super::GameStartMode::QuickLoad => load_game(),
-        super::GameStartMode::NewGame => (
-            Vec3::ZERO,
-            0.0,
-            player::CAMERA_DEFAULT_PITCH,
-            std::collections::HashSet::new(),
-        ),
+        super::GameStartMode::NewGame => None,
     };
-    startup.has_saved_position = saved_pos != Vec3::ZERO;
-    startup.spawn_point_applied = startup.has_saved_position;
-    startup.scene_ready = false;
+    startup.spawn_point_applied = loaded_game.is_some();
+
+    let (spawn_pos, saved_yaw, initial_pitch, saved_visited) = loaded_game
+        .map(|save| (save.position, save.yaw, save.pitch, save.visited_zones))
+        .unwrap_or_else(|| {
+            (
+                Vec3::ZERO,
+                0.0,
+                player::CAMERA_DEFAULT_PITCH,
+                std::collections::HashSet::new(),
+            )
+        });
     visited.0 = saved_visited;
 
     commands.spawn((
@@ -60,12 +64,6 @@ pub(super) fn setup_game(
     ));
 
     // Preserve the full saved world position, including its elevation.
-    let spawn_pos = saved_pos;
-    let initial_pitch = if startup.has_saved_position {
-        player::migrate_saved_camera_pitch(saved_pitch)
-    } else {
-        player::CAMERA_DEFAULT_PITCH
-    };
     let player_rotation = Quat::from_rotation_y(saved_yaw);
     let camera_rotation = player::follow_camera_rotation(saved_yaw, initial_pitch);
     let camera_target = spawn_pos + Vec3::Y * 0.8;
@@ -119,10 +117,8 @@ pub(super) fn setup_game(
 
 fn world_instance_ready(
     _event: On<WorldInstanceReady>,
-    mut startup: ResMut<WorldStartup>,
     mut next_state: ResMut<NextState<AppState>>,
 ) {
-    startup.scene_ready = true;
     info!("World scene is ready; entering gameplay");
     next_state.set(AppState::InGame);
 }
