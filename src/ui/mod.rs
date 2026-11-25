@@ -33,7 +33,7 @@ impl Plugin for UiPlugin {
             )
             .add_systems(
                 OnEnter(AppState::Settings),
-                screens::placeholders::settings_screen.spawn(),
+                screens::settings::scene.spawn(),
             )
             .add_systems(
                 OnEnter(AppState::Credits),
@@ -49,6 +49,10 @@ impl Plugin for UiPlugin {
                 systems::handle_ui_input
                     .in_set(UiSet::Input)
                     .run_if(in_state(AppState::InGame)),
+            )
+            .add_systems(
+                Update,
+                systems::player_settings_projection.run_if(in_state(AppState::Settings)),
             )
             .add_systems(
                 Update,

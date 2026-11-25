@@ -287,8 +287,10 @@ every frame.
 
 The in-game menu is a root-level BSN scene, independent of the inventory
 hierarchy. Its Settings action opens live camera and movement tuning controls:
-pan, zoom, and pitch sensitivity; minimum and maximum camera distance; walk
-speed; and sprint speed. Changes apply immediately and can be restored to
+pan and zoom sensitivity; minimum and maximum camera distance; walk speed;
+and sprint speed. Scroll-wheel camera tilt retains its original fixed rate and
+is not exposed as a user setting. The same basic settings screen is available
+from the main menu. Changes apply immediately and can be restored to
 defaults. A collapsed Developer settings section exposes a toggle for the
 exploration-generation diagnostics and a control to reset the free-camera pan
 offset. These settings currently last for the application session. Escape opens it directly when no other overlay is active; Escape or

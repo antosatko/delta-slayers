@@ -15,6 +15,7 @@ pub(in crate::gameplay) const CAMERA_MIN_DISTANCE: f32 = 14.0;
 pub(in crate::gameplay) const CAMERA_MAX_DISTANCE: f32 = 22.0;
 
 const CAMERA_PITCH_SAVE_ADJUSTMENT: f32 = 0.08;
+const CAMERA_PITCH_PER_LINE: f32 = 0.02;
 const CAMERA_TARGET_HEIGHT: f32 = 0.8;
 
 /// Camera transform state, kept separate from the player's movement transform.
@@ -70,8 +71,7 @@ pub(in crate::gameplay) fn adjust_camera(
     }
 
     if let Ok(mut player) = player.single_mut() {
-        player.pitch =
-            camera_pitch_after_scroll(player.pitch, scroll, settings.camera_pitch_sensitivity);
+        player.pitch = camera_pitch_after_scroll(player.pitch, scroll);
     }
     if let Ok(mut camera) = camera.single_mut() {
         camera.distance = camera_distance_after_scroll(
@@ -84,12 +84,8 @@ pub(in crate::gameplay) fn adjust_camera(
     }
 }
 
-pub(in crate::gameplay) fn camera_pitch_after_scroll(
-    pitch: f32,
-    scroll: f32,
-    sensitivity: f32,
-) -> f32 {
-    (pitch + scroll * sensitivity).clamp(CAMERA_MIN_PITCH, CAMERA_MAX_PITCH)
+pub(in crate::gameplay) fn camera_pitch_after_scroll(pitch: f32, scroll: f32) -> f32 {
+    (pitch + scroll * CAMERA_PITCH_PER_LINE).clamp(CAMERA_MIN_PITCH, CAMERA_MAX_PITCH)
 }
 
 fn horizontal_camera_axis(axis: Vec3) -> Vec3 {

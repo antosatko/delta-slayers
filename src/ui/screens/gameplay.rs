@@ -1034,8 +1034,6 @@ fn player_settings_panel() -> impl Scene {
                     --
                     @player_setting_control("Zoom sensitivity", "Scroll-wheel zoom per line.", PlayerSettingControl::ZoomSensitivity, defaults.camera_zoom_sensitivity, 0.1, 2.0, 0.05, 2)
                     --
-                    @player_setting_control("Pitch sensitivity", "Scroll-wheel vertical angle adjustment.", PlayerSettingControl::PitchSensitivity, defaults.camera_pitch_sensitivity, 0.002, 0.08, 0.002, 3)
-                    --
                     @player_setting_control("Minimum camera distance", "Closest allowed follow-camera distance.", PlayerSettingControl::MinCameraDistance, defaults.camera_min_distance, 4.0, 30.0, 0.5, 1)
                     --
                     @player_setting_control("Maximum camera distance", "Farthest allowed follow-camera distance.", PlayerSettingControl::MaxCameraDistance, defaults.camera_max_distance, 8.0, 60.0, 0.5, 1)
@@ -1072,7 +1070,7 @@ fn player_settings_panel() -> impl Scene {
     }
 }
 
-fn player_setting_control(
+pub(in crate::ui) fn player_setting_control(
     title: &'static str,
     description: &'static str,
     control: PlayerSettingControl,
@@ -1100,7 +1098,7 @@ fn player_setting_control(
     }
 }
 
-fn player_setting_value_changed(
+pub(in crate::ui) fn player_setting_value_changed(
     event: On<ValueChange<f32>>,
     controls: Query<&PlayerSettingControl, With<FeathersNumberInput>>,
     mut settings: ResMut<crate::gameplay::player::PlayerSettings>,
@@ -1117,9 +1115,6 @@ fn player_setting_value_changed(
         }
         PlayerSettingControl::ZoomSensitivity => {
             settings.camera_zoom_sensitivity = event.value.clamp(0.1, 2.0)
-        }
-        PlayerSettingControl::PitchSensitivity => {
-            settings.camera_pitch_sensitivity = event.value.clamp(0.002, 0.08)
         }
         PlayerSettingControl::MinCameraDistance => {
             settings.camera_min_distance = event.value.clamp(4.0, settings.camera_max_distance)

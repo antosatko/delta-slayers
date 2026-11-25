@@ -13,14 +13,6 @@ pub(in crate::ui) fn load_screen() -> impl SceneList {
     )
 }
 
-pub(in crate::ui) fn settings_screen() -> impl SceneList {
-    placeholder_screen(
-        AppState::Settings,
-        "Settings",
-        "Application and gameplay settings will be available here.",
-    )
-}
-
 pub(in crate::ui) fn credits_screen() -> impl SceneList {
     placeholder_screen(
         AppState::Credits,

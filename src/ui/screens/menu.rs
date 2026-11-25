@@ -48,6 +48,12 @@ fn main_menu() -> impl Scene {
                     @start_game_button("New game", CarbonIcon::Sword, GameStartMode::NewGame)
                     --
                     @menu_button(
+                        "Settings",
+                        CarbonIcon::Settings,
+                        AppState::Settings
+                    )
+                    --
+                    @menu_button(
                         "Load Save",
                         CarbonIcon::Inventory,
                         AppState::Load

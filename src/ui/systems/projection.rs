@@ -261,14 +261,10 @@ pub fn player_settings_projection(
     controls: Query<(Entity, &PlayerSettingControl, &NumberInputValue), With<FeathersNumberInput>>,
     mut commands: Commands,
 ) {
-    if !settings.is_changed() {
-        return;
-    }
     for (entity, control, current) in &controls {
         let value = match control {
             PlayerSettingControl::PanSensitivity => settings.camera_pan_sensitivity,
             PlayerSettingControl::ZoomSensitivity => settings.camera_zoom_sensitivity,
-            PlayerSettingControl::PitchSensitivity => settings.camera_pitch_sensitivity,
             PlayerSettingControl::MinCameraDistance => settings.camera_min_distance,
             PlayerSettingControl::MaxCameraDistance => settings.camera_max_distance,
             PlayerSettingControl::WalkSpeed => settings.walk_speed,

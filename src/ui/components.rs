@@ -47,7 +47,6 @@ pub(super) enum PlayerSettingControl {
     #[default]
     PanSensitivity,
     ZoomSensitivity,
-    PitchSensitivity,
     MinCameraDistance,
     MaxCameraDistance,
     WalkSpeed,
