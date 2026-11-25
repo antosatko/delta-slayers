@@ -154,7 +154,7 @@ fn update_button_styles(
 ) {
     for (hovered, pressed, style, mut background) in &mut buttons {
         *background = BackgroundColor(if style.selected {
-            theme.surface_raised
+            theme.panel_raised
         } else {
             theme.button_background(style.tone, hovered.get(), pressed.is_some())
         });
