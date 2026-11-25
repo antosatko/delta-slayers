@@ -1,11 +1,7 @@
-use bevy::{
-    picking::hover::Hovered,
-    prelude::*,
-    ui_widgets::Button,
-};
+use bevy::{picking::hover::Hovered, prelude::*, ui_widgets::Button};
 
 use crate::{
-    CarbonButtonTone, CarbonStatus, CarbonTheme,
+    CarbonButtonTone, CarbonSelection, CarbonStatus, CarbonTheme,
     theme::{CarbonButtonStyle, CarbonHoverCard, CarbonHoverDelay, CarbonTab},
 };
 
@@ -259,11 +255,7 @@ pub fn section_header(icon: CarbonIcon, title: &'static str) -> impl Scene {
 }
 
 /// Primary, secondary, quiet, and destructive actions share one control shape.
-pub fn action_button(
-    label: &'static str,
-    icon: CarbonIcon,
-    tone: CarbonButtonTone,
-) -> impl Scene {
+pub fn action_button(label: &'static str, icon: CarbonIcon, tone: CarbonButtonTone) -> impl Scene {
     bsn! {
         Button
         Hovered(false)

@@ -153,11 +153,7 @@ fn showcase() -> impl Scene {
     }
 }
 
-fn showcase_tab(
-    label: &'static str,
-    page: ShowcasePage,
-    selected: bool,
-) -> impl Scene {
+fn showcase_tab(label: &'static str, page: ShowcasePage, selected: bool) -> impl Scene {
     bsn! {
         @screen_tab(label, selected)
         ShowcaseTab(page)
