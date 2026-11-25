@@ -244,6 +244,7 @@ fn spawn_terrain_tiles(
             spawned_objects += spawn_objects_on_tile(
                 commands,
                 root,
+                config,
                 model_scale,
                 base_surface_offset,
                 seed,
@@ -267,6 +268,7 @@ fn spawn_terrain_tiles(
 fn spawn_objects_on_tile(
     commands: &mut Commands,
     map_root: Entity,
+    config: ExplorationPortal,
     model_scale: f32,
     base_surface_offset: f32,
     seed: u64,
