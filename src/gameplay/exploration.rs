@@ -285,7 +285,7 @@ fn spawn_map_geometry(
     ));
 
     spawn_vegetation(commands, root, config, seed, meshes, materials);
-    spawn_boundary_walls(commands, root, config, seed);
+    spawn_boundary_walls(commands, root, config);
 
     let return_height = terrain_surface_height(config, seed, Vec2::ZERO);
     // Keep the interaction volume independent from the beacon's visual scale.
