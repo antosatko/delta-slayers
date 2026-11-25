@@ -4,7 +4,6 @@ use bevy::state::state::States;
 pub enum AppState {
     #[default]
     MainMenu,
-    Continue,
     Load,
     Settings,
     Credits,
