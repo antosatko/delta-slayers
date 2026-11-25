@@ -127,8 +127,11 @@ rendered on a vertical, camera-facing 3D quad. Godo is spawned from
 slower speed, stopping at a small personal-space distance. NPC movement calls
 the same collision resolver as player movement, so Blender-authored
 `MovementBlocker` volumes block both. The town remains the existing
-Blender-authored scene; no hex tiles or procedural terrain are introduced by
-this camera/rendering setup.
+Blender-authored scene, while an `ExplorationPortal` can create a separate
+procedural hex map at runtime. Its triangulated height field drives both the
+terrain mesh and player/NPC ground elevation. The map has biome-colored tiles,
+sparse vegetation and rocks, and a collision-blocked perimeter. A return
+beacon restores the town-side position captured on entry.
 
 The TriggerZone-to-TriggerBox rename is a reflected authoring API break.
 Existing Blender files must replace the old component using the refreshed
