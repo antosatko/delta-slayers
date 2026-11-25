@@ -62,23 +62,30 @@ The portal exposes these settings:
 
 | Field | Default | Runtime range | Effect |
 | --- | ---: | ---: | --- |
-| `seed` | empty | any `u64` | A fixed value reproduces the same terrain and decoration. Empty chooses a new seed on each visit. |
+| `seed` | empty | any `u64` | A fixed value reproduces the same terrain and biome layout. Empty chooses a new seed on each visit. |
 | `radius` | 12 | 8–32 | Hex radius; the map contains `1 + 3r(r + 1)` tiles. |
 | `tile_size` | 6.0 | 4–8 | Rendered hex-tile radius in meters. The supplied models have a 5 m source radius and are scaled to this value. |
 | `height_multiplier` | 2.2 | 0–5 | Vertical scale of the terrain. Set to zero for flat terrain. |
 | `terrain_frequency` | 0.045 | 0.01–0.15 | Higher values create smaller, more frequent elevation features. |
 | `biome_scale` | 0.028 | 0.006–0.12 | Controls the size of biome regions. |
-| `vegetation_density` | 0.28 | 0–0.8 | Chance of placing a tree on eligible woodland tiles. |
+| `max_jump_height` | 1.5 | 0.25–3.5 | Maximum height difference the player can jump between adjacent tiles. |
 
 The `tile_size` field now means rendered radius in meters (default 6, range
 4–8), rather than the previous 1–3 world-unit hex side length. Existing
 Blender-authored values below 4 are clamped to 4 at runtime; update them in the
 Skein component if a different radius is desired. Tile centers use the full
-rendered radius for regular hex spacing. Elevation remains discrete per tile:
-neighboring heights are not interpolated or smoothed, so the thick cylinder
-sides of raised tiles remain visible above lower neighbors.
+rendered radius for regular hex spacing. The player and NPC ground height
+uses smoothstep-weighted interpolation over the triangular grid between tile
+centers. Adjacent tiles can be crossed only when their height difference does
+not exceed `max_jump_height`; steeper edges receive movement blockers. A
+flood fill from the spawn tile marks tiles outside the reachable region with
+the `UnreachableTile` gameplay component. The exploration minimap highlights
+those tiles for later use by gameplay systems.
 
-Values outside the runtime ranges are clamped. For a reproducible test map,
+Values outside the runtime ranges are clamped. The reflected
+`vegetation_density` field has been removed and `max_jump_height` added;
+refresh the Skein type registry and re-export existing exploration portal
+objects after updating their components. For a reproducible test map,
 set a seed explicitly; leave it empty when each visit should be different.
 In the setup dialog, **Randomize seed** chooses a fresh explicit seed while
 preserving the other settings; seed 0 continues to generate a new seed on each
@@ -89,11 +96,11 @@ Tile 1 is the base cylinder; tile 2 adds a raised feature with a Skein-authored
 `MovementBlocker`. Generation favours tile 2 in highlands and uses it
 occasionally elsewhere. Meshes are scaled from their 5 m source radius to the
 selected tile radius and arranged at regular hex spacing. Their full-depth
-sides expose abrupt height differences between adjacent tiles. Grassland,
-woodland, dryland, and highland regions still control tile
-tinting; woodland tiles can receive trees. The map has a movement-blocked
-outer boundary. The map is a first
-exploration prototype: it does not yet persist its discovered state or add
+sides remain visible between tiles with different base elevations. Grassland,
+woodland, dryland, and highland regions control tile tinting. Procedural
+vegetation is not generated. The map has a movement-blocked outer boundary
+and cliff-edge blockers where the jump limit is exceeded. This is a first
+exploration prototype: it does not yet persist discovered state or add
 resource gathering, ecology simulation, or NPC populations.
 
 ### Invisible movement walls
