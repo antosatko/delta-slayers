@@ -189,6 +189,7 @@ pub(super) fn set_move_target_from_cursor(
 /// destination. Keyboard movement takes priority and cancels the current path.
 pub(super) fn move_player_to_target(
     mut player: Query<(&mut Transform, &Player)>,
+    camera: Query<&Transform, (With<GameplayCamera>, Without<Player>)>,
     mut target: ResMut<MovementTarget>,
     input: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
@@ -206,10 +207,14 @@ pub(super) fn move_player_to_target(
     };
     let step = speed * time.delta_secs();
 
-    if let Some(direction) = keyboard_movement_direction(&input, player.yaw) {
-        target.clear();
-        transform.translation += direction * step;
-        return;
+    if let Some(camera_transform) = camera.iter().next() {
+        let camera_forward = camera_transform.forward().as_vec3();
+        let camera_forward = Vec3::new(camera_forward.x, 0.0, camera_forward.z);
+        if let Some(direction) = keyboard_movement_direction(&input, camera_forward) {
+            target.clear();
+            transform.translation += direction * step;
+            return;
+        }
     }
 
     let Some(destination) = target.destination else {
@@ -230,7 +235,10 @@ pub(super) fn move_player_to_target(
     transform.translation += offset / distance * step;
 }
 
-fn keyboard_movement_direction(input: &ButtonInput<KeyCode>, yaw: f32) -> Option<Vec3> {
+fn keyboard_movement_direction(
+    input: &ButtonInput<KeyCode>,
+    camera_forward: Vec3,
+) -> Option<Vec3> {
     let left = input.pressed(KeyCode::KeyA) || input.pressed(KeyCode::ArrowLeft);
     let right = input.pressed(KeyCode::KeyD) || input.pressed(KeyCode::ArrowRight);
     let forward = input.pressed(KeyCode::KeyW) || input.pressed(KeyCode::ArrowUp);
@@ -245,7 +253,13 @@ fn keyboard_movement_direction(input: &ButtonInput<KeyCode>, yaw: f32) -> Option
         return None;
     }
 
-    Some((Quat::from_rotation_y(yaw) * local_direction.normalize()).normalize())
+    let forward = Vec3::new(camera_forward.x, 0.0, camera_forward.z).normalize_or_zero();
+    if forward == Vec3::ZERO {
+        return None;
+    }
+    let right = forward.cross(Vec3::Y);
+
+    Some((right * local_direction.x - forward * local_direction.z).normalize())
 }
 
 /// Draws a sequence of small 3D arrows from the player to the selected
@@ -437,10 +451,11 @@ mod tests {
         let mut arrows = ButtonInput::<KeyCode>::default();
         arrows.press(KeyCode::ArrowUp);
 
-        let wasd_direction = keyboard_movement_direction(&wasd, 0.0).unwrap();
-        let arrow_direction = keyboard_movement_direction(&arrows, 0.0).unwrap();
+        let camera_forward = Vec3::NEG_Z;
+        let wasd_direction = keyboard_movement_direction(&wasd, camera_forward).unwrap();
+        let arrow_direction = keyboard_movement_direction(&arrows, camera_forward).unwrap();
 
-        assert!(wasd_direction.abs_diff_eq(Vec3::NEG_Z, 1e-6));
+        assert!(wasd_direction.abs_diff_eq(camera_forward, 1e-6));
         assert!(wasd_direction.abs_diff_eq(arrow_direction, 1e-6));
     }
 
@@ -450,7 +465,7 @@ mod tests {
         input.press(KeyCode::KeyW);
         input.press(KeyCode::KeyD);
 
-        let direction = keyboard_movement_direction(&input, 0.0).unwrap();
+        let direction = keyboard_movement_direction(&input, Vec3::NEG_Z).unwrap();
 
         assert!((direction.length() - 1.0).abs() < 1e-6);
         assert!(direction.x > 0.0);
@@ -458,14 +473,29 @@ mod tests {
     }
 
     #[test]
-    fn keyboard_movement_uses_player_heading() {
+    fn keyboard_movement_uses_camera_heading() {
         let mut input = ButtonInput::<KeyCode>::default();
         input.press(KeyCode::KeyW);
 
-        let direction = keyboard_movement_direction(&input, std::f32::consts::FRAC_PI_2)
-            .unwrap();
+        let camera_forward = Vec3::X;
+        let direction = keyboard_movement_direction(&input, camera_forward).unwrap();
 
         assert!(direction.abs_diff_eq(Vec3::X, 1e-6));
+    }
+
+    #[test]
+    fn camera_relative_left_and_right_follow_camera_basis() {
+        let mut left = ButtonInput::<KeyCode>::default();
+        left.press(KeyCode::KeyA);
+        let mut right = ButtonInput::<KeyCode>::default();
+        right.press(KeyCode::KeyD);
+
+        let camera_forward = Vec3::X;
+        let left_direction = keyboard_movement_direction(&left, camera_forward).unwrap();
+        let right_direction = keyboard_movement_direction(&right, camera_forward).unwrap();
+
+        assert!(left_direction.abs_diff_eq(Vec3::NEG_Z, 1e-6));
+        assert!(right_direction.abs_diff_eq(Vec3::Z, 1e-6));
     }
 
     #[test]
@@ -474,7 +504,7 @@ mod tests {
         input.press(KeyCode::KeyW);
         input.press(KeyCode::ArrowDown);
 
-        assert!(keyboard_movement_direction(&input, 0.0).is_none());
+        assert!(keyboard_movement_direction(&input, Vec3::NEG_Z).is_none());
     }
 
     #[test]
