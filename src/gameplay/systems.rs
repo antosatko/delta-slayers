@@ -5,6 +5,7 @@ use crate::{
     gameplay::{
         persistence::save_game,
         player::{MovementTarget, Player},
+        exploration::ExplorationSession,
         zones::{FastTravelRequest, TriggerBox, VisitedZones},
     },
     ui::stack::UiStack,
@@ -79,6 +80,7 @@ pub(super) fn return_to_menu(
     mut ui_state: ResMut<UiStack>,
     player_query: Query<(&Transform, &Player)>,
     visited: Res<VisitedZones>,
+    exploration: Res<ExplorationSession>,
 ) {
     if !keys.just_pressed(KeyCode::Backspace) {
         return;
@@ -89,8 +91,17 @@ pub(super) fn return_to_menu(
         return;
     }
 
-    if let Ok((transform, player)) = player_query.single() {
-        if let Err(error) = save_game(transform.translation, player.yaw, player.pitch, &visited.0) {
+    let save_state = exploration
+        .0
+        .map(|anchor| (anchor.transform.translation, anchor.yaw, anchor.pitch))
+        .or_else(|| {
+            player_query
+                .single()
+                .ok()
+                .map(|(transform, player)| (transform.translation, player.yaw, player.pitch))
+        });
+    if let Some((position, yaw, pitch)) = save_state {
+        if let Err(error) = save_game(position, yaw, pitch, &visited.0) {
             warn!("Could not save the current game: {error}");
         }
     }
