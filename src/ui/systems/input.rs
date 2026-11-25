@@ -66,9 +66,8 @@ pub fn handle_ui_input(
         ui.toggle_pause();
     }
 
-    if let Some(active) = ui.active_panel() {
-        if nearby.0 != Some(active) {
+    if let Some(active) = ui.active_panel()
+        && nearby.0 != Some(active) {
             ui.remove(UiLayer::Panel(active));
         }
-    }
 }

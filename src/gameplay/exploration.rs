@@ -6,11 +6,8 @@ mod terrain;
 mod travel;
 
 pub use generation::apply_tile_materials;
-use generation::{GeneratedTile, reachable_tiles};
-use hex::{HEX_CORNER_COUNT, hex_corner, hex_layout_radius};
 pub(crate) use hex::{hex_center, world_to_axial};
 pub(super) use terrain::sync_ground_height;
-use terrain::{fractal_noise, terrain_height, terrain_surface_height};
 pub(crate) use travel::generate_seed;
 pub(super) use travel::{detect_portal, process_travel_request};
 

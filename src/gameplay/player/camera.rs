@@ -55,8 +55,7 @@ pub(in crate::gameplay) fn adjust_camera(
         && !*pan_blocked_until_release
         && motion.is_finite()
         && motion != Vec2::ZERO
-    {
-        if let (Ok(player), Ok(mut camera)) = (player.single_mut(), camera.single_mut()) {
+        && let (Ok(player), Ok(mut camera)) = (player.single_mut(), camera.single_mut()) {
             let orientation = follow_camera_rotation(player.yaw, player.pitch);
             let right = horizontal_camera_axis(orientation * Vec3::X);
             let up = horizontal_camera_axis(orientation * Vec3::Y);
@@ -64,7 +63,6 @@ pub(in crate::gameplay) fn adjust_camera(
             camera.pan_offset =
                 camera_pan_offset_after_drag(camera.pan_offset, motion, right, up, scale);
         }
-    }
 
     let scroll = mouse_scroll.to_lines(&scroll_conversion).delta.y;
     if !scroll.is_finite() || scroll == 0.0 {

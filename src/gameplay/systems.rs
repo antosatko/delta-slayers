@@ -31,12 +31,11 @@ pub(super) fn fast_travel(
         .find(|(_, zone)| zone.kind == kind)
         .map(|(transform, _)| transform.translation());
 
-    if let Some(destination) = destination {
-        if let Ok(mut player_transform) = player.single_mut() {
+    if let Some(destination) = destination
+        && let Ok(mut player_transform) = player.single_mut() {
             let player_height = player_transform.translation.y;
             player_transform.translation = fast_travel_spawn_position(destination, player_height);
         }
-    }
 }
 
 fn fast_travel_spawn_position(destination: Vec3, player_height: f32) -> Vec3 {
@@ -104,10 +103,9 @@ pub(super) fn return_to_menu(
                 .ok()
                 .map(|(transform, player)| (transform.translation, player.yaw, player.pitch))
         });
-    if let Some((position, yaw, pitch)) = save_state {
-        if let Err(error) = save_game(position, yaw, pitch, &visited.0) {
+    if let Some((position, yaw, pitch)) = save_state
+        && let Err(error) = save_game(position, yaw, pitch, &visited.0) {
             warn!("Could not save the current game: {error}");
         }
-    }
     next_state.set(AppState::MainMenu);
 }

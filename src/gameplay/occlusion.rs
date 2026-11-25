@@ -127,7 +127,7 @@ pub(super) fn fade_occluding_objects(
                 material.alpha_mode = if state.opacity < 0.999 {
                     AlphaMode::Blend
                 } else {
-                    state.original_alpha_mode.clone()
+                    state.original_alpha_mode
                 };
             } else if is_occluding {
                 let Some(original) = materials.get(&material_handle.0).cloned() else {

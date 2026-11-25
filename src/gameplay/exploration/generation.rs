@@ -190,7 +190,7 @@ fn spawn_terrain_tiles(
     reachable: &HashSet<(i32, i32)>,
 ) {
     let model_scale = config.tile_size / TILE_MODEL_SOURCE_RADIUS;
-    let base_surface_offset = 0.016821861267089844 * model_scale;
+    let base_surface_offset = 0.016_821_861 * model_scale;
 
     for (&(q, r), tile) in tiles {
         let center = tile.center;

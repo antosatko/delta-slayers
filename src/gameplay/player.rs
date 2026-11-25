@@ -9,8 +9,7 @@ mod visual;
 pub(crate) use camera::GameplayCamera;
 pub use camera::{CAMERA_DEFAULT_PITCH, CAMERA_DISTANCE, CAMERA_MAX_PITCH, CAMERA_MIN_PITCH};
 pub(super) use camera::{
-    CAMERA_MAX_DISTANCE, CAMERA_MIN_DISTANCE, adjust_camera, camera_distance_after_scroll,
-    camera_pan_offset_after_drag, camera_pitch_after_scroll, follow_camera, follow_camera_rotation,
+    CAMERA_MAX_DISTANCE, CAMERA_MIN_DISTANCE, adjust_camera, follow_camera, follow_camera_rotation,
     migrate_saved_camera_pitch,
 };
 pub use collision::MovementBlocker;
@@ -18,12 +17,10 @@ pub(super) use collision::{
     PLAYER_COLLIDER_RADIUS, move_with_collisions, movement_collision_contact,
 };
 pub(super) use destination::{
-    DESTINATION_RING_RADIUS, TRAJECTORY_ARROW_LENGTH, TRAJECTORY_ARROW_SPACING,
-    TRAJECTORY_ARROW_SPEED, TrajectoryGizmoConfigGroup, draw_move_trajectory,
-    trajectory_arrow_phase,
+    TrajectoryGizmoConfigGroup, draw_move_trajectory,
 };
 pub(super) use movement::{
-    MovementTarget, keyboard_movement_direction, move_player_to_target, set_move_target_from_cursor,
+    MovementTarget, move_player_to_target, set_move_target_from_cursor,
 };
 pub(super) use visual::{PLAYER_VISUAL_HEIGHT, PlayerVisual, sync_player_visual};
 
