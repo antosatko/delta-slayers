@@ -3,7 +3,7 @@ use bevy::{
     feathers::{
         containers::{pane, pane_body, pane_header},
         controls::{
-            FeathersCheckbox, FeathersNumberInput, HardLimit, NumberInputPrecision,
+            FeathersCheckbox, FeathersNumberInput, FeathersSlider, HardLimit, NumberInputPrecision,
             NumberInputStep, NumberInputValue,
         },
         display::{label, label_dim},
@@ -12,7 +12,7 @@ use bevy::{
     },
     prelude::*,
     ui::{Checked, RelativeCursorPosition},
-    ui_widgets::{Activate, ValueChange},
+    ui_widgets::{Activate, SliderPrecision, SliderStep, SliderValue, ValueChange},
 };
 use delta_slayers_ui::{
     CarbonButtonTone, CarbonIcon, CarbonTheme, action_button, eyebrow_text, gear_slot,
@@ -22,7 +22,7 @@ use delta_slayers_ui::{
 use crate::{
     app::state::AppState,
     gameplay::{
-        exploration::{ExplorationPortal, ExplorationTravelRequest, PortalAction},
+        exploration::{ExplorationPortal, ExplorationTravelRequest, PortalAction, VegetationTuning},
         zones::{FastTravelRequest, ZoneKind},
     },
     ui::{
@@ -33,7 +33,8 @@ use crate::{
             FastTravelButton, FastTravelMenu, GameMenuModal, MinimapExplorationDot, MinimapZoneDot,
             PanelRoot, PauseOverlay, PlayerSettingControl, PlayerSettingToggle,
             PopupConfirmRequested, PopupRoot,
-            SettingsPanelRoot,
+            SettingsPanelRoot, VegetationLabRoot, VegetationSliderControl, VegetationSupportText,
+            VegetationToggle,
         },
         inventory::{CurrencyLabel, InventoryRoot},
         stack::{UiLayer, UiStack},
@@ -61,6 +62,8 @@ pub(in crate::ui) fn scene() -> impl SceneList {
         @minimap()
         --
         @exploration_debug_panel()
+        --
+        @vegetation_lab_panel()
         --
         @exploration_setup_panel()
         --
@@ -248,12 +251,227 @@ fn exploration_debug_panel() -> impl Scene {
                 TextFont { font_size: px(12) }
                 template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().muted)))
                 --
+                @action_button("Vegetation lab · F4", CarbonIcon::Settings, CarbonButtonTone::Primary)
+                on(|_activate: On<Activate>, mut ui: ResMut<UiStack>| {
+                    ui.push(UiLayer::VegetationLab);
+                })
+                --
                 @action_button("Hide details", CarbonIcon::Close, CarbonButtonTone::Secondary)
                 on(|_activate: On<Activate>, mut state: ResMut<ExplorationDebugPanelState>| {
                     state.visible = false;
                 })
             ]
         ]
+    }
+}
+
+/// Live biome, density, blade and wind controls for the current exploration field.
+fn vegetation_lab_panel() -> impl Scene {
+    let defaults = VegetationTuning::default();
+    bsn! {
+        Node {
+            position_type: PositionType::Absolute,
+            top: px(14),
+            right: px(14),
+            width: px(430),
+            max_width: percent(46),
+            max_height: percent(94),
+            min_width: px(0),
+            overflow: Overflow::scroll(),
+        }
+        template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().overlay)))
+        bevy::ui::GlobalZIndex(24)
+        VegetationLabRoot
+        RelativeCursorPosition
+        Visibility::Hidden
+        DespawnOnExit::<AppState>(AppState::InGame)
+        Children [
+            @panel(percent(100))
+            Children [
+                Node {
+                    width: percent(100),
+                    flex_direction: FlexDirection::Row,
+                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::SpaceBetween,
+                    column_gap: px(8),
+                }
+                Children [
+                    @page_title("Vegetation lab")
+                    --
+                    @action_button("Close · F4", CarbonIcon::Close, CarbonButtonTone::Ghost)
+                    on(|_activate: On<Activate>, mut ui: ResMut<UiStack>| {
+                        ui.remove(UiLayer::VegetationLab);
+                    })
+                ]
+                --
+                @muted_text("Tune the living surface in real time. The field blends four biome palettes across the map.", 12.0)
+                --
+                Node {
+                    width: percent(100),
+                    padding: UiRect::all(px(9)),
+                    border_radius: BorderRadius::all(px(6)),
+                }
+                template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().panel_alt)))
+                Children [
+                    Text("Checking GPU grass support…")
+                    VegetationSupportText
+                    TextFont { font_size: px(11) }
+                    template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().muted)))
+                ]
+                --
+                @section_header(CarbonIcon::Settings, "Field quality")
+                --
+                @vegetation_slider_control("Overall density", "Blade coverage across all biomes.", VegetationSliderControl::GlobalDensity, defaults.global_density, 0.0, 1.4, 0.05, 2)
+                --
+                @vegetation_slider_control("View distance", "How far grass reaches from the camera (metres).", VegetationSliderControl::ViewDistance, defaults.view_distance, 18.0, 52.0, 1.0, 0)
+                --
+                @vegetation_slider_control("Blade height", "Scale every plant without changing the ground.", VegetationSliderControl::BladeHeight, defaults.blade_height, 0.35, 1.6, 0.05, 2)
+                --
+                @vegetation_shadow_toggle()
+                --
+                @section_header(CarbonIcon::Map, "Biome density")
+                --
+                @vegetation_slider_control("Grassland", "Wild meadow and flowering grasses.", VegetationSliderControl::GrasslandDensity, defaults.grassland_density, 0.0, 1.8, 0.05, 2)
+                --
+                @vegetation_slider_control("Woodland", "Mossy forest floor and fern undergrowth.", VegetationSliderControl::WoodlandDensity, defaults.woodland_density, 0.0, 1.8, 0.05, 2)
+                --
+                @vegetation_slider_control("Dryland", "Sparse, wind-shaped dune grasses.", VegetationSliderControl::DrylandDensity, defaults.dryland_density, 0.0, 1.8, 0.05, 2)
+                --
+                @vegetation_slider_control("Highlands", "Pale, hardy high-altitude plants.", VegetationSliderControl::HighlandDensity, defaults.highland_density, 0.0, 1.8, 0.05, 2)
+                --
+                @section_header(CarbonIcon::Settings, "Atmosphere")
+                --
+                @vegetation_slider_control("Wind strength", "How strongly the blades lean and sway.", VegetationSliderControl::WindStrength, defaults.wind_strength, 0.0, 1.0, 0.05, 2)
+                --
+                @vegetation_slider_control("Gust speed", "How quickly wind waves travel across the field.", VegetationSliderControl::WindSpeed, defaults.wind_speed, 0.0, 12.0, 0.25, 2)
+                --
+                Node {
+                    width: percent(100),
+                    flex_direction: FlexDirection::Row,
+                    justify_content: JustifyContent::SpaceBetween,
+                    align_items: AlignItems::Center,
+                    column_gap: px(8),
+                }
+                Children [
+                    @action_button("Reset tuning", CarbonIcon::Back, CarbonButtonTone::Secondary)
+                    on(|_activate: On<Activate>, mut tuning: ResMut<VegetationTuning>| {
+                        *tuning = default();
+                    })
+                    --
+                    @muted_text("F4 · close panel", 11.0)
+                ]
+            ]
+        ]
+    }
+}
+
+fn vegetation_slider_control(
+    title: &'static str,
+    description: &'static str,
+    control: VegetationSliderControl,
+    value: f32,
+    min: f32,
+    max: f32,
+    step: f32,
+    precision: i32,
+) -> impl Scene {
+    bsn! {
+        Node {
+            width: percent(100),
+            min_width: px(0),
+            flex_direction: FlexDirection::Column,
+            row_gap: px(4),
+        }
+        Children [
+            Node {
+                width: percent(100),
+                flex_direction: FlexDirection::Row,
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::SpaceBetween,
+            }
+            Children [
+                @label(title)
+                --
+                @label_dim(description)
+            ]
+            --
+            @FeathersSlider {
+                @min: min,
+                @max: max,
+            }
+            SliderValue(value)
+            SliderStep(step)
+            SliderPrecision(precision)
+            control
+            on(vegetation_slider_value_changed)
+        ]
+    }
+}
+
+fn vegetation_slider_value_changed(
+    event: On<ValueChange<f32>>,
+    controls: Query<&VegetationSliderControl, With<FeathersSlider>>,
+    mut tuning: ResMut<VegetationTuning>,
+    mut commands: Commands,
+) {
+    let Ok(control) = controls.get(event.source) else {
+        return;
+    };
+    if !event.value.is_finite() {
+        return;
+    }
+
+    match control {
+        VegetationSliderControl::GlobalDensity => tuning.global_density = event.value.clamp(0.0, 1.4),
+        VegetationSliderControl::ViewDistance => tuning.view_distance = event.value.clamp(18.0, 52.0),
+        VegetationSliderControl::BladeHeight => tuning.blade_height = event.value.clamp(0.35, 1.6),
+        VegetationSliderControl::GrasslandDensity => tuning.grassland_density = event.value.clamp(0.0, 1.8),
+        VegetationSliderControl::WoodlandDensity => tuning.woodland_density = event.value.clamp(0.0, 1.8),
+        VegetationSliderControl::DrylandDensity => tuning.dryland_density = event.value.clamp(0.0, 1.8),
+        VegetationSliderControl::HighlandDensity => tuning.highland_density = event.value.clamp(0.0, 1.8),
+        VegetationSliderControl::WindStrength => tuning.wind_strength = event.value.clamp(0.0, 1.0),
+        VegetationSliderControl::WindSpeed => tuning.wind_speed = event.value.clamp(0.0, 12.0),
+    }
+    commands.entity(event.source).insert(SliderValue(event.value));
+}
+
+fn vegetation_shadow_toggle() -> impl Scene {
+    bsn! {
+        Node {
+            width: percent(100),
+            flex_direction: FlexDirection::Row,
+            align_items: AlignItems::Center,
+            column_gap: px(10),
+        }
+        Children [
+            @FeathersCheckbox
+            VegetationToggle::Shadows
+            on(vegetation_toggle_changed)
+            --
+            Node {
+                flex_direction: FlexDirection::Column,
+                row_gap: px(2),
+                flex_grow: 1.0,
+            }
+            Children [
+                @label("Grass shadows")
+                --
+                @label_dim("Enable near-field blade shadows; costs extra GPU time.")
+            ]
+        ]
+    }
+}
+
+fn vegetation_toggle_changed(
+    event: On<ValueChange<bool>>,
+    controls: Query<&VegetationToggle, With<FeathersCheckbox>>,
+    mut tuning: ResMut<VegetationTuning>,
+) {
+    let Ok(control) = controls.get(event.source) else {
+        return;
+    };
+    match control {
+        VegetationToggle::Shadows => tuning.shadows = event.value,
     }
 }
 

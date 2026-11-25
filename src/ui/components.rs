@@ -161,3 +161,28 @@ mod tests {
         assert_eq!(view_model.config.seed, None);
     }
 }
+
+
+#[derive(Component, Default, Clone, Copy)]
+pub(super) struct VegetationLabRoot;
+
+#[derive(Component, Default, Clone, Copy)]
+pub(super) struct VegetationSupportText;
+
+#[derive(Component, Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) enum VegetationSliderControl {
+    GlobalDensity,
+    ViewDistance,
+    BladeHeight,
+    GrasslandDensity,
+    WoodlandDensity,
+    DrylandDensity,
+    HighlandDensity,
+    WindStrength,
+    WindSpeed,
+}
+
+#[derive(Component, Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) enum VegetationToggle {
+    Shadows,
+}

@@ -85,7 +85,8 @@ those tiles for later use by gameplay systems.
 
 Values outside the runtime ranges are clamped. The reflected
 `vegetation_density` field is retained only for compatibility with older
-GLB exports; it is ignored and does not generate vegetation. The new
+GLB exports; it is ignored by the generator. Procedural grass density is tuned
+in-game through the F4 vegetation lab. The new
 `max_jump_height` field defaults to 1.5 m when absent from an older export.
 You can refresh Skein's registry and re-export the portal to configure the
 jump limit explicitly, but this is not required just to keep an existing
@@ -102,7 +103,7 @@ occasionally elsewhere. Meshes are scaled from their 5 m source radius to the
 selected tile radius and arranged at regular hex spacing. Their full-depth
 sides remain visible between tiles with different base elevations. Grassland,
 woodland, dryland, and highland regions control tile tinting. Procedural
-vegetation is not generated. The map has a movement-blocked outer boundary
+vegetation is generated as continuous biome-weighted grass fields over the map; the F4 lab exposes live density, height, view-distance, and wind controls. The map has a movement-blocked outer boundary
 and cliff-edge blockers where the jump limit is exceeded. This is a first
 exploration prototype: it does not yet persist discovered state or add
 resource gathering, ecology simulation, or NPC populations.

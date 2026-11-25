@@ -1,16 +1,20 @@
 use std::collections::HashMap;
 
 use bevy::{
-    feathers::controls::{FeathersCheckbox, FeathersNumberInput, NumberInputValue},
+    feathers::controls::{FeathersCheckbox, FeathersNumberInput, FeathersSlider, NumberInputValue},
     prelude::*,
     ui::Checked,
+    ui_widgets::{SliderValue},
     window::{CursorGrabMode, CursorOptions, PrimaryWindow},
 };
+
+use bevy_grass::prelude::GrassSupport;
 
 use crate::{
     gameplay::{
         exploration::{
             ActiveExplorationMap, Biome, ExplorationTile, NearbyExplorationPortal, UnreachableTile,
+            VegetationTuning,
             hex_center, world_to_axial,
         },
         player::{Player, PlayerSettings},
@@ -23,7 +27,8 @@ use crate::{
             ExplorationSetupRoot, ExplorationSetupTileCountText, ExplorationSetupViewModel,
             FastTravelButton, FastTravelMenu, GameMenuModal, MinimapExplorationDot, MinimapZoneDot,
             PanelRoot, PauseOverlay, PlayerSettingControl, PlayerSettingToggle, PopupRoot,
-            SettingsPanelRoot,
+            SettingsPanelRoot, VegetationLabRoot, VegetationSliderControl, VegetationSupportText,
+            VegetationToggle,
         },
         inventory::InventoryRoot,
         stack::{UiLayer, UiStack},
@@ -494,5 +499,69 @@ mod developer_settings_tests {
         ui.remove(UiLayer::Settings);
         assert!(!developer_settings_visible(&ui, &mut state));
         assert!(!state.expanded);
+    }
+}
+
+
+/// Projects the vegetation tuning overlay from the active map and live model values.
+pub fn vegetation_lab_projection(
+    ui: Res<UiStack>,
+    active_map: Res<ActiveExplorationMap>,
+    tuning: Res<VegetationTuning>,
+    support: Res<GrassSupport>,
+    mut roots: Query<&mut Visibility, With<VegetationLabRoot>>,
+    mut status_labels: Query<&mut Text, With<VegetationSupportText>>,
+    sliders: Query<(Entity, &VegetationSliderControl, &SliderValue), With<FeathersSlider>>,
+    toggles: Query<(Entity, &VegetationToggle, Has<Checked>), With<FeathersCheckbox>>,
+    mut commands: Commands,
+) {
+    let visible = active_map.0.is_some() && ui.contains(UiLayer::VegetationLab);
+    for mut visibility in &mut roots {
+        *visibility = if visible {
+            Visibility::Visible
+        } else {
+            Visibility::Hidden
+        };
+    }
+
+    let status = match *support {
+        GrassSupport::Unknown => "Checking GPU grass support…".to_owned(),
+        GrassSupport::Supported => "GPU grass is supported · low-cost profile active".to_owned(),
+        unsupported => format!("GPU grass unavailable · {unsupported}"),
+    };
+    for mut label in &mut status_labels {
+        if label.0 != status {
+            label.0.clone_from(&status);
+        }
+    }
+
+    for (entity, control, current) in &sliders {
+        let value = match control {
+            VegetationSliderControl::GlobalDensity => tuning.global_density,
+            VegetationSliderControl::ViewDistance => tuning.view_distance,
+            VegetationSliderControl::BladeHeight => tuning.blade_height,
+            VegetationSliderControl::GrasslandDensity => tuning.grassland_density,
+            VegetationSliderControl::WoodlandDensity => tuning.woodland_density,
+            VegetationSliderControl::DrylandDensity => tuning.dryland_density,
+            VegetationSliderControl::HighlandDensity => tuning.highland_density,
+            VegetationSliderControl::WindStrength => tuning.wind_strength,
+            VegetationSliderControl::WindSpeed => tuning.wind_speed,
+        };
+        if (current.0 - value).abs() > 0.001 {
+            commands.entity(entity).insert(SliderValue(value));
+        }
+    }
+
+    for (entity, control, checked) in &toggles {
+        let should_be_checked = match control {
+            VegetationToggle::Shadows => tuning.shadows,
+        };
+        if checked != should_be_checked {
+            if should_be_checked {
+                commands.entity(entity).insert(Checked);
+            } else {
+                commands.entity(entity).remove::<Checked>();
+            }
+        }
     }
 }

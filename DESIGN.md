@@ -39,6 +39,7 @@ Within those areas:
 | `gameplay/exploration/travel.rs` | Portal detection, entering/returning from maps, and travel anchors |
 | `gameplay/exploration/generation.rs` | Seeded tile generation, reachability, imported tile spawning, and biome materials |
 | `gameplay/exploration/terrain.rs` | Biome/noise sampling and smooth terrain elevation synchronization |
+| `gameplay/exploration/vegetation.rs` | Continuous biome-weighted grass fields, tile-height masks, live density/wind tuning, and GPU support status |
 | `gameplay/exploration/hex.rs` | Axial coordinates, hex layout, and neighbor geometry |
 | `gameplay/inventory.rs` | Authoritative inventory data |
 | `gameplay/world.rs` | In-game world setup and the world-ready transition |
@@ -160,9 +161,19 @@ receive movement blockers. Reachability is flood-filled from the spawn tile,
 and tiles outside that connected area carry the gameplay-only
 `UnreachableTile` marker for future systems. The markers are also highlighted
 on the exploration minimap. Tiles are tinted by biome, and tile 2 keeps its
-Skein-authored `MovementBlocker`. Procedural vegetation is intentionally not
-generated. A collision-blocked perimeter and return beacon complete this
-exploration pass; the beacon restores the town-side position captured on entry.
+Skein-authored `MovementBlocker`. Four overlapping `bevy_grass` fields cover
+the map as continuous biome-weighted vegetation rather than one field per
+hex. Their density masks use the same seeded elevation and moisture noise,
+cut out the spawn clearing and raised feature tiles, and fade across steep
+cliff edges. The grass ground mask samples the flat top elevation of each
+rendered tile; it deliberately does not use the smoothed player movement
+surface. A low-cost GPU profile starts with short reach, reduced blade rows,
+no shadows, and a capped blade budget. The F4 vegetation lab exposes live
+sliders for view distance, global and biome-specific density, blade height,
+wind, and optional near-field shadows. `GrassSupport` is shown in the panel;
+GPUs without the required compute, indirect-draw, and vertex-storage support
+will not render this GPU-driven vegetation. A collision-blocked perimeter
+and return beacon complete this exploration pass; the beacon restores the town-side position captured on entry.
 
 The TriggerZone-to-TriggerBox rename is a reflected authoring API break.
 Existing Blender files must replace the old component using the refreshed
@@ -174,8 +185,8 @@ spawn systems are implemented.
 
 The reflected `vegetation_density` field is retained as a legacy
 compatibility field because existing Blender GLB exports may still contain it.
-It is ignored by generation and has no setup control; procedural vegetation
-remains disabled. The new `max_jump_height` field defaults when absent from
+It is ignored by generation and has no setup control; vegetation density is
+controlled by the in-game vegetation lab instead. The new `max_jump_height` field defaults when absent from
 older exports, so existing exploration portals can continue to instantiate
 without an immediate GLB re-export.
 
@@ -201,7 +212,8 @@ height differences up to the configured maximum jump height are traversable;
 steeper edges are blocked. A flood fill from the spawn tile marks the other
 tiles as unreachable with an `UnreachableTile` component, which is available
 to future gameplay systems and highlighted on the minimap. The imported tile
-models retain their vertical sides. No procedural vegetation is spawned.
+models retain their vertical sides. Procedural vegetation is generated from
+continuous biome masks over the complete map rather than per-hex fields.
 While the dialog is open, UiStack owns its visibility and world simulation is
 suspended. Debug builds also show a dismissible panel on map entry with the
 resolved seed and effective generation parameters. The town scene stays loaded

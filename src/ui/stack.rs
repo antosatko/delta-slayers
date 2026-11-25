@@ -11,6 +11,7 @@ pub enum UiLayer {
     ExplorationSetup,
     GameMenu,
     Settings,
+    VegetationLab,
 }
 
 #[derive(Resource, Debug, Default)]

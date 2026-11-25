@@ -8,4 +8,5 @@ pub(super) use projection::{
     fast_travel_menu_visibility_system, game_menu_visibility_system, inventory_visibility_system,
     panel_visibility_system, pause_overlay_visibility_system, player_settings_projection,
     popup_visibility_system, settings_panel_visibility_system, sync_cursor, update_minimap,
+    vegetation_lab_projection,
 };

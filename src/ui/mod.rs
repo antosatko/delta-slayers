@@ -72,6 +72,7 @@ impl Plugin for UiPlugin {
                     systems::update_minimap,
                     systems::exploration_debug_panel_projection,
                     systems::exploration_setup_projection,
+                    systems::vegetation_lab_projection,
                     inventory::sync_inventory_view_model,
                 )
                     .chain()

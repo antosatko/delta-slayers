@@ -1,5 +1,6 @@
 use bevy::{gltf::GltfAssetLabel, prelude::*, world_serialization::WorldAsset};
 use std::time::{SystemTime, UNIX_EPOCH};
+use bevy_grass::prelude::GrassStyle;
 
 use crate::{
     app::state::AppState,
@@ -15,7 +16,7 @@ use super::terrain::terrain_surface_height;
 use super::{
     ActiveExplorationMap, ActiveMapData, ExplorationPortal, ExplorationReturnPortal,
     ExplorationSession, ExplorationTravelRequest, NearbyExplorationPortal, PortalAction,
-    TravelAnchor,
+    TravelAnchor, VegetationTuning,
 };
 
 const MAP_WORLD_OFFSET: f32 = 512.0;
@@ -63,6 +64,9 @@ pub(in crate::gameplay) fn process_travel_request(
     mut npcs: Query<&mut Transform, (With<Npc>, Without<Player>)>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    mut styles: ResMut<Assets<GrassStyle>>,
+    mut images: ResMut<Assets<Image>>,
+    tuning: Res<VegetationTuning>,
 ) {
     let Some(action) = request.0.take() else {
         return;
@@ -116,6 +120,9 @@ pub(in crate::gameplay) fn process_travel_request(
                 &tile_assets,
                 &mut meshes,
                 &mut materials,
+                &mut styles,
+                &mut images,
+                &tuning,
             );
 
             let spawn_local = hex_center(0, 2, hex_layout_radius(config));

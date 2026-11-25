@@ -4,6 +4,8 @@ use bevy::{
 };
 use std::collections::{HashMap, HashSet, VecDeque};
 
+use bevy_grass::prelude::GrassStyle;
+
 use crate::gameplay::player::MovementBlocker;
 
 use super::hex::{HEX_CORNER_COUNT, HEX_NEIGHBORS, hex_center, hex_corner, hex_layout_radius};
@@ -17,6 +19,7 @@ pub(super) struct GeneratedTile {
     pub(super) center: Vec2,
     pub(super) height: f32,
     pub(super) biome: Biome,
+    pub(super) has_feature: bool,
 }
 
 #[derive(Component)]
@@ -30,6 +33,9 @@ pub(super) fn spawn_map_geometry(
     tile_assets: &[Handle<WorldAsset>; 2],
     meshes: &mut Assets<Mesh>,
     materials: &mut Assets<StandardMaterial>,
+    styles: &mut Assets<GrassStyle>,
+    images: &mut Assets<Image>,
+    tuning: &super::VegetationTuning,
 ) {
     let tiles = generate_tiles(config, seed);
     let reachable = reachable_tiles(&tiles, (0, 2), config.max_jump_height);
@@ -44,6 +50,7 @@ pub(super) fn spawn_map_geometry(
         &reachable,
     );
     spawn_boundary_walls(commands, root, config, &tiles);
+    super::vegetation::spawn_vegetation(commands, root, config, seed, &tiles, styles, images, tuning);
 
     let return_height = terrain_surface_height(config, seed, Vec2::ZERO);
     // Keep the interaction volume independent from the beacon's visual scale.
@@ -125,12 +132,19 @@ fn generate_tiles(config: ExplorationPortal, seed: u64) -> HashMap<(i32, i32), G
         let max_r = (config.radius as i32).min(-q + config.radius as i32);
         for r in min_r..=max_r {
             let center = hex_center(q, r, layout_radius);
+            let biome = biome_at(config, seed, center);
+            let variant_roll = cell_random(seed, q, r, 0xA24B_5F31_7C91_02D7);
+            let protected_area = center.length() < config.tile_size * 2.5 || (q == 0 && r == 2);
+            let feature_chance = if biome == Biome::Highlands { 0.55 } else { 0.08 };
+            let has_feature = !protected_area && variant_roll < feature_chance;
+
             tiles.insert(
                 (q, r),
                 GeneratedTile {
                     center,
                     height: terrain_height(config, seed, center),
-                    biome: biome_at(config, seed, center),
+                    biome,
+                    has_feature,
                 },
             );
         }
@@ -194,15 +208,7 @@ fn spawn_terrain_tiles(
 
     for (&(q, r), tile) in tiles {
         let center = tile.center;
-        let variant_roll = cell_random(seed, q, r, 0xA24B_5F31_7C91_02D7);
-        let protected_area = center.length() < config.tile_size * 2.5 || (q == 0 && r == 2);
-        let feature_chance = if tile.biome == Biome::Highlands {
-            0.55
-        } else {
-            0.08
-        };
-        let use_feature_tile = !protected_area && variant_roll < feature_chance;
-        let tile_index = if use_feature_tile { 1 } else { 0 };
+        let tile_index = usize::from(tile.has_feature);
 
         let base_color = tile.biome.color();
         let shade = 0.92 + cell_random(seed, q, r, 0x51ED_270B_91A4_6C3D) * 0.14;

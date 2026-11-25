@@ -4,8 +4,10 @@ mod generation;
 mod hex;
 mod terrain;
 mod travel;
+mod vegetation;
 
 pub use generation::apply_tile_materials;
+pub(crate) use vegetation::{VegetationTuning, apply_tuning as apply_vegetation_tuning, ensure_player_interactor};
 pub(crate) use hex::{hex_center, world_to_axial};
 pub(super) use terrain::sync_ground_height;
 pub(crate) use travel::generate_seed;

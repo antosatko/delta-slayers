@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     gameplay::{
-        exploration::{ExplorationTravelRequest, NearbyExplorationPortal, PortalAction},
+        exploration::{ActiveExplorationMap, ExplorationTravelRequest, NearbyExplorationPortal, PortalAction},
         zones::NearbyZone,
     },
     ui::{
@@ -20,9 +20,25 @@ pub fn handle_ui_input(
     mut setup: ResMut<ExplorationSetupViewModel>,
     mut ui: ResMut<UiStack>,
     mut confirm_request: ResMut<PopupConfirmRequested>,
+    active_map: Res<ActiveExplorationMap>,
 ) {
     let confirm = keys.just_pressed(KeyCode::KeyE) || confirm_request.0;
     confirm_request.0 = false;
+
+    if keys.just_pressed(KeyCode::F4)
+        && active_map.0.is_some()
+        && !ui.paused()
+        && !ui.game_menu_open()
+        && !ui.exploration_setup_open()
+        && !ui.inventory_open()
+        && ui.active_panel().is_none()
+    {
+        if ui.contains(UiLayer::VegetationLab) {
+            ui.remove(UiLayer::VegetationLab);
+        } else {
+            ui.push(UiLayer::VegetationLab);
+        }
+    }
 
     if confirm
         && !ui.game_menu_open()
