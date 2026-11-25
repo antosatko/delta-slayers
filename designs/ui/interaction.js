@@ -323,6 +323,9 @@
       if (firstControl) { event.preventDefault(); firstControl.focus(); }
     });
     trigger.addEventListener("click", event => {
+      // Item cards are hover/focus references only. Leave clicks to the item's
+      // actual action (equip, use, trade, select, etc.) instead of pinning this card.
+      if (trigger.hasAttribute("data-item-inspect")) return;
       if (activeState === state && !card.hidden && state.pinned) {
         closeState(state, false, true);
         return;
