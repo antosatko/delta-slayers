@@ -23,6 +23,9 @@ pub(crate) struct GameplayCamera {
     pub(crate) distance: f32,
     /// World-space translation applied to the camera and its look target.
     pub(crate) pan_offset: Vec3,
+    /// Player position from the previous follow update, used to keep an
+    /// unlocked camera fixed in world space.
+    pub(crate) last_player_position: Option<Vec3>,
 }
 
 pub(in crate::gameplay) fn adjust_camera(
@@ -93,6 +96,20 @@ pub(in crate::gameplay) fn camera_pitch_after_scroll(
     (pitch + scroll * sensitivity).clamp(CAMERA_MIN_PITCH, CAMERA_MAX_PITCH)
 }
 
+fn camera_pan_offset_after_player_movement(
+    offset: Vec3,
+    player_delta: Vec3,
+    auto_lock: bool,
+) -> Vec3 {
+    if player_delta == Vec3::ZERO {
+        offset
+    } else if auto_lock {
+        Vec3::ZERO
+    } else {
+        offset - player_delta
+    }
+}
+
 fn horizontal_camera_axis(axis: Vec3) -> Vec3 {
     Vec3::new(axis.x, 0.0, axis.z).normalize_or_zero()
 }
@@ -135,7 +152,8 @@ pub(in crate::gameplay) fn follow_camera_rotation(player_yaw: f32, pitch: f32) -
 }
 
 /// Keeps the camera following the player while preserving a world-space pan
-/// offset. Panning translates the camera and focus together without rotation.
+/// offset. With auto-lock disabled, player displacement is cancelled from the
+/// offset so the camera remains stationary in world space.
 pub(in crate::gameplay) fn follow_camera(
     player: Query<(&Transform, &Player)>,
     mut camera: Query<
@@ -151,6 +169,17 @@ pub(in crate::gameplay) fn follow_camera(
         return;
     };
 
+    let player_position = player_transform.translation;
+    if let Some(previous_position) = camera_settings.last_player_position {
+        let player_delta = player_position - previous_position;
+        camera_settings.pan_offset = camera_pan_offset_after_player_movement(
+            camera_settings.pan_offset,
+            player_delta,
+            settings.camera_auto_lock,
+        );
+    }
+    camera_settings.last_player_position = Some(player_position);
+
     camera_settings.distance = camera_settings
         .distance
         .clamp(CAMERA_MIN_DISTANCE, CAMERA_MAX_DISTANCE);
@@ -160,4 +189,33 @@ pub(in crate::gameplay) fn follow_camera(
     let forward = orientation * Vec3::NEG_Z;
     camera_transform.translation = target - forward * camera_settings.distance;
     camera_transform.look_at(target, Vec3::Y);
+}
+
+
+#[cfg(test)]
+mod free_camera_tests {
+    use super::*;
+
+    #[test]
+    fn unlocked_camera_anchor_stays_fixed_when_player_moves() {
+        let player_start = Vec3::new(4.0, 2.0, 7.0);
+        let offset = Vec3::new(12.0, 3.0, -5.0);
+        let player_delta = Vec3::new(2.5, 0.75, -1.25);
+        let camera_anchor = player_start + offset;
+
+        let next_offset =
+            camera_pan_offset_after_player_movement(offset, player_delta, false);
+        let next_anchor = player_start + player_delta + next_offset;
+
+        assert!(next_anchor.abs_diff_eq(camera_anchor, 1e-6));
+    }
+
+    #[test]
+    fn auto_lock_clears_camera_offset_after_player_moves() {
+        let offset = Vec3::new(12.0, 3.0, -5.0);
+        let next_offset =
+            camera_pan_offset_after_player_movement(offset, Vec3::X, true);
+
+        assert_eq!(next_offset, Vec3::ZERO);
+    }
 }
