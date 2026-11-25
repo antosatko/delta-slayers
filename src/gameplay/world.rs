@@ -12,6 +12,7 @@ use crate::{
         player::{self, GameplayCamera, Player, PlayerVisual},
         spawning::WorldStartup,
         zones::{FastTravelRequest, NearbyZone, VisitedZones},
+        exploration::{ActiveExplorationMap, ExplorationSession, ExplorationTravelRequest, NearbyExplorationPortal},
     },
     ui::stack::UiStack,
 };
@@ -21,6 +22,10 @@ pub(super) fn setup_game(
     start_mode: Res<super::GameStartMode>,
     mut nearby: ResMut<NearbyZone>,
     mut request: ResMut<FastTravelRequest>,
+    mut nearby_portal: ResMut<NearbyExplorationPortal>,
+    mut travel_request: ResMut<ExplorationTravelRequest>,
+    mut active_map: ResMut<ActiveExplorationMap>,
+    mut exploration_session: ResMut<ExplorationSession>,
     mut visited: ResMut<VisitedZones>,
     mut ui_state: ResMut<UiStack>,
     asset_server: Res<AssetServer>,
@@ -33,6 +38,10 @@ pub(super) fn setup_game(
     movement_target.clear();
     ui_state.reset();
     request.0 = None;
+    nearby_portal.0 = None;
+    travel_request.0 = None;
+    active_map.0 = None;
+    exploration_session.0 = None;
 
     let loaded_game = match *start_mode {
         super::GameStartMode::QuickLoad => load_game(),
