@@ -25,6 +25,7 @@ Current features:
 - Moving sprites with subtle squash-and-stretch animation
 - 2D billboard entities that face the camera
 - Oriented Blender-authored trigger boxes for Shop and Guild interactions
+- Seeded procedural hex exploration maps with biome regions, terrain height, and a return portal
 - Inventory overlay with equipment, item artwork, resources, and fast-travel choices
 - Player-oriented minimap
 - Save/load of player position, camera orientation, and visited zones
@@ -53,7 +54,7 @@ loaded from `assets/worlds/town-map.glb` during the Loading state. This local
 GLB is required; the game no longer creates a procedural test world.
 
 See [assets/worlds/README.md](assets/worlds/README.md) for the component
-reference, spawn-point rules, and export workflow.
+reference, spawn-point rules, exploration portal parameters, and export workflow.
 
 ## Reusable UI library
 
@@ -88,7 +89,7 @@ frequent breaking changes. **Project abandonment is very likely.**
 - `Shift` — sprint
 - Mouse wheel — adjust camera distance and pitch
 - Right click — open inventory or close the topmost overlay
-- `E` — interact with a nearby zone
+- `E` — interact with a nearby zone or enter/leave an exploration map
 - `P` — pause
 - `Esc` — open the in-game menu, or close the topmost overlay
 - `Backspace` — close the topmost overlay, or save and return to the main menu
