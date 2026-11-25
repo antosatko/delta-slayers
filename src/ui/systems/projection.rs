@@ -147,7 +147,7 @@ pub fn update_minimap(
         };
 
         let relative = *position - player_position;
-        let (x, y) = minimap_position(relative, player_transform.forward());
+        let (x, y) = minimap_position(relative, *player_transform.forward());
 
         if !(0.0..=114.0).contains(&x) || !(0.0..=114.0).contains(&y) {
             *visibility = Visibility::Hidden;
@@ -164,8 +164,8 @@ pub fn update_minimap(
 ///
 /// The player's horizontal forward direction always points toward the top
 /// edge of the map; the right vector defines its horizontal axis.
-fn minimap_position(relative: Vec3, player_forward: Dir3) -> (f32, f32) {
-    let mut forward = Vec3::from(player_forward);
+fn minimap_position(relative: Vec3, player_forward: Vec3) -> (f32, f32) {
+    let mut forward = player_forward;
     forward.y = 0.0;
     if forward.length_squared() < 1e-6 {
         forward = Vec3::NEG_Z;
@@ -185,8 +185,8 @@ mod minimap_tests {
 
     #[test]
     fn forward_is_always_at_the_top_of_the_minimap() {
-        let north_facing = Dir3::new(Vec3::NEG_Z).expect("valid direction");
-        let east_facing = Dir3::new(Vec3::X).expect("valid direction");
+        let north_facing = Vec3::NEG_Z;
+        let east_facing = Vec3::X;
 
         let north = minimap_position(Vec3::NEG_Z * 10.0, north_facing);
         let east = minimap_position(Vec3::X * 10.0, east_facing);
