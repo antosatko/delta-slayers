@@ -14,9 +14,9 @@ using subtle tinted surfaces rather than bright fills.
 
 Panels rely on spacing, tonal surfaces, and soft elevation instead of decorative
 outlines. Item tiles are square and artwork-first, with the item name and an
-optional quantity overlaid at the bottom. Screen headers contain a title and a
-hoverable help affordance; screens with multiple views can place a tab row
-directly underneath.
+optional quantity overlaid at the bottom. Use a hoverable help affordance only where contextual guidance adds useful
+information; simple screens use a plain title. Screens with multiple views can
+place a tab row directly underneath.
 
 ## Setup
 
@@ -63,8 +63,8 @@ bsn! {
 - CarbonTheme and CarbonPlugin provide the shared palette and interaction
   behaviour.
 - root and panel provide full-window and raised-surface layout.
-- page_header, screen_tabs, and screen_tab provide title, contextual help,
-  and optional second-row screen navigation. Each tab carries a CarbonTab
+- page_title and page_header provide plain titles or titles with contextual help;
+  screen_tabs and screen_tab provide optional second-row screen navigation. Each tab carries a CarbonTab
   component; update its selected field to project active-tab styling.
 - section_header, action_button, badge, eyebrow_text, muted_text, and
   key_hint provide common hierarchy, helper copy, and keyboard affordances.
