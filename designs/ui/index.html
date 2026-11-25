@@ -13,9 +13,35 @@
     <header class="gallery-header">
       <p class="eyebrow">Delta Slayers · Interface prototype</p>
       <h1>Field Folio</h1>
-      <p>Seven connected in-game screens with a live palette switcher. Compare neutral surfaces, accent colors, and semantic states in real layouts; your selection carries across every screen.</p>
+      <p>Six palettes with distinct neutral bases and contrasting accent families. Compare them in real screens, then keep the same choice as you move through the prototype.</p>
     </header>
-    <div class="gallery-toolbar"><span class="gallery-note">Color study</span><label class="palette-control"><span class="palette-label">Palette</span><select class="palette-select" data-palette-select aria-label="Prototype color palette"><option value="slate">Slate / Ice</option><option value="carbon">Carbon / Blue</option><option value="indigo">Midnight / Indigo</option><option value="jade">Pine / Jade</option><option value="ocean">Ocean / Teal</option><option value="copper">Cinder / Copper</option><option value="plum">Plum / Lilac</option></select></label><p>Choose a palette, then open any screen. Your choice stays active as you move between pages.</p></div>
+    <div class="gallery-toolbar"><span class="gallery-note">Palette study</span><label class="palette-control"><span class="palette-label">Palette</span><select class="palette-select" data-palette-select aria-label="Prototype color palette"><option value="carbon">Carbon & Azure</option><option value="harbor">Harbor & Coral</option><option value="citrine">Aubergine & Saffron</option><option value="moss">Moss & Orchid</option><option value="cobalt">Cobalt & Tangerine</option><option value="night-market">Night Market</option></select></label><p>Choose a palette below or use the selector on any screen.</p></div>
+    <div class="palette-gallery" role="group" aria-label="Choose a color palette">
+  <button class="palette-option" type="button" data-palette-choice="carbon" aria-pressed="true">
+    <span class="palette-option-swatches" aria-hidden="true"><i style="--swatch:#16191e"></i><i style="--swatch:#77b7ff"></i><i style="--swatch:#d4a7ff"></i><i style="--swatch:#69d7d0"></i><i style="--swatch:#6ad9a3"></i></span>
+    <span class="palette-option-copy"><strong>Carbon & Azure</strong><small>Graphite, azure, lavender and sea-glass</small></span>
+  </button>
+  <button class="palette-option" type="button" data-palette-choice="harbor" aria-pressed="false">
+    <span class="palette-option-swatches" aria-hidden="true"><i style="--swatch:#111d25"></i><i style="--swatch:#ff8c69"></i><i style="--swatch:#79d7ca"></i><i style="--swatch:#e7c46c"></i><i style="--swatch:#7bd6aa"></i></span>
+    <span class="palette-option-copy"><strong>Harbor & Coral</strong><small>Blue-green slate, coral, seafoam and brass</small></span>
+  </button>
+  <button class="palette-option" type="button" data-palette-choice="citrine" aria-pressed="false">
+    <span class="palette-option-swatches" aria-hidden="true"><i style="--swatch:#1c1823"></i><i style="--swatch:#e5c66a"></i><i style="--swatch:#70c9d6"></i><i style="--swatch:#d88bb9"></i><i style="--swatch:#8ccf9c"></i></span>
+    <span class="palette-option-copy"><strong>Aubergine & Saffron</strong><small>Plum-charcoal, saffron, cyan and rose</small></span>
+  </button>
+  <button class="palette-option" type="button" data-palette-choice="moss" aria-pressed="false">
+    <span class="palette-option-swatches" aria-hidden="true"><i style="--swatch:#1b211e"></i><i style="--swatch:#c3a6ee"></i><i style="--swatch:#e1bd76"></i><i style="--swatch:#78c8c1"></i><i style="--swatch:#9ccf8c"></i></span>
+    <span class="palette-option-copy"><strong>Moss & Orchid</strong><small>Olive charcoal, orchid, brass and turquoise</small></span>
+  </button>
+  <button class="palette-option" type="button" data-palette-choice="cobalt" aria-pressed="false">
+    <span class="palette-option-swatches" aria-hidden="true"><i style="--swatch:#141d2b"></i><i style="--swatch:#ff9e5b"></i><i style="--swatch:#78b8ff"></i><i style="--swatch:#c8a2ef"></i><i style="--swatch:#78d6ad"></i></span>
+    <span class="palette-option-copy"><strong>Cobalt & Tangerine</strong><small>Midnight blue, tangerine, sky and lilac</small></span>
+  </button>
+  <button class="palette-option" type="button" data-palette-choice="night-market" aria-pressed="false">
+    <span class="palette-option-swatches" aria-hidden="true"><i style="--swatch:#1b1825"></i><i style="--swatch:#ed83c4"></i><i style="--swatch:#72d9e6"></i><i style="--swatch:#c3e56b"></i><i style="--swatch:#80d7a5"></i></span>
+    <span class="palette-option-copy"><strong>Night Market</strong><small>Inky plum, fuchsia, turquoise and citron</small></span>
+  </button>
+</div>
     <nav class="screen-grid" aria-label="Prototype screens">
       <a class="screen-card" href="screens/contract.html"><div><span>01 · READING</span><h2>Contract details</h2><p>Long-form text, inline references, objectives, and a compact summary column.</p></div><strong>Open screen →</strong></a>
       <a class="screen-card" href="screens/inventory.html"><div><span>02 · GRID</span><h2>Inventory</h2><p>Item grid, category filters, search, and a persistent selection panel.</p></div><strong>Open screen →</strong></a>
