@@ -29,7 +29,8 @@ use crate::{
             ExplorationDebugInfoText, ExplorationDebugPanelRoot, ExplorationDebugPanelState,
             ExplorationParameterControl, ExplorationSetupRoot, ExplorationSetupTileCountText,
             ExplorationSetupViewModel, FastTravelButton, FastTravelMenu, GameMenuModal,
-            MinimapZoneDot, PanelRoot, PauseOverlay, PopupConfirmRequested, PopupRoot,
+            MinimapExplorationDot, MinimapZoneDot, PanelRoot, PauseOverlay, PopupConfirmRequested,
+            PopupRoot,
         },
         inventory::{CurrencyLabel, InventoryRoot},
         stack::{UiLayer, UiStack},
@@ -341,7 +342,7 @@ fn exploration_setup_panel() -> impl Scene {
                             --
                             @exploration_float_control(
                                 "Tile radius (m)",
-                                "Rendered tile radius; adjacent tiles intentionally overlap",
+                                "Rendered tile radius; centers use regular hex spacing",
                                 ExplorationParameterControl::TileSize,
                                 defaults.tile_size,
                                 4.0,
@@ -357,6 +358,17 @@ fn exploration_setup_panel() -> impl Scene {
                                 defaults.height_multiplier,
                                 0.0,
                                 5.0,
+                                0.1,
+                                2
+                            )
+                            --
+                            @exploration_float_control(
+                                "Maximum jump height (m)",
+                                "Largest elevation difference the player can jump between adjacent tiles",
+                                ExplorationParameterControl::MaxJumpHeight,
+                                defaults.max_jump_height,
+                                0.25,
+                                3.5,
                                 0.1,
                                 2
                             )
@@ -382,17 +394,7 @@ fn exploration_setup_panel() -> impl Scene {
                                 0.001,
                                 3
                             )
-                            --
-                            @exploration_float_control(
-                                "Vegetation density (%)",
-                                "Tree density in woodland tiles",
-                                ExplorationParameterControl::VegetationDensity,
-                                defaults.vegetation_density * 100.0,
-                                0.0,
-                                80.0,
-                                1.0,
-                                0
-                            )
+
                             --
                             Text("Estimated map size")
                             template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().ink)))
@@ -592,8 +594,8 @@ fn exploration_float_value_changed(
         ExplorationParameterControl::BiomeScale => {
             draft.config.biome_scale = event.value.clamp(0.006, 0.12);
         }
-        ExplorationParameterControl::VegetationDensity => {
-            draft.config.vegetation_density = event.value.clamp(0.0, 80.0) / 100.0;
+        ExplorationParameterControl::MaxJumpHeight => {
+            draft.config.max_jump_height = event.value.clamp(0.25, 3.5);
         }
         _ => return,
     }
@@ -628,6 +630,8 @@ fn minimap() -> impl Scene {
             }
             template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().surface_deep)))
             Children [
+                @minimap_exploration_tiles()
+                --
                 Node {
                     position_type: PositionType::Absolute,
                     left: px(56),
@@ -643,6 +647,109 @@ fn minimap() -> impl Scene {
                 @minimap_zone_dot(ZoneKind::Guild)
             ]
         ]
+    }
+}
+
+
+fn minimap_exploration_tiles() -> impl Scene {
+    bsn! {
+        Node {
+            position_type: PositionType::Absolute,
+            left: px(0),
+            top: px(0),
+            width: px(120),
+            height: px(120),
+        }
+        Children [
+                @minimap_exploration_dot(-3, 0)
+                --
+                @minimap_exploration_dot(-3, 1)
+                --
+                @minimap_exploration_dot(-3, 2)
+                --
+                @minimap_exploration_dot(-3, 3)
+                --
+                @minimap_exploration_dot(-2, -1)
+                --
+                @minimap_exploration_dot(-2, 0)
+                --
+                @minimap_exploration_dot(-2, 1)
+                --
+                @minimap_exploration_dot(-2, 2)
+                --
+                @minimap_exploration_dot(-2, 3)
+                --
+                @minimap_exploration_dot(-1, -2)
+                --
+                @minimap_exploration_dot(-1, -1)
+                --
+                @minimap_exploration_dot(-1, 0)
+                --
+                @minimap_exploration_dot(-1, 1)
+                --
+                @minimap_exploration_dot(-1, 2)
+                --
+                @minimap_exploration_dot(-1, 3)
+                --
+                @minimap_exploration_dot(0, -3)
+                --
+                @minimap_exploration_dot(0, -2)
+                --
+                @minimap_exploration_dot(0, -1)
+                --
+                @minimap_exploration_dot(0, 0)
+                --
+                @minimap_exploration_dot(0, 1)
+                --
+                @minimap_exploration_dot(0, 2)
+                --
+                @minimap_exploration_dot(0, 3)
+                --
+                @minimap_exploration_dot(1, -3)
+                --
+                @minimap_exploration_dot(1, -2)
+                --
+                @minimap_exploration_dot(1, -1)
+                --
+                @minimap_exploration_dot(1, 0)
+                --
+                @minimap_exploration_dot(1, 1)
+                --
+                @minimap_exploration_dot(1, 2)
+                --
+                @minimap_exploration_dot(2, -3)
+                --
+                @minimap_exploration_dot(2, -2)
+                --
+                @minimap_exploration_dot(2, -1)
+                --
+                @minimap_exploration_dot(2, 0)
+                --
+                @minimap_exploration_dot(2, 1)
+                --
+                @minimap_exploration_dot(3, -3)
+                --
+                @minimap_exploration_dot(3, -2)
+                --
+                @minimap_exploration_dot(3, -1)
+                --
+                @minimap_exploration_dot(3, 0)
+        ]
+    }
+}
+
+fn minimap_exploration_dot(q_offset: i32, r_offset: i32) -> impl Scene {
+    bsn! {
+        Node {
+            position_type: PositionType::Absolute,
+            left: px(0),
+            top: px(0),
+            width: px(6),
+            height: px(6),
+            border_radius: BorderRadius::all(px(3)),
+        }
+        MinimapExplorationDot::new(q_offset, r_offset)
+        Visibility::Hidden
     }
 }
 
