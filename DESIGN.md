@@ -149,9 +149,9 @@ Current layers:
 - Inventory
 - GameMenu (independent overlay, also accessible while inventory is open)
 
-Cursor capture preference is stored alongside navigation state. The effective
-cursor mode is derived from whether the stack is empty and whether the player
-requested capture. UI observers must not directly change CursorOptions.
+The gameplay cursor is always visible and ungrabbed. Opening an overlay
+suspends gameplay input without changing cursor mode; UI projection keeps the
+pointer available for interacting with overlay controls.
 
 System ordering is explicit:
 
