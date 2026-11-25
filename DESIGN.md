@@ -27,7 +27,7 @@ Within those areas:
 | --- | --- |
 | `app/mod.rs` | Application startup and plugin composition |
 | `app/state.rs` | Top-level application states, including the Loading transition |
-| `gameplay/player.rs` | Player ground position, movement, look, follow camera, and visual synchronization |
+| `gameplay/player.rs` | Player ground position, collision-aware movement, look, follow camera, and visual synchronization |
 | `gameplay/spawning.rs` | Reflected spawn-point authoring types and initial player spawn selection |
 | `gameplay/zones.rs` | Zone types, proximity detection, visited-zone data, and travel requests |
 | `gameplay/inventory.rs` | Authoritative inventory data |
@@ -71,6 +71,10 @@ Current authored components:
 - `TriggerBox`: interaction category and oriented box volume. The component
   belongs on a default Blender cube; its full world transform defines the
   bounds, with the default cube's local extents of -1 to 1 on each axis.
+- `MovementBlocker`: invisible oriented box that blocks the player's
+  horizontal movement. Attach it to a Blender Empty; its transform defines a
+  box with local extents of -1 to 1. Blockers are upright and may rotate around
+  the vertical Y axis.
 - `SpawnPoint`: spawn role and priority. The highest-priority Player point
   supplies the player's ground position and initial horizontal heading; saved
   player positions take precedence.
