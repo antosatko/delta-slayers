@@ -235,10 +235,7 @@ pub(super) fn move_player_to_target(
     transform.translation += offset / distance * step;
 }
 
-fn keyboard_movement_direction(
-    input: &ButtonInput<KeyCode>,
-    camera_forward: Vec3,
-) -> Option<Vec3> {
+fn keyboard_movement_direction(input: &ButtonInput<KeyCode>, camera_forward: Vec3) -> Option<Vec3> {
     let left = input.pressed(KeyCode::KeyA) || input.pressed(KeyCode::ArrowLeft);
     let right = input.pressed(KeyCode::KeyD) || input.pressed(KeyCode::ArrowRight);
     let forward = input.pressed(KeyCode::KeyW) || input.pressed(KeyCode::ArrowUp);

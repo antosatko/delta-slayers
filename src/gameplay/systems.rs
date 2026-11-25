@@ -73,8 +73,7 @@ pub(super) fn return_to_menu(
     }
 
     if let Ok((transform, player)) = player_query.single() {
-        if let Err(error) = save_game(transform.translation, player.yaw, player.pitch, &visited.0)
-        {
+        if let Err(error) = save_game(transform.translation, player.yaw, player.pitch, &visited.0) {
             warn!("Could not save the current game: {error}");
         }
     }

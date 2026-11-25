@@ -23,7 +23,7 @@ pub struct Billboard;
 pub struct SquashOnMove;
 
 #[derive(Component)]
-struct SquashState {
+pub struct SquashState {
     previous_position: Vec3,
     base_scale: Vec3,
     phase: f32,
