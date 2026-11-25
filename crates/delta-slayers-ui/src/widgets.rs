@@ -436,6 +436,31 @@ pub fn equipment_slot(icon: CarbonIcon) -> impl Scene {
     }
 }
 
+/// A labelled square gear slot for character equipment layouts.
+pub fn gear_slot(label: &'static str, icon: CarbonIcon) -> impl Scene {
+    bsn! {
+        Node {
+            width: px(62),
+            height: px(62),
+            min_width: px(62),
+            min_height: px(62),
+            flex_shrink: 0.0,
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+            row_gap: px(3),
+            border_radius: BorderRadius::all(px(7)),
+        }
+        template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().panel_alt)))
+        Children [
+            @glyph(icon, 20.0, GlyphTone::Muted)
+            --
+            Text(label)
+            TextFont { font_size: px(9) }
+            template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().muted)))
+        ]
+    }
+}
+
 /// Small semantic label with a restrained tinted surface and no outline.
 pub fn badge(label: &'static str, status: CarbonStatus) -> impl Scene {
     bsn! {
