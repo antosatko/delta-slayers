@@ -4,8 +4,6 @@ use bevy::{
     ui::RelativeCursorPosition,
 };
 
-use crate::ui::stack::UiStack;
-
 use super::{Player, PlayerSettings};
 
 pub const CAMERA_DISTANCE: f32 = 18.0;
@@ -74,7 +72,11 @@ pub(in crate::gameplay) fn adjust_camera(
     }
 
     if let Ok(mut player) = player.single_mut() {
-        player.pitch = camera_pitch_after_scroll(player.pitch, scroll, settings.camera_pitch_sensitivity);
+        player.pitch = camera_pitch_after_scroll(
+            player.pitch,
+            scroll,
+            settings.camera_pitch_sensitivity,
+        );
     }
     if let Ok(mut camera) = camera.single_mut() {
         camera.distance = camera_distance_after_scroll(camera.distance, scroll, settings.camera_zoom_sensitivity, settings.camera_min_distance, settings.camera_max_distance);
@@ -101,7 +103,13 @@ pub(in crate::gameplay) fn camera_pan_offset_after_drag(
         + horizontal_camera_axis(camera_up) * delta.y * scale
 }
 
-pub(in crate::gameplay) fn camera_distance_after_scroll(distance: f32, scroll: f32, sensitivity: f32, min: f32, max: f32) -> f32 {
+pub(in crate::gameplay) fn camera_distance_after_scroll(
+    distance: f32,
+    scroll: f32,
+    sensitivity: f32,
+    min: f32,
+    max: f32,
+) -> f32 {
     (distance - scroll * sensitivity).clamp(min, max)
 }
 
