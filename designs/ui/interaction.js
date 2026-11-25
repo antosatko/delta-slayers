@@ -63,6 +63,133 @@
       factsTitle: "Historical record", facts: [["Date", "Inscription incomplete"], ["Cause", "Not established"], ["Recorded impact", "Crop failure"]],
       related: ["guild", "tithe"]
     }
+  const entries = {
+    "brine-wight": {
+      title: "Brine-wight", category: "Local folklore · Unconfirmed", icon: "spectre",
+      description: [
+        [{ text: "A coastal name for something believed to return from the water. In Greybridge, accounts disagree about whether it describes a " }, { ref: "wight", label: "wight" }, { text: ", a condition of the " }, { ref: "west-watercourse", label: "watercourse" }, { text: ", or an old debt given a shape." }],
+        [{ text: "The name appears in two apprentice statements. Neither account is detailed enough to establish what was encountered." }]
+      ],
+      factsTitle: "Field record", facts: [["Reports", "2"], ["Classification", "Disputed"], ["Threat", "Unknown"]],
+      related: ["wight", "brine", "west-watercourse"]
+    },
+    "tithe": {
+      title: "Tithe", category: "Guild custom · Payment", icon: "ledger",
+      description: [
+        [{ text: "A portion of a harvest or income paid to an institution or authority. The amount and form depend on the local agreement." }],
+        [{ text: "In Greybridge, the " }, { ref: "guild", label: "guild" }, { text: " collected its tithe in grain. The old records become unclear around the " }, { ref: "famine-winter", label: "famine winter" }, { text: "." }]
+      ],
+      factsTitle: "Local record", facts: [["Usual payment", "Harvest goods"], ["Recorded form", "Grain"], ["Rate", "Not recorded"]],
+      related: ["guild", "famine-winter"]
+    },
+    "wight": {
+      title: "Wight", category: "Bestiary term · Classification", icon: "spectre",
+      description: [
+        [{ text: "A term used for a person or creature believed to persist after death. It describes a broad category, not a reliable account of a particular being." }],
+        [{ text: "The word alone does not establish whether a " }, { ref: "brine-wight", label: "brine-wight" }, { text: " is undead, or even whether it is a creature." }]
+      ],
+      factsTitle: "Known properties", facts: [["Origin", "Death or burial rites"], ["Behaviour", "Varies by account"], ["Weakness", "Not established"]],
+      related: ["brine", "brine-wight"]
+    },
+    "brine": {
+      title: "Brine", category: "Material · Water", icon: "water",
+      description: [
+        [{ text: "Water containing a high concentration of dissolved salt. In coastal records, the word is also used for the pools left behind by a receding tide." }],
+        [{ text: "The old " }, { ref: "west-watercourse", label: "watercourse" }, { text: " is fresh on most maps, though the miller's notes mention a taste of salt." }]
+      ],
+      factsTitle: "Reference", facts: [["Composition", "Salt water"], ["Common source", "Coastal pools"], ["Mill sample", "Not collected"]],
+      related: ["west-watercourse", "brine-wight"]
+    },
+    "west-watercourse": {
+      title: "West watercourse", category: "Location · Greybridge", icon: "water",
+      description: [
+        [{ text: "An older channel that runs beneath the west foundation of the mill. It predates the current stonework and is no longer shown on the public village plan." }],
+        [{ text: "The miller's reference to " }, { ref: "brine", label: "brine" }, { text: " has not been confirmed by a sample or inspection." }]
+      ],
+      factsTitle: "Survey notes", facts: [["Known entrance", "Not established"], ["Last inspection", "Unknown"], ["Current flow", "Unsurveyed"]],
+      related: ["brine", "brine-wight"]
+    },
+    "guild": {
+      title: "Greybridge Guild", category: "Institution · Local chapter", icon: "guild",
+      description: [
+        [{ text: "The local chapter handles contracts, arbitration, and records for the surrounding settlements. Its authority comes from a series of agreements with the villages, not from a single charter." }],
+        [{ text: "Its collection of the " }, { ref: "tithe", label: "tithe" }, { text: " was altered after the " }, { ref: "famine-winter", label: "famine winter" }, { text: ", though the surviving ledger is incomplete." }]
+      ],
+      factsTitle: "Chapter record", facts: [["Office", "North road, Greybridge"], ["Current clerk", "Mara Venn"], ["Ledger status", "Incomplete"]],
+      related: ["tithe", "famine-winter"]
+    },
+    "famine-winter": {
+      title: "The famine winter", category: "Historical event · Greybridge", icon: "harvest",
+      description: [
+        [{ text: "The name given to a season of crop failure and food shortage remembered in the older village records. The surviving accounts disagree about its exact duration." }],
+        [{ text: "The mill bell bears a date associated with this period. The inscription may connect the miller's ledger to the changes in the " }, { ref: "tithe", label: "guild tithe" }, { text: "." }]
+      ],
+      factsTitle: "Historical record", facts: [["Date", "Inscription incomplete"], ["Cause", "Not established"], ["Recorded impact", "Crop failure"]],
+      related: ["guild", "tithe"]
+    },
+    "screen-help-inventory": {
+      title: "Using the inventory", category: "Screen guide", icon: "item",
+      description: [
+        [{ text: "The inventory groups everything carried by the party. Select an item to open its detail panel and review its condition, value, and other properties." }],
+        [{ text: "Use the category filters or search field to narrow the grid. A number on an item tile is the quantity currently carried." }]
+      ],
+      factsTitle: "Inventory controls", facts: [["Filters", "Equipment, consumables, and materials"], ["Search", "Matches item names"], ["Selection", "Opens item details"]],
+      related: []
+    },
+    "screen-help-character": {
+      title: "Character record", category: "Screen guide", icon: "guild",
+      description: [
+        [{ text: "This page brings together the character's current condition, core statistics, proficiencies, resistances, and equipment." }],
+        [{ text: "Use the tabs to switch between attributes, skills, and resistances. Item tiles provide additional information when hovered or focused." }]
+      ],
+      factsTitle: "Character sections", facts: [["Attributes", "Core values"], ["Skills", "Proficiency levels"], ["Resistances", "Defence against damage and effects"]],
+      related: []
+    },
+    "screen-help-contract": {
+      title: "Contract overview", category: "Screen guide", icon: "ledger",
+      description: [
+        [{ text: "The contract describes the assignment, its known circumstances, and the expected payment." }],
+        [{ text: "Use the objective checklist to track completed steps. The checklist is local to this prototype and does not change the contract text." }]
+      ],
+      factsTitle: "Contract contents", facts: [["Brief", "Known details and background"], ["Objectives", "Track investigation steps"], ["Payment", "Expected reward"]],
+      related: []
+    },
+    "screen-help-journal": {
+      title: "Journal records", category: "Screen guide", icon: "ledger",
+      description: [
+        [{ text: "The journal collects contracts, clues, and other records gathered during the party's work." }],
+        [{ text: "Filter the list by record type, then select an entry to read its details and related objectives." }]
+      ],
+      factsTitle: "Journal controls", facts: [["Filters", "All records, contracts, or clues"], ["Selection", "Opens the record"], ["Status", "Shows the current progress"]],
+      related: []
+    },
+    "screen-help-map": {
+      title: "Reading the map", category: "Screen guide", icon: "water",
+      description: [
+        [{ text: "The map shows known roads, landmarks, and places around Greybridge. Markers identify locations with a record available." }],
+        [{ text: "Select a marker to reveal its description and current status in the location panel." }]
+      ],
+      factsTitle: "Map controls", facts: [["Markers", "Select to inspect a location"], ["North", "Up on the map"], ["Coverage", "Known locations only"]],
+      related: []
+    },
+    "screen-help-trade": {
+      title: "Trading with the provisioner", category: "Screen guide", icon: "ledger",
+      description: [
+        [{ text: "Switch between buying supplies and selling carried goods using the tabs below the screen title." }],
+        [{ text: "Add items from the market to the transaction basket. Review the quantities and total before confirming; sale offers are estimates and may be refused." }]
+      ],
+      factsTitle: "Trading pages", facts: [["Buy supplies", "Add market stock to the basket"], ["Sell goods", "Offer carried items"], ["Transaction", "Review the basket and total"]],
+      related: []
+    },
+    "screen-help-workshop": {
+      title: "Workshop and recipes", category: "Screen guide", icon: "item",
+      description: [
+        [{ text: "The resource strip shows the materials currently available to the workshop." }],
+        [{ text: "Select a known recipe to review its ingredients and requirements before starting the craft." }]
+      ],
+      factsTitle: "Workshop contents", facts: [["Materials", "Current available quantities"], ["Recipes", "Known craftable preparations"], ["Recipe details", "Ingredients and requirements"]],
+      related: []
+    }
   };
 
   const iconPaths = {
@@ -323,9 +450,9 @@
       if (firstControl) { event.preventDefault(); firstControl.focus(); }
     });
     trigger.addEventListener("click", event => {
-      // Item cards are hover/focus references only. Leave clicks to the item's
-      // actual action (equip, use, trade, select, etc.) instead of pinning this card.
-      if (trigger.hasAttribute("data-item-inspect")) return;
+      // Item cards and screen-help icons are hover/focus references only.
+      // Keep clicks available for the control's primary action.
+      if (trigger.hasAttribute("data-item-inspect") || trigger.hasAttribute("data-hover-only")) return;
       if (activeState === state && !card.hidden && state.pinned) {
         closeState(state, false, true);
         return;
