@@ -1,5 +1,5 @@
 mod billboard;
-mod exploration;
+pub(crate) mod exploration;
 mod npc;
 mod persistence;
 mod spawning;
@@ -99,6 +99,7 @@ impl Plugin for GameplayPlugin {
                 Update,
                 exploration::process_travel_request
                     .after(exploration::detect_portal)
+                    .after(systems::fast_travel)
                     .after(UiSet::Input)
                     .run_if(gameplay_simulation_enabled)
                     .run_if(in_state(AppState::InGame)),
@@ -107,6 +108,7 @@ impl Plugin for GameplayPlugin {
                 Update,
                 systems::return_to_menu
                     .run_if(in_state(AppState::InGame))
+                    .after(exploration::process_travel_request)
                     .after(UiSet::Input),
             );
     }
