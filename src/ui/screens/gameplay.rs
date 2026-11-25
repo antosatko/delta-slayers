@@ -26,7 +26,8 @@ use crate::{
     },
     ui::{
         components::{
-            ExplorationDebugInfoText, ExplorationDebugPanelRoot, ExplorationDebugPanelState,
+            DeveloperSettingsContentRoot, DeveloperSettingsPanelState, ExplorationDebugInfoText,
+            ExplorationDebugPanelRoot, ExplorationDebugPanelState, PlayerSettingControl, SettingsPanelRoot,
             ExplorationParameterControl, ExplorationSetupRoot, ExplorationSetupTileCountText,
             ExplorationSetupViewModel, FastTravelButton, FastTravelMenu, GameMenuModal,
             MinimapExplorationDot, MinimapZoneDot, PanelRoot, PauseOverlay, PopupConfirmRequested,
@@ -62,6 +63,8 @@ pub(in crate::ui) fn scene() -> impl SceneList {
         @exploration_setup_panel()
         --
         @inventory_scene()
+        --
+        @player_settings_panel()
         --
         @game_menu_modal()
         --
@@ -1002,6 +1005,103 @@ fn inventory_items() -> impl Scene {
     }
 }
 
+fn player_settings_panel() -> impl Scene {
+    let defaults = crate::gameplay::player::PlayerSettings::default();
+    bsn! {
+        Node {
+            position_type: PositionType::Absolute,
+            top: px(0), left: px(0), width: percent(100), height: percent(100),
+            padding: UiRect::all(px(18)), justify_content: JustifyContent::Center, align_items: AlignItems::Center,
+        }
+        template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().overlay)))
+        bevy::ui::GlobalZIndex(32)
+        SettingsPanelRoot
+        RelativeCursorPosition
+        Visibility::Hidden
+        DespawnOnExit::<AppState>(AppState::InGame)
+        Children [
+            Node { width: px(620), max_width: percent(96), max_height: percent(94), min_width: px(0), overflow: Overflow::scroll() }
+            Children [
+                @panel(percent(100))
+                Children [
+                    @page_title("Settings")
+                    --
+                    @section_header(CarbonIcon::Settings, "Camera")
+                    --
+                    @player_setting_control("Pan sensitivity", "Middle-mouse drag speed.", PlayerSettingControl::PanSensitivity, defaults.camera_pan_sensitivity, 0.0002, 0.01, 0.0001, 4)
+                    --
+                    @player_setting_control("Zoom sensitivity", "Scroll-wheel zoom per line.", PlayerSettingControl::ZoomSensitivity, defaults.camera_zoom_sensitivity, 0.1, 2.0, 0.05, 2)
+                    --
+                    @player_setting_control("Pitch sensitivity", "Scroll-wheel vertical angle adjustment.", PlayerSettingControl::PitchSensitivity, defaults.camera_pitch_sensitivity, 0.002, 0.08, 0.002, 3)
+                    --
+                    @player_setting_control("Minimum camera distance", "Closest allowed follow-camera distance.", PlayerSettingControl::MinCameraDistance, defaults.camera_min_distance, 4.0, 30.0, 0.5, 1)
+                    --
+                    @player_setting_control("Maximum camera distance", "Farthest allowed follow-camera distance.", PlayerSettingControl::MaxCameraDistance, defaults.camera_max_distance, 8.0, 60.0, 0.5, 1)
+                    --
+                    @section_header(CarbonIcon::Character, "Movement")
+                    --
+                    @player_setting_control("Walk speed", "Normal keyboard and click-to-move speed.", PlayerSettingControl::WalkSpeed, defaults.walk_speed, 1.0, 12.0, 0.25, 2)
+                    --
+                    @player_setting_control("Sprint speed", "Speed while holding Shift.", PlayerSettingControl::SprintSpeed, defaults.sprint_speed, 1.0, 20.0, 0.25, 2)
+                    --
+                    @action_button("Developer settings", CarbonIcon::Settings, CarbonButtonTone::Secondary)
+                    on(|_activate: On<Activate>, mut state: ResMut<DeveloperSettingsPanelState>| { state.expanded = !state.expanded; })
+                    --
+                    Node { width: percent(100), padding: UiRect::all(px(10)), flex_direction: FlexDirection::Column, row_gap: px(8) }
+                    DeveloperSettingsContentRoot
+                    Visibility::Hidden
+                    Children [
+                        @eyebrow_text("DEVELOPER")
+                        --
+                        @muted_text("Experimental controls for debugging the current session.", 12.0)
+                        --
+                        @action_button("Toggle exploration debug panel", CarbonIcon::Map, CarbonButtonTone::Secondary)
+                        on(|_activate: On<Activate>, mut state: ResMut<ExplorationDebugPanelState>| { state.visible = !state.visible; })
+                        --
+                        @action_button("Reset free-camera offset", CarbonIcon::Back, CarbonButtonTone::Secondary)
+                        on(|_activate: On<Activate>, mut cameras: Query<&mut crate::gameplay::player::GameplayCamera>| { if let Ok(mut camera) = cameras.single_mut() { camera.pan_offset = Vec3::ZERO; } })
+                    ]
+                    --
+                    @action_button("Back", CarbonIcon::Back, CarbonButtonTone::Primary)
+                    on(|_activate: On<Activate>, mut ui: ResMut<UiStack>| { ui.remove(UiLayer::Settings); })
+                ]
+            ]
+        ]
+    }
+}
+
+fn player_setting_control(title: &'static str, description: &'static str, control: PlayerSettingControl, value: f32, min: f32, max: f32, step: f64, precision: i32) -> impl Scene {
+    bsn! {
+        Node { width: percent(100), min_width: px(0), flex_direction: FlexDirection::Row, flex_wrap: FlexWrap::Wrap, align_items: AlignItems::Center, column_gap: px(14), row_gap: px(6) }
+        Children [
+            Node { width: px(250), min_width: px(170), flex_direction: FlexDirection::Column, row_gap: px(3) }
+            Children [ @label(title) -- @label_dim(description) ]
+            --
+            @FeathersNumberInput
+            template(move |_| Ok(control))
+            NumberInputValue::F32(value)
+            HardLimit::f32(min..=max)
+            NumberInputStep(step)
+            NumberInputPrecision(precision)
+            Node { flex_grow: 1.0, min_width: px(140) }
+            on(player_setting_value_changed)
+        ]
+    }
+}
+
+fn player_setting_value_changed(event: On<ValueChange<f32>>, controls: Query<&PlayerSettingControl, With<FeathersNumberInput>>, mut settings: ResMut<crate::gameplay::player::PlayerSettings>) {
+    if !event.value.is_finite() { return; }
+    let Ok(control) = controls.get(event.source) else { return; };
+    match control {
+        PlayerSettingControl::PanSensitivity => settings.camera_pan_sensitivity = event.value.clamp(0.0002, 0.01),
+        PlayerSettingControl::ZoomSensitivity => settings.camera_zoom_sensitivity = event.value.clamp(0.1, 2.0),
+        PlayerSettingControl::PitchSensitivity => settings.camera_pitch_sensitivity = event.value.clamp(0.002, 0.08),
+        PlayerSettingControl::MinCameraDistance => settings.camera_min_distance = event.value.clamp(4.0, settings.camera_max_distance),
+        PlayerSettingControl::MaxCameraDistance => settings.camera_max_distance = event.value.clamp(settings.camera_min_distance, 60.0),
+        PlayerSettingControl::WalkSpeed => settings.walk_speed = event.value.clamp(1.0, 12.0),
+        PlayerSettingControl::SprintSpeed => settings.sprint_speed = event.value.clamp(1.0, 20.0),
+    }
+}
 fn game_menu_modal() -> impl Scene {
     bsn! {
         Node {
@@ -1036,6 +1136,9 @@ fn game_menu_modal() -> impl Scene {
                     @muted_text("The current session is suspended while this menu is open.", 12.0)
                     --
                     @game_menu_action("Continue", CarbonIcon::Back, GameMenuAction::Continue, CarbonButtonTone::Primary)
+                    --
+                    @action_button("Settings", CarbonIcon::Settings, CarbonButtonTone::Secondary)
+                    on(|_activate: On<Activate>, mut ui: ResMut<UiStack>| { ui.push(UiLayer::Settings); })
                     --
                     @game_menu_action("Exit to main menu", CarbonIcon::Compass, GameMenuAction::ExitToMain, CarbonButtonTone::Secondary)
                     --
