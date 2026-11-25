@@ -191,8 +191,8 @@ mod minimap_tests {
 
     #[test]
     fn right_of_player_is_always_on_the_right_of_the_minimap() {
-        let north_facing = Dir3::new(Vec3::NEG_Z).expect("valid direction");
-        let east_facing = Dir3::new(Vec3::X).expect("valid direction");
+        let north_facing = Vec3::NEG_Z;
+        let east_facing = Vec3::X;
 
         let north_right = minimap_position(Vec3::X * 10.0, north_facing);
         let east_right = minimap_position(Vec3::Z * 10.0, east_facing);
