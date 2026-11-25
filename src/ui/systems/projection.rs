@@ -6,7 +6,7 @@ use bevy::{
 
 use crate::{
     gameplay::{
-        exploration::{ActiveExplorationMap, NearbyExplorationPortal, TILE_SPACING_FACTOR},
+        exploration::{ActiveExplorationMap, NearbyExplorationPortal},
         player::Player,
         zones::{NearbyZone, TriggerBox, VisitedZones},
     },
@@ -159,7 +159,7 @@ pub fn exploration_setup_projection(
     let tile_count = 1 + 3 * config.radius * (config.radius + 1);
     let summary = format!(
         "{tile_count} hexes · approx. {:.0} world units across",
-        config.radius as f32 * config.tile_size * TILE_SPACING_FACTOR * 3.0
+        config.radius as f32 * config.tile_size * 3.0
     );
     for mut text in &mut summaries {
         if text.0 != summary {
