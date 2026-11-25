@@ -133,6 +133,12 @@ pub struct CarbonTab {
     pub selected: bool,
 }
 
+/** Mutable visual selection state for an artwork-first item tile. */
+#[derive(Component, Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct CarbonSelection {
+    pub selected: bool,
+}
+
 #[derive(Component, Clone, Copy, Debug, Default)]
 pub(crate) struct CarbonHoverDelay {
     pub delay_seconds: f32,
@@ -161,11 +167,15 @@ fn update_button_styles(
         Option<&Pressed>,
         &CarbonButtonStyle,
         Option<&CarbonTab>,
+        Option<&CarbonSelection>,
         &mut BackgroundColor,
     )>,
 ) {
-    for (hovered, pressed, style, tab, mut background) in &mut buttons {
-        let selected = tab.map_or(style.selected, |tab| tab.selected);
+    for (hovered, pressed, style, tab, selection, mut background) in &mut buttons {
+        let selected = selection.map_or_else(
+            || tab.map_or(style.selected, |tab| tab.selected),
+            |selection| selection.selected,
+        );
         *background = BackgroundColor(if selected {
             theme.panel_raised
         } else {
