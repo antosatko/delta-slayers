@@ -25,10 +25,6 @@ impl Plugin for UiPlugin {
             .configure_sets(Update, (UiSet::Input, UiSet::Projection).chain())
             .add_systems(OnEnter(AppState::MainMenu), screens::menu::scene.spawn())
             .add_systems(
-                OnEnter(AppState::Continue),
-                screens::placeholders::continue_screen.spawn(),
-            )
-            .add_systems(
                 OnEnter(AppState::Load),
                 screens::placeholders::load_screen.spawn(),
             )
