@@ -10,7 +10,7 @@ use bevy::{
 
 use super::exploration::Biome;
 
-const BIOME_TILE_FILES: [(Biome, &str); 4] = [
+const BIOME_FILES: [(Biome, &str); 4] = [
     (Biome::Grassland, "grassland"),
     (Biome::Woodland, "woodland"),
     (Biome::Dryland, "dryland"),
@@ -78,7 +78,8 @@ impl ObjectRarity {
     }
 }
 
-/// Metadata for an object prototype in enviroment/general.glb.
+/// Metadata for an object prototype in a biome's objects collection or in
+/// the shared general objects collection.
 ///
 /// Attach this component to the root Blender object that should be eligible
 /// for procedural placement. It does not add interaction behavior.
@@ -127,13 +128,13 @@ impl ObjectSpawner {
 pub(crate) struct RemainingObjectCapacity(pub(crate) Option<ObjectSizeRank>);
 
 #[derive(Clone, Copy)]
-enum CollectionKind {
-    BiomeTiles(Biome),
-    GeneralObjects,
+enum AssetSourceKind {
+    Biome(Biome),
+    General,
 }
 
-struct CollectionSource {
-    kind: CollectionKind,
+struct AssetSource {
+    kind: AssetSourceKind,
     path: String,
     handle: Handle<WorldAsset>,
     processed: bool,
@@ -149,16 +150,17 @@ pub(crate) struct SpawnablePrototype {
     pub(crate) definition: SpawnableObject,
 }
 
-/// Loaded, split collection exports used by procedural world generation.
+/// Loaded prototype pools extracted from named Blender collection nodes.
 ///
-/// Each input GLB is a Blender Collection Exporter output. Its root objects
-/// are extracted into individual reusable WorldAssets while their nested
-/// hierarchy, mesh/material handles, and Skein components are preserved.
+/// Each biome GLB provides both its tile variants and its biome-specific
+/// spawnable objects. The shared general GLB contributes a second, global
+/// object pool that is eligible in every biome.
 #[derive(Resource, Default)]
 pub(crate) struct EnvironmentAssets {
-    sources: Vec<CollectionSource>,
+    sources: Vec<AssetSource>,
     tiles: HashMap<Biome, Vec<TilePrototype>>,
-    objects: Vec<SpawnablePrototype>,
+    biome_objects: HashMap<Biome, Vec<SpawnablePrototype>>,
+    general_objects: Vec<SpawnablePrototype>,
 }
 
 impl EnvironmentAssets {
@@ -172,15 +174,26 @@ impl EnvironmentAssets {
 
     pub(crate) fn choose_spawnable(
         &self,
+        biome: Biome,
         remaining_capacity: u8,
         roll: f32,
     ) -> Option<&SpawnablePrototype> {
-        choose_spawnable(&self.objects, remaining_capacity, roll)
+        let biome_objects = self
+            .biome_objects
+            .get(&biome)
+            .map_or(&[], Vec::as_slice);
+
+        choose_spawnable(
+            biome_objects,
+            &self.general_objects,
+            remaining_capacity,
+            roll,
+        )
     }
 }
 
-/// Starts loading one GLB per biome tile collection and the shared object
-/// collection. These are Blender collection exports, not whole-level scenes.
+/// Starts loading one GLB per biome and the shared general-object GLB.
+/// Each biome GLB contains named tiles and objects collections.
 pub(super) fn load_assets(
     mut environment: ResMut<EnvironmentAssets>,
     asset_server: Res<AssetServer>,
@@ -189,19 +202,19 @@ pub(super) fn load_assets(
         return;
     }
 
-    for (biome, file_stem) in BIOME_TILE_FILES {
+    for (biome, file_stem) in BIOME_FILES {
         let path = format!("enviroment/biomes/{file_stem}.glb");
         let handle = asset_server.load(GltfAssetLabel::Scene(0).from_asset(path.clone()));
-        environment.sources.push(CollectionSource {
-            kind: CollectionKind::BiomeTiles(biome),
+        environment.sources.push(AssetSource {
+            kind: AssetSourceKind::Biome(biome),
             path,
             handle,
             processed: false,
         });
     }
 
-    environment.sources.push(CollectionSource {
-        kind: CollectionKind::GeneralObjects,
+    environment.sources.push(AssetSource {
+        kind: AssetSourceKind::General,
         path: GENERAL_OBJECTS_FILE.to_owned(),
         handle: asset_server
             .load(GltfAssetLabel::Scene(0).from_asset(GENERAL_OBJECTS_FILE)),
@@ -209,9 +222,10 @@ pub(super) fn load_assets(
     });
 }
 
-/// Splits each loaded collection scene into individual root-object assets.
-/// This lets generation choose one tile model without instantiating every
-/// sibling object in the collection at every tile position.
+/// Extracts tile and object prototypes from the named collection subtrees.
+///
+/// Blender's glTF exporter must preserve the collection hierarchy so the
+/// tiles and objects collection names are present as empty root nodes.
 pub(super) fn collect_assets(
     mut environment: ResMut<EnvironmentAssets>,
     mut world_assets: ResMut<Assets<WorldAsset>>,
@@ -232,63 +246,112 @@ pub(super) fn collect_assets(
         let extracted = {
             let Some(collection) = world_assets.get(&handle) else {
                 if let Some(LoadState::Failed(error)) = asset_server.get_load_state(&handle) {
-                    warn!("Failed to load environment collection {path}: {error}");
+                    warn!("Failed to load environment asset {path}: {error}");
                     environment.sources[index].processed = true;
                 }
                 continue;
             };
-            extract_root_objects(collection, &type_registry, kind)
+
+            match kind {
+                AssetSourceKind::Biome(_) => (
+                    extract_collection_roots(
+                        collection,
+                        &type_registry,
+                        "tiles",
+                        PrototypeKind::Tile,
+                    ),
+                    extract_collection_roots(
+                        collection,
+                        &type_registry,
+                        "objects",
+                        PrototypeKind::Spawnable,
+                    ),
+                ),
+                AssetSourceKind::General => (
+                    Vec::new(),
+                    extract_collection_roots(
+                        collection,
+                        &type_registry,
+                        "objects",
+                        PrototypeKind::Spawnable,
+                    ),
+                ),
+            }
         };
 
-        let root_count = extracted.len();
-        for root in extracted {
+        let tile_roots = extracted.0;
+        let object_roots = extracted.1;
+        let tile_count = tile_roots.len();
+        let object_count = object_roots.len();
+
+        for root in tile_roots {
             let Ok(asset) = WorldAsset::from_dynamic_world(&root.world, &type_registry) else {
-                warn!("Could not split a root object from environment collection {path}");
+                warn!("Could not create a tile prototype from {path}");
                 continue;
             };
             let handle = world_assets.add(asset);
 
-            match kind {
-                CollectionKind::BiomeTiles(biome) => {
-                    environment
-                        .tiles
-                        .entry(biome)
-                        .or_default()
-                        .push(TilePrototype {
-                            handle,
-                            spawner: root.spawner,
-                        });
-                }
-                CollectionKind::GeneralObjects => {
-                    if let Some(definition) = root.spawnable {
-                        environment.objects.push(SpawnablePrototype {
-                            handle,
-                            definition,
-                        });
-                    }
-                }
+            if let AssetSourceKind::Biome(biome) = kind {
+                environment
+                    .tiles
+                    .entry(biome)
+                    .or_default()
+                    .push(TilePrototype {
+                        handle,
+                        spawner: root.spawner,
+                    });
             }
         }
 
-        if root_count == 0 {
-            warn!("Environment collection {path} contains no usable root objects");
-        } else {
-            info!("Loaded {root_count} root objects from {path}");
+        for root in object_roots {
+            let Some(definition) = root.spawnable else {
+                continue;
+            };
+            let Ok(asset) = WorldAsset::from_dynamic_world(&root.world, &type_registry) else {
+                warn!("Could not create a spawnable object prototype from {path}");
+                continue;
+            };
+            let handle = world_assets.add(asset);
+            let prototype = SpawnablePrototype { handle, definition };
+
+            match kind {
+                AssetSourceKind::Biome(biome) => {
+                    environment
+                        .biome_objects
+                        .entry(biome)
+                        .or_default()
+                        .push(prototype);
+                }
+                AssetSourceKind::General => environment.general_objects.push(prototype),
+            }
         }
 
+        if tile_count == 0 && matches!(kind, AssetSourceKind::Biome(_)) {
+            warn!("No tile prototypes were found in the tiles collection of {path}");
+        }
+        if object_count == 0 {
+            warn!("No SpawnableObject prototypes were found in the objects collection of {path}");
+        }
+
+        info!(
+            "Loaded {tile_count} tile variants and {object_count} object prototypes from {path}"
+        );
         environment.sources[index].processed = true;
     }
 
     if environment.is_ready() {
-        for (biome, _) in BIOME_TILE_FILES {
+        for (biome, _) in BIOME_FILES {
             if environment.tiles_for(biome).is_empty() {
-                warn!("No tile root objects were loaded for biome {biome:?}");
+                warn!("No tile variants were loaded for biome {biome:?}");
             }
         }
-        if environment.objects.is_empty() {
-            warn!("No SpawnableObject prototypes were found in {GENERAL_OBJECTS_FILE}");
-        }
     }
+}
+
+#[derive(Clone, Copy)]
+enum PrototypeKind {
+    Tile,
+    Spawnable,
 }
 
 struct ExtractedRoot {
@@ -297,32 +360,51 @@ struct ExtractedRoot {
     spawnable: Option<SpawnableObject>,
 }
 
-fn extract_root_objects(
-    collection: &WorldAsset,
+/// Extracts direct object roots from a named Blender collection. The
+/// collection container is included in each extracted world to preserve its
+/// transform while other sibling objects remain outside that prototype.
+fn extract_collection_roots(
+    source: &WorldAsset,
     type_registry: &bevy::reflect::TypeRegistry,
-    kind: CollectionKind,
+    collection_name: &str,
+    prototype_kind: PrototypeKind,
 ) -> Vec<ExtractedRoot> {
-    let roots = collection
+    let collection_root = source
         .world
         .iter_entities()
-        .filter(|entity| entity.get::<ChildOf>().is_none())
-        .map(|entity| entity.id())
-        .collect::<Vec<_>>();
+        .find(|entity| {
+            entity
+                .get::<Name>()
+                .is_some_and(|name| name.as_str() == collection_name)
+                && entity.get::<Children>().is_some()
+        })
+        .map(|entity| entity.id());
+
+    let Some(collection_root) = collection_root else {
+        warn!("GLB is missing the named {collection_name} collection node");
+        return Vec::new();
+    };
+
+    let roots = source
+        .world
+        .get::<Children>(collection_root)
+        .map(|children| children.iter().collect::<Vec<_>>())
+        .unwrap_or_default();
 
     roots
         .into_iter()
         .filter_map(|root| {
-            let spawner = collection.world.get::<ObjectSpawner>(root).copied();
-            let spawnable = collection.world.get::<SpawnableObject>(root).copied();
+            let spawner = source.world.get::<ObjectSpawner>(root).copied();
+            let spawnable = source.world.get::<SpawnableObject>(root).copied();
 
-            if matches!(kind, CollectionKind::GeneralObjects) && spawnable.is_none() {
+            if matches!(prototype_kind, PrototypeKind::Spawnable) && spawnable.is_none() {
                 return None;
             }
 
-            let mut hierarchy = Vec::new();
-            collect_hierarchy_entities(&collection.world, root, &mut hierarchy);
+            let mut hierarchy = vec![collection_root];
+            collect_hierarchy_entities(&source.world, root, &mut hierarchy);
 
-            let world = DynamicWorldBuilder::from_world(&collection.world, type_registry)
+            let world = DynamicWorldBuilder::from_world(&source.world, type_registry)
                 .extract_entities(hierarchy.into_iter())
                 .remove_empty_entities()
                 .build();
@@ -345,13 +427,17 @@ fn collect_hierarchy_entities(world: &World, entity: Entity, output: &mut Vec<En
     }
 }
 
+/// Selects from the current biome's object prototypes and the shared general
+/// prototypes. Objects that exceed the remaining tile capacity are excluded.
 fn choose_spawnable<'a>(
-    objects: &'a [SpawnablePrototype],
+    biome_objects: &'a [SpawnablePrototype],
+    general_objects: &'a [SpawnablePrototype],
     remaining_capacity: u8,
     roll: f32,
 ) -> Option<&'a SpawnablePrototype> {
-    let total_weight = objects
+    let total_weight = biome_objects
         .iter()
+        .chain(general_objects.iter())
         .filter(|object| object.definition.size.units() <= remaining_capacity)
         .map(|object| object.definition.rarity.selection_weight())
         .sum::<f32>();
@@ -361,8 +447,9 @@ fn choose_spawnable<'a>(
     }
 
     let mut target = roll.clamp(0.0, 1.0 - f32::EPSILON) * total_weight;
-    for object in objects
+    for object in biome_objects
         .iter()
+        .chain(general_objects.iter())
         .filter(|object| object.definition.size.units() <= remaining_capacity)
     {
         let weight = object.definition.rarity.selection_weight();

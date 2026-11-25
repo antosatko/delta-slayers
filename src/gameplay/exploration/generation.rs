@@ -292,7 +292,7 @@ fn spawn_objects_on_tile(
             coordinates.1,
             attempt_salt ^ 0xD1B5_4A32_D192_ED03,
         );
-        let Some(object) = environment.choose_spawnable(remaining, selection_roll) else {
+        let Some(object) = environment.choose_spawnable(tile.biome, remaining, selection_roll) else {
             break;
         };
 
