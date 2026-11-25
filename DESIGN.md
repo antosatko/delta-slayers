@@ -167,12 +167,20 @@ hex. Their density masks use the same seeded elevation and moisture noise,
 cut out the spawn clearing and raised feature tiles, and fade across steep
 cliff edges. The grass ground mask samples the flat top elevation of each
 rendered tile; it deliberately does not use the smoothed player movement
-surface. A low-cost GPU profile starts with short reach, reduced blade rows,
-no shadows, and a capped blade budget. The F4 vegetation lab exposes live
-sliders for view distance, global and biome-specific density, blade height,
-wind, and optional near-field shadows. `GrassSupport` is shown in the panel;
-GPUs without the required compute, indirect-draw, and vertex-storage support
-will not render this GPU-driven vegetation. A collision-blocked perimeter
+surface. The four overlapping fields load the crate's demo-authored
+`WILDFLOWER_MEADOW`, `FOREST_FLOOR`, `DUNE_MARRAM`, and
+`FROSTED_MEADOW` `.grass.ron` assets from `assets/grass_styles/`. These
+presets bring their original flowers, fern and leaf species, tufts, colour
+patches, and bare-ground variation into the game; the density and ground masks
+sample at one-metre intervals to avoid visible square cells. The low-cost GPU
+profile keeps an 80,000-blade budget and disables grass shadows, while retaining
+the crate's normal curved near-field blade geometry. The F4 vegetation lab is
+bounded to the viewport and supports mouse-wheel and trackpad scrolling. Its
+live controls tune view distance, global and biome-specific density, blade
+height, wind, and optional near-field shadows. `GrassSupport` is shown in the
+panel; GPUs without the required compute, indirect-draw, and vertex-storage
+support will not render this GPU-driven vegetation. The copied preset files
+and their MIT attribution are recorded in `THIRD_PARTY_NOTICES.md`. A collision-blocked perimeter
 and return beacon complete this exploration pass; the beacon restores the town-side position captured on entry.
 
 The TriggerZone-to-TriggerBox rename is a reflected authoring API break.
@@ -287,9 +295,11 @@ change cursor mode. Inventory is a non-pausing overlay: world
 simulation and player movement continue behind it, but cursor-based movement
 targeting and camera scrolling are blocked over the UI. Pause and GameMenu
 suspend gameplay simulation. UI hit regions expose their pointer-over state to
-movement targeting: clicks over UI do not set a destination, and a click that
-begins over UI remains blocked until release. This prevents click-through when
-an overlay closes during a held click.
+movement targeting and camera input: clicks over UI do not set a destination,
+mouse-wheel input scrolls the hovered vegetation panel instead of zooming the
+camera, and camera panning cannot begin over a panel. A click that begins over
+UI remains blocked until release. This prevents click-through when an overlay
+closes during a held click.
 
 System ordering is explicit:
 

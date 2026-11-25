@@ -48,7 +48,16 @@ pub(super) fn spawn_map_geometry(
         &reachable,
     );
     spawn_boundary_walls(commands, root, config, &tiles);
-    super::vegetation::spawn_vegetation(commands, root, config, seed, &tiles, asset_server, images, tuning);
+    super::vegetation::spawn_vegetation(
+        commands,
+        root,
+        config,
+        seed,
+        &tiles,
+        asset_server,
+        images,
+        tuning,
+    );
 
     let return_height = terrain_surface_height(config, seed, Vec2::ZERO);
     // Keep the interaction volume independent from the beacon's visual scale.

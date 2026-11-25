@@ -73,8 +73,8 @@ pub(super) fn spawn_vegetation(
         ..default()
     }
     .with_ground_from_fn(images, MASK_CELL_SIZE, |point| {
-            tile_ground_height(tiles, point, config.tile_size)
-        });
+        tile_ground_height(tiles, point, config.tile_size)
+    });
     let shared_ground = ground.ground.clone();
 
     let grassland = ground.with_density_from_fn(images, MASK_CELL_SIZE, |point| {
