@@ -126,7 +126,7 @@ fn camera_input_enabled(ui_state: Res<UiStack>) -> bool {
 }
 
 fn gameplay_simulation_allowed(ui_state: &UiStack) -> bool {
-    !ui_state.paused() && !ui_state.game_menu_open()
+    !ui_state.paused() && !ui_state.game_menu_open() && !ui_state.exploration_setup_open()
 }
 
 fn camera_input_allowed(ui_state: &UiStack) -> bool {
