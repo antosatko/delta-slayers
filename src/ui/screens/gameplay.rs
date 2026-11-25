@@ -217,13 +217,16 @@ fn minimap() -> impl Scene {
             Children [
                 Node {
                     position_type: PositionType::Absolute,
-                    left: px(56),
-                    top: px(56),
-                    width: px(8),
-                    height: px(8),
-                    border_radius: BorderRadius::all(px(4)),
+                    left: px(52),
+                    top: px(49),
+                    width: px(16),
+                    height: px(18),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
                 }
-                template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().ink)))
+                Text("▲")
+                TextFont { font_size: px(16) }
+                template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().ink)))
                 --
                 @minimap_zone_dot(ZoneKind::Shop)
                 --
