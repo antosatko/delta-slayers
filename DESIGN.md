@@ -152,7 +152,7 @@ right click closes the topmost layer. The inventory's Menu button opens the
 same layer, preserving the inventory underneath it. Its open state is
 represented by UiLayer::GameMenu, and a projection system controls Visibility.
 
-## Visual hierarchy and Slate UI principles
+## Visual hierarchy and Carbon UI principles
 
 The interface should have a small number of deliberate attention anchors. Avoid giving every panel, control, label, and status the same visual weight. Use spacing and grouping before adding separators; reserve the strongest contrast and filled treatment for the current primary action or selected state. Keep secondary actions quieter, use semantic colours only where they communicate meaning, and avoid decorative borders around ordinary surfaces. Distinguish layered surfaces with restrained elevation and soft shadows rather than outlining every container. Use consistent styling for equivalent controls and keep related information close together. Hover references should be discoverable but should not compete with the main task until the user deliberately pauses over them. Screen headers show only the page title and a hoverable help affordance; explanatory copy and secondary status belong in the help card or page content. Put tabs for distinct views of the same screen directly beneath the title, and omit that row when no such views exist.
 
