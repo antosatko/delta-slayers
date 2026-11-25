@@ -1,5 +1,5 @@
 use bevy::{
-    input::mouse::{AccumulatedMouseScroll, MouseScrollPixelsPerLine},
+    input::mouse::{AccumulatedMouseMotion, AccumulatedMouseScroll, MouseScrollPixelsPerLine},
     prelude::*,
     ui::RelativeCursorPosition,
     window::PrimaryWindow,
@@ -10,14 +10,15 @@ use crate::ui::stack::UiStack;
 pub const CAMERA_DISTANCE: f32 = 18.0;
 pub const CAMERA_HORIZONTAL_OFFSET: f32 = 0.45;
 pub const CAMERA_DEFAULT_PITCH: f32 = -0.82;
-pub const CAMERA_MIN_PITCH: f32 = -0.97;
-pub const CAMERA_MAX_PITCH: f32 = -0.67;
+pub const CAMERA_MIN_PITCH: f32 = -1.45;
+pub const CAMERA_MAX_PITCH: f32 = -0.15;
 const CAMERA_PITCH_SAVE_ADJUSTMENT: f32 = 0.08;
 pub const INTERACTION_HEIGHT: f32 = 1.7;
 const CAMERA_MIN_DISTANCE: f32 = 14.0;
 const CAMERA_MAX_DISTANCE: f32 = 22.0;
 const CAMERA_ZOOM_PER_LINE: f32 = 0.65;
 const CAMERA_PITCH_PER_LINE: f32 = 0.02;
+const CAMERA_ORBIT_SENSITIVITY: f32 = 0.005;
 const CAMERA_TARGET_HEIGHT: f32 = 0.8;
 pub(super) const PLAYER_VISUAL_HEIGHT: f32 = 0.8;
 pub(super) const PLAYER_COLLIDER_RADIUS: f32 = 0.32;
@@ -54,6 +55,7 @@ pub struct MovementBlocker;
 #[derive(Component)]
 pub(super) struct GameplayCamera {
     pub(super) distance: f32,
+    pub(super) orbit_yaw_offset: f32,
 }
 
 #[derive(Component)]
@@ -120,13 +122,47 @@ impl MovementTarget {
     }
 }
 
-/// Scroll changes the follow camera's distance and vertical viewing angle.
+/// The wheel zooms and adjusts pitch; middle-button dragging freely orbits
+/// the follow camera around the player without rotating the player itself.
 pub(super) fn adjust_camera(
     mut player: Query<&mut Player>,
     mut camera: Query<&mut GameplayCamera>,
+    mouse_buttons: Res<ButtonInput<MouseButton>>,
+    mouse_motion: Res<AccumulatedMouseMotion>,
     mouse_scroll: Res<AccumulatedMouseScroll>,
     scroll_conversion: Res<MouseScrollPixelsPerLine>,
+    ui_surfaces: Query<(&RelativeCursorPosition, &InheritedVisibility)>,
+    mut orbit_blocked_until_release: Local<bool>,
 ) {
+    let pointer_over_ui = ui_surfaces
+        .iter()
+        .any(|(cursor, visibility)| visibility.get() && cursor.cursor_over);
+
+    if mouse_buttons.just_pressed(MouseButton::Middle) {
+        *orbit_blocked_until_release = pointer_over_ui;
+    }
+    if mouse_buttons.pressed(MouseButton::Middle) && pointer_over_ui {
+        *orbit_blocked_until_release = true;
+    }
+    if mouse_buttons.just_released(MouseButton::Middle) {
+        *orbit_blocked_until_release = false;
+    }
+
+    let motion = mouse_motion.delta;
+    if mouse_buttons.pressed(MouseButton::Middle)
+        && !*orbit_blocked_until_release
+        && motion.is_finite()
+        && motion != Vec2::ZERO
+    {
+        if let Ok(mut camera) = camera.single_mut() {
+            camera.orbit_yaw_offset =
+                camera_yaw_offset_after_drag(camera.orbit_yaw_offset, motion.x);
+        }
+        if let Ok(mut player) = player.single_mut() {
+            player.pitch = camera_pitch_after_drag(player.pitch, motion.y);
+        }
+    }
+
     let scroll = mouse_scroll.to_lines(&scroll_conversion).delta.y;
     if !scroll.is_finite() || scroll == 0.0 {
         return;
@@ -142,6 +178,14 @@ pub(super) fn adjust_camera(
 
 fn camera_pitch_after_scroll(pitch: f32, scroll: f32) -> f32 {
     (pitch + scroll * CAMERA_PITCH_PER_LINE).clamp(CAMERA_MIN_PITCH, CAMERA_MAX_PITCH)
+}
+
+fn camera_yaw_offset_after_drag(offset: f32, delta_x: f32) -> f32 {
+    offset + delta_x * CAMERA_ORBIT_SENSITIVITY
+}
+
+fn camera_pitch_after_drag(pitch: f32, delta_y: f32) -> f32 {
+    (pitch - delta_y * CAMERA_ORBIT_SENSITIVITY).clamp(CAMERA_MIN_PITCH, CAMERA_MAX_PITCH)
 }
 
 fn camera_distance_after_scroll(distance: f32, scroll: f32) -> f32 {
@@ -501,8 +545,8 @@ pub(super) fn follow_camera_rotation(player_yaw: f32, pitch: f32) -> Quat {
     )
 }
 
-/// Keeps the camera aimed at the player from a fixed, offset horizontal
-/// heading. Scrolling only changes its distance and vertical viewing angle.
+/// Keeps the camera aimed at the player from its current orbit heading.
+/// Middle-button dragging changes the orbit independently from player yaw.
 pub(super) fn follow_camera(
     player: Query<(&Transform, &Player)>,
     mut camera: Query<(&mut Transform, &GameplayCamera), (With<GameplayCamera>, Without<Player>)>,
@@ -515,7 +559,10 @@ pub(super) fn follow_camera(
     };
 
     let target = player_transform.translation + Vec3::Y * CAMERA_TARGET_HEIGHT;
-    let orientation = follow_camera_rotation(player.yaw, player.pitch);
+    let orientation = follow_camera_rotation(
+        player.yaw + camera_settings.orbit_yaw_offset,
+        player.pitch,
+    );
     let forward = orientation * Vec3::NEG_Z;
     camera_transform.translation = target - forward * camera_settings.distance;
     camera_transform.look_at(target, Vec3::Y);
@@ -754,6 +801,26 @@ mod tests {
     fn trajectory_arrows_are_spaced_with_visible_gaps() {
         assert!(TRAJECTORY_ARROW_LENGTH < TRAJECTORY_ARROW_SPACING);
         assert!(DESTINATION_RING_RADIUS > TRAJECTORY_ARROW_LENGTH / 2.0);
+    }
+
+    #[test]
+    fn middle_drag_rotates_camera_without_changing_player_heading() {
+        let initial_offset = 0.0;
+        let rotated_offset = camera_yaw_offset_after_drag(initial_offset, 120.0);
+
+        assert!(rotated_offset > initial_offset);
+        assert!((rotated_offset - 0.6).abs() < 1e-6);
+    }
+
+    #[test]
+    fn middle_drag_changes_camera_pitch_and_respects_limits() {
+        let pitched_down = camera_pitch_after_drag(CAMERA_DEFAULT_PITCH, 100.0);
+        let pitched_up = camera_pitch_after_drag(CAMERA_DEFAULT_PITCH, -100.0);
+
+        assert!(pitched_down < CAMERA_DEFAULT_PITCH);
+        assert!(pitched_up > CAMERA_DEFAULT_PITCH);
+        assert_eq!(camera_pitch_after_drag(CAMERA_DEFAULT_PITCH, 10_000.0), CAMERA_MIN_PITCH);
+        assert_eq!(camera_pitch_after_drag(CAMERA_DEFAULT_PITCH, -10_000.0), CAMERA_MAX_PITCH);
     }
 
     #[test]
