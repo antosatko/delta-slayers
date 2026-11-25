@@ -156,29 +156,29 @@ represented by UiLayer::GameMenu, and a projection system controls Visibility.
 
 The interface should have a small number of deliberate attention anchors. Avoid giving every panel, control, label, and status the same visual weight. Use spacing and grouping before adding separators; reserve the strongest contrast and filled treatment for the current primary action or selected state. Keep secondary actions quieter, use semantic colours only where they communicate meaning, and avoid decorative borders around ordinary surfaces. Distinguish layered surfaces with restrained elevation and soft shadows rather than outlining every container. Use consistent styling for equivalent controls and keep related information close together. Hover references should be discoverable but should not compete with the main task until the user deliberately pauses over them. Screen headers show only the page title and a hoverable help affordance; explanatory copy and secondary status belong in the help card or page content. Put tabs for distinct views of the same screen directly beneath the title, and omit that row when no such views exist.
 
-## Reusable Slate UI library
+## Reusable Carbon UI library
 
 The workspace crate `delta-slayers-ui` contains the reusable presentation
 layer. It is deliberately game-specific rather than a generic widget framework.
 
-- `SlatePlugin` registers the `SlateTheme` resource and the small systems used
-  for button hover states and delayed reference cards.
-- `SlateTheme` is the single palette source. Replace or mutate the resource to
-  customise colours across widgets. Surface hierarchy relies on tonal steps,
-  spacing, and restrained shadows rather than decorative outlines.
-- `action_button`, `panel`, `page_header`, `section_header`, `badge`,
-  `stat_bar`, and `item_tile` are composable BSN scenes.
+- `CarbonPlugin` registers the `CarbonTheme` resource and presentation systems
+  for hover states and delayed help/reference cards.
+- `CarbonTheme` is the shared palette source. It uses graphite surface steps,
+  neutral text and icon colors, a restrained azure accent, and semantic status
+  colors with subtle tinted backgrounds.
+- `panel`, `page_header`, `screen_tabs`, `screen_tab`, `section_header`,
+  `action_button`, `badge`, `stat_bar`, and `item_tile` are composable BSN
+  scenes. Item tiles are square, artwork-first controls with optional quantity.
 - `reference_term` is a hoverable text control whose information card opens
-  after a 600 ms dwell. Moving away cancels the delay; the card remains open
-  while the pointer moves from the term onto the card.
-- All controls are still declared with BSN. Library systems only project
-  interaction state into existing components; they do not create or rebuild
-  UI trees.
+  after a 600 ms dwell. The page header uses the same delayed-card behaviour for
+  its help affordance.
+- All controls are declared with BSN. Library systems only project interaction
+  state into existing components; they do not create or rebuild UI trees.
 
 The crate example is a standalone catalogue of the current visual language:
 
 ```sh
-cargo run -p delta-slayers-ui --example slate_showcase
+cargo run -p delta-slayers-ui --example carbon_showcase
 ```
 
 The game imports the crate through the workspace path dependency. The main
