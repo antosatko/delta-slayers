@@ -61,7 +61,7 @@ pub(super) fn apply_player_spawn_point(
     let (yaw, _, _) = rotation.to_euler(EulerRot::YXZ);
 
     let Ok((mut transform, mut player)) = player.single_mut() else {
-        warn!("A Player SpawnPoint exists, but no player camera was found");
+        warn!("A Player SpawnPoint exists, but no player entity was found");
         return;
     };
 
