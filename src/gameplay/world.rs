@@ -37,7 +37,7 @@ pub(super) fn setup_game(
         super::GameStartMode::NewGame => (
             Vec3::ZERO,
             0.0,
-            -0.9,
+            player::CAMERA_DEFAULT_PITCH,
             std::collections::HashSet::new(),
         ),
     };
@@ -59,7 +59,7 @@ pub(super) fn setup_game(
 
     let spawn_pos = Vec3::new(saved_pos.x, 0.0, saved_pos.z);
     let initial_pitch = if startup.has_saved_position {
-        saved_pitch.clamp(player::CAMERA_MIN_PITCH, player::CAMERA_MAX_PITCH)
+        player::migrate_saved_camera_pitch(saved_pitch)
     } else {
         player::CAMERA_DEFAULT_PITCH
     };
