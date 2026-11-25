@@ -1127,7 +1127,7 @@ pub(in crate::ui) fn player_auto_lock_setting() -> impl Scene {
             Children [
                 @label("Auto-lock camera while moving")
                 --
-                @label_dim("Recenters the camera when keyboard or click movement begins.", 12.0)
+                @label_dim("Recenters the camera when keyboard or click movement begins.")
             ]
         ]
     }
