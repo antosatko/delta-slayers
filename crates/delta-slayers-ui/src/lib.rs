@@ -7,11 +7,13 @@
 mod theme;
 mod widgets;
 
-pub use theme::{CarbonButtonTone, CarbonPlugin, CarbonSelection, CarbonStatus, CarbonTab, CarbonTheme};
+pub use theme::{
+    CarbonButtonTone, CarbonPlugin, CarbonSelection, CarbonStatus, CarbonTab, CarbonTheme,
+};
 pub use widgets::{
     CarbonIcon, action_button, badge, eyebrow_text, equipment_slot, item_art_tile, item_tile,
-    item_tile_optional, key_hint, muted_text, page_header, page_title, panel, reference_term, root, screen_tab,
-    screen_tabs, section_header, stat_bar,
+    item_tile_optional, key_hint, muted_text, page_header, page_title, panel, reference_term, root,
+    screen_tab, screen_tabs, section_header, stat_bar,
 };
 
 // Compatibility names for call sites that have not migrated from Slate yet.
