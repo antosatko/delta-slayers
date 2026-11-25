@@ -12,7 +12,7 @@ const TERRAIN_OCTAVES: usize = 4;
 
 /// Keeps the player and Godo on the smoothstep-interpolated terrain surface.
 /// The player transform remains the ground-position authority.
-pub(super) fn sync_ground_height
+pub(super) fn sync_ground_height(
     active: Res<ActiveExplorationMap>,
     mut player: Query<&mut Transform, With<Player>>,
     mut npcs: Query<&mut Transform, (With<Npc>, Without<Player>)>,
