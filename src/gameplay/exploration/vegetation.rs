@@ -111,7 +111,6 @@ pub(super) fn spawn_vegetation(
         config,
         seed,
         tiles,
-        styles,
         images,
         tuning,
     );
@@ -125,7 +124,6 @@ pub(super) fn spawn_vegetation(
         config,
         seed,
         tiles,
-        styles,
         images,
         tuning,
     );
@@ -145,13 +143,12 @@ fn spawn_masked_field(
     images: &mut Assets<Image>,
     tuning: &VegetationTuning,
 ) {
-    let mut field = GrassField {
+    let field = GrassField {
         size: field_size,
         style,
-        ground: ground.clone(),
+        ground,
         ..default()
     };
-    field.ground = ground;
     let field = field.with_density_from_fn(images, MASK_CELL_SIZE, |point| {
         biome_density(tiles, config, seed, point, biome)
     });

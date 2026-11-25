@@ -127,7 +127,7 @@ pub fn vegetation_lab_scroll(
     for event in events {
         let delta = match event.unit {
             MouseScrollUnit::Line => event.y * 24.0,
-            MouseScrollUnit::Pixel => event.y,
+            MouseScrollUnit::Pixel => event.y * computed.inverse_scale_factor,
         };
         if delta.is_finite() {
             scroll.0.y = (scroll.0.y - delta).clamp(0.0, max_scroll_y);

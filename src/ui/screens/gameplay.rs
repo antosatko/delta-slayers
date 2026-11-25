@@ -11,7 +11,7 @@ use bevy::{
         tokens,
     },
     prelude::*,
-    ui::{Checked, RelativeCursorPosition},
+    ui::{Checked, RelativeCursorPosition, ScrollPosition},
     ui_widgets::{Activate, SliderPrecision, SliderStep, SliderValue, ValueChange},
 };
 use delta_slayers_ui::{
