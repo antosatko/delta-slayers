@@ -187,7 +187,6 @@ pub fn exploration_setup_projection(
                     .map_or(0, |seed| seed.min(i64::MAX as u64) as i64),
             ),
             ExplorationParameterControl::Radius => NumberInputValue::I64(config.radius as i64),
-            ExplorationParameterControl::TileSize => NumberInputValue::F32(config.tile_size),
             ExplorationParameterControl::HeightMultiplier => {
                 NumberInputValue::F32(config.height_multiplier)
             }
