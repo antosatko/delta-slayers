@@ -503,8 +503,10 @@ fn spawn_boundary_walls(commands: &mut Commands, root: Entity, config: Explorati
                     continue;
                 }
 
-                let a = hex_corner(center, layout_radius, side);
-                let b = hex_corner(center, layout_radius, (side + 1) % HEX_CORNER_COUNT);
+                // Wall segments follow the visible outer edge of the larger
+                // overhanging tile models, not the tighter center spacing.
+                let a = hex_corner(center, config.tile_size, side);
+                let b = hex_corner(center, config.tile_size, (side + 1) % HEX_CORNER_COUNT);
                 let midpoint = (a + b) * 0.5;
                 let edge = b - a;
                 let yaw = edge.x.atan2(edge.y);
@@ -517,7 +519,7 @@ fn spawn_boundary_walls(commands: &mut Commands, root: Entity, config: Explorati
                         .with_scale(Vec3::new(
                             0.18,
                             config.height_multiplier + 2.0,
-                            layout_radius * 0.62,
+                            config.tile_size * 0.62,
                         )),
                     ChildOf(root),
                 ));
@@ -754,6 +756,28 @@ mod tests {
         assert_eq!(config.biome_scale, 0.006);
         assert_eq!(config.vegetation_density, 0.8);
         assert_eq!(config.seed, Some(42));
+    }
+
+    #[test]
+    fn tile_radius_uses_the_imported_model_scale_and_overhang_spacing() {
+        let config = ExplorationPortal::default();
+
+        assert_eq!(config.tile_size, 6.0);
+        assert!((hex_layout_radius(config) - 4.92).abs() < 0.0001);
+
+        let too_small = ExplorationPortal {
+            tile_size: 2.0,
+            ..config
+        }
+        .sanitized();
+        let too_large = ExplorationPortal {
+            tile_size: 9.0,
+            ..config
+        }
+        .sanitized();
+
+        assert_eq!(too_small.tile_size, 4.0);
+        assert_eq!(too_large.tile_size, 8.0);
     }
 
     #[test]
