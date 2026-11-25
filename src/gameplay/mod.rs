@@ -87,13 +87,15 @@ impl Plugin for GameplayPlugin {
                 )
                     .chain()
                     .after(UiSet::Input)
+                    .before(UiSet::Projection)
                     .run_if(in_state(AppState::InGame)),
             )
             .add_systems(
                 Update,
                 systems::fast_travel
                     .run_if(in_state(AppState::InGame))
-                    .after(player::move_player_to_target),
+                    .after(player::move_player_to_target)
+                    .before(UiSet::Projection),
             )
             .add_systems(
                 Update,
@@ -101,6 +103,7 @@ impl Plugin for GameplayPlugin {
                     .after(exploration::detect_portal)
                     .after(systems::fast_travel)
                     .after(UiSet::Input)
+                    .before(UiSet::Projection)
                     .run_if(gameplay_simulation_enabled)
                     .run_if(in_state(AppState::InGame)),
             )
