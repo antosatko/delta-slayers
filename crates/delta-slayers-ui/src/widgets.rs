@@ -287,6 +287,125 @@ pub fn action_button(label: &'static str, icon: CarbonIcon, tone: CarbonButtonTo
     }
 }
 
+
+/// Compact secondary copy for descriptions and helper notes.
+pub fn muted_text(value: &'static str, size: f32) -> impl Scene {
+    bsn! {
+        Text(value)
+        TextFont { font_size: px(size) }
+        template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().muted)))
+    }
+}
+
+/// Small category/eyebrow label used above primary content.
+pub fn eyebrow_text(value: &'static str) -> impl Scene {
+    bsn! {
+        Text(value)
+        TextFont { font_size: px(10) }
+        template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().quiet)))
+    }
+}
+
+/// Keyboard hint with the key separated from its explanation.
+pub fn key_hint(key: &'static str, label: &'static str) -> impl Scene {
+    bsn! {
+        Node {
+            flex_direction: FlexDirection::Row,
+            align_items: AlignItems::Center,
+            column_gap: px(8),
+        }
+        Children [
+            @badge(key, CarbonStatus::Neutral)
+            --
+            @muted_text(label, 12.0)
+        ]
+    }
+}
+
+/// A square image-first inventory tile. No popup is opened by selecting it.
+pub fn item_art_tile(
+    asset_path: &'static str,
+    label: &'static str,
+    quantity: Option<&'static str>,
+    selected: bool,
+) -> impl Scene {
+    let quantity = quantity.unwrap_or("");
+    bsn! {
+        Button
+        Hovered(false)
+        CarbonButtonStyle { tone: CarbonButtonTone::Secondary, selected }
+        CarbonSelection { selected }
+        Node {
+            width: px(112),
+            height: px(112),
+            min_width: px(0),
+            position_type: PositionType::Relative,
+            overflow: Overflow::clip(),
+            flex_direction: FlexDirection::Column,
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+            border_radius: BorderRadius::all(px(7)),
+        }
+        template(move |ctx| Ok(BackgroundColor(if selected {
+            ctx.resource::<CarbonTheme>().panel_raised
+        } else {
+            ctx.resource::<CarbonTheme>().panel_alt
+        })))
+        Children [
+            Node {
+                width: percent(100),
+                height: percent(100),
+                min_width: px(0),
+                min_height: px(0),
+            }
+            template(move |ctx| {
+                Ok(ImageNode::new(ctx.resource::<AssetServer>().load(asset_path)))
+            })
+            --
+            Node {
+                position_type: PositionType::Absolute,
+                left: px(0),
+                right: px(0),
+                bottom: px(0),
+                width: percent(100),
+                min_width: px(0),
+                padding: UiRect::axes(px(7), px(6)),
+                flex_direction: FlexDirection::Column,
+                align_items: AlignItems::Start,
+                row_gap: px(2),
+            }
+            template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().surface_deep)))
+            Children [
+                Text(label)
+                TextFont { font_size: px(11) }
+                template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().ink)))
+                --
+                Text(quantity)
+                TextFont { font_size: px(10) }
+                template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().quiet)))
+            ]
+        ]
+    }
+}
+
+/// Empty equipment slot with a neutral icon, without a text caption.
+pub fn equipment_slot(icon: CarbonIcon) -> impl Scene {
+    bsn! {
+        Node {
+            width: px(58),
+            height: px(58),
+            flex_shrink: 0.0,
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+            border_radius: BorderRadius::all(px(7)),
+        }
+        template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().panel_alt)))
+        Children [
+            @glyph(icon, 22.0, GlyphTone::Muted)
+        ]
+    }
+}
+
 /// Small semantic label with a restrained tinted surface and no outline.
 pub fn badge(label: &'static str, status: CarbonStatus) -> impl Scene {
     bsn! {
