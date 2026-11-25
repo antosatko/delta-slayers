@@ -1,7 +1,10 @@
 use bevy::prelude::*;
 
 use crate::{
-    gameplay::zones::NearbyZone,
+    gameplay::{
+        exploration::{ExplorationTravelRequest, NearbyExplorationPortal},
+        zones::NearbyZone,
+    },
     ui::{
         components::PopupConfirmRequested,
         stack::{UiLayer, UiStack},
@@ -12,14 +15,23 @@ pub fn handle_ui_input(
     keys: Res<ButtonInput<KeyCode>>,
     mouse: Res<ButtonInput<MouseButton>>,
     nearby: Res<NearbyZone>,
+    nearby_portal: Res<NearbyExplorationPortal>,
+    mut travel_request: ResMut<ExplorationTravelRequest>,
     mut ui: ResMut<UiStack>,
     mut confirm_request: ResMut<PopupConfirmRequested>,
 ) {
     let confirm = keys.just_pressed(KeyCode::KeyE) || confirm_request.0;
     confirm_request.0 = false;
 
-    if confirm && !ui.game_menu_open() && ui.active_panel().is_none() && !ui.inventory_open() {
-        if let Some(kind) = nearby.0 {
+    if confirm
+        && !ui.game_menu_open()
+        && !ui.paused()
+        && ui.active_panel().is_none()
+        && !ui.inventory_open()
+    {
+        if let Some(portal) = nearby_portal.0 {
+            travel_request.0 = Some(portal);
+        } else if let Some(kind) = nearby.0 {
             ui.push(UiLayer::Panel(kind));
         }
     }
