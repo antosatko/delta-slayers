@@ -1,6 +1,6 @@
 use bevy::{prelude::*, ui_widgets::Activate};
 use delta_slayers_ui::{
-    CarbonButtonTone, CarbonIcon, CarbonTheme, action_button, page_header, panel, section_header,
+    CarbonButtonTone, CarbonIcon, CarbonTheme, action_button, page_title, panel, section_header,
 };
 
 use crate::app::state::AppState;
@@ -37,11 +37,7 @@ fn main_menu() -> impl Scene {
                 row_gap: px(16),
             }
             Children [
-                @page_header(
-                    "Delta Slayers",
-                    "Guild hall",
-                    "Start a new journey, continue an existing one, or adjust your settings."
-                )
+                @page_title("Delta Slayers")
                 --
                 @panel(percent(100))
                 Children [
