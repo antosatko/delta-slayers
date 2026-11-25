@@ -1,4 +1,5 @@
 mod billboard;
+mod exploration;
 mod npc;
 mod persistence;
 mod spawning;
@@ -31,6 +32,7 @@ impl Plugin for GameplayPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<zones::ZoneKind>()
             .register_type::<zones::TriggerBox>()
+            .register_type::<exploration::ExplorationPortal>()
             .register_type::<player::MovementBlocker>()
             .register_type::<spawning::SpawnPointKind>()
             .register_type::<spawning::SpawnPoint>()
@@ -40,6 +42,10 @@ impl Plugin for GameplayPlugin {
             .init_resource::<zones::NearbyZone>()
             .init_resource::<zones::VisitedZones>()
             .init_resource::<zones::FastTravelRequest>()
+            .init_resource::<exploration::NearbyExplorationPortal>()
+            .init_resource::<exploration::ExplorationTravelRequest>()
+            .init_resource::<exploration::ActiveExplorationMap>()
+            .init_resource::<exploration::ExplorationSession>()
             .init_resource::<inventory::InventoryModel>()
             .init_resource::<GameStartMode>()
             .init_resource::<player::MovementTarget>()
@@ -70,12 +76,14 @@ impl Plugin for GameplayPlugin {
                     player::adjust_camera.run_if(camera_input_enabled),
                     player::move_player_to_target.run_if(gameplay_simulation_enabled),
                     npc::chase_player.run_if(gameplay_simulation_enabled),
+                    exploration::sync_ground_height,
                     player::follow_camera,
                     player::draw_move_trajectory.run_if(gameplay_simulation_enabled),
                     player::sync_player_visual,
                     billboard::animate_moving_sprites,
                     billboard::billboard_system,
                     zones::zone_detection_system.run_if(gameplay_simulation_enabled),
+                    exploration::detect_portal.run_if(gameplay_simulation_enabled),
                 )
                     .chain()
                     .after(UiSet::Input)
@@ -86,6 +94,13 @@ impl Plugin for GameplayPlugin {
                 systems::fast_travel
                     .run_if(in_state(AppState::InGame))
                     .after(player::move_player_to_target),
+            )
+            .add_systems(
+                Update,
+                exploration::process_travel_request
+                    .after(exploration::detect_portal)
+                    .after(UiSet::Input)
+                    .run_if(in_state(AppState::InGame)),
             )
             .add_systems(
                 Update,
