@@ -27,11 +27,12 @@ Within those areas:
 | --- | --- |
 | `app/mod.rs` | Application startup and plugin composition |
 | `app/state.rs` | Top-level application states, including the Loading transition |
-| `gameplay/player.rs` | Player ground position, collision-aware movement, look, follow camera, and visual synchronization |
+| `gameplay/player.rs` | Player ground position, shared collision movement, look, follow camera, and visual synchronization |
 | `gameplay/spawning.rs` | Reflected spawn-point authoring types and initial player spawn selection |
 | `gameplay/zones.rs` | Zone types, proximity detection, visited-zone data, and travel requests |
 | `gameplay/inventory.rs` | Authoritative inventory data |
-| `gameplay/world.rs` | In-game world setup and the world-ready transition |
+| `gameplay/world.rs` | In-game world setup, initial Godo NPC spawn, and the world-ready transition |
+| `gameplay/npc.rs` | NPC movement that reuses the player collision resolver |
 | `gameplay/systems.rs` | Gameplay actions such as fast travel and returning to the menu |
 | `gameplay/persistence.rs` | Save-file serialization and loading |
 | `gameplay/billboard.rs` | Camera-facing billboard transform |
@@ -116,7 +117,11 @@ Visual entities tagged with `SquashOnMove` pulse with a small, smoothed
 horizontal stretch and vertical compression while their transform is moving.
 The animation restores the authored scale when idle and does not change the
 entity's position or its gameplay state. The player image is
-rendered on a vertical, camera-facing 3D quad. The town remains the existing
+rendered on a vertical, camera-facing 3D quad. Godo is spawned from
+`assets/npc/godo.png` as a billboard and continuously chases the player at a
+slower speed, stopping at a small personal-space distance. NPC movement calls
+the same collision resolver as player movement, so Blender-authored
+`MovementBlocker` volumes block both. The town remains the existing
 Blender-authored scene; no hex tiles or procedural terrain are introduced by
 this camera/rendering setup.
 
