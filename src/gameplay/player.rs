@@ -18,15 +18,12 @@ const CAMERA_MIN_DISTANCE: f32 = 14.0;
 const CAMERA_MAX_DISTANCE: f32 = 22.0;
 const CAMERA_ZOOM_PER_LINE: f32 = 0.65;
 const CAMERA_PITCH_PER_LINE: f32 = 0.02;
-const CAMERA_PAN_SENSITIVITY: f32 = 0.0025;
 const CAMERA_TARGET_HEIGHT: f32 = 0.8;
 pub(super) const PLAYER_VISUAL_HEIGHT: f32 = 0.8;
 pub(super) const PLAYER_COLLIDER_RADIUS: f32 = 0.32;
 pub(super) const PLAYER_COLLIDER_HEIGHT: f32 = 1.6;
 pub(super) const MAX_COLLISION_STEP: f32 = 0.1;
 pub(super) const MAX_COLLISION_RESOLVE_PASSES: usize = 6;
-const PLAYER_WALK_SPEED: f32 = 5.0;
-const PLAYER_SPRINT_SPEED: f32 = 8.0;
 const TRAJECTORY_ARROW_SPACING: f32 = 1.2;
 const TRAJECTORY_ARROW_LENGTH: f32 = 0.72;
 const TRAJECTORY_HEIGHT: f32 = 0.12;
@@ -35,6 +32,31 @@ const DESTINATION_RING_RADIUS: f32 = 0.48;
 const DESTINATION_BEACON_HEIGHT: f32 = 0.72;
 const MOVE_TARGET_HOLD_DELAY: f32 = 0.3;
 const MOVE_TARGET_REFRESH_INTERVAL: f32 = 0.1;
+
+#[derive(Resource, Clone, Copy, Debug)]
+pub struct PlayerSettings {
+    pub camera_pan_sensitivity: f32,
+    pub camera_zoom_sensitivity: f32,
+    pub camera_pitch_sensitivity: f32,
+    pub camera_min_distance: f32,
+    pub camera_max_distance: f32,
+    pub walk_speed: f32,
+    pub sprint_speed: f32,
+}
+
+impl Default for PlayerSettings {
+    fn default() -> Self {
+        Self {
+            camera_pan_sensitivity: 0.0025,
+            camera_zoom_sensitivity: 0.65,
+            camera_pitch_sensitivity: 0.02,
+            camera_min_distance: 14.0,
+            camera_max_distance: 22.0,
+            walk_speed: 5.0,
+            sprint_speed: 8.0,
+        }
+    }
+}
 
 #[derive(Component)]
 pub struct Player {
@@ -132,6 +154,7 @@ pub(super) fn adjust_camera(
     mouse_motion: Res<AccumulatedMouseMotion>,
     mouse_scroll: Res<AccumulatedMouseScroll>,
     scroll_conversion: Res<MouseScrollPixelsPerLine>,
+    settings: Res<PlayerSettings>,
     ui_surfaces: Query<(&RelativeCursorPosition, &InheritedVisibility)>,
     mut pan_blocked_until_release: Local<bool>,
 ) {
@@ -159,7 +182,7 @@ pub(super) fn adjust_camera(
             let orientation = follow_camera_rotation(player.yaw, player.pitch);
             let right = horizontal_camera_axis(orientation * Vec3::X);
             let up = horizontal_camera_axis(orientation * Vec3::Y);
-            let scale = camera.distance * CAMERA_PAN_SENSITIVITY;
+            let scale = camera.distance * settings.camera_pan_sensitivity;
             camera.pan_offset =
                 camera_pan_offset_after_drag(camera.pan_offset, motion, right, up, scale);
         }
@@ -171,15 +194,15 @@ pub(super) fn adjust_camera(
     }
 
     if let Ok(mut player) = player.single_mut() {
-        player.pitch = camera_pitch_after_scroll(player.pitch, scroll);
+        player.pitch = camera_pitch_after_scroll(player.pitch, scroll, settings.camera_pitch_sensitivity);
     }
     if let Ok(mut camera) = camera.single_mut() {
-        camera.distance = camera_distance_after_scroll(camera.distance, scroll);
+        camera.distance = camera_distance_after_scroll(camera.distance, scroll, settings.camera_zoom_sensitivity, settings.camera_min_distance, settings.camera_max_distance);
     }
 }
 
-fn camera_pitch_after_scroll(pitch: f32, scroll: f32) -> f32 {
-    (pitch + scroll * CAMERA_PITCH_PER_LINE).clamp(CAMERA_MIN_PITCH, CAMERA_MAX_PITCH)
+fn camera_pitch_after_scroll(pitch: f32, scroll: f32, sensitivity: f32) -> f32 {
+    (pitch + scroll * sensitivity).clamp(CAMERA_MIN_PITCH, CAMERA_MAX_PITCH)
 }
 
 fn horizontal_camera_axis(axis: Vec3) -> Vec3 {
@@ -198,8 +221,8 @@ fn camera_pan_offset_after_drag(
         + horizontal_camera_axis(camera_up) * delta.y * scale
 }
 
-fn camera_distance_after_scroll(distance: f32, scroll: f32) -> f32 {
-    (distance - scroll * CAMERA_ZOOM_PER_LINE).clamp(CAMERA_MIN_DISTANCE, CAMERA_MAX_DISTANCE)
+fn camera_distance_after_scroll(distance: f32, scroll: f32, sensitivity: f32, min: f32, max: f32) -> f32 {
+    (distance - scroll * sensitivity).clamp(min, max)
 }
 
 /// A quick click sets one destination. Holding the button for a short
@@ -259,6 +282,7 @@ pub(super) fn move_player_to_target(
     camera: Query<&Transform, (With<GameplayCamera>, Without<Player>)>,
     blockers: Query<&GlobalTransform, With<MovementBlocker>>,
     mut target: ResMut<MovementTarget>,
+    settings: Res<PlayerSettings>,
     input: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
 ) {
@@ -268,11 +292,7 @@ pub(super) fn move_player_to_target(
     };
 
     let sprinting = input.pressed(KeyCode::ShiftLeft) || input.pressed(KeyCode::ShiftRight);
-    let speed = if sprinting {
-        PLAYER_SPRINT_SPEED
-    } else {
-        PLAYER_WALK_SPEED
-    };
+    let speed = if sprinting { settings.sprint_speed } else { settings.walk_speed };
     let delta_secs = time.delta_secs();
     if !delta_secs.is_finite() || delta_secs <= 0.0 {
         return;
@@ -849,32 +869,32 @@ mod tests {
 
     #[test]
     fn scrolling_in_zooms_in_and_flattens_the_view() {
-        assert!(camera_distance_after_scroll(CAMERA_DISTANCE, 1.0) < CAMERA_DISTANCE);
-        assert!(camera_pitch_after_scroll(CAMERA_DEFAULT_PITCH, 1.0) > CAMERA_DEFAULT_PITCH);
+        assert!(camera_distance_after_scroll(CAMERA_DISTANCE, 1.0, 0.65, CAMERA_MIN_DISTANCE, CAMERA_MAX_DISTANCE) < CAMERA_DISTANCE);
+        assert!(camera_pitch_after_scroll(CAMERA_DEFAULT_PITCH, 1.0, 0.02) > CAMERA_DEFAULT_PITCH);
     }
 
     #[test]
     fn scrolling_out_zooms_out_and_raises_the_view() {
-        assert!(camera_distance_after_scroll(CAMERA_DISTANCE, -1.0) > CAMERA_DISTANCE);
-        assert!(camera_pitch_after_scroll(CAMERA_DEFAULT_PITCH, -1.0) < CAMERA_DEFAULT_PITCH);
+        assert!(camera_distance_after_scroll(CAMERA_DISTANCE, -1.0, 0.65, CAMERA_MIN_DISTANCE, CAMERA_MAX_DISTANCE) > CAMERA_DISTANCE);
+        assert!(camera_pitch_after_scroll(CAMERA_DEFAULT_PITCH, -1.0, 0.02) < CAMERA_DEFAULT_PITCH);
     }
 
     #[test]
     fn camera_adjustments_stay_within_their_limits() {
         assert_eq!(
-            camera_distance_after_scroll(CAMERA_MIN_DISTANCE, 10.0),
+            camera_distance_after_scroll(CAMERA_MIN_DISTANCE, 10.0, 0.65, CAMERA_MIN_DISTANCE, CAMERA_MAX_DISTANCE),
             CAMERA_MIN_DISTANCE
         );
         assert_eq!(
-            camera_distance_after_scroll(CAMERA_MAX_DISTANCE, -10.0),
+            camera_distance_after_scroll(CAMERA_MAX_DISTANCE, -10.0, 0.65, CAMERA_MIN_DISTANCE, CAMERA_MAX_DISTANCE),
             CAMERA_MAX_DISTANCE
         );
         assert_eq!(
-            camera_pitch_after_scroll(CAMERA_MIN_PITCH, -10.0),
+            camera_pitch_after_scroll(CAMERA_MIN_PITCH, -10.0, 0.02),
             CAMERA_MIN_PITCH
         );
         assert_eq!(
-            camera_pitch_after_scroll(CAMERA_MAX_PITCH, 10.0),
+            camera_pitch_after_scroll(CAMERA_MAX_PITCH, 10.0, 0.02),
             CAMERA_MAX_PITCH
         );
     }
