@@ -48,9 +48,15 @@ impl Plugin for GameplayPlugin {
             )
             .add_systems(
                 Update,
+                player::set_move_target_from_cursor
+                    .after(UiSet::Input)
+                    .before(player::move_player_to_target)
+                    .run_if(in_state(AppState::InGame)),
+            )
+            .add_systems(
+                Update,
                 (
                     player::adjust_camera.run_if(gameplay_input_enabled),
-                    player::set_move_target_from_cursor.run_if(gameplay_input_enabled),
                     player::move_player_to_target.run_if(gameplay_input_enabled),
                     player::follow_camera,
                     player::draw_move_trajectory.run_if(gameplay_input_enabled),
