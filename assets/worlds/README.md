@@ -22,6 +22,7 @@ Add these components to Blender Objects (or Empties where appropriate):
 | Component type path | Use |
 | --- | --- |
 | `delta_slayers::gameplay::zones::TriggerBox` | Oriented interaction / fast-travel volume. Choose `kind`; the object's transform defines its bounds. |
+| `delta_slayers::gameplay::exploration::ExplorationPortal` | Opens a seeded procedural hex wilderness. Its fields configure the generated map; the object's transform defines the interaction volume. |
 | `delta_slayers::gameplay::player::MovementBlocker` | Invisible oriented box that blocks player movement; the object's transform defines its bounds. |
 | `delta_slayers::gameplay::spawning::SpawnPoint` | Spawn location. Choose `kind`; for Player points, a higher `priority` wins. |
 | `delta_slayers::gameplay::billboard::Billboard` | Makes a flat object face the player camera horizontally. |
@@ -45,6 +46,35 @@ but keeps the player's current Y elevation regardless of the trigger's height.
 The current UI and visited-zone model treats each kind as one destination. The
 component API can be extended with stable zone IDs before adding multiple
 shops or guilds.
+
+### Exploration portals
+
+Add `ExplorationPortal` to a default Blender cube. Its transformed bounds
+define the interaction volume, using the same local -1 to 1 bounds as
+`TriggerBox`. Enter the volume and press **E** to generate and enter a
+procedural exploration map. The generated map is placed in a separate world
+area while the town remains loaded. A return beacon is created near the map's
+center; enter its volume and press **E** to return to the town.
+
+The portal exposes these settings:
+
+| Field | Default | Runtime range | Effect |
+| --- | ---: | ---: | --- |
+| `seed` | empty | any `u64` | A fixed value reproduces the same terrain and decoration. Empty chooses a new seed on each visit. |
+| `radius` | 12 | 8–32 | Hex radius; the map contains `1 + 3r(r + 1)` tiles. |
+| `tile_size` | 1.5 | 1–3 | Side length of each hex tile in world units. |
+| `height_multiplier` | 2.2 | 0–5 | Vertical scale of the terrain. Set to zero for flat terrain. |
+| `terrain_frequency` | 0.045 | 0.01–0.15 | Higher values create smaller, more frequent elevation features. |
+| `biome_scale` | 0.028 | 0.006–0.12 | Controls the size of biome regions. |
+| `vegetation_density` | 0.28 | 0–0.8 | Chance of placing a tree on eligible woodland tiles. |
+
+Values outside the runtime ranges are clamped. For a reproducible test map,
+set a seed explicitly; leave it empty when each visit should be different.
+The generated terrain has grassland, woodland, dryland, and highland regions,
+with procedural height variation, sparse trees and rocks, and a movement-blocked
+outer boundary. The map is a first exploration prototype: it does not yet
+persist its discovered state or add resource gathering, ecology simulation, or
+NPC populations.
 
 ### Invisible movement walls
 
