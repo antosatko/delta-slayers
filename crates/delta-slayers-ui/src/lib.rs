@@ -7,7 +7,7 @@
 mod theme;
 mod widgets;
 
-pub use theme::{CarbonButtonTone, CarbonPlugin, CarbonStatus, CarbonTab, CarbonTheme};
+pub use theme::{CarbonButtonTone, CarbonPlugin, CarbonSelection, CarbonStatus, CarbonTab, CarbonTheme};
 pub use widgets::{
     CarbonIcon, action_button, badge, item_tile, item_tile_optional, page_header, panel,
     reference_term, root, screen_tab, screen_tabs, section_header, stat_bar,
