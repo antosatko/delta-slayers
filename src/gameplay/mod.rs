@@ -10,7 +10,10 @@ pub mod zones;
 
 use bevy::prelude::*;
 
-use crate::{app::state::AppState, ui::{stack::UiStack, UiSet}};
+use crate::{
+    app::state::AppState,
+    ui::{stack::UiStack, UiSet},
+};
 
 /// Selects whether a new gameplay session restores the quick-save or starts fresh.
 #[derive(Resource, Clone, Copy, Debug, Default, PartialEq, Eq)]
