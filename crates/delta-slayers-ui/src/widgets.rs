@@ -6,7 +6,7 @@ use bevy::{
 
 use crate::{
     CarbonButtonTone, CarbonStatus, CarbonTheme,
-    theme::{CarbonButtonStyle, CarbonHoverCard, CarbonHoverDelay},
+    theme::{CarbonButtonStyle, CarbonHoverCard, CarbonHoverDelay, CarbonTab},
 };
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -221,7 +221,8 @@ pub fn screen_tab(label: &'static str, selected: bool) -> impl Scene {
     bsn! {
         Button
         Hovered(false)
-        CarbonButtonStyle { tone: CarbonButtonTone::Ghost, selected }
+        CarbonTab { selected }
+        CarbonButtonStyle { tone: CarbonButtonTone::Ghost, selected: false }
         Node {
             min_height: px(31),
             padding: UiRect::axes(px(11), px(5)),
