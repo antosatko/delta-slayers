@@ -476,7 +476,7 @@ fn collect_object_spawn_points(
         }
 
         if let Some(children) = world.get::<Children>(entity) {
-            pending.extend(children.iter().copied().map(|child| (child, transform)));
+            pending.extend(children.iter().map(|child| (child, transform)));
         }
     }
 
@@ -567,7 +567,7 @@ fn strip_prototype_markers(world: &mut World, root: Entity) -> usize {
 fn prune_non_rendering_descendants(world: &mut World, parent: Entity) -> usize {
     let children = world
         .get::<Children>(parent)
-        .map(|children| children.iter().copied().collect::<Vec<_>>())
+        .map(|children| children.iter().collect::<Vec<_>>())
         .unwrap_or_default();
     let mut removed = 0;
 
@@ -585,7 +585,7 @@ fn prune_non_rendering_descendants(world: &mut World, parent: Entity) -> usize {
 fn despawn_subtree(world: &mut World, entity: Entity) -> usize {
     let children = world
         .get::<Children>(entity)
-        .map(|children| children.iter().copied().collect::<Vec<_>>())
+        .map(|children| children.iter().collect::<Vec<_>>())
         .unwrap_or_default();
     let mut removed = 1;
 
