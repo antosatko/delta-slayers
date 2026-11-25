@@ -66,11 +66,12 @@ bsn! {
 - page_header, screen_tabs, and screen_tab provide title, contextual help,
   and optional second-row screen navigation. Each tab carries a CarbonTab
   component; update its selected field to project active-tab styling.
-- section_header, action_button, and badge provide common hierarchy and
-  action/status treatments.
+- section_header, action_button, badge, eyebrow_text, muted_text, and
+  key_hint provide common hierarchy, helper copy, and keyboard affordances.
 - stat_bar displays a value and semantic progress fill.
-- item_tile and item_tile_optional are square, artwork-first item controls.
-  The optional variant accepts None for items without a stack quantity.
+- item_tile and item_tile_optional are square glyph-first controls;
+  item_art_tile is a passive image-first tile for inventory presentation.
+  equipment_slot provides a caption-free equipment placeholder.
   Each tile exposes CarbonSelection so a screen can change its selected
   appearance without rebuilding the scene.
 - reference_term opens a contextual information card after a 600 ms hover
@@ -93,4 +94,6 @@ cargo run -p delta-slayers-ui --example carbon_showcase
 The example includes working tab navigation, selectable inventory items,
 updated item details, and visible use/drop feedback. Its responsive content
 columns wrap when the window becomes too narrow for a side-by-side layout.
-All actions remain demonstration-only and do not mutate game state.
+The game uses the same widgets for its inventory, equipment placeholders,
+fast-travel choices, zone panels, modal overlays, loading screen, and
+application placeholder screens.
