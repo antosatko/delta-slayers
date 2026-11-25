@@ -819,8 +819,14 @@ mod tests {
 
         assert!(pitched_down < CAMERA_DEFAULT_PITCH);
         assert!(pitched_up > CAMERA_DEFAULT_PITCH);
-        assert_eq!(camera_pitch_after_drag(CAMERA_DEFAULT_PITCH, 10_000.0), CAMERA_MIN_PITCH);
-        assert_eq!(camera_pitch_after_drag(CAMERA_DEFAULT_PITCH, -10_000.0), CAMERA_MAX_PITCH);
+        assert_eq!(
+            camera_pitch_after_drag(CAMERA_DEFAULT_PITCH, 10_000.0),
+            CAMERA_MIN_PITCH
+        );
+        assert_eq!(
+            camera_pitch_after_drag(CAMERA_DEFAULT_PITCH, -10_000.0),
+            CAMERA_MAX_PITCH
+        );
     }
 
     #[test]
