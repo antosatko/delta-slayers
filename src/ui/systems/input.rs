@@ -1,4 +1,8 @@
-use bevy::prelude::*;
+use bevy::{
+    input::mouse::{MouseScrollUnit, MouseWheel},
+    prelude::*,
+    ui::{ComputedNode, RelativeCursorPosition, ScrollPosition},
+};
 
 use crate::{
     gameplay::{
@@ -6,7 +10,7 @@ use crate::{
         zones::NearbyZone,
     },
     ui::{
-        components::{ExplorationSetupViewModel, PopupConfirmRequested},
+        components::{ExplorationSetupViewModel, PopupConfirmRequested, VegetationLabRoot},
         stack::{UiLayer, UiStack},
     },
 };
@@ -90,4 +94,43 @@ pub fn handle_ui_input(
         && nearby.0 != Some(active) {
             ui.remove(UiLayer::Panel(active));
         }
+}
+
+/// Applies mouse-wheel input to the vegetation panel's clipped scroll region.
+/// Bevy exposes ScrollPosition but leaves wheel routing to the application.
+pub fn vegetation_lab_scroll(
+    mut wheel_events: MessageReader<MouseWheel>,
+    mut panels: Query<
+        (
+            &mut ScrollPosition,
+            &ComputedNode,
+            &RelativeCursorPosition,
+            &InheritedVisibility,
+        ),
+        With<VegetationLabRoot>,
+    >,
+) {
+    let events = wheel_events.read().copied().collect::<Vec<_>>();
+    if events.is_empty() {
+        return;
+    }
+
+    let Ok((mut scroll, computed, cursor, visibility)) = panels.single_mut() else {
+        return;
+    };
+    if !visibility.get() || !cursor.cursor_over {
+        return;
+    }
+
+    let max_scroll_y =
+        ((computed.content_size.y - computed.size.y) * computed.inverse_scale_factor).max(0.0);
+    for event in events {
+        let delta = match event.unit {
+            MouseScrollUnit::Line => event.y * 24.0,
+            MouseScrollUnit::Pixel => event.y * computed.inverse_scale_factor,
+        };
+        if delta.is_finite() {
+            scroll.0.y = (scroll.0.y - delta).clamp(0.0, max_scroll_y);
+        }
+    }
 }

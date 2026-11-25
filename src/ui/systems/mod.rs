@@ -1,7 +1,7 @@
 mod input;
 mod projection;
 
-pub(super) use input::handle_ui_input;
+pub(super) use input::{handle_ui_input, vegetation_lab_scroll};
 pub(super) use projection::{
     developer_settings_projection, exploration_debug_panel_projection,
     exploration_setup_projection, fast_travel_button_visibility_system,

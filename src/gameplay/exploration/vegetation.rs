@@ -12,7 +12,8 @@ use super::{
     terrain::fractal_noise,
 };
 
-const MASK_CELL_SIZE: f32 = 3.0;
+// One-metre masks avoid visible square cells on the six-metre hex tiles.
+const MASK_CELL_SIZE: f32 = 1.0;
 const TILE_MODEL_SOURCE_RADIUS: f32 = 5.0;
 const CLIFF_FADE_WIDTH: f32 = 1.35;
 const NEIGHBOR_EDGE: [usize; 6] = [5, 4, 3, 2, 1, 0];
@@ -60,16 +61,20 @@ pub(super) fn spawn_vegetation(
     config: ExplorationPortal,
     seed: u64,
     tiles: &HashMap<(i32, i32), GeneratedTile>,
-    styles: &mut Assets<GrassStyle>,
+    asset_server: &AssetServer,
     images: &mut Assets<Image>,
     tuning: &VegetationTuning,
 ) {
     let half_extent = (3.0_f32.sqrt() * (config.radius as f32 + 0.5) + 1.0) * config.tile_size;
     let field_size = Vec2::splat(half_extent * 2.0);
-    let ground = GrassField::new(field_size, GrassStyle::WILDFLOWER_MEADOW, styles)
-        .with_ground_from_fn(images, MASK_CELL_SIZE, |point| {
-            tile_ground_height(tiles, point, config.tile_size)
-        });
+    let ground = GrassField {
+        size: field_size,
+        style: asset_server.load("grass_styles/wildflower_meadow.grass.ron"),
+        ..default()
+    }
+    .with_ground_from_fn(images, MASK_CELL_SIZE, |point| {
+        tile_ground_height(tiles, point, config.tile_size)
+    });
     let shared_ground = ground.ground.clone();
 
     let grassland = ground.with_density_from_fn(images, MASK_CELL_SIZE, |point| {
@@ -82,12 +87,11 @@ pub(super) fn spawn_vegetation(
         root,
         field_size,
         shared_ground.clone(),
-        GrassStyle::FOREST_FLOOR,
+        asset_server.load("grass_styles/forest_floor.grass.ron"),
         Biome::Woodland,
         config,
         seed,
         tiles,
-        styles,
         images,
         tuning,
     );
@@ -96,12 +100,11 @@ pub(super) fn spawn_vegetation(
         root,
         field_size,
         shared_ground.clone(),
-        GrassStyle::DUNE_MARRAM,
+        asset_server.load("grass_styles/dune_marram.grass.ron"),
         Biome::Dryland,
         config,
         seed,
         tiles,
-        styles,
         images,
         tuning,
     );
@@ -110,12 +113,11 @@ pub(super) fn spawn_vegetation(
         root,
         field_size,
         shared_ground,
-        GrassStyle::FROSTED_MEADOW,
+        asset_server.load("grass_styles/frosted_meadow.grass.ron"),
         Biome::Highlands,
         config,
         seed,
         tiles,
-        styles,
         images,
         tuning,
     );
@@ -127,17 +129,20 @@ fn spawn_masked_field(
     root: Entity,
     field_size: Vec2,
     ground: GrassGround,
-    style: GrassStyle,
+    style: Handle<GrassStyle>,
     biome: Biome,
     config: ExplorationPortal,
     seed: u64,
     tiles: &HashMap<(i32, i32), GeneratedTile>,
-    styles: &mut Assets<GrassStyle>,
     images: &mut Assets<Image>,
     tuning: &VegetationTuning,
 ) {
-    let mut field = GrassField::new(field_size, style, styles);
-    field.ground = ground;
+    let field = GrassField {
+        size: field_size,
+        style,
+        ground,
+        ..default()
+    };
     let field = field.with_density_from_fn(images, MASK_CELL_SIZE, |point| {
         biome_density(tiles, config, seed, point, biome)
     });
@@ -225,15 +230,9 @@ fn biome_density(
         Biome::Highlands => weights[3],
     };
 
-    let patch_noise = fractal_noise(
-        point.x * 0.075,
-        point.y * 0.075,
-        seed ^ 0xBB67_AE85_84CA_A73B,
-    );
-    let patchiness = 0.86 + (patch_noise + 1.0) * 0.07;
     let cliff_fade = cliff_edge_fade(tiles, coordinates, center, point, config);
 
-    (biome_weight * patchiness * cliff_fade).clamp(0.0, 1.0)
+    (biome_weight * cliff_fade).clamp(0.0, 1.0)
 }
 
 fn climate_values(config: ExplorationPortal, seed: u64, point: Vec2) -> (f32, f32) {
