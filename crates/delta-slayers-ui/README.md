@@ -1,8 +1,8 @@
 # delta-slayers-ui
 
-Game-specific Bevy UI components for Delta Slayers. The crate implements the
-Carbon visual language used by the HTML prototype and provides a small set of
-BSN scenes with shared presentation behaviour.
+Game-specific Bevy UI composition helpers for Delta Slayers. The crate uses
+Bevy Feathers controls and theme tokens where they fit, with a restrained
+Carbon-inspired visual language for game-specific presentation.
 
 ## Visual direction
 
@@ -20,9 +20,11 @@ title. Screens with multiple views can place a tab row directly underneath.
 
 ## Setup
 
-Add the plugin once:
+Install Bevy Feathers and the game's presentation plugin once:
 
 ```rust
+app.add_plugins(FeathersPlugins);
+app.insert_resource(UiTheme(create_dark_theme()));
 app.add_plugins(CarbonPlugin);
 ```
 
@@ -60,8 +62,9 @@ bsn! {
 
 ## Components
 
-- CarbonTheme and CarbonPlugin provide the shared palette and interaction
-  behaviour.
+- FeathersPlugins and UiTheme provide the shared widget controls and theme.
+  CarbonTheme and CarbonPlugin retain game-specific palette tokens, hover-card
+  timing, and selection projection.
 - root and panel provide full-window and raised-surface layout.
 - page_title and page_header provide plain titles or titles with contextual help;
   screen_tabs and screen_tab provide optional second-row screen navigation. Each tab carries a CarbonTab
@@ -81,7 +84,7 @@ bsn! {
 All hierarchies are BSN scenes. Plugin systems only project interaction state
 into existing components; they do not spawn or rebuild UI trees.
 
-The crate exposes only the current Carbon API.
+The crate exposes the current Feathers-backed game UI helpers and Carbon presentation API.
 
 ## Showcase
 
