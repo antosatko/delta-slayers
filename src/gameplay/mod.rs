@@ -4,6 +4,7 @@ mod spawning;
 mod systems;
 mod world;
 
+pub use billboard::SquashOnMove;
 pub mod inventory;
 pub mod player;
 pub mod zones;
@@ -32,6 +33,7 @@ impl Plugin for GameplayPlugin {
             .register_type::<spawning::SpawnPointKind>()
             .register_type::<spawning::SpawnPoint>()
             .register_type::<billboard::Billboard>()
+            .register_type::<billboard::SquashOnMove>()
             .init_resource::<spawning::WorldStartup>()
             .init_resource::<zones::NearbyZone>()
             .init_resource::<zones::VisitedZones>()
@@ -61,6 +63,7 @@ impl Plugin for GameplayPlugin {
                     player::follow_camera,
                     player::draw_move_trajectory.run_if(gameplay_simulation_enabled),
                     player::sync_player_visual,
+                    billboard::animate_moving_sprites,
                     billboard::billboard_system,
                     zones::zone_detection_system.run_if(gameplay_simulation_enabled),
                 )
