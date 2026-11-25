@@ -160,7 +160,8 @@ pub(super) fn adjust_camera(
             let right = orientation * Vec3::X;
             let up = orientation * Vec3::Y;
             let scale = camera.distance * CAMERA_PAN_SENSITIVITY;
-            camera.pan_offset = camera_pan_offset_after_drag(camera.pan_offset, motion, right, up, scale);
+            camera.pan_offset =
+                camera_pan_offset_after_drag(camera.pan_offset, motion, right, up, scale);
         }
     }
 
@@ -837,7 +838,7 @@ mod tests {
             0.05,
         );
 
-        assert!((second.x - 0.0).abs() < 1e-6);
+        assert!(second.abs_diff_eq(Vec3::ZERO, 1e-6));
     }
 
     #[test]
