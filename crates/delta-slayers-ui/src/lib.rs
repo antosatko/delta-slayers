@@ -9,7 +9,7 @@ mod widgets;
 
 pub use theme::{CarbonButtonTone, CarbonPlugin, CarbonStatus, CarbonTheme};
 pub use widgets::{
-    CarbonIcon, action_button, badge, item_tile, page_header, panel, reference_term, root,
+    CarbonIcon, action_button, badge, item_tile, item_tile_optional, page_header, panel, reference_term, root,
     screen_tab, screen_tabs, section_header, stat_bar,
 };
 
