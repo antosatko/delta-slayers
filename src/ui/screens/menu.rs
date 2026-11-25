@@ -37,22 +37,47 @@ fn main_menu() -> impl Scene {
                 @page_header(
                     "Delta Slayers",
                     "Guild hall",
-                    "Choose whether to begin a new journey, continue an existing one, or adjust the game settings."
+                    "Start a new journey, continue an existing one, or adjust your settings."
                 )
                 --
                 @panel(percent(100))
                 Children [
                     @section_header(CarbonIcon::Compass, "Continue your journey")
                     --
-                    @menu_button("Play", CarbonIcon::Sword, AppState::Loading, CarbonButtonTone::Primary)
+                    @menu_button(
+                        "Play",
+                        CarbonIcon::Sword,
+                        AppState::Loading,
+                        CarbonButtonTone::Primary
+                    )
                     --
-                    @menu_button("Continue", CarbonIcon::Back, AppState::Continue, CarbonButtonTone::Secondary)
+                    @menu_button(
+                        "Continue",
+                        CarbonIcon::Back,
+                        AppState::Continue,
+                        CarbonButtonTone::Secondary
+                    )
                     --
-                    @menu_button("Load game", CarbonIcon::Inventory, AppState::Load, CarbonButtonTone::Secondary)
+                    @menu_button(
+                        "Load game",
+                        CarbonIcon::Inventory,
+                        AppState::Load,
+                        CarbonButtonTone::Secondary
+                    )
                     --
-                    @menu_button("Settings", CarbonIcon::Settings, AppState::Settings, CarbonButtonTone::Secondary)
+                    @menu_button(
+                        "Settings",
+                        CarbonIcon::Settings,
+                        AppState::Settings,
+                        CarbonButtonTone::Secondary
+                    )
                     --
-                    @menu_button("Credits", CarbonIcon::Book, AppState::Credits, CarbonButtonTone::Ghost)
+                    @menu_button(
+                        "Credits",
+                        CarbonIcon::Book,
+                        AppState::Credits,
+                        CarbonButtonTone::Ghost
+                    )
                     --
                     @exit_button()
                 ]
