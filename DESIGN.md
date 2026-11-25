@@ -175,6 +175,9 @@ layer. It is deliberately game-specific rather than a generic widget framework.
 - `reference_term` is a hoverable text control whose information card opens
   after a 600 ms dwell. The page header uses the same delayed-card behaviour for
   its help affordance.
+- `muted_text`, `eyebrow_text`, and `key_hint` provide consistent secondary
+  copy and keyboard affordances. `item_art_tile` is a passive square image tile;
+  `equipment_slot` is a caption-free equipment placeholder.
 - All controls are declared with BSN. Library systems only project interaction
   state into existing components; they do not create or rebuild UI trees.
 
@@ -185,8 +188,10 @@ cargo run -p delta-slayers-ui --example carbon_showcase
 ```
 
 The game imports the crate through the workspace path dependency. The main
-menu is the first integrated screen; game-specific overlay navigation and
-ViewModel projection remain in `src/ui/`.
+menu, loading screen, application placeholders, inventory, zone panels,
+interaction prompt, fast-travel panel, minimap surfaces, pause overlay, and
+game menu all use the shared Carbon palette and widgets. Game-specific
+navigation and ViewModel projection remain in `src/ui/`.
 
 ## BSN conventions
 
