@@ -239,6 +239,7 @@ fn exploration_debug_panel() -> impl Scene {
         template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().overlay)))
         bevy::ui::GlobalZIndex(16)
         ExplorationDebugPanelRoot
+        RelativeCursorPosition
         Visibility::Hidden
         DespawnOnExit::<AppState>(AppState::InGame)
         Children [
@@ -275,13 +276,15 @@ fn vegetation_lab_panel() -> impl Scene {
             right: px(14),
             width: px(430),
             max_width: percent(46),
-            max_height: percent(94),
+            bottom: px(14),
             min_width: px(0),
+            min_height: px(0),
             overflow: Overflow::scroll(),
         }
         template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().overlay)))
         bevy::ui::GlobalZIndex(24)
         VegetationLabRoot
+        ScrollPosition::default()
         RelativeCursorPosition
         Visibility::Hidden
         DespawnOnExit::<AppState>(AppState::InGame)

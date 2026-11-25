@@ -22,7 +22,6 @@ pub fn run() {
                 shadows: GrassShadows::Off,
                 instance_capacity: 80_000,
                 max_interactors: 32,
-                blade_rows: [3, 2, 1],
                 ..GrassSettings::LOW
             },
             ..default()

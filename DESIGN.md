@@ -39,7 +39,7 @@ Within those areas:
 | `gameplay/exploration/travel.rs` | Portal detection, entering/returning from maps, and travel anchors |
 | `gameplay/exploration/generation.rs` | Seeded tile generation, reachability, imported tile spawning, and biome materials |
 | `gameplay/exploration/terrain.rs` | Biome/noise sampling and smooth terrain elevation synchronization |
-| `gameplay/exploration/vegetation.rs` | Continuous biome-weighted grass fields, tile-height masks, live density/wind tuning, and GPU support status |
+| `gameplay/exploration/vegetation.rs` | Continuous biome-weighted grass fields, one-metre tile-height masks, live density/wind tuning, and GPU support status |
 | `gameplay/exploration/hex.rs` | Axial coordinates, hex layout, and neighbor geometry |
 | `gameplay/inventory.rs` | Authoritative inventory data |
 | `gameplay/world.rs` | In-game world setup and the world-ready transition |

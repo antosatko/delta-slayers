@@ -67,6 +67,11 @@ pub(in crate::gameplay) fn adjust_camera(
                 camera_pan_offset_after_drag(camera.pan_offset, motion, right, up, scale);
         }
 
+    // Scrolling over a panel belongs to that UI panel, not the camera.
+    if pointer_over_ui {
+        return;
+    }
+
     let scroll = mouse_scroll.to_lines(&scroll_conversion).delta.y;
     if !scroll.is_finite() || scroll == 0.0 {
         return;

@@ -97,7 +97,8 @@ pub(in crate::gameplay) fn set_move_target_from_cursor(
     let blocked_by_ui = pointer_over_ui
         || ui_state.paused()
         || ui_state.inventory_open()
-        || ui_state.game_menu_open();
+        || ui_state.game_menu_open()
+        || ui_state.exploration_setup_open();
     if !target.should_update_from_cursor(pressed, just_pressed, time.delta_secs(), blocked_by_ui) {
         return;
     }

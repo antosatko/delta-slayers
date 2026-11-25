@@ -4,8 +4,6 @@ use bevy::{
 };
 use std::collections::{HashMap, HashSet, VecDeque};
 
-use bevy_grass::prelude::GrassStyle;
-
 use crate::gameplay::player::MovementBlocker;
 
 use super::hex::{HEX_CORNER_COUNT, HEX_NEIGHBORS, hex_center, hex_corner, hex_layout_radius};
@@ -33,7 +31,7 @@ pub(super) fn spawn_map_geometry(
     tile_assets: &[Handle<WorldAsset>; 2],
     meshes: &mut Assets<Mesh>,
     materials: &mut Assets<StandardMaterial>,
-    styles: &mut Assets<GrassStyle>,
+    asset_server: &AssetServer,
     images: &mut Assets<Image>,
     tuning: &super::VegetationTuning,
 ) {
@@ -50,7 +48,7 @@ pub(super) fn spawn_map_geometry(
         &reachable,
     );
     spawn_boundary_walls(commands, root, config, &tiles);
-    super::vegetation::spawn_vegetation(commands, root, config, seed, &tiles, styles, images, tuning);
+    super::vegetation::spawn_vegetation(commands, root, config, seed, &tiles, asset_server, images, tuning);
 
     let return_height = terrain_surface_height(config, seed, Vec2::ZERO);
     // Keep the interaction volume independent from the beacon's visual scale.

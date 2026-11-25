@@ -47,7 +47,7 @@ impl Plugin for UiPlugin {
             )
             .add_systems(
                 Update,
-                systems::handle_ui_input
+                (systems::handle_ui_input, systems::vegetation_lab_scroll)
                     .in_set(UiSet::Input)
                     .run_if(in_state(AppState::InGame)),
             )
