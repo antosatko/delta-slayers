@@ -316,7 +316,7 @@ fn exploration_setup_panel() -> impl Scene {
                     Children [
                         @pane_body()
                         Children [
-                            @label_dim("Adjust the map before entering. A seed of 0 generates a new map each visit.",)
+                            @label_dim("Adjust the map before entering. A seed of 0 generates a new map each visit.")
                             --
                             @exploration_integer_control(
                                 "Seed",
@@ -397,7 +397,7 @@ fn exploration_setup_panel() -> impl Scene {
                             template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().ink)))
                             TextFont { font_size: px(13) }
                             --
-                            Text("469 hexes · approx. 54 world units across")
+                            Text("469 hexes")
                             ExplorationSetupTileCountText
                             TextFont { font_size: px(11) }
                             template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().muted)))
