@@ -4,7 +4,7 @@ use crate::{
     app::state::AppState,
     gameplay::{
         persistence::save_game,
-        exploration::ExplorationSession,
+        exploration::{ActiveExplorationMap, ExplorationSession},
         player::{MovementTarget, Player},
         zones::{FastTravelRequest, TriggerBox, VisitedZones},
     },
@@ -16,10 +16,14 @@ pub(super) fn fast_travel(
     mut movement_target: ResMut<MovementTarget>,
     mut player: Query<&mut Transform, With<Player>>,
     zones: Query<(&GlobalTransform, &TriggerBox)>,
+    active_map: Res<ActiveExplorationMap>,
 ) {
     let Some(kind) = request.0.take() else {
         return;
     };
+    if active_map.0.is_some() {
+        return;
+    }
     movement_target.clear();
 
     let destination = zones
