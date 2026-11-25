@@ -1,6 +1,6 @@
 use bevy::{prelude::*, ui_widgets::Activate};
 use delta_slayers_ui::{
-    CarbonButtonTone, CarbonIcon, CarbonTheme, action_button, muted_text, page_header, panel,
+    CarbonButtonTone, CarbonIcon, CarbonTheme, action_button, muted_text, page_title, panel,
 };
 
 use crate::app::state::AppState;
@@ -76,7 +76,7 @@ fn placeholder_content(
             Children [
                 @panel(percent(100))
                 Children [
-                    @page_header(title, "Application screen", description)
+                    @page_title(title)
                     --
                     @muted_text(description, 13.0)
                     --
