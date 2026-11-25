@@ -129,6 +129,10 @@ pub fn page_header(
             }
             Children [
                 Text(title)
+                Node {
+                    flex_grow: 1.0,
+                    min_width: px(0),
+                }
                 TextFont { font_size: px(28) }
                 template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().ink)))
                 --
@@ -306,9 +310,11 @@ pub fn badge(label: &'static str, status: CarbonStatus) -> impl Scene {
                 ctx.resource::<CarbonTheme>().status_background(status),
             ))
         })
-        Text(label)
-        TextFont { font_size: px(10) }
-        template(move |ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().status_color(status))))
+        Children [
+            Text(label)
+            TextFont { font_size: px(10) }
+            template(move |ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().status_color(status))))
+        ]
     }
 }
 
