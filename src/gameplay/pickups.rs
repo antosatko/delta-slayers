@@ -131,11 +131,10 @@ pub(super) fn update_pickup_states(
     }
 }
 
-/// Finds the nearest pickup in front of the player's normal interaction probe.
 #[derive(Default)]
 struct PickupDetectionDiagnostics {
     counts: Option<(usize, usize)>,
-    nearest: Option<(Entity, bool)>,
+    nearest: Option<Option<(Entity, bool)>>,
 }
 
 /// Finds the nearest pickup in front of the player's normal interaction probe.
@@ -220,7 +219,7 @@ pub(super) fn detect_nearby_pickup(
     }
 
     let nearest_state = nearest_candidate.map(|(entity, _, _, in_range)| (entity, in_range));
-    if diagnostics.nearest != nearest_state {
+    if diagnostics.nearest.as_ref() != Some(&nearest_state) {
         if let Some((entity, distance_squared, vertical_distance, in_range)) = nearest_candidate {
             info!(
                 "Nearest pickup candidate {entity:?}: horizontal {:.2} m, vertical {:.2} m, in range: {in_range}",
@@ -230,7 +229,7 @@ pub(super) fn detect_nearby_pickup(
         } else if pickup_count > 0 {
             info!("Pickup entities exist, but none has a usable transform and stock");
         }
-        diagnostics.nearest = nearest_state;
+        diagnostics.nearest = Some(nearest_state);
     }
 
     nearby.0 = nearest.map(|(entity, _)| entity);
