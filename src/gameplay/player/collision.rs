@@ -7,11 +7,11 @@ pub(in crate::gameplay) const MAX_COLLISION_RESOLVE_PASSES: usize = 6;
 
 /// An invisible, Blender-authored box that blocks player movement.
 ///
-/// Attach this to an Empty and use its world transform to size and orient the
-/// box. The collision volume uses local bounds of -1 to 1 on every axis.
+/// Attach this to an Empty or mesh object. Its world transform defines the
+/// box with local bounds of -1 to 1 on every axis; mesh bounds are not queried.
 #[derive(Component, Reflect, Default)]
 #[reflect(Component, Default)]
-#[type_path = "delta_slayers::gameplay::player"]
+#[type_path = "delta_slayers::gameplay::player::collision"]
 pub struct MovementBlocker;
 
 /// Advances in small increments so a fast frame or sprint cannot tunnel

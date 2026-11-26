@@ -68,9 +68,10 @@ Gameplay setup must not spawn UI. UI setup must not own gameplay-world entities.
 
 Bevy Skein is installed through `SkeinPlugin`. Gameplay components exposed to
 Blender derive `Reflect`, reflect `Component` data, and are registered in the
-app's type registry. Keep these types as stable authoring APIs: renaming a type,
-field, or enum variant can invalidate data already stored in a `.blend` or
-exported glTF file.
+app's type registry. During this prototype stage, reflected type paths follow
+their Rust module paths. Moving or renaming a reflected type can invalidate
+Skein assignments in `.blend` files and exported glTF; update the small set of
+authoring assets directly rather than maintaining compatibility aliases.
 
 The main world export is `assets/worlds/town-map.glb`. Gameplay loads scene 0
 through `WorldAssetRoot` during `AppState::Loading`. The loading screen is a
@@ -85,9 +86,10 @@ Current authored components:
   belongs on a default Blender cube; its full world transform defines the
   bounds, with the default cube's local extents of -1 to 1 on each axis.
 - `MovementBlocker`: invisible oriented box that blocks the player's
-  horizontal movement. Attach it to a Blender Empty; its transform defines a
-  box with local extents of -1 to 1. Blockers are upright and may rotate around
-  the vertical Y axis.
+  horizontal movement. Attach it to a Blender Empty or mesh object; in either
+  case, the entity's transform defines a box with local extents of -1 to 1.
+  Mesh bounds are not queried. Blockers are upright and may rotate around the
+  vertical Y axis.
 - `ExplorationPortal`: configured oriented interaction volume that generates
   a seeded, bounded hex wilderness. It exposes the map radius, rendered tile
   radius in meters, elevation scale, maximum jump height, terrain/biome
