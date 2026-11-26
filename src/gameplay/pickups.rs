@@ -132,7 +132,7 @@ pub(super) fn update_pickup_states(
 }
 
 #[derive(Default)]
-struct PickupDetectionDiagnostics {
+pub(super) struct PickupDetectionDiagnostics {
     counts: Option<(usize, usize)>,
     nearest: Option<Option<(Entity, bool)>>,
 }
