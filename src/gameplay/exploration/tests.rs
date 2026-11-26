@@ -71,10 +71,7 @@ fn legacy_tile_size_does_not_change_runtime_terrain_geometry() {
         }
         .sanitized();
 
-        assert_eq!(
-            terrain_surface_height(config, 1234, point),
-            expected
-        );
+        assert_eq!(terrain_surface_height(config, 1234, point), expected);
     }
 
     assert_eq!(TILE_RADIUS_METERS, 6.0);
