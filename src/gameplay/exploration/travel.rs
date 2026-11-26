@@ -11,7 +11,7 @@ use crate::{
 };
 
 use super::generation::{ExplorationMapRoot, spawn_map_geometry};
-use super::hex::{hex_center, TILE_RADIUS_METERS};
+use super::hex::{TILE_RADIUS_METERS, hex_center};
 use super::terrain::terrain_surface_height;
 use super::{
     ActiveExplorationMap, ActiveMapData, ExplorationPortal, ExplorationReturnPortal,

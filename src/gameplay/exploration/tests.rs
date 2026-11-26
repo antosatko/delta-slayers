@@ -50,7 +50,7 @@ fn portal_parameters_are_clamped_to_safe_ranges() {
     .sanitized();
 
     assert_eq!(config.radius, MAX_MAP_RADIUS);
-    assert_eq!(config.tile_size, 6.0);
+    assert!(config.tile_size.is_nan());
     assert_eq!(config.height_multiplier, 0.0);
     assert_eq!(config.terrain_frequency, 0.045);
     assert_eq!(config.biome_scale, 0.006);
@@ -60,7 +60,10 @@ fn portal_parameters_are_clamped_to_safe_ranges() {
 }
 
 #[test]
-fn generated_tiles_always_use_a_six_meter_radius() {
+fn legacy_tile_size_does_not_change_runtime_terrain_geometry() {
+    let point = Vec2::new(14.0, -8.0);
+    let expected = terrain_surface_height(ExplorationPortal::default(), 1234, point);
+
     for authored_tile_size in [f32::NAN, 2.0, 4.0, 8.0, 12.0] {
         let config = ExplorationPortal {
             tile_size: authored_tile_size,
@@ -68,9 +71,13 @@ fn generated_tiles_always_use_a_six_meter_radius() {
         }
         .sanitized();
 
-        assert_eq!(config.tile_size, TILE_RADIUS_METERS);
-        assert_eq!(TILE_RADIUS_METERS, 6.0);
+        assert_eq!(
+            terrain_surface_height(config, 1234, point),
+            expected
+        );
     }
+
+    assert_eq!(TILE_RADIUS_METERS, 6.0);
 }
 
 #[test]
@@ -86,8 +93,8 @@ fn legacy_exploration_fields_do_not_control_runtime_generation() {
     let compact = compact.sanitized();
     let wide = wide.sanitized();
 
-    assert_eq!(compact.tile_size, TILE_RADIUS_METERS);
-    assert_eq!(wide.tile_size, TILE_RADIUS_METERS);
+    assert_eq!(compact.tile_size, 2.0);
+    assert_eq!(wide.tile_size, 12.0);
     assert_eq!(compact.vegetation_density, 0.0);
     assert_eq!(wide.vegetation_density, 0.8);
 

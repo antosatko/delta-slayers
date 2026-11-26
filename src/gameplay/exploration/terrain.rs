@@ -5,7 +5,7 @@ use crate::gameplay::{
     player::{PLAYER_VISUAL_HEIGHT, Player},
 };
 
-use super::hex::{hex_center, TILE_RADIUS_METERS};
+use super::hex::{TILE_RADIUS_METERS, hex_center};
 use super::{ActiveExplorationMap, Biome, ExplorationPortal};
 
 const TERRAIN_OCTAVES: usize = 4;

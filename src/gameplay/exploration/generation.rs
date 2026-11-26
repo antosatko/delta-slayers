@@ -119,13 +119,11 @@ pub fn apply_tile_materials(
 
 fn generate_tiles(config: ExplorationPortal, seed: u64) -> HashMap<(i32, i32), GeneratedTile> {
     let mut tiles = HashMap::new();
-    let layout_radius = TILE_RADIUS_METERS;
-
     for q in -(config.radius as i32)..=config.radius as i32 {
         let min_r = (-(config.radius as i32)).max(-q - config.radius as i32);
         let max_r = (config.radius as i32).min(-q + config.radius as i32);
         for r in min_r..=max_r {
-            let center = hex_center(q, r, layout_radius);
+            let center = hex_center(q, r, TILE_RADIUS_METERS);
             tiles.insert(
                 (q, r),
                 GeneratedTile {

@@ -11,7 +11,7 @@ use crate::{
     gameplay::{
         exploration::{
             ActiveExplorationMap, Biome, ExplorationTile, NearbyExplorationPortal, UnreachableTile,
-            hex_center, world_to_axial, TILE_RADIUS_METERS,
+            TILE_RADIUS_METERS, hex_center, world_to_axial,
         },
         player::{Player, PlayerSettings},
         pickups::NearbyPickup,
