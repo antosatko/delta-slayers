@@ -515,7 +515,8 @@ fn minimap_direction_glyph(relative: Vec3, player_forward: Vec3) -> &'static str
 /// The player's horizontal forward direction always points toward the top
 /// edge of the map; the right vector defines its horizontal axis.
 fn minimap_position(relative: Vec3, player_forward: Vec3) -> (f32, f32) {
-    minimap_position_with_scale(relative, player_forward, 3.0)
+    let (x, y) = minimap_position_with_scale(relative, player_forward, 3.0);
+    (x - 4.0, y - 4.0)
 }
 
 fn minimap_position_with_scale(relative: Vec3, player_forward: Vec3, scale: f32) -> (f32, f32) {
@@ -528,8 +529,8 @@ fn minimap_position_with_scale(relative: Vec3, player_forward: Vec3, scale: f32)
     }
 
     let right = forward.cross(Vec3::Y).normalize();
-    let map_x = 60.0 + relative.dot(right) * scale - 7.0;
-    let map_y = 60.0 - relative.dot(forward) * scale - 7.0;
+    let map_x = 60.0 + relative.dot(right) * scale - 3.0;
+    let map_y = 60.0 - relative.dot(forward) * scale - 3.0;
     (map_x, map_y)
 }
 
