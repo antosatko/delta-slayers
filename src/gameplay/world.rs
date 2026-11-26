@@ -13,6 +13,7 @@ use crate::{
             NearbyExplorationPortal,
         },
         persistence::load_game,
+        inventory::{InventoryActionRequest, InventoryModel},
         player::{self, GameplayCamera, Player, PlayerVisual},
         spawning::WorldStartup,
         zones::{FastTravelRequest, NearbyZone, VisitedZones},
@@ -36,6 +37,8 @@ pub(super) fn setup_game(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut startup: ResMut<WorldStartup>,
     mut movement_target: ResMut<player::MovementTarget>,
+    mut inventory: ResMut<InventoryModel>,
+    mut inventory_action: ResMut<InventoryActionRequest>,
 ) {
     nearby.0 = None;
     movement_target.clear();
@@ -52,17 +55,20 @@ pub(super) fn setup_game(
     };
     startup.spawn_point_applied = loaded_game.is_some();
 
-    let (spawn_pos, saved_yaw, initial_pitch, saved_visited) = loaded_game
-        .map(|save| (save.position, save.yaw, save.pitch, save.visited_zones))
+    let (spawn_pos, saved_yaw, initial_pitch, saved_visited, saved_inventory) = loaded_game
+        .map(|save| (save.position, save.yaw, save.pitch, save.visited_zones, save.inventory))
         .unwrap_or_else(|| {
             (
                 Vec3::ZERO,
                 0.0,
                 player::CAMERA_DEFAULT_PITCH,
                 std::collections::HashSet::new(),
+                InventoryModel::default(),
             )
         });
     visited.0 = saved_visited;
+    *inventory = saved_inventory;
+    inventory_action.0 = None;
 
     commands.spawn((
         DirectionalLight {

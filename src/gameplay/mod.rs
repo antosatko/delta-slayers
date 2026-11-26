@@ -58,10 +58,18 @@ impl Plugin for GameplayPlugin {
         .init_resource::<exploration::ActiveExplorationMap>()
         .init_resource::<exploration::ExplorationSession>()
         .init_resource::<inventory::InventoryModel>()
+        .init_resource::<inventory::InventoryActionRequest>()
         .init_resource::<GameStartMode>()
         .init_resource::<player::MovementTarget>()
         .init_resource::<player::PlayerSettings>()
         .add_systems(OnEnter(AppState::Loading), world::setup_game)
+        .add_systems(
+            Update,
+            inventory::apply_inventory_action
+                .after(UiSet::Input)
+                .before(UiSet::Projection)
+                .run_if(in_state(AppState::InGame)),
+        )
         .add_systems(
             Update,
             spawning::apply_player_spawn_point
@@ -107,7 +115,6 @@ impl Plugin for GameplayPlugin {
         .add_systems(
             Update,
             systems::fast_travel
-                .run_if(gameplay_simulation_enabled)
                 .run_if(in_state(AppState::InGame))
                 .after(player::move_player_to_target)
                 .before(UiSet::Projection),

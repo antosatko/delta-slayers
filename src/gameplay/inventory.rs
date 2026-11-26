@@ -260,6 +260,57 @@ impl InventoryModel {
     }
 }
 
+
+#[derive(Clone, Copy, Debug)]
+pub enum InventoryAction {
+    AddResource { kind: ResourceKind, amount: u32 },
+    RemoveResource { kind: ResourceKind, amount: u32 },
+    AddItem(ItemKind),
+    LeaveLastItem,
+    MoveLastItemToFront,
+    ClearResources,
+}
+
+#[derive(Resource, Default)]
+pub struct InventoryActionRequest(pub Option<InventoryAction>);
+
+pub(crate) fn apply_inventory_action(
+    mut request: ResMut<InventoryActionRequest>,
+    mut inventory: ResMut<InventoryModel>,
+) {
+    let Some(action) = request.0.take() else {
+        return;
+    };
+
+    match action {
+        InventoryAction::AddResource { kind, amount } => {
+            inventory.add_resource_manually(kind, amount);
+        }
+        InventoryAction::RemoveResource { kind, amount } => {
+            inventory.leave_resource(kind, amount);
+        }
+        InventoryAction::AddItem(kind) => {
+            inventory.add_item_manually(kind);
+        }
+        InventoryAction::LeaveLastItem => {
+            let last = inventory.items().len().saturating_sub(1);
+            inventory.leave_item_at(last);
+        }
+        InventoryAction::MoveLastItemToFront => {
+            let last = inventory.items().len().saturating_sub(1);
+            if last > 0 {
+                inventory.move_item(last, -(last as isize));
+            }
+        }
+        InventoryAction::ClearResources => {
+            for kind in ResourceKind::ALL {
+                let amount = inventory.resource_amount(kind);
+                inventory.leave_resource(kind, amount);
+            }
+        }
+    }
+}
+
 pub fn format_capacity(subunits: u32) -> String {
     format!(
         "{}.{:02}",

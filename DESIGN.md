@@ -40,7 +40,7 @@ Within those areas:
 | `gameplay/exploration/generation.rs` | Seeded tile generation, reachability, imported tile spawning, and biome materials |
 | `gameplay/exploration/terrain.rs` | Biome/noise sampling and smooth terrain elevation synchronization |
 | `gameplay/exploration/hex.rs` | Axial coordinates, hex layout, and neighbor geometry |
-| `gameplay/inventory.rs` | Authoritative inventory data |
+| `gameplay/inventory.rs` | Resource stacks, individual item instances, capacity accounting, inventory actions, and acquisition rules |
 | `gameplay/world.rs` | In-game world setup and the world-ready transition |
 | `gameplay/npc.rs` | NPC movement that reuses the player collision resolver |
 | `gameplay/systems.rs` | Gameplay actions such as fast travel and returning to the menu |
@@ -131,10 +131,10 @@ the clicked destination. Both movement modes share a circular player footprint
 against Blender-authored `MovementBlocker` boxes. Movement advances in small
 steps to prevent tunnelling, and collision correction keeps the player against
 the wall while preserving tangential movement for wall sliding. Blockers affect
-continuous movement, not spawn placement or fast-travel teleports. The inventory
-does not pause gameplay: movement and world simulation continue behind it,
-while camera scrolling is reserved for the inventory UI. Pause and the game menu still suspend gameplay. Right-click opens
-the inventory or dismisses the active overlay.
+continuous movement, not spawn placement or fast-travel teleports. Opening the inventory pauses gameplay simulation, including player/NPC movement
+and other world simulation, while leaving inventory actions available. Camera
+input is disabled while any overlay is active. Right-click opens the inventory
+or dismisses the active overlay.
 Saved positions preserve their full world-space coordinates. Fast travel uses
 the selected trigger box's world-space X/Z position and offsets the exit along
 Z only. It preserves the player's current Y elevation; the trigger box's own
@@ -231,8 +231,8 @@ Bevy:
 - Model: gameplay/domain resources and components. Examples include
   InventoryModel, VisitedZones, NearbyZone, and FastTravelRequest.
 - ViewModel: presentation-ready state derived from the model. InventoryViewModel
-  holds display labels for currency values. Add item summaries, equipment
-  labels, or sorting state here when a real feature needs them.
+  formats capacity, resource stacks, item lists, and overload status for the
+  inventory screen.
 - View: BSN scene functions under ui/screens/. A view describes hierarchy,
   layout, styling, assets, and event bindings.
 

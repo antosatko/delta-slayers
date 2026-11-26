@@ -16,13 +16,14 @@ use bevy::{
 };
 use delta_slayers_ui::{
     CarbonButtonTone, CarbonIcon, CarbonTheme, action_button, eyebrow_text, gear_slot,
-    item_art_tile, key_hint, muted_text, page_header, page_title, panel, section_header,
+    key_hint, muted_text, page_header, page_title, panel, section_header,
 };
 
 use crate::{
     app::state::AppState,
     gameplay::{
         exploration::{ExplorationPortal, ExplorationTravelRequest, PortalAction},
+        inventory::{InventoryAction, InventoryActionRequest, ItemKind, ResourceKind},
         zones::{FastTravelRequest, ZoneKind},
     },
     ui::{
@@ -35,7 +36,7 @@ use crate::{
             PopupConfirmRequested, PopupRoot,
             SettingsPanelRoot,
         },
-        inventory::{CurrencyLabel, InventoryRoot},
+        inventory::{InventoryCapacityText, InventoryItemsText, InventoryResourcesText, InventoryRoot, InventoryStatusText},
         stack::{UiLayer, UiStack},
     },
 };
@@ -819,8 +820,8 @@ fn inventory_scene() -> impl Scene {
             Children [
                 @page_header(
                     "Inventory",
-                    "Party inventory",
-                    "Review carried items, equipment, and party resources. Item tiles are visual inventory entries."
+                    "Carried inventory",
+                    "Resources are stored in stacks. Items are individual pieces of loot. Both contribute to capacity."
                 )
                 --
                 Node {
@@ -835,18 +836,34 @@ fn inventory_scene() -> impl Scene {
                 Children [
                     @key_hint("RMB", "Close inventory")
                     --
-                    Node {
-                        flex_direction: FlexDirection::Row,
-                        flex_wrap: FlexWrap::Wrap,
-                        align_items: AlignItems::Center,
-                        column_gap: px(8),
-                    }
-                    Children [
-                        @action_button("Close", CarbonIcon::Close, CarbonButtonTone::Secondary)
-                        on(|_activate: On<Activate>, mut ui: ResMut<UiStack>| {
-                            ui.remove(UiLayer::Inventory);
-                        })
-                    ]
+                    @action_button("Close", CarbonIcon::Close, CarbonButtonTone::Secondary)
+                    on(|_activate: On<Activate>, mut ui: ResMut<UiStack>| {
+                        ui.remove(UiLayer::Inventory);
+                    })
+                ]
+                --
+                Node {
+                    width: percent(100),
+                    padding: UiRect::all(px(12)),
+                    flex_direction: FlexDirection::Column,
+                    row_gap: px(6),
+                    border_radius: BorderRadius::all(px(7)),
+                }
+                template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().panel_alt)))
+                Children [
+                    Text("Capacity")
+                    TextFont { font_size: px(13) }
+                    template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().muted)))
+                    --
+                    Text("Capacity: 0.00 / 100.00")
+                    InventoryCapacityText
+                    TextFont { font_size: px(20) }
+                    template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().ink)))
+                    --
+                    Text("Within capacity")
+                    InventoryStatusText
+                    TextFont { font_size: px(12) }
+                    template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().muted)))
                 ]
                 --
                 Node {
@@ -855,45 +872,39 @@ fn inventory_scene() -> impl Scene {
                     min_width: px(0),
                     min_height: px(0),
                     overflow: Overflow::scroll(),
-                    flex_direction: FlexDirection::Column,
+                    flex_direction: FlexDirection::Row,
+                    flex_wrap: FlexWrap::Wrap,
+                    align_items: AlignItems::Start,
+                    column_gap: px(14),
+                    row_gap: px(14),
                 }
                 Children [
                     Node {
-                        width: percent(100),
-                        min_width: px(0),
-                        flex_direction: FlexDirection::Row,
-                        flex_wrap: FlexWrap::Wrap,
-                        align_content: AlignContent::Start,
-                        align_items: AlignItems::Stretch,
-                        column_gap: px(14),
-                        row_gap: px(14),
+                        width: px(260),
+                        flex_basis: px(240),
+                        min_width: px(190),
+                        flex_shrink: 1.0,
+                        flex_direction: FlexDirection::Column,
+                        row_gap: px(12),
                     }
                     Children [
-                        Node {
-                            width: px(250),
-                            flex_basis: px(240),
-                            min_width: px(190),
-                            flex_shrink: 1.0,
-                            flex_direction: FlexDirection::Column,
-                            row_gap: px(12),
-                        }
-                        Children [
-                            @character_panel()
-                            --
-                            @resources_panel()
-                        ]
+                        @character_panel()
                         --
-                        Node {
-                            flex_grow: 1.0,
-                            flex_basis: px(420),
-                            min_width: px(190),
-                            flex_shrink: 1.0,
-                            flex_direction: FlexDirection::Column,
-                            row_gap: px(12),
-                        }
-                        Children [
-                            @inventory_items()
-                        ]
+                        @resources_panel()
+                    ]
+                    --
+                    Node {
+                        flex_grow: 1.0,
+                        flex_basis: px(420),
+                        min_width: px(240),
+                        flex_shrink: 1.0,
+                        flex_direction: FlexDirection::Column,
+                        row_gap: px(12),
+                    }
+                    Children [
+                        @inventory_items()
+                        --
+                        @inventory_test_controls()
                     ]
                 ]
             ]
@@ -921,6 +932,8 @@ fn character_panel() -> impl Scene {
             })
             --
             @section_header(CarbonIcon::Shield, "Equipment")
+            --
+            @muted_text("Equipment slots are visual placeholders until equipment rules are introduced.", 11.0)
             --
             Node {
                 width: percent(100),
@@ -957,20 +970,12 @@ fn resources_panel() -> impl Scene {
         Children [
             @section_header(CarbonIcon::Coin, "Resources")
             --
-            Text("Gold: 0")
-            CurrencyLabel::Gold
-            TextFont { font_size: px(12) }
+            Text("Gold: 0\nWood: 0\nStone: 0")
+            InventoryResourcesText
+            TextFont { font_size: px(13) }
             template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().muted)))
             --
-            Text("Wood: 0")
-            CurrencyLabel::Wood
-            TextFont { font_size: px(12) }
-            template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().muted)))
-            --
-            Text("Stone: 0")
-            CurrencyLabel::Stone
-            TextFont { font_size: px(12) }
-            template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().muted)))
+            @muted_text("Resources stack by type. Their quantities contribute to capacity.", 11.0)
         ]
     }
 }
@@ -981,27 +986,75 @@ fn inventory_items() -> impl Scene {
         Children [
             @section_header(CarbonIcon::Inventory, "Carried items")
             --
+            Text("Evil pup\nMaurice\nSalad\nScooby\nTheo")
+            InventoryItemsText
+            TextFont { font_size: px(13) }
+            template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().ink)))
+            --
+            @muted_text("Items are individual instances. Reordering them does not change capacity.", 11.0)
+            --
             Node {
                 width: percent(100),
-                min_width: px(0),
-                min_height: px(112),
                 flex_direction: FlexDirection::Row,
                 flex_wrap: FlexWrap::Wrap,
-                align_content: AlignContent::Start,
-                align_items: AlignItems::Start,
                 column_gap: px(8),
                 row_gap: px(8),
             }
             Children [
-                @item_art_tile("items/evil-pup.png", "Evil pup", None)
+                @action_button("Move last to front", CarbonIcon::Back, CarbonButtonTone::Secondary)
+                on(|_activate: On<Activate>, mut request: ResMut<InventoryActionRequest>| {
+                    request.0 = Some(InventoryAction::MoveLastItemToFront);
+                })
                 --
-                @item_art_tile("items/maurice.webp", "Maurice", None)
+                @action_button("Leave last item", CarbonIcon::Close, CarbonButtonTone::Secondary)
+                on(|_activate: On<Activate>, mut request: ResMut<InventoryActionRequest>| {
+                    request.0 = Some(InventoryAction::LeaveLastItem);
+                })
+            ]
+        ]
+    }
+}
+
+fn inventory_test_controls() -> impl Scene {
+    bsn! {
+        @panel(percent(100))
+        Children [
+            @section_header(CarbonIcon::Settings, "Inventory test controls")
+            --
+            @muted_text("Temporary controls for testing capacity before world pickups and resource sources exist.", 11.0)
+            --
+            Node {
+                width: percent(100),
+                flex_direction: FlexDirection::Row,
+                flex_wrap: FlexWrap::Wrap,
+                column_gap: px(8),
+                row_gap: px(8),
+            }
+            Children [
+                @action_button("+10 wood", CarbonIcon::Add, CarbonButtonTone::Secondary)
+                on(|_activate: On<Activate>, mut request: ResMut<InventoryActionRequest>| {
+                    request.0 = Some(InventoryAction::AddResource { kind: ResourceKind::Wood, amount: 10 });
+                })
                 --
-                @item_art_tile("items/salad.jpg", "Salad", None)
+                @action_button("+10 stone", CarbonIcon::Add, CarbonButtonTone::Secondary)
+                on(|_activate: On<Activate>, mut request: ResMut<InventoryActionRequest>| {
+                    request.0 = Some(InventoryAction::AddResource { kind: ResourceKind::Stone, amount: 10 });
+                })
                 --
-                @item_art_tile("items/scooby.webp", "Scooby", None)
+                @action_button("+100 gold", CarbonIcon::Add, CarbonButtonTone::Secondary)
+                on(|_activate: On<Activate>, mut request: ResMut<InventoryActionRequest>| {
+                    request.0 = Some(InventoryAction::AddResource { kind: ResourceKind::Gold, amount: 100 });
+                })
                 --
-                @item_art_tile("items/theo.jpg", "Theo", None)
+                @action_button("Add item", CarbonIcon::Add, CarbonButtonTone::Secondary)
+                on(|_activate: On<Activate>, mut request: ResMut<InventoryActionRequest>| {
+                    request.0 = Some(InventoryAction::AddItem(ItemKind::Salad));
+                })
+                --
+                @action_button("Remove all resources", CarbonIcon::Back, CarbonButtonTone::Ghost)
+                on(|_activate: On<Activate>, mut request: ResMut<InventoryActionRequest>| {
+                    request.0 = Some(InventoryAction::ClearResources);
+                })
             ]
         ]
     }
