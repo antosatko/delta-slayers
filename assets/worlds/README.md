@@ -46,9 +46,11 @@ hierarchy is removed when a finite pickup runs out.
 | `infinite` | `false` | Keeps the pickup available without consuming its finite quantity. |
 | `cooldown` | `0.5` | Minimum seconds between successful interactions. |
 
-Approach the object and press **E** or use the interaction prompt. The pickup
-is available within 1.75 m horizontally and 2.25 m vertically of the player's
-upper-body interaction point. A finite pickup is despawned after its final
+Approach the object and press **E** or use the interaction prompt. For
+mesh pickups, interaction distance is measured from the closest point on the
+transformed mesh bounds, not the Blender object origin. Marker-only pickups
+fall back to their object origin. The horizontal range is 1.75 m and the
+vertical range is 2.25 m from the player's upper-body interaction point. A finite pickup is despawned after its final
 item is collected. An infinite pickup remains in the world and can be used
 again after its cooldown. A quantity of zero makes a finite pickup unavailable.
 

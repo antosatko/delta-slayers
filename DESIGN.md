@@ -97,6 +97,9 @@ Current authored components:
   one Gold, Wood, or Stone to the inventory; finite stock decreases by one
   and the object is despawned when depleted. Cooldown limits successful
   interactions on infinite or multi-quantity pickups.
+  Mesh pickups measure range from the closest point on their transformed local
+  mesh bounds rather than their Blender object origin; marker-only pickups
+  fall back to the object origin.
 - `ExplorationPortal`: configured oriented interaction volume that generates
   a seeded, bounded hex wilderness. It exposes the map radius, rendered tile
   radius in meters, elevation scale, maximum jump height, terrain/biome

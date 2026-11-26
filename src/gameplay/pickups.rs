@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{camera::primitives::MeshAabb, prelude::*};
 
 use super::{
     inventory::{InventoryItem, InventoryModel},
@@ -139,7 +139,9 @@ pub(super) fn detect_nearby_pickup(
         &GlobalTransform,
         &Pickup,
         Option<&PickupRuntime>,
+        Option<&Mesh3d>,
     )>,
+    meshes: Res<Assets<Mesh>>,
     mut nearby: ResMut<NearbyPickup>,
 ) {
     let Ok(player_transform) = player.single() else {
@@ -150,18 +152,24 @@ pub(super) fn detect_nearby_pickup(
     let player_position = player_transform.translation + Vec3::Y * INTERACTION_HEIGHT;
     let mut nearest: Option<(Entity, f32)> = None;
 
-    for (entity, transform, pickup, runtime) in &pickups {
+    for (entity, transform, pickup, runtime, mesh_3d) in &pickups {
         let remaining = runtime.map_or(pickup.quantity, |state| state.remaining);
         if !pickup.infinite && remaining == 0 {
             continue;
         }
 
-        let position = transform.translation();
-        if !position.is_finite() {
+        let origin = transform.translation();
+        if !origin.is_finite() {
             continue;
         }
 
-        let offset = position - player_position;
+        // Use the visible mesh bounds instead of the Blender object origin
+        // when the pickup is attached directly to a mesh object.
+        let closest_point = mesh_3d
+            .and_then(|mesh_3d| meshes.get(&mesh_3d.0))
+            .and_then(|mesh| closest_point_on_mesh_bounds(player_position, transform, mesh))
+            .unwrap_or(origin);
+        let offset = closest_point - player_position;
         if offset.y.abs() > PICKUP_MAX_VERTICAL_DISTANCE {
             continue;
         }
@@ -177,6 +185,24 @@ pub(super) fn detect_nearby_pickup(
     }
 
     nearby.0 = nearest.map(|(entity, _)| entity);
+}
+
+fn closest_point_on_mesh_bounds(
+    world_point: Vec3,
+    transform: &GlobalTransform,
+    mesh: &Mesh,
+) -> Option<Vec3> {
+    let aabb = mesh.get_aabb()?;
+    let center = Vec3::new(aabb.center.x, aabb.center.y, aabb.center.z);
+    let half_extents = Vec3::new(
+        aabb.half_extents.x,
+        aabb.half_extents.y,
+        aabb.half_extents.z,
+    );
+    let local_point = transform.affine().inverse().transform_point3(world_point);
+    let closest_local = center + (local_point - center).clamp(-half_extents, half_extents);
+    let closest_world = transform.transform_point(closest_local);
+    closest_world.is_finite().then_some(closest_world)
 }
 
 /// Applies the requested pickup after the current frame's proximity check.
@@ -213,6 +239,28 @@ pub(super) fn handle_pickup_request(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn mesh_bounds_use_surface_distance_instead_of_object_origin() {
+        let center = Vec3::ZERO;
+        let half_extents = Vec3::new(1.4, 1.6, 1.0);
+        let player_probe = Vec3::new(1.7, 1.7, 0.0);
+        let closest = center + (player_probe - center).clamp(-half_extents, half_extents);
+
+        assert_eq!(closest, Vec3::new(1.4, 1.6, 0.0));
+        let horizontal_distance =
+            Vec2::new(closest.x - player_probe.x, closest.z - player_probe.z).length();
+        assert!(horizontal_distance < PICKUP_INTERACTION_RADIUS);
+    }
+
+    #[test]
+    fn point_inside_mesh_bounds_has_zero_surface_distance() {
+        let point = Vec3::new(0.5, 0.2, -0.3);
+        assert_eq!(
+            Vec3::ZERO + (point - Vec3::ZERO).clamp(-Vec3::ONE, Vec3::ONE),
+            point
+        );
+    }
 
     #[test]
     fn finite_pickup_grants_one_item_per_interaction_and_depletes() {
