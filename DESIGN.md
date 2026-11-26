@@ -133,7 +133,7 @@ steps to prevent tunnelling, and collision correction keeps the player against
 the wall while preserving tangential movement for wall sliding. Blockers affect
 continuous movement, not spawn placement or fast-travel teleports. Opening the inventory pauses gameplay simulation, including player/NPC movement
 and other world simulation, while leaving inventory actions available. Camera
-input is disabled while any overlay is active. Right-click opens the inventory
+input is disabled while gameplay is paused or the inventory is open. Right-click opens the inventory
 or dismisses the active overlay.
 Saved positions preserve their full world-space coordinates. Fast travel uses
 the selected trigger box's world-space X/Z position and offsets the exit along

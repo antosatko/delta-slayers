@@ -122,7 +122,7 @@ Run these in a built game after the refactor. Record the build/commit used and m
 - [ ] Exploration setup/debug UI visibility follows the active state and overlay stack.
 - [ ] Closing setup/debug UI leaves no stale modal or input capture.
 - [ ] Minimap dots stay within the minimap bounds and hide when the relevant map/zone is inactive.
-- [ ] Inventory, pause, and other overlays continue to behave as before.
+- [ ] Inventory, pause, and other overlays remain functional; inventory pause behavior is covered by `docs/INVENTORY_IMPLEMENTATION.md`.
 
 ## 6. Automated verification
 
