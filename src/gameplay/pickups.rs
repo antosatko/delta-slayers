@@ -56,7 +56,7 @@ pub(crate) struct NearbyPickup(pub(crate) Option<Entity>);
 pub(crate) struct PickupRequest(pub(crate) Option<Entity>);
 
 #[derive(Component)]
-struct PickupRuntime {
+pub(super) struct PickupRuntime {
     remaining: u32,
     cooldown_remaining: f32,
 }
