@@ -390,7 +390,7 @@ pub fn update_minimap(
         let relative = transform.translation() - player_position;
         let distance = Vec2::new(relative.x, relative.z).length();
         let (x, y) = minimap_position(relative, player_forward);
-        let marker_center = Vec2::new(x + 3.0, y + 3.0);
+        let marker_center = Vec2::new(x + 7.0, y + 7.0);
         let direction = Vec2::new(
             relative.dot(minimap_right(player_forward)),
             -relative.dot(minimap_forward(player_forward)),
@@ -528,8 +528,8 @@ fn minimap_position_with_scale(relative: Vec3, player_forward: Vec3, scale: f32)
     }
 
     let right = forward.cross(Vec3::Y).normalize();
-    let map_x = 60.0 + relative.dot(right) * scale - 3.0;
-    let map_y = 60.0 - relative.dot(forward) * scale - 3.0;
+    let map_x = 60.0 + relative.dot(right) * scale - 7.0;
+    let map_y = 60.0 - relative.dot(forward) * scale - 7.0;
     (map_x, map_y)
 }
 
