@@ -6,7 +6,7 @@ mod terrain;
 mod travel;
 
 pub use generation::apply_tile_materials;
-pub(crate) use hex::{hex_center, world_to_axial};
+pub(crate) use hex::{hex_center, world_to_axial, TILE_RADIUS_METERS};
 pub(super) use terrain::sync_ground_height;
 pub(crate) use travel::generate_seed;
 pub(super) use travel::{detect_portal, process_travel_request};
@@ -23,7 +23,7 @@ pub struct ExplorationPortal {
     pub seed: Option<u64>,
     /// Radius measured in hex tiles.
     pub radius: u32,
-    /// Legacy serialized field; generated tiles always use a 6 m radius.
+    /// Legacy serialized field retained for old GLB exports; runtime uses `TILE_RADIUS_METERS`.
     pub tile_size: f32,
     /// Maximum vertical displacement of the terrain from its base level.
     pub height_multiplier: f32,
@@ -31,8 +31,7 @@ pub struct ExplorationPortal {
     pub terrain_frequency: f32,
     /// Controls the scale of biome regions.
     pub biome_scale: f32,
-    /// Legacy Skein field retained so older town-map.glb exports still instantiate.
-    /// No procedural vegetation is generated from this value.
+    /// Legacy Skein field retained for old GLB exports. It is preserved but ignored.
     pub vegetation_density: f32,
     /// Maximum elevation difference the player can jump between adjacent tiles, in meters.
     pub max_jump_height: f32,
@@ -43,7 +42,7 @@ impl Default for ExplorationPortal {
         Self {
             seed: None,
             radius: 12,
-            tile_size: 6.0,
+            tile_size: TILE_RADIUS_METERS,
             height_multiplier: 2.2,
             terrain_frequency: 0.045,
             biome_scale: 0.028,
@@ -57,11 +56,10 @@ impl ExplorationPortal {
     pub(crate) fn sanitized(self) -> Self {
         Self {
             radius: self.radius.clamp(MIN_MAP_RADIUS, MAX_MAP_RADIUS),
-            tile_size: 6.0,
+            tile_size: TILE_RADIUS_METERS,
             height_multiplier: finite_clamp(self.height_multiplier, 2.2, 0.0, 5.0),
             terrain_frequency: finite_clamp(self.terrain_frequency, 0.045, 0.01, 0.15),
             biome_scale: finite_clamp(self.biome_scale, 0.028, 0.006, 0.12),
-            vegetation_density: finite_clamp(self.vegetation_density, 0.28, 0.0, 0.8),
             max_jump_height: finite_clamp(self.max_jump_height, 1.5, 0.25, 3.5),
             ..self
         }

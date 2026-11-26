@@ -5,7 +5,7 @@ use crate::gameplay::{
     player::{PLAYER_VISUAL_HEIGHT, Player},
 };
 
-use super::hex::{hex_center, hex_layout_radius};
+use super::hex::{hex_center, TILE_RADIUS_METERS};
 use super::{ActiveExplorationMap, Biome, ExplorationPortal};
 
 const TERRAIN_OCTAVES: usize = 4;
@@ -36,7 +36,7 @@ pub(in crate::gameplay) fn sync_ground_height(
 }
 
 pub(super) fn terrain_surface_height(config: ExplorationPortal, seed: u64, point: Vec2) -> f32 {
-    let size = hex_layout_radius(config);
+    let size = TILE_RADIUS_METERS;
     let axial_q = (3.0_f32.sqrt() / 3.0 * point.x - point.y / 3.0) / size;
     let axial_r = (2.0 / 3.0 * point.y) / size;
     let q0 = axial_q.floor() as i32;

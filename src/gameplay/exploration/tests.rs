@@ -54,7 +54,7 @@ fn portal_parameters_are_clamped_to_safe_ranges() {
     assert_eq!(config.height_multiplier, 0.0);
     assert_eq!(config.terrain_frequency, 0.045);
     assert_eq!(config.biome_scale, 0.006);
-    assert_eq!(config.vegetation_density, 0.8);
+    assert_eq!(config.vegetation_density, 3.0);
     assert_eq!(config.max_jump_height, 3.5);
     assert_eq!(config.seed, Some(42));
 }
@@ -68,16 +68,41 @@ fn generated_tiles_always_use_a_six_meter_radius() {
         }
         .sanitized();
 
-        assert_eq!(config.tile_size, 6.0);
-        assert_eq!(hex_layout_radius(config), 6.0);
+        assert_eq!(config.tile_size, TILE_RADIUS_METERS);
+        assert_eq!(TILE_RADIUS_METERS, 6.0);
     }
+}
+
+#[test]
+fn legacy_exploration_fields_do_not_control_runtime_generation() {
+    let mut compact = ExplorationPortal::default();
+    compact.tile_size = 2.0;
+    compact.vegetation_density = 0.0;
+
+    let mut wide = ExplorationPortal::default();
+    wide.tile_size = 12.0;
+    wide.vegetation_density = 0.8;
+
+    let compact = compact.sanitized();
+    let wide = wide.sanitized();
+
+    assert_eq!(compact.tile_size, TILE_RADIUS_METERS);
+    assert_eq!(wide.tile_size, TILE_RADIUS_METERS);
+    assert_eq!(compact.vegetation_density, 0.0);
+    assert_eq!(wide.vegetation_density, 0.8);
+
+    let point = Vec2::new(14.0, -8.0);
+    assert_eq!(
+        terrain_surface_height(compact, 1234, point),
+        terrain_surface_height(wide, 1234, point)
+    );
 }
 
 #[test]
 fn terrain_height_uses_smoothstep_between_adjacent_tiles() {
     let config = ExplorationPortal::default();
-    let first = hex_center(0, 0, hex_layout_radius(config));
-    let second = hex_center(1, 0, hex_layout_radius(config));
+    let first = hex_center(0, 0, TILE_RADIUS_METERS);
+    let second = hex_center(1, 0, TILE_RADIUS_METERS);
     let first_height = terrain_height(config, 1234, first);
     let second_height = terrain_height(config, 1234, second);
     let midpoint = (first + second) * 0.5;

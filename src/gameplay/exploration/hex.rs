@@ -1,15 +1,11 @@
 use bevy::prelude::*;
 
-use super::ExplorationPortal;
+pub(crate) const TILE_RADIUS_METERS: f32 = 6.0;
 
 pub(super) const HEX_CORNER_COUNT: usize = 6;
 
 pub(super) const HEX_NEIGHBORS: [(i32, i32); 6] =
     [(1, 0), (1, -1), (0, -1), (-1, 0), (-1, 1), (0, 1)];
-
-pub(super) fn hex_layout_radius(config: ExplorationPortal) -> f32 {
-    config.tile_size
-}
 
 pub(crate) fn hex_center(q: i32, r: i32, size: f32) -> Vec2 {
     Vec2::new(

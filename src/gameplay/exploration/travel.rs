@@ -11,7 +11,7 @@ use crate::{
 };
 
 use super::generation::{ExplorationMapRoot, spawn_map_geometry};
-use super::hex::{hex_center, hex_layout_radius};
+use super::hex::{hex_center, TILE_RADIUS_METERS};
 use super::terrain::terrain_surface_height;
 use super::{
     ActiveExplorationMap, ActiveMapData, ExplorationPortal, ExplorationReturnPortal,
@@ -121,7 +121,7 @@ pub(in crate::gameplay) fn process_travel_request(
                 &mut materials,
             );
 
-            let spawn_local = hex_center(0, 2, hex_layout_radius(config));
+            let spawn_local = hex_center(0, 2, TILE_RADIUS_METERS);
             let spawn_height = terrain_surface_height(config, seed, spawn_local);
             player_transform.translation =
                 origin + Vec3::new(spawn_local.x, spawn_height, spawn_local.y);
@@ -140,7 +140,7 @@ pub(in crate::gameplay) fn process_travel_request(
             movement_target.clear();
             info!(
                 "Entered exploration map (seed {seed}, radius {}, tile radius {:.2} m)",
-                config.radius, config.tile_size
+                config.radius, TILE_RADIUS_METERS
             );
         }
         PortalAction::Return => {

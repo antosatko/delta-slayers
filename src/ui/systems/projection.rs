@@ -11,7 +11,7 @@ use crate::{
     gameplay::{
         exploration::{
             ActiveExplorationMap, Biome, ExplorationTile, NearbyExplorationPortal, UnreachableTile,
-            hex_center, world_to_axial,
+            hex_center, world_to_axial, TILE_RADIUS_METERS,
         },
         player::{Player, PlayerSettings},
         pickups::NearbyPickup,
@@ -119,7 +119,7 @@ pub fn exploration_debug_panel_projection(
                 map.seed,
                 config.radius,
                 tile_count,
-                config.tile_size,
+                TILE_RADIUS_METERS,
                 config.height_multiplier,
                 config.max_jump_height,
                 config.terrain_frequency,
@@ -172,7 +172,7 @@ pub fn exploration_setup_projection(
     let tile_count = 1 + 3 * config.radius * (config.radius + 1);
     let summary = format!(
         "{tile_count} hexes · approx. {:.0} world units across",
-        config.radius as f32 * config.tile_size * 3.0
+        config.radius as f32 * TILE_RADIUS_METERS * 3.0
     );
     for mut text in &mut summaries {
         if text.0 != summary {
@@ -426,7 +426,7 @@ pub fn update_minimap(
     let local_player = player_position - map.origin;
     let (center_q, center_r) = world_to_axial(
         Vec2::new(local_player.x, local_player.z),
-        map.config.tile_size,
+        TILE_RADIUS_METERS,
     );
     let tile_index: HashMap<(i32, i32), (Biome, bool)> = exploration_tiles
         .iter()
@@ -440,7 +440,7 @@ pub fn update_minimap(
             continue;
         };
 
-        let center = hex_center(coordinates.0, coordinates.1, map.config.tile_size);
+        let center = hex_center(coordinates.0, coordinates.1, TILE_RADIUS_METERS);
         let relative = Vec3::new(center.x - local_player.x, 0.0, center.y - local_player.z);
         let (x, y) = minimap_position_with_scale(relative, *player_transform.forward(), 1.55);
 

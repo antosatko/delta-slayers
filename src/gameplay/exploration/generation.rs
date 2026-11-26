@@ -4,7 +4,7 @@ use std::collections::{HashMap, HashSet, VecDeque};
 use crate::gameplay::environment::{EnvironmentAssets, ObjectSpawnPoint};
 use crate::gameplay::player::MovementBlocker;
 
-use super::hex::{HEX_CORNER_COUNT, HEX_NEIGHBORS, hex_center, hex_corner, hex_layout_radius};
+use super::hex::{HEX_CORNER_COUNT, HEX_NEIGHBORS, TILE_RADIUS_METERS, hex_center, hex_corner};
 use super::terrain::{biome_at, cell_random, terrain_height, terrain_surface_height};
 use super::{Biome, ExplorationPortal, ExplorationReturnPortal, ExplorationTile, UnreachableTile};
 
@@ -119,7 +119,7 @@ pub fn apply_tile_materials(
 
 fn generate_tiles(config: ExplorationPortal, seed: u64) -> HashMap<(i32, i32), GeneratedTile> {
     let mut tiles = HashMap::new();
-    let layout_radius = hex_layout_radius(config);
+    let layout_radius = TILE_RADIUS_METERS;
 
     for q in -(config.radius as i32)..=config.radius as i32 {
         let min_r = (-(config.radius as i32)).max(-q - config.radius as i32);
@@ -190,7 +190,7 @@ fn spawn_terrain_tiles(
     tiles: &HashMap<(i32, i32), GeneratedTile>,
     reachable: &HashSet<(i32, i32)>,
 ) {
-    let model_scale = config.tile_size / TILE_MODEL_SOURCE_RADIUS;
+    let model_scale = TILE_RADIUS_METERS / TILE_MODEL_SOURCE_RADIUS;
     let base_surface_offset = 0.016_821_861 * model_scale;
     let mut authored_spawn_points = 0;
     let mut spawned_objects = 0;
@@ -360,8 +360,8 @@ fn spawn_boundary_walls(
                 continue;
             }
 
-            let a = hex_corner(tile.center, config.tile_size, side);
-            let b = hex_corner(tile.center, config.tile_size, (side + 1) % HEX_CORNER_COUNT);
+            let a = hex_corner(tile.center, TILE_RADIUS_METERS, side);
+            let b = hex_corner(tile.center, TILE_RADIUS_METERS, (side + 1) % HEX_CORNER_COUNT);
             let midpoint = (a + b) * 0.5;
             let edge = b - a;
             let yaw = edge.x.atan2(edge.y);
@@ -373,7 +373,7 @@ fn spawn_boundary_walls(
                     .with_scale(Vec3::new(
                         0.18,
                         config.height_multiplier + 2.0,
-                        config.tile_size * 0.62,
+                        TILE_RADIUS_METERS * 0.62,
                     )),
                 ChildOf(root),
             ));
