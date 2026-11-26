@@ -4,7 +4,7 @@ mod environment;
 mod npc;
 mod occlusion;
 mod persistence;
-mod pickups;
+pub(crate) mod pickups;
 mod spawning;
 mod systems;
 mod world;
