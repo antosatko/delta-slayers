@@ -1,6 +1,9 @@
 use bevy::{prelude::*, ui::RelativeCursorPosition, window::PrimaryWindow};
 
-use crate::ui::stack::UiStack;
+use crate::{
+    gameplay::inventory::InventoryModel,
+    ui::stack::UiStack,
+};
 
 use super::collision::{move_with_collisions, movement_collision_contact};
 use super::{GameplayCamera, MovementBlocker, Player, PlayerSettings};
@@ -87,8 +90,14 @@ pub(in crate::gameplay) fn set_move_target_from_cursor(
     mut target: ResMut<MovementTarget>,
     time: Res<Time>,
     ui_state: Res<UiStack>,
+    inventory: Res<InventoryModel>,
     ui_surfaces: Query<(&RelativeCursorPosition, &InheritedVisibility)>,
 ) {
+    if !inventory.can_move() {
+        target.clear();
+        return;
+    }
+
     let just_pressed = mouse.just_pressed(MouseButton::Left);
     let pressed = mouse.pressed(MouseButton::Left);
     let pointer_over_ui = ui_surfaces
@@ -138,11 +147,17 @@ pub(in crate::gameplay) fn move_player_to_target(
     settings: Res<PlayerSettings>,
     input: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
+    inventory: Res<InventoryModel>,
 ) {
     let Ok(mut transform) = player.single_mut() else {
         target.clear();
         return;
     };
+
+    if !inventory.can_move() {
+        target.clear();
+        return;
+    }
 
     let sprinting = input.pressed(KeyCode::ShiftLeft) || input.pressed(KeyCode::ShiftRight);
     let speed = if sprinting {
@@ -161,8 +176,6 @@ pub(in crate::gameplay) fn move_player_to_target(
     });
     let click_move_active = keyboard_direction.is_none() && target.destination.is_some();
 
-    // A movement input recenters the follow camera by default. Disabling
-    // auto-lock leaves the free-camera offset untouched.
     if settings.camera_auto_lock && (keyboard_direction.is_some() || click_move_active) {
         if let Ok(mut camera) = camera_settings.single_mut() {
             camera.pan_offset = Vec3::ZERO;
@@ -290,4 +303,3 @@ mod tests {
         assert!(!target.should_update_from_cursor(true, false, 1.0, false));
     }
 }
-

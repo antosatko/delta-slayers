@@ -4,6 +4,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use crate::{
     app::state::AppState,
     gameplay::{
+        inventory::InventoryModel,
         npc::Npc,
         player::{self, PLAYER_VISUAL_HEIGHT, Player},
     },
@@ -51,7 +52,6 @@ fn contains_point(transform: &GlobalTransform, point: Vec3) -> bool {
 
 /// Consumes an interaction request and either creates an exploration instance
 /// or restores the town-side transform captured when the player entered it.
-
 pub(in crate::gameplay) fn process_travel_request(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
@@ -63,10 +63,14 @@ pub(in crate::gameplay) fn process_travel_request(
     mut npcs: Query<&mut Transform, (With<Npc>, Without<Player>)>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    inventory: Res<InventoryModel>,
 ) {
     let Some(action) = request.0.take() else {
         return;
     };
+    if !inventory.can_use_portal() {
+        return;
+    }
     let Ok((mut player_transform, mut player_state)) = player.single_mut() else {
         return;
     };

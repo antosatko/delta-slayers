@@ -4,6 +4,7 @@ use crate::{
     app::state::AppState,
     gameplay::{
         exploration::{ActiveExplorationMap, ExplorationSession},
+        inventory::InventoryModel,
         persistence::save_game,
         player::{MovementTarget, Player},
         zones::{FastTravelRequest, TriggerBox, VisitedZones},
@@ -17,11 +18,12 @@ pub(super) fn fast_travel(
     mut player: Query<&mut Transform, With<Player>>,
     zones: Query<(&GlobalTransform, &TriggerBox)>,
     active_map: Res<ActiveExplorationMap>,
+    inventory: Res<InventoryModel>,
 ) {
     let Some(kind) = request.0.take() else {
         return;
     };
-    if active_map.0.is_some() {
+    if active_map.0.is_some() || !inventory.can_use_portal() {
         return;
     }
     movement_target.clear();
@@ -84,6 +86,7 @@ pub(super) fn return_to_menu(
     player_query: Query<(&Transform, &Player)>,
     visited: Res<VisitedZones>,
     exploration: Res<ExplorationSession>,
+    inventory: Res<InventoryModel>,
 ) {
     if !keys.just_pressed(KeyCode::Backspace) {
         return;
@@ -104,7 +107,7 @@ pub(super) fn return_to_menu(
                 .map(|(transform, player)| (transform.translation, player.yaw, player.pitch))
         });
     if let Some((position, yaw, pitch)) = save_state
-        && let Err(error) = save_game(position, yaw, pitch, &visited.0) {
+        && let Err(error) = save_game(position, yaw, pitch, &visited.0, &inventory) {
             warn!("Could not save the current game: {error}");
         }
     next_state.set(AppState::MainMenu);

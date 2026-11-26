@@ -107,6 +107,7 @@ impl Plugin for GameplayPlugin {
         .add_systems(
             Update,
             systems::fast_travel
+                .run_if(gameplay_simulation_enabled)
                 .run_if(in_state(AppState::InGame))
                 .after(player::move_player_to_target)
                 .before(UiSet::Projection),
@@ -140,11 +141,14 @@ fn camera_input_enabled(ui_state: Res<UiStack>) -> bool {
 }
 
 fn gameplay_simulation_allowed(ui_state: &UiStack) -> bool {
-    !ui_state.paused() && !ui_state.game_menu_open() && !ui_state.exploration_setup_open()
+    !ui_state.paused()
+        && !ui_state.game_menu_open()
+        && !ui_state.exploration_setup_open()
+        && !ui_state.inventory_open()
 }
 
 fn camera_input_allowed(ui_state: &UiStack) -> bool {
-    gameplay_simulation_allowed(ui_state) && !ui_state.inventory_open()
+    gameplay_simulation_allowed(ui_state)
 }
 
 #[cfg(test)]
@@ -153,11 +157,11 @@ mod tests {
     use crate::ui::stack::UiLayer;
 
     #[test]
-    fn opening_inventory_does_not_pause_gameplay() {
+    fn opening_inventory_pauses_gameplay_and_camera_input() {
         let mut ui = UiStack::default();
         ui.push(UiLayer::Inventory);
 
-        assert!(gameplay_simulation_allowed(&ui));
+        assert!(!gameplay_simulation_allowed(&ui));
         assert!(!camera_input_allowed(&ui));
     }
 
