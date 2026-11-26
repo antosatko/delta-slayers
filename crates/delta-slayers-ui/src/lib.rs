@@ -4,6 +4,8 @@
 //! presentation primitives and small presentation-only behaviours; it does not
 //! own game state or game navigation.
 
+#![allow(unused)]
+
 mod theme;
 mod widgets;
 
