@@ -1,6 +1,6 @@
 # Inventory — Initial Implementation
 
-**Branch:** \`refactor/exploration-architecture\`  
+**Branch:** `refactor/exploration-architecture`  
 **Status:** Initial implementation; automated and runtime verification pending.
 
 ## Gameplay rules
@@ -38,10 +38,10 @@ The five starter items therefore use 16.00 capacity. These values are balancing 
 
 ## Architecture
 
-- \`src/gameplay/inventory.rs\` owns the authoritative model, capacity calculation, manual inventory operations, automatic-pickup acceptance checks, and queued inventory actions.
-- \`src/ui/inventory.rs\` owns the presentation ViewModel and projects capacity, overload state, resources, and item entries.
-- \`src/ui/screens/gameplay.rs\` authors the inventory screen with BSN.
-- UI observers enqueue \`InventoryActionRequest\`; gameplay applies the requested action before UI projection.
+- `src/gameplay/inventory.rs` owns the authoritative model, capacity calculation, manual inventory operations, automatic-pickup acceptance checks, and queued inventory actions.
+- `src/ui/inventory.rs` owns the presentation ViewModel and projects capacity, overload state, resources, and item entries.
+- `src/ui/screens/gameplay.rs` authors the inventory screen with BSN.
+- UI observers enqueue `InventoryActionRequest`; gameplay applies the requested action before UI projection.
 - Movement checks the model before accepting click destinations and before applying keyboard/click movement.
 - Fast travel and exploration portal processing both reject requests while overloaded.
 - Opening the inventory is now a simulation-pausing overlay. The player can still use inventory controls because UI input remains active.
@@ -63,6 +63,9 @@ The five starter items therefore use 16.00 capacity. These values are balancing 
 - [ ] Add 10 stone; capacity increases by 15.00.
 - [ ] Add 100 gold; capacity increases by 1.00.
 - [ ] Add an item; the item list and capacity update.
+- [ ] Automatic pickup test buttons add loot when it fits.
+- [ ] Automatic pickup test buttons leave the inventory unchanged when the pickup would exceed capacity.
+- [ ] The Overfill capacity test button creates an overflow in one action.
 - [ ] Reorder items; item order changes but capacity does not.
 - [ ] Leave the last item; item list and capacity decrease.
 - [ ] Add resources until capacity is exceeded; overload amount is displayed.
@@ -94,10 +97,10 @@ The five starter items therefore use 16.00 capacity. These values are balancing 
 
 Run from the repository root:
 
-\`\`\`sh
+```sh
 cargo fmt --check
 cargo check
 cargo test
-\`\`\`
+```
 
 Record actual results in the change log. Runtime checklist items require a local game session and must not be marked complete from source inspection alone.

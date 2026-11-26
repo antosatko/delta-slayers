@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::gameplay::inventory::{
-    format_capacity, InventoryModel,
+    format_capacity, InventoryModel, ResourceKind,
 };
 
 #[derive(Resource, Clone, Debug, Default)]
@@ -36,31 +36,29 @@ pub(super) fn sync_inventory_view_model(
     mut resource_labels: Query<&mut Text, (With<InventoryResourcesText>, Without<InventoryCapacityText>, Without<InventoryStatusText>)>,
     mut item_labels: Query<&mut Text, (With<InventoryItemsText>, Without<InventoryCapacityText>, Without<InventoryStatusText>, Without<InventoryResourcesText>)>,
 ) {
-    if model.is_changed() || view_model.is_added() {
-        let used = model.used_capacity_subunits();
-        let max = model.max_capacity_subunits;
-        view_model.capacity_label = format!("Capacity: {} / {}", format_capacity(used), format_capacity(max));
-        view_model.status_label = if model.is_over_capacity() {
-            format!("OVER CAPACITY by {}", format_capacity(used - max))
-        } else {
-            "Within capacity".to_owned()
-        };
-        view_model.resources_label = ResourceKind::ALL
-            .into_iter()
-            .map(|kind| format!("{}: {}", kind.name(), model.resource_amount(kind)))
+    let used = model.used_capacity_subunits();
+    let max = model.max_capacity_subunits;
+    view_model.capacity_label = format!("Capacity: {} / {}", format_capacity(used), format_capacity(max));
+    view_model.status_label = if model.is_over_capacity() {
+        format!("OVER CAPACITY by {}", format_capacity(used - max))
+    } else {
+        "Within capacity".to_owned()
+    };
+    view_model.resources_label = ResourceKind::ALL
+        .into_iter()
+        .map(|kind| format!("{}: {}", kind.name(), model.resource_amount(kind)))
+        .collect::<Vec<_>>()
+        .join("\n");
+    view_model.items_label = if model.items().is_empty() {
+        "No carried items".to_owned()
+    } else {
+        model.items()
+            .iter()
+            .enumerate()
+            .map(|(index, item)| format!("{}. {}  ·  {} capacity", index + 1, item.kind.name(), format_capacity(item.kind.capacity_subunits())))
             .collect::<Vec<_>>()
-            .join("\n");
-        view_model.items_label = if model.items().is_empty() {
-            "No carried items".to_owned()
-        } else {
-            model.items()
-                .iter()
-                .enumerate()
-                .map(|(index, item)| format!("{}. {}  ·  {} capacity", index + 1, item.kind.name(), format_capacity(item.kind.capacity_subunits())))
-                .collect::<Vec<_>>()
-                .join("\n")
-        };
-    }
+            .join("\n")
+    };
 
     for mut text in &mut capacity_labels {
         if text.0 != view_model.capacity_label {

@@ -264,6 +264,8 @@ impl InventoryModel {
 #[derive(Clone, Copy, Debug)]
 pub enum InventoryAction {
     AddResource { kind: ResourceKind, amount: u32 },
+    TryAddResourceAutomatically { kind: ResourceKind, amount: u32 },
+    TryAddItemAutomatically(ItemKind),
     RemoveResource { kind: ResourceKind, amount: u32 },
     AddItem(ItemKind),
     LeaveLastItem,
@@ -285,6 +287,12 @@ pub(crate) fn apply_inventory_action(
     match action {
         InventoryAction::AddResource { kind, amount } => {
             inventory.add_resource_manually(kind, amount);
+        }
+        InventoryAction::TryAddResourceAutomatically { kind, amount } => {
+            inventory.try_add_resource_automatically(kind, amount);
+        }
+        InventoryAction::TryAddItemAutomatically(kind) => {
+            inventory.try_add_item_automatically(kind);
         }
         InventoryAction::RemoveResource { kind, amount } => {
             inventory.leave_resource(kind, amount);
@@ -369,7 +377,7 @@ mod tests {
 
         assert!(!inventory.try_add_resource_automatically(ResourceKind::Wood, 2));
         assert_eq!(inventory.resource_amount(ResourceKind::Wood), 0);
-        assert!(!inventory.try_add_item_automatically(ItemKind::EvilPup).is_some());
+        assert!(inventory.try_add_item_automatically(ItemKind::EvilPup).is_none());
         assert_eq!(inventory.items().len(), 5);
     }
 

@@ -271,9 +271,9 @@ Current layers:
 
 The gameplay cursor is always visible and ungrabbed. It is configured when
 entering InGame rather than rewritten every frame. Opening an overlay does not
-change cursor mode. Inventory is a non-pausing overlay: world
-simulation and player movement continue behind it, but cursor-based movement
-targeting and camera pan/zoom are blocked over the UI. Every interactive
+change cursor mode. Inventory pauses gameplay simulation, including player and
+NPC movement, while keeping inventory controls active. Camera pan/zoom and
+movement targeting are disabled while the inventory is open. Every interactive
 gameplay overlay root exposes a `RelativeCursorPosition` hit region; this lets
 the gameplay input systems ignore raw mouse input while the pointer is over a
 visible UI surface. Clicks over UI do not set a destination, and a click that
@@ -400,11 +400,12 @@ projection remain in `src/ui/`.
 
 - `AppState` owns top-level application navigation, including Loading.
 - UiStack owns overlay navigation.
-- InventoryModel owns the current authoritative currency values. Item artwork
-  and equipment positions in the current inventory screen are still static
-  presentation placeholders, not persisted inventory data.
-- InventoryViewModel owns the formatted currency labels projected into the
-  inventory view.
+- InventoryModel owns resource stacks, individual item instances, capacity,
+  and queued manual inventory actions. The current item catalogue and capacity
+  costs are initial gameplay data, not a final content registry.
+- InventoryViewModel owns formatted capacity, overload, resource, and item-list
+  labels projected into the inventory view. Equipment slots remain visual
+  placeholders until equipable item definitions and effects exist.
 - NearbyZone and VisitedZones are gameplay facts.
 - FastTravelRequest is the command boundary from UI to gameplay. UI requests a
   destination; gameplay systems perform the teleport.

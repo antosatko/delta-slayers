@@ -1051,6 +1051,21 @@ fn inventory_test_controls() -> impl Scene {
                     request.0 = Some(InventoryAction::AddItem(ItemKind::Salad));
                 })
                 --
+                @action_button("Auto pickup 10 wood", CarbonIcon::Add, CarbonButtonTone::Secondary)
+                on(|_activate: On<Activate>, mut request: ResMut<InventoryActionRequest>| {
+                    request.0 = Some(InventoryAction::TryAddResourceAutomatically { kind: ResourceKind::Wood, amount: 10 });
+                })
+                --
+                @action_button("Auto pickup Salad", CarbonIcon::Add, CarbonButtonTone::Secondary)
+                on(|_activate: On<Activate>, mut request: ResMut<InventoryActionRequest>| {
+                    request.0 = Some(InventoryAction::TryAddItemAutomatically(ItemKind::Salad));
+                })
+                --
+                @action_button("Overfill capacity", CarbonIcon::Add, CarbonButtonTone::Secondary)
+                on(|_activate: On<Activate>, mut request: ResMut<InventoryActionRequest>| {
+                    request.0 = Some(InventoryAction::AddResource { kind: ResourceKind::Stone, amount: 100 });
+                })
+                --
                 @action_button("Remove all resources", CarbonIcon::Back, CarbonButtonTone::Ghost)
                 on(|_activate: On<Activate>, mut request: ResMut<InventoryActionRequest>| {
                     request.0 = Some(InventoryAction::ClearResources);
