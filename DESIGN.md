@@ -178,10 +178,12 @@ procedural hex map at runtime. The generated tile heights position imported biom
 biome GLB contains named `tiles` and `objects` collections in the same scene.
 The loader extracts tile roots only from `tiles` and biome-specific spawnable
 object roots only from `objects`, keeping their hierarchies and Skein
-components. Prototype extraction preserves the collection root's ancestor
-chain and registers the render, transform, and hierarchy components required
-by Bevy's reflected dynamic-world extraction (`Mesh3d`,
-`MeshMaterial3d<StandardMaterial>`, `Transform`, `ChildOf`, and `Name`). Each
+components. Pickup configuration on an object root is copied explicitly
+from the source world asset into the extracted prototype. Prototype extraction
+preserves the collection root's ancestor chain and registers the render,
+transform, and hierarchy components required by Bevy's reflected dynamic-world
+extraction (`Mesh3d`, `MeshMaterial3d<StandardMaterial>`, `Transform`,
+`ChildOf`, and `Name`). Each
 prototype's root translation is reset to the origin so Blender's staging
 positions do not offset generated instances; root rotation, scale, and child
 transforms remain intact. Tile meshes use a 5 m source radius and are scaled

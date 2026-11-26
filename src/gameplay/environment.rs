@@ -336,6 +336,10 @@ pub(super) fn collect_assets(
             else {
                 continue;
             };
+            // Preserve the authored pickup explicitly on the extracted root.
+            if let Some(pickup) = root.pickup {
+                asset.world.entity_mut(root_entity).insert(pickup);
+            }
             let Some(mesh_bottom) = prototype_mesh_bottom(&asset.world, &meshes) else {
                 warn!("Could not calculate the mesh bottom for spawnable object in {path}");
                 continue;
@@ -616,6 +620,7 @@ struct ExtractedRoot {
     world: DynamicWorld,
     root_name: Option<Name>,
     spawnable: Option<SpawnableObject>,
+    pickup: Option<Pickup>,
 }
 
 /// Extracts direct object roots from a named Blender collection. The
@@ -663,6 +668,7 @@ fn extract_collection_roots(
 
             let root_name = source.world.get::<Name>(root).cloned();
             let spawnable = source.world.get::<SpawnableObject>(root).copied();
+            let pickup = source.world.get::<Pickup>(root).copied();
 
             if matches!(prototype_kind, PrototypeKind::Spawnable) && spawnable.is_none() {
                 return None;
@@ -688,6 +694,7 @@ fn extract_collection_roots(
                 world,
                 root_name,
                 spawnable,
+                pickup,
             })
         })
         .collect()
