@@ -26,7 +26,12 @@ pub(in crate::gameplay) fn detect_portal(
     portals: Query<(&GlobalTransform, &ExplorationPortal)>,
     return_portals: Query<&GlobalTransform, With<ExplorationReturnPortal>>,
     mut nearby: ResMut<NearbyExplorationPortal>,
+    inventory: Res<InventoryModel>,
 ) {
+    if !inventory.can_use_portal() {
+        nearby.0 = None;
+        return;
+    }
     let Ok(player) = player.single() else {
         nearby.0 = None;
         return;

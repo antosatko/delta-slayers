@@ -76,7 +76,8 @@ The five starter items therefore use 16.00 capacity. These values are balancing 
 - [ ] While overloaded, keyboard movement does nothing.
 - [ ] While overloaded, click-to-move does not create or follow a destination.
 - [ ] While overloaded, fast travel does not move the player.
-- [ ] While overloaded, entering or returning through an exploration portal is rejected.
+- [ ] While overloaded, the exploration interaction prompt is hidden and entering or returning through a portal is rejected.
+- [ ] While overloaded, the fast-travel menu and its destination buttons are hidden.
 - [ ] While overloaded, inventory controls still work and can bring capacity back under the limit.
 - [ ] Once under capacity, movement and portal usage work again without closing/reopening inventory.
 - [ ] Opening inventory pauses NPC movement and other gameplay simulation; closing it resumes simulation.
