@@ -271,6 +271,7 @@ mod tests {
     #[test]
     fn pickup_cooldown_prevents_another_collection_until_it_expires() {
         let pickup = Pickup {
+            quantity: 2,
             cooldown: 1.0,
             ..default()
         };
