@@ -137,8 +137,9 @@ woodland's object collection while a golden sword can live in the shared
 general collection. Tiles carrying `ObjectSpawner` choose from the current
 biome's object pool plus the general pool. The tile's S/M/L capacity is
 consumed by each generated object (S = 1, M = 2, L = 3); rarity affects
-weighted selection across both pools. Spawned objects currently have no
-interactions. The map has a movement-blocked outer boundary and cliff-edge
+weighted selection across both pools. Spawned objects do not receive pickup behavior automatically; attach
+`Pickup` to an eligible root object to make its generated instances
+interactable. The map has a movement-blocked outer boundary and cliff-edge
 blockers where the jump limit is exceeded. This is a first exploration
 prototype: it does not yet persist discovered state or add resource
 gathering, ecology simulation, or NPC populations.

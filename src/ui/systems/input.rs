@@ -3,8 +3,8 @@ use bevy::prelude::*;
 use crate::{
     gameplay::{
         exploration::{ExplorationTravelRequest, NearbyExplorationPortal, PortalAction},
-        zones::NearbyZone,
         pickups::{NearbyPickup, PickupRequest},
+        zones::NearbyZone,
     },
     ui::{
         components::{ExplorationSetupViewModel, PopupConfirmRequested},
