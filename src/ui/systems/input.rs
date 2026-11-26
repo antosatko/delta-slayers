@@ -4,6 +4,7 @@ use crate::{
     gameplay::{
         exploration::{ExplorationTravelRequest, NearbyExplorationPortal, PortalAction},
         zones::NearbyZone,
+        pickups::{NearbyPickup, PickupRequest},
     },
     ui::{
         components::{ExplorationSetupViewModel, PopupConfirmRequested},
@@ -16,6 +17,8 @@ pub fn handle_ui_input(
     mouse: Res<ButtonInput<MouseButton>>,
     nearby: Res<NearbyZone>,
     nearby_portal: Res<NearbyExplorationPortal>,
+    nearby_pickup: Res<NearbyPickup>,
+    mut pickup_request: ResMut<PickupRequest>,
     mut travel_request: ResMut<ExplorationTravelRequest>,
     mut setup: ResMut<ExplorationSetupViewModel>,
     mut ui: ResMut<UiStack>,
@@ -41,6 +44,8 @@ pub fn handle_ui_input(
                     travel_request.0 = Some(PortalAction::Return);
                 }
             }
+        } else if let Some(entity) = nearby_pickup.0 {
+            pickup_request.0 = Some(entity);
         } else if let Some(kind) = nearby.0 {
             ui.push(UiLayer::Panel(kind));
         }

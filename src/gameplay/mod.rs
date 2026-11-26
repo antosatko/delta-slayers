@@ -4,6 +4,7 @@ mod environment;
 mod npc;
 mod occlusion;
 mod persistence;
+mod pickups;
 mod spawning;
 mod systems;
 mod world;
@@ -51,6 +52,9 @@ impl Plugin for GameplayPlugin {
         .register_type::<environment::ObjectRarity>()
         .register_type::<environment::SpawnableObject>()
         .register_type::<environment::ObjectSpawner>()
+        .register_type::<inventory::InventoryItem>()
+        .register_type::<pickups::PickupAction>()
+        .register_type::<pickups::Pickup>()
         .register_type::<zones::ZoneKind>()
         .register_type::<zones::TriggerBox>()
         .register_type::<exploration::ExplorationPortal>()
@@ -69,6 +73,8 @@ impl Plugin for GameplayPlugin {
         .init_resource::<exploration::ActiveExplorationMap>()
         .init_resource::<exploration::ExplorationSession>()
         .init_resource::<inventory::InventoryModel>()
+        .init_resource::<pickups::NearbyPickup>()
+        .init_resource::<pickups::PickupRequest>()
         .init_resource::<GameStartMode>()
         .init_resource::<player::MovementTarget>()
         .init_resource::<player::PlayerSettings>()
@@ -111,6 +117,9 @@ impl Plugin for GameplayPlugin {
                 billboard::billboard_system,
                 zones::zone_detection_system.run_if(gameplay_simulation_enabled),
                 exploration::detect_portal.run_if(gameplay_simulation_enabled),
+                pickups::update_pickup_states,
+                pickups::detect_nearby_pickup,
+                pickups::handle_pickup_request,
             )
                 .chain()
                 .after(UiSet::Input)

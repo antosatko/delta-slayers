@@ -42,6 +42,7 @@ Within those areas:
 | `gameplay/exploration/terrain.rs` | Biome/noise sampling and smooth terrain elevation synchronization |
 | `gameplay/exploration/hex.rs` | Axial coordinates, hex layout, and neighbor geometry |
 | `gameplay/inventory.rs` | Authoritative inventory data |
+| `gameplay/pickups.rs` | Blender-authored pickup configuration, proximity detection, cooldowns, and inventory actions |
 | `gameplay/world.rs` | In-game world setup and the world-ready transition |
 | `gameplay/npc.rs` | NPC movement that reuses the player collision resolver |
 | `gameplay/systems.rs` | Gameplay actions such as fast travel and returning to the menu |
@@ -90,6 +91,12 @@ Current authored components:
   case, the entity's transform defines a box with local extents of -1 to 1.
   Mesh bounds are not queried. Blockers are upright and may rotate around the
   vertical Y axis.
+- `Pickup`: interactable object configured with an action, inventory item,
+  finite stock or infinite availability, and a cooldown. Press E or use the
+  interaction prompt while near the object. Each successful interaction adds
+  one Gold, Wood, or Stone to the inventory; finite stock decreases by one
+  and the object is despawned when depleted. Cooldown limits successful
+  interactions on infinite or multi-quantity pickups.
 - `ExplorationPortal`: configured oriented interaction volume that generates
   a seeded, bounded hex wilderness. It exposes the map radius, rendered tile
   radius in meters, elevation scale, maximum jump height, terrain/biome

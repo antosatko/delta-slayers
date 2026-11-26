@@ -24,12 +24,37 @@ Add these components to Blender Objects (or Empties where appropriate):
 | `delta_slayers::gameplay::zones::TriggerBox` | Oriented interaction / fast-travel volume. Choose `kind`; the object's transform defines its bounds. |
 | `delta_slayers::gameplay::exploration::ExplorationPortal` | Opens a seeded procedural hex wilderness. Its fields configure the generated map; the object's transform defines the interaction volume. |
 | `delta_slayers::gameplay::player::MovementBlocker` | Invisible oriented box that blocks player movement; the object's transform defines its bounds. |
+| `delta_slayers::gameplay::pickups::Pickup` | Makes an object interactable; configure its inventory action, item, finite or infinite stock, and cooldown. |
 | `delta_slayers::gameplay::spawning::SpawnPoint` | Spawn location. Choose `kind`; for Player points, a higher `priority` wins. |
 | `delta_slayers::gameplay::environment::ObjectSpawner` | Makes a tile model eligible for generated objects. Set its capacity rank and spawn chance. |
 | `delta_slayers::gameplay::environment::SpawnableObject` | Marks a root object in a biome-specific or shared general objects collection as a spawnable prototype. Set its size rank and rarity. |
 | `delta_slayers::gameplay::billboard::Billboard` | Makes a flat object face the player camera horizontally. |
 | `delta_slayers::gameplay::billboard::SquashOnMove` | Adds subtle movement-driven squashing to an entity's visual scale. |
 | `delta_slayers::gameplay::occlusion::PlayerOccluder` | Makes an object's meshes translucent when the object blocks the camera's view of the player. |
+
+### Pickups
+
+Attach `Pickup` to the root Blender Object or Empty that represents the
+interactable object. Keep the component on the root so the complete model
+hierarchy is removed when a finite pickup runs out.
+
+| Field | Default | Meaning |
+| --- | --- | --- |
+| `action` | `AddToInventory` | Action performed on interaction. This is the only action currently available. |
+| `item` | `Gold` | Inventory stack to increase: `Gold`, `Wood`, or `Stone`. |
+| `quantity` | `1` | Remaining stock. Each successful interaction grants one item. |
+| `infinite` | `false` | Keeps the pickup available without consuming its finite quantity. |
+| `cooldown` | `0.5` | Minimum seconds between successful interactions. |
+
+Approach the object and press **E** or use the interaction prompt. The pickup
+is available within 1.75 m horizontally and 2.25 m vertically of the player's
+upper-body interaction point. A finite pickup is despawned after its final
+item is collected. An infinite pickup remains in the world and can be used
+again after its cooldown. A quantity of zero makes a finite pickup unavailable.
+
+The current inventory item choices map to the Gold, Wood, and Stone counters
+in the inventory's Resources panel. Inventory contents are currently session
+state and are not included in the save file.
 
 ### Trigger boxes
 

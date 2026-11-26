@@ -99,7 +99,9 @@ Placement is reproducible from the exploration map seed, tile coordinates,
 and sorted spawn-point position. The object's position and orientation come
 from the marker rather than a generated random offset. The mesh hierarchy is
 used only to align the visible object with the terrain; generated objects do
-not receive collision automatically.
+not receive collision automatically. Attach `Pickup` to a spawnable object's
+root when its generated instances should be interactable. The component and
+its configured inventory action are preserved on generated instances.
 
 To make an authored tile or object block movement, attach
 `delta_slayers::gameplay::player::MovementBlocker` to an Empty in that
