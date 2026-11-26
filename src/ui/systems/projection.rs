@@ -331,7 +331,10 @@ pub fn update_minimap(
     zones: Query<(&GlobalTransform, &TriggerBox)>,
     active_map: Res<ActiveExplorationMap>,
     exploration_tiles: Query<(&ExplorationTile, Has<UnreachableTile>)>,
-    mut compass: Query<&mut Text, With<MinimapCompass>>,
+    mut compass: Query<
+        &mut Text,
+        (With<MinimapCompass>, Without<MinimapZoneDot>),
+    >,
     mut town_dots: Query<
         (
             &MinimapZoneDot,
@@ -340,7 +343,7 @@ pub fn update_minimap(
             &mut Text,
             &mut TextColor,
         ),
-        Without<MinimapExplorationDot>,
+        (Without<MinimapExplorationDot>, Without<MinimapCompass>),
     >,
     mut exploration_dots: Query<
         (
