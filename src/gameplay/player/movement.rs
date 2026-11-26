@@ -137,6 +137,7 @@ pub(in crate::gameplay) fn move_player_to_target(
     mut target: ResMut<MovementTarget>,
     settings: Res<PlayerSettings>,
     input: Res<ButtonInput<KeyCode>>,
+    mouse_input: Res<ButtonInput<MouseButton>>,
     time: Res<Time>,
 ) {
     let Ok(mut transform) = player.single_mut() else {
@@ -214,7 +215,11 @@ pub(in crate::gameplay) fn move_player_to_target(
     transform.translation.x = next_position.x;
     transform.translation.z = next_position.z;
 
-    if click_move_active && actual_speed < MIN_CLICK_MOVE_SPEED {
+    if should_cancel_stalled_click_path(
+        click_move_active,
+        actual_speed,
+        mouse_input.pressed(MouseButton::Left),
+    ) {
         target.cancel_destination_until_release();
     }
 
@@ -227,6 +232,14 @@ pub(in crate::gameplay) fn move_player_to_target(
             target.destination = None;
         }
     }
+}
+
+fn should_cancel_stalled_click_path(
+    click_move_active: bool,
+    actual_speed: f32,
+    left_mouse_pressed: bool,
+) -> bool {
+    click_move_active && actual_speed < MIN_CLICK_MOVE_SPEED && !left_mouse_pressed
 }
 
 /// Advances in small increments so a fast frame or sprint cannot tunnel
@@ -272,6 +285,14 @@ mod tests {
         assert!(!target.should_update_from_cursor(true, false, 0.5, false));
         assert!(!target.should_update_from_cursor(false, false, 0.0, false));
         assert!(target.should_update_from_cursor(true, true, 0.016, false));
+    }
+
+    #[test]
+    fn stalled_click_path_is_cancelled_only_after_mouse_release() {
+        assert!(!should_cancel_stalled_click_path(true, 0.0, true));
+        assert!(should_cancel_stalled_click_path(true, 0.0, false));
+        assert!(!should_cancel_stalled_click_path(false, 0.0, false));
+        assert!(!should_cancel_stalled_click_path(true, MIN_CLICK_MOVE_SPEED, false));
     }
 
     #[test]

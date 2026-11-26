@@ -132,7 +132,9 @@ Left-clicking the ground sets a movement destination; the player walks toward
 it continuously, and animated 3D arrows slowly travel along the remaining
 trajectory; its dedicated gizmo depth bias keeps it visible through other
 geometry. If collision-resolved click movement falls below 0.5 world units per
-second, the destination and its trajectory are cancelled. Keyboard movement
+second after the left mouse button is released, the destination and its
+trajectory are cancelled. While the button remains held, the destination
+stays active and movement continues retrying. Keyboard movement
 remains available independently. Holding the left button for 300 ms starts periodic destination
 updates from the cursor until release. A highlighted ground ring and vertical
 beacon mark the endpoint. A new click replaces the destination, and holding
