@@ -117,9 +117,9 @@ impl Plugin for GameplayPlugin {
                 billboard::billboard_system,
                 zones::zone_detection_system.run_if(gameplay_simulation_enabled),
                 exploration::detect_portal.run_if(gameplay_simulation_enabled),
-                pickups::update_pickup_states,
-                pickups::detect_nearby_pickup,
-                pickups::handle_pickup_request,
+                pickups::update_pickup_states.run_if(gameplay_simulation_enabled),
+                pickups::detect_nearby_pickup.run_if(gameplay_simulation_enabled),
+                pickups::handle_pickup_request.run_if(gameplay_simulation_enabled),
             )
                 .chain()
                 .after(UiSet::Input)
