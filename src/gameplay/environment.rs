@@ -9,7 +9,7 @@ use bevy::{
     world_serialization::{DynamicWorld, DynamicWorldBuilder, WorldAsset},
 };
 
-use super::{exploration::Biome, player::MovementBlocker};
+use super::{exploration::Biome, pickups::Pickup, player::MovementBlocker};
 
 const BIOME_FILES: [(Biome, &str); 4] = [
     (Biome::Grassland, "grassland"),
@@ -346,6 +346,14 @@ pub(super) fn collect_assets(
                     "Spawnable object prototype from {path} lost all Mesh3d components during extraction"
                 );
                 continue;
+            }
+            let pickup_count = asset
+                .world
+                .iter_entities()
+                .filter(|entity| entity.get::<Pickup>().is_some())
+                .count();
+            if pickup_count > 0 {
+                info!("Extracted {pickup_count} Pickup component(s) from an object prototype in {path}");
             }
 
             removed_authoring_nodes += strip_prototype_markers(&mut asset.world, root_entity);

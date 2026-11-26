@@ -132,17 +132,25 @@ pub(super) fn update_pickup_states(
 }
 
 /// Finds the nearest pickup in front of the player's normal interaction probe.
+#[derive(Default)]
+struct PickupDetectionDiagnostics {
+    counts: Option<(usize, usize)>,
+    nearest: Option<(Entity, bool)>,
+}
+
+/// Finds the nearest pickup in front of the player's normal interaction probe.
 pub(super) fn detect_nearby_pickup(
     player: Query<&Transform, With<Player>>,
     pickups: Query<(
         Entity,
-        &GlobalTransform,
         &Pickup,
+        Option<&GlobalTransform>,
         Option<&PickupRuntime>,
         Option<&Mesh3d>,
     )>,
     meshes: Res<Assets<Mesh>>,
     mut nearby: ResMut<NearbyPickup>,
+    mut diagnostics: Local<PickupDetectionDiagnostics>,
 ) {
     let Ok(player_transform) = player.single() else {
         nearby.0 = None;
@@ -151,8 +159,17 @@ pub(super) fn detect_nearby_pickup(
 
     let player_position = player_transform.translation + Vec3::Y * INTERACTION_HEIGHT;
     let mut nearest: Option<(Entity, f32)> = None;
+    let mut nearest_candidate: Option<(Entity, f32, f32, bool)> = None;
+    let mut pickup_count = 0;
+    let mut missing_global_transform_count = 0;
 
-    for (entity, transform, pickup, runtime, mesh_3d) in &pickups {
+    for (entity, pickup, transform, runtime, mesh_3d) in &pickups {
+        pickup_count += 1;
+        let Some(transform) = transform else {
+            missing_global_transform_count += 1;
+            continue;
+        };
+
         let remaining = runtime.map_or(pickup.quantity, |state| state.remaining);
         if !pickup.infinite && remaining == 0 {
             continue;
@@ -170,18 +187,50 @@ pub(super) fn detect_nearby_pickup(
             .and_then(|mesh| closest_point_on_mesh_bounds(player_position, transform, mesh))
             .unwrap_or(origin);
         let offset = closest_point - player_position;
-        if offset.y.abs() > PICKUP_MAX_VERTICAL_DISTANCE {
-            continue;
+        let horizontal_distance_squared = Vec2::new(offset.x, offset.z).length_squared();
+        let within_range = offset.y.abs() <= PICKUP_MAX_VERTICAL_DISTANCE
+            && horizontal_distance_squared <= PICKUP_INTERACTION_RADIUS.powi(2);
+
+        if nearest_candidate.map_or(true, |(_, distance, _, _)| {
+            horizontal_distance_squared < distance
+        }) {
+            nearest_candidate = Some((
+                entity,
+                horizontal_distance_squared,
+                offset.y.abs(),
+                within_range,
+            ));
         }
 
-        let horizontal_distance_squared = Vec2::new(offset.x, offset.z).length_squared();
-        if horizontal_distance_squared > PICKUP_INTERACTION_RADIUS.powi(2) {
+        if !within_range {
             continue;
         }
 
         if nearest.map_or(true, |(_, distance)| horizontal_distance_squared < distance) {
             nearest = Some((entity, horizontal_distance_squared));
         }
+    }
+
+    let counts = (pickup_count, missing_global_transform_count);
+    if diagnostics.counts != Some(counts) {
+        info!(
+            "Pickup detection sees {pickup_count} Pickup entities; {missing_global_transform_count} lack GlobalTransform"
+        );
+        diagnostics.counts = Some(counts);
+    }
+
+    let nearest_state = nearest_candidate.map(|(entity, _, _, in_range)| (entity, in_range));
+    if diagnostics.nearest != nearest_state {
+        if let Some((entity, distance_squared, vertical_distance, in_range)) = nearest_candidate {
+            info!(
+                "Nearest pickup candidate {entity:?}: horizontal {:.2} m, vertical {:.2} m, in range: {in_range}",
+                distance_squared.sqrt(),
+                vertical_distance,
+            );
+        } else if pickup_count > 0 {
+            info!("Pickup entities exist, but none has a usable transform and stock");
+        }
+        diagnostics.nearest = nearest_state;
     }
 
     nearby.0 = nearest.map(|(entity, _)| entity);
