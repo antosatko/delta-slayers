@@ -105,3 +105,21 @@ cargo test
 ```
 
 Record actual results in the change log. Runtime checklist items require a local game session and must not be marked complete from source inspection alone.
+
+
+## Implementation log
+
+| Commit | Change | Verification |
+| --- | --- | --- |
+| \`0ed3b46\` | Replaced the placeholder counters with resource stacks, individual item instances, integer capacity accounting, manual/automatic acquisition operations, movement restrictions, and portal checks. | Unit tests added; not executed in this environment. |
+| \`db630a9\` | Added the capacity-aware inventory screen, queued UI actions, save format version 3 with legacy migration, and inventory initialization on New Game / Quick Load. | Unit tests added; not executed in this environment. |
+| \`e01f3e3\` | Added automatic-pickup and one-click overflow test controls; corrected the UI projection to initialize correctly when the screen is first opened. | Source review only. |
+| \`4ffb65a\` | Hid exploration portal prompts and fast-travel controls while overloaded. | Source review only. |
+
+## Verification status
+
+- \`cargo fmt --check\`: not run; no local checkout/build environment was available during this implementation session.
+- \`cargo check\`: not run for the same reason.
+- \`cargo test\`: not run for the same reason. Tests are present in \`src/gameplay/inventory.rs\` and \`src/gameplay/persistence.rs\`.
+- GitHub commit status: no checks were reported for the implementation commit.
+- Runtime checklist: pending local execution.

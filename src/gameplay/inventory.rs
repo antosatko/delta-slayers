@@ -292,7 +292,7 @@ pub(crate) fn apply_inventory_action(
             inventory.try_add_resource_automatically(kind, amount);
         }
         InventoryAction::TryAddItemAutomatically(kind) => {
-            inventory.try_add_item_automatically(kind);
+            let _ = inventory.try_add_item_automatically(kind);
         }
         InventoryAction::RemoveResource { kind, amount } => {
             inventory.leave_resource(kind, amount);
@@ -302,7 +302,7 @@ pub(crate) fn apply_inventory_action(
         }
         InventoryAction::LeaveLastItem => {
             let last = inventory.items().len().saturating_sub(1);
-            inventory.leave_item_at(last);
+            let _ = inventory.leave_item_at(last);
         }
         InventoryAction::MoveLastItemToFront => {
             let last = inventory.items().len().saturating_sub(1);
@@ -368,6 +368,8 @@ mod tests {
 
         assert!(inventory.is_over_capacity());
         assert_eq!(inventory.resource_amount(ResourceKind::Stone), 100);
+        inventory.add_item_manually(ItemKind::Salad);
+        assert_eq!(inventory.items().len(), 6);
     }
 
     #[test]
