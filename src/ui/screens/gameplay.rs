@@ -754,10 +754,13 @@ fn minimap_zone_dot(kind: ZoneKind) -> impl Scene {
             position_type: PositionType::Absolute,
             left: px(0),
             top: px(0),
-            width: px(7),
-            height: px(7),
-            border_radius: BorderRadius::all(px(4)),
+            width: px(14),
+            height: px(14),
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
         }
+        Text("•")
+        TextFont { font_size: px(14) }
         MinimapZoneDot(kind)
         Visibility::Hidden
         template(move |ctx| {
@@ -766,7 +769,7 @@ fn minimap_zone_dot(kind: ZoneKind) -> impl Scene {
                 ZoneKind::Shop => theme.accent,
                 ZoneKind::Guild => theme.warning,
             };
-            Ok(BackgroundColor(color))
+            Ok(TextColor(color))
         })
     }
 }
