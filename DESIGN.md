@@ -392,7 +392,11 @@ Game UI should adapt through Bevy UI flex layout rather than fixed screen assump
   desktop-sized window.
 - The minimap is player-oriented: the player's horizontal forward direction
   points toward its top edge, nearby markers rotate around the centered player
-  marker; its orientation indicates the player's heading.
+  marker, and a nearby compass needle indicates world north relative to that
+  heading. Town POIs use their authored TriggerBox locations: markers appear as
+  dots inside the minimap and as edge arrows outside it. Marker opacity stays
+  full within 24 m, then fades linearly to 18% by 100 m and remains visible
+  beyond that distance.
 - Fixed-size artwork tiles and equipment slots remain fixed-size controls;
   their containing rows wrap instead of compressing the artwork.
 

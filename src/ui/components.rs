@@ -20,6 +20,9 @@ pub(super) struct PauseOverlay;
 #[derive(Component, Default, Clone)]
 pub(super) struct MinimapZoneDot(pub(super) ZoneKind);
 
+#[derive(Component, Default, Clone, Copy)]
+pub(super) struct MinimapCompass;
+
 #[derive(Component, Clone, Copy, Default)]
 pub(super) struct MinimapExplorationDot(pub(super) i32, pub(super) i32);
 
