@@ -102,7 +102,7 @@ impl CarbonIcon {
             Self::Coin => 7,
             Self::Inventory => 8,
             Self::Key => 9,
-            Self::Quest | Self::Contracts | Self::Journal => 10,
+            Self::Quest | Self::Contracts => 10,
             Self::Lock => 11,
             Self::Back => 12,
             Self::Forward => 13,
@@ -116,6 +116,7 @@ impl CarbonIcon {
             | Self::Workshop
             | Self::Search
             | Self::Add
+            | Self::Journal
             | Self::Compass
             | Self::Book
             | Self::Anvil => return None,
