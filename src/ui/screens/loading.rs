@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use delta_slayers_ui::CarbonTheme;
 use std::{
     collections::hash_map::RandomState,
     hash::{BuildHasher, Hash, Hasher},
@@ -65,7 +66,7 @@ fn loading_content() -> impl Scene {
                 max_width: px(760),
                 max_height: Val::Vh(56.0),
                 min_width: px(240),
-                aspect_ratio: Some(1.181),
+                aspect_ratio: 1.181,
                 padding: UiRect::all(px(8)),
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
@@ -96,7 +97,7 @@ fn loading_content() -> impl Scene {
                 TextFont {
                     font_size: px(24),
                 }
-                TextColor(Color::WHITE)
+                template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().ink)))
                 TextLayout::justify(Justify::Center)
                 --
                 Node {
