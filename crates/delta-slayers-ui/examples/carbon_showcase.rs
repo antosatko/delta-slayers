@@ -5,7 +5,7 @@ use bevy::{
 };
 use delta_slayers_ui::{
     CarbonButtonTone, CarbonIcon, CarbonPlugin, CarbonSelection, CarbonStatus, CarbonTab,
-    CarbonTheme, action_button, badge, item_tile_optional, page_header, panel, reference_term,
+    CarbonTheme, CARBON_ICON_ATLAS_PATH, action_button, badge, item_tile_optional, page_header, panel, reference_term,
     root, screen_tab, screen_tabs, section_header, stat_bar,
 };
 
@@ -110,12 +110,14 @@ struct ShowcaseItem(ShowcaseItemKind);
 #[derive(Component, Default, Clone, Copy)]
 enum ShowcaseDetailField {
     #[default]
-    Icon,
     Title,
     Category,
     Description,
     Value,
 }
+
+#[derive(Component, Default, Clone, Copy)]
+struct ShowcaseDetailIcon;
 
 #[derive(Component, Default, Clone, Copy)]
 struct ShowcaseFeedback;
@@ -185,7 +187,6 @@ fn showcase_tab(label: &'static str, page: ShowcasePage, selected: bool) -> impl
 }
 
 fn items_page() -> impl Scene {
-    let initial_preview_icon = CarbonIcon::Flask.glyph();
     bsn! {
         Node {
             width: percent(100),
@@ -300,10 +301,21 @@ fn items_page() -> impl Scene {
                     }
                     template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().panel_alt)))
                     Children [
-                        Text(initial_preview_icon)
-                        ShowcaseDetailField::Icon
-                        TextFont { font_size: px(36) }
-                        template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().muted)))
+                        Node {
+                            width: px(56),
+                            height: px(56),
+                        }
+                        ShowcaseDetailIcon
+                        template(|ctx| {
+                            let rect = CarbonIcon::Flask
+                                .atlas_rect()
+                                .unwrap_or(Rect::new(0.0, 0.0, 64.0, 64.0));
+                            Ok(ImageNode::new(
+                                ctx.resource::<AssetServer>().load(CARBON_ICON_ATLAS_PATH),
+                            )
+                            .with_rect(rect)
+                            .with_color(ctx.resource::<CarbonTheme>().muted))
+                        })
                     ]
                     --
                     Text("CONSUMABLE")
@@ -437,6 +449,9 @@ fn showcase_item(
         on(move |_activate: On<Activate>,
             mut items: Query<(&ShowcaseItem, &mut CarbonSelection)>,
             mut details: Query<(&ShowcaseDetailField, &mut Text), Without<ShowcaseFeedback>>,
+            mut detail_icons: Query<&mut ImageNode, With<ShowcaseDetailIcon>>,
+            asset_server: Res<AssetServer>,
+            theme: Res<CarbonTheme>,
             mut feedback: Query<&mut Text, With<ShowcaseFeedback>>| {
             for (tile, mut selection) in &mut items {
                 selection.selected = tile.0 == item;
@@ -444,12 +459,19 @@ fn showcase_item(
 
             for (field, mut text) in &mut details {
                 text.0 = match field {
-                    ShowcaseDetailField::Icon => item.icon().glyph(),
                     ShowcaseDetailField::Title => item.title(),
                     ShowcaseDetailField::Category => item.category(),
                     ShowcaseDetailField::Description => item.description(),
                     ShowcaseDetailField::Value => item.value(),
                 }.into();
+            }
+
+            if let Some(rect) = item.icon().atlas_rect() {
+                for mut icon in &mut detail_icons {
+                    icon.image = asset_server.load(CARBON_ICON_ATLAS_PATH);
+                    icon.rect = Some(rect);
+                    icon.color = theme.muted;
+                }
             }
 
             for mut text in &mut feedback {
