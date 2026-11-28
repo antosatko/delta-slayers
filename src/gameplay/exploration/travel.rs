@@ -100,8 +100,8 @@ pub(in crate::gameplay) fn process_travel_request(
             let config = authored_config.sanitized();
             let seed = config.seed.unwrap_or_else(generate_seed);
             let tile_assets: [Handle<WorldAsset>; 2] = [
-                asset_server.load(GltfAssetLabel::Scene(0).from_asset("tiles/1.glb")),
-                asset_server.load(GltfAssetLabel::Scene(0).from_asset("tiles/2.glb")),
+                asset_server.load(GltfAssetLabel::Scene(0).from_asset("tiles/1.gltf")),
+                asset_server.load(GltfAssetLabel::Scene(0).from_asset("tiles/2.gltf")),
             ];
             let origin = Vec3::new(
                 original_transform.translation.x + MAP_WORLD_OFFSET,
