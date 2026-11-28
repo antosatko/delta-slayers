@@ -65,6 +65,13 @@ fn main_menu() -> impl Scene {
                         AppState::Credits
                     )
                     --
+                    // TODO: Remove this temporary preview entry point after UI review.
+                    @menu_button(
+                        "Loading Screen Preview",
+                        CarbonIcon::Map,
+                        AppState::LoadingPreview
+                    )
+                    --
                     @exit_button()
                 ]
             ]
