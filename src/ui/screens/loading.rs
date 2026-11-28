@@ -83,7 +83,6 @@ fn loading_content() -> impl Scene {
                 Text(caption)
                 TextFont {
                     font_size: px(28),
-                    ..default()
                 }
                 TextColor(Color::WHITE)
                 TextLayout::justify(Justify::Center)
