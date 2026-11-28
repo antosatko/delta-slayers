@@ -302,14 +302,12 @@ fn items_page() -> impl Scene {
                     template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().panel_alt)))
                     Children [
                         Node {
-                            width: px(56),
-                            height: px(56),
+                            width: px(40),
+                            height: px(40),
                         }
                         ShowcaseDetailIcon
                         template(|ctx| {
-                            let rect = CarbonIcon::Flask
-                                .atlas_rect()
-                                .unwrap_or(Rect::new(0.0, 0.0, 32.0, 32.0));
+                            let rect = CarbonIcon::Flask.atlas_rect();
                             Ok(ImageNode::new(
                                 ctx.resource::<AssetServer>().load(CARBON_ICON_ATLAS_PATH),
                             )
@@ -466,12 +464,11 @@ fn showcase_item(
                 }.into();
             }
 
-            if let Some(rect) = item.icon().atlas_rect() {
-                for mut icon in &mut detail_icons {
-                    icon.image = asset_server.load(CARBON_ICON_ATLAS_PATH);
-                    icon.rect = Some(rect);
-                    icon.color = theme.muted;
-                }
+            let rect = item.icon().atlas_rect();
+            for mut icon in &mut detail_icons {
+                icon.image = asset_server.load(CARBON_ICON_ATLAS_PATH);
+                icon.rect = Some(rect);
+                icon.color = theme.muted;
             }
 
             for mut text in &mut feedback {

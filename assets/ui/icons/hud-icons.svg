@@ -91,4 +91,39 @@
     <path class="hud-tint" d="M29 12 H35 L36.2 17.2 C38 17.8 39.7 18.8 41.1 20 L46.2 18.2 L49.2 23.4 L45.3 27.1 C45.6 28.7 45.6 30.3 45.3 31.9 L49.2 35.6 L46.2 40.8 L41.1 39 C39.7 40.2 38 41.2 36.2 41.8 L35 47 H29 L27.8 41.8 C26 41.2 24.3 40.2 22.9 39 L17.8 40.8 L14.8 35.6 L18.7 31.9 C18.4 30.3 18.4 28.7 18.7 27.1 L14.8 23.4 L17.8 18.2 L22.9 20 C24.3 18.8 26 17.8 27.8 17.2 Z" />
     <circle class="hud-stroke" cx="32" cy="29.5" r="5.5" />
   </symbol>
+  <symbol id="icon-contracts" viewBox="0 0 64 64">
+    <path class="hud-tint" d="M18 11 H39 L47 19 V52 H18 Z" />
+    <path class="hud-stroke" d="M39 11 V19 H47 M25 28 H40 M25 36 H40 M25 44 H36" />
+  </symbol>
+  <symbol id="icon-character" viewBox="0 0 64 64">
+    <circle class="hud-tint" cx="32" cy="22" r="10" />
+    <path class="hud-tint" d="M13 52 C14.5 40.5 21.5 35 32 35 C42.5 35 49.5 40.5 51 52 Z" />
+  </symbol>
+  <symbol id="icon-book" viewBox="0 0 64 64">
+    <path class="hud-tint" d="M10 17 C19 13 26 15 32 20 C38 15 45 13 54 17 V49 C45 45 38 47 32 52 C26 47 19 45 10 49 Z" />
+    <path class="hud-stroke" d="M32 20 V52 M17 25 C22 24 26 25 28 27 M17 34 C22 33 26 34 28 36 M47 25 C42 24 38 25 36 27 M47 34 C42 33 38 34 36 36" />
+  </symbol>
+  <symbol id="icon-map" viewBox="0 0 64 64">
+    <path class="hud-tint" d="M9 19 L25 13 L40 19 L55 13 V45 L40 51 L25 45 L9 51 Z" />
+    <path class="hud-stroke" d="M25 13 V45 M40 19 V51 M17 27 L20 25 M46 29 L50 27" />
+  </symbol>
+  <symbol id="icon-trade" viewBox="0 0 64 64">
+    <path class="hud-stroke" d="M12 23 H50 L42 15 M50 23 L42 31 M52 41 H14 L22 33 M14 41 L22 49" />
+  </symbol>
+  <symbol id="icon-anvil" viewBox="0 0 64 64">
+    <path class="hud-tint" d="M10 26 H27 L33 19 H46 L54 27 L47 34 H40 L36 43 H47 V50 H16 V43 H25 L28 34 H16 Z" />
+    <path class="hud-stroke" d="M16 43 H48" />
+  </symbol>
+  <symbol id="icon-search" viewBox="0 0 64 64">
+    <circle class="hud-tint" cx="27" cy="27" r="14" />
+    <path class="hud-stroke" d="M37 37 L52 52" />
+  </symbol>
+  <symbol id="icon-add" viewBox="0 0 64 64">
+    <circle class="hud-tint" cx="32" cy="32" r="20" />
+    <path class="hud-stroke" d="M32 21 V43 M21 32 H43" />
+  </symbol>
+  <symbol id="icon-compass" viewBox="0 0 64 64">
+    <circle class="hud-tint" cx="32" cy="32" r="21" />
+    <path class="hud-stroke" d="M39 23 L35 35 L23 41 L29 29 Z M32 9 V13 M32 51 V55 M9 32 H13 M51 32 H55" />
+  </symbol>
 </svg>

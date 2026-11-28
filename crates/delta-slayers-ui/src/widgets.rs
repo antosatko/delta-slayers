@@ -17,7 +17,8 @@ use crate::{
 };
 
 pub const CARBON_ICON_ATLAS_PATH: &str = "ui/icons/hud-icons.png";
-const CARBON_ICON_ATLAS_CELL_SIZE: f32 = 32.0;
+const CARBON_ICON_ATLAS_CELL_SIZE: f32 = 24.0;
+const CARBON_ICON_ATLAS_COLUMNS: u32 = 6;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum CarbonIcon {
@@ -54,43 +55,8 @@ pub enum CarbonIcon {
 }
 
 impl CarbonIcon {
-    /// Legacy text representation for icon concepts not present in the HUD atlas.
-    pub const fn glyph(self) -> &'static str {
-        match self {
-            Self::Contracts => "▤",
-            Self::Inventory => "▦",
-            Self::Character => "♙",
-            Self::Journal => "▣",
-            Self::Map => "⌖",
-            Self::Trade => "⇄",
-            Self::Workshop => "⚒",
-            Self::Settings => "⚙",
-            Self::Search => "⌕",
-            Self::Add => "+",
-            Self::Close => "×",
-            Self::Back => "←",
-            Self::Confirm => "✓",
-            Self::Coin => "◈",
-            Self::Health => "♥",
-            Self::Shield => "⬡",
-            Self::Stamina => "◉",
-            Self::Sword => "⚔",
-            Self::Compass => "⌖",
-            Self::Book => "▣",
-            Self::Flask => "◒",
-            Self::Anvil => "⚒",
-            Self::Mana => "✧",
-            Self::Skull => "☠",
-            Self::Key => "⚿",
-            Self::Lock => "▣",
-            Self::Forward => "→",
-            Self::Menu => "☰",
-            Self::Quest => "◇",
-        }
-    }
-
-    /// Returns the crop rectangle for icons represented by the HUD sprite atlas.
-    pub fn atlas_rect(self) -> Option<Rect> {
+    /// Returns the crop rectangle for this icon in the shared HUD atlas.
+    pub fn atlas_rect(self) -> Rect {
         let cell = match self {
             Self::Health => 0,
             Self::Shield => 1,
@@ -102,7 +68,7 @@ impl CarbonIcon {
             Self::Coin => 7,
             Self::Inventory => 8,
             Self::Key => 9,
-            Self::Quest | Self::Contracts => 10,
+            Self::Quest => 10,
             Self::Lock => 11,
             Self::Back => 12,
             Self::Forward => 13,
@@ -110,28 +76,27 @@ impl CarbonIcon {
             Self::Close => 15,
             Self::Menu => 16,
             Self::Settings => 17,
-            Self::Character
-            | Self::Map
-            | Self::Trade
-            | Self::Workshop
-            | Self::Search
-            | Self::Add
-            | Self::Journal
-            | Self::Compass
-            | Self::Book
-            | Self::Anvil => return None,
+            Self::Contracts => 18,
+            Self::Character => 19,
+            Self::Journal | Self::Book => 20,
+            Self::Map => 21,
+            Self::Trade => 22,
+            Self::Workshop | Self::Anvil => 23,
+            Self::Search => 24,
+            Self::Add => 25,
+            Self::Compass => 26,
         };
 
-        let column = (cell % 6) as f32;
-        let row = (cell / 6) as f32;
+        let column = cell % CARBON_ICON_ATLAS_COLUMNS;
+        let row = cell / CARBON_ICON_ATLAS_COLUMNS;
         let size = CARBON_ICON_ATLAS_CELL_SIZE;
 
-        Some(Rect::new(
-            column * size,
-            row * size,
-            (column + 1.0) * size,
-            (row + 1.0) * size,
-        ))
+        Rect::new(
+            column as f32 * size,
+            row as f32 * size,
+            (column + 1) as f32 * size,
+            (row + 1) as f32 * size,
+        )
     }
 }
 
@@ -334,7 +299,7 @@ pub fn section_header(icon: CarbonIcon, title: &'static str) -> impl Scene {
             column_gap: px(8),
         }
         Children [
-            @glyph(icon, 15.0, GlyphTone::Muted)
+            @carbon_icon(icon, 15.0, GlyphTone::Muted)
             --
             Text(title)
             TextFont { font_size: px(15) }
@@ -360,7 +325,7 @@ pub fn action_button(label: &'static str, icon: CarbonIcon, tone: CarbonButtonTo
                     column_gap: px(8),
                 }
                 Children [
-                    @glyph(icon, 14.0, GlyphTone::Button(tone))
+                    @carbon_icon(icon, 14.0, GlyphTone::Button(tone))
                     --
                     @caption(label)
                 ]
@@ -476,7 +441,7 @@ pub fn equipment_slot(icon: CarbonIcon) -> impl Scene {
         }
         template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().panel_alt)))
         Children [
-            @glyph(icon, 22.0, GlyphTone::Muted)
+            @carbon_icon(icon, 22.0, GlyphTone::Muted)
         ]
     }
 }
@@ -497,7 +462,7 @@ pub fn gear_slot(label: &'static str, icon: CarbonIcon) -> impl Scene {
         }
         template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().panel_alt)))
         Children [
-            @glyph(icon, 20.0, GlyphTone::Muted)
+            @carbon_icon(icon, 20.0, GlyphTone::Muted)
             --
             Text(label)
             TextFont { font_size: px(9) }
@@ -553,7 +518,7 @@ pub fn stat_bar(
                 column_gap: px(7),
             }
             Children [
-                @glyph(icon, 13.0, GlyphTone::Muted)
+                @carbon_icon(icon, 13.0, GlyphTone::Muted)
                 --
                 Text(label)
                 Node { min_width: px(0), flex_shrink: 1.0 }
@@ -644,7 +609,7 @@ fn item_tile_scene(
             ctx.resource::<CarbonTheme>().panel_alt
         })))
         Children [
-            @glyph(icon, 31.0, GlyphTone::Item(selected))
+            @carbon_icon(icon, 31.0, GlyphTone::Item(selected))
             --
             Node {
                 position_type: PositionType::Absolute,
@@ -725,12 +690,8 @@ pub fn reference_term(
     }
 }
 
-fn glyph(icon: CarbonIcon, size: f32, tone: GlyphTone) -> impl Scene {
-    let fallback_glyph = icon.glyph();
-    let atlas_rect = icon
-        .atlas_rect()
-        .unwrap_or(Rect::new(0.0, 0.0, CARBON_ICON_ATLAS_CELL_SIZE, CARBON_ICON_ATLAS_CELL_SIZE));
-    let has_atlas_icon = icon.atlas_rect().is_some();
+fn carbon_icon(icon: CarbonIcon, size: f32, tone: GlyphTone) -> impl Scene {
+    let rect = icon.atlas_rect();
 
     bsn! {
         Node {
@@ -756,39 +717,10 @@ fn glyph(icon: CarbonIcon, size: f32, tone: GlyphTone) -> impl Scene {
                 };
                 let atlas = ctx.resource::<AssetServer>().load(CARBON_ICON_ATLAS_PATH);
                 Ok(ImageNode::new(atlas)
-                    .with_rect(atlas_rect)
+                    .with_rect(rect)
+                    .with_mode(NodeImageMode::Stretch)
                     .with_color(color))
             })
-            template(move |_| Ok(if has_atlas_icon {
-                Visibility::Inherited
-            } else {
-                Visibility::Hidden
-            }))
-            --
-            Node {
-                width: percent(100),
-                height: percent(100),
-                justify_content: JustifyContent::Center,
-                align_items: AlignItems::Center,
-            }
-            Text(fallback_glyph)
-            TextFont { font_size: px(size) }
-            template(move |ctx| {
-                let theme = ctx.resource::<CarbonTheme>();
-                let color = match tone {
-                    GlyphTone::Muted => theme.quiet,
-                    GlyphTone::Button(button_tone) => theme.button_foreground(button_tone),
-                    GlyphTone::Item(selected) => {
-                        if selected { theme.accent } else { theme.muted }
-                    }
-                };
-                Ok(TextColor(color))
-            })
-            template(move |_| Ok(if has_atlas_icon {
-                Visibility::Hidden
-            } else {
-                Visibility::Inherited
-            }))
         ]
     }
 }

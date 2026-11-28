@@ -39,11 +39,11 @@ fn scene_for(state: AppState) -> impl SceneList {
         IsDefaultUiCamera
         DespawnOnExit::<AppState>(state)
         --
-        @loading_content()
+        @loading_content(state)
     }
 }
 
-fn loading_content() -> impl Scene {
+fn loading_content(state: AppState) -> impl Scene {
     let caption = random_loading_caption();
 
     bsn! {
@@ -59,6 +59,7 @@ fn loading_content() -> impl Scene {
             row_gap: px(18),
         }
         template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().page)))
+        DespawnOnExit::<AppState>(state)
         Children [
             // Keep the source image's 640:542 aspect ratio inside a framed viewport.
             Node {

@@ -75,12 +75,11 @@ bsn! {
   component; update its selected field to project active-tab styling.
 - section_header, action_button, badge, eyebrow_text, muted_text, and
   key_hint provide common hierarchy, helper copy, and keyboard affordances.
-- CarbonIcon uses the HUD symbol atlas for matching concepts, cropped from a
-  shared texture and tinted with the active Carbon theme. The original SVG
-  symbol sheet is kept beside the generated atlas; concepts not represented
-  there retain their text-glyph fallback.
+- CarbonIcon uses a shared RGBA HUD atlas, cropped and tinted with the active
+  Carbon theme. The SVG source includes matching symbols for every CarbonIcon
+  variant, so icon rendering does not depend on font glyph coverage.
 - stat_bar displays a value and semantic progress fill.
-- item_tile and item_tile_optional are square glyph-first controls;
+- item_tile and item_tile_optional are square icon-first controls;
   item_art_tile is a passive image-first tile for inventory presentation.
   equipment_slot provides a caption-free placeholder, while gear_slot creates
   labelled square equipment positions for character gear grids.
