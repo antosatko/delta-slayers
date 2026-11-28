@@ -15,16 +15,16 @@ pub(super) struct InventoryViewModel {
 #[derive(Component, Default, Clone)]
 pub(super) struct InventoryRoot;
 
-#[derive(Component)]
+#[derive(Component, Clone, Copy, Default)]
 pub(super) struct InventoryCapacityText;
 
-#[derive(Component)]
+#[derive(Component, Clone, Copy, Default)]
 pub(super) struct InventoryStatusText;
 
-#[derive(Component)]
+#[derive(Component, Clone, Copy, Default)]
 pub(super) struct InventoryResourcesText;
 
-#[derive(Component)]
+#[derive(Component, Clone, Copy, Default)]
 pub(super) struct InventoryItemsText;
 
 /// Projects the gameplay inventory into presentation-only labels.
