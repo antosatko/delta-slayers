@@ -1,4 +1,5 @@
 use bevy::{
+    ecs::system::SystemParam,
     gltf::GltfAssetLabel,
     prelude::*,
     world_serialization::{WorldAssetRoot, WorldInstanceReady},
