@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use delta_slayers_ui::CarbonTheme;
 use std::{
     collections::hash_map::RandomState,
     hash::{BuildHasher, Hash, Hasher},
@@ -66,7 +65,7 @@ fn loading_content() -> impl Scene {
                 max_width: px(760),
                 max_height: Val::Vh(56.0),
                 min_width: px(240),
-                aspect_ratio: Some(640.0 / 542.0),
+                aspect_ratio: Some(1.181),
                 padding: UiRect::all(px(8)),
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
