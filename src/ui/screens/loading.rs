@@ -66,7 +66,7 @@ fn loading_content() -> impl Scene {
                 max_width: px(760),
                 max_height: Val::Vh(56.0),
                 min_width: px(240),
-                aspect_ratio: 1.181,
+                aspect_ratio: Some(1.181),
                 padding: UiRect::all(px(8)),
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
