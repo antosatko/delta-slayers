@@ -398,6 +398,7 @@ mod tests {
         );
         assert_eq!(inventory.resource_amount(ResourceKind::Gold), 2);
     }
+
     #[test]
     fn automatic_pickup_is_rejected_when_it_would_exceed_capacity() {
         let pickup = Pickup {

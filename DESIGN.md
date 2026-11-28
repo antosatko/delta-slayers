@@ -154,7 +154,7 @@ the clicked destination. Both movement modes share a circular player footprint
 against Blender-authored `MovementBlocker` boxes. Movement advances in small
 steps to prevent tunnelling, and collision correction keeps the player against
 the wall while preserving tangential movement for wall sliding. Blockers affect
-continuous movement, not spawn placement or fast-travel teleports. Opening the inventory pauses player movement, NPC movement, portal detection, pickups, and other gameplay simulation while leaving inventory actions available. Overcapacity also blocks movement and portal/fast-travel use; automatic pickups are rejected only when the resulting inventory would exceed capacity. Manual inventory actions remain available so the player can resolve overflow. Right-click opens
+continuous movement, not spawn placement or fast-travel teleports. Opening the inventory pauses player movement, NPC movement, portal detection, and automatic pickups while leaving inventory management and fast-travel requests available. Overcapacity also blocks movement and portal/fast-travel use; automatic pickups are rejected only when the resulting inventory would exceed capacity. Manual inventory actions are not capacity-gated and can be used to resolve overflow. Right-click opens
 the inventory or dismisses the active overlay.
 Saved positions preserve their full world-space coordinates. Fast travel uses
 the selected trigger box's world-space X/Z position and offsets the exit along
@@ -269,8 +269,11 @@ relations, or NPC populations.
 ## Persistence
 
 The quick-save is stored in `save.txt` in the working directory. Version 3
-stores the player's full world position, yaw, camera pitch, visited zone kinds, inventory capacity, resource quantities, and individual item instances. Versionless saves are treated as the previous format and have their
-camera pitch migrated once when loaded. A valid save at world origin is still a
+stores the player's full world position, yaw, camera pitch, visited zone kinds,
+inventory capacity, resource quantities, and individual item instances.
+Versionless saves and versions 1–2 receive the starter inventory; versionless
+and version 1 saves use legacy camera-pitch migration, while version 2 already
+stores pitch. A valid save at world origin is still a
 save; absence or invalid content is represented separately from its position.
 Save read/write failures are logged rather than silently ignored.
 
@@ -321,9 +324,10 @@ Current layers:
 
 The gameplay cursor is always visible and ungrabbed. It is configured when
 entering InGame rather than rewritten every frame. Opening an overlay does not
-change cursor mode. Inventory is a non-pausing overlay: world
-simulation and player movement continue behind it, but cursor-based movement
-targeting and camera pan/zoom are blocked over the UI. Every interactive
+change cursor mode. Inventory is a pausing overlay: player and NPC movement,
+portal detection, pickup detection, and gameplay simulation pause while it is
+open. Inventory actions and fast-travel requests remain available. Cursor-based
+movement targeting and camera pan/zoom remain blocked over the UI. Every interactive
 gameplay overlay root exposes a `RelativeCursorPosition` hit region; this lets
 the gameplay input systems ignore raw mouse input while the pointer is over a
 visible UI surface. Clicks over UI do not set a destination, and a click that
