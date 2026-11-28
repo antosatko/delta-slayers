@@ -58,7 +58,7 @@ pub(super) fn setup_game(mut commands: Commands, mut params: GameSetupParams) {
     params.startup.spawn_point_applied = loaded_game.is_some();
 
     let (spawn_pos, saved_yaw, initial_pitch, saved_visited, saved_inventory) = loaded_game
-        .map(|save| (save.position, save.yaw, save.pitch, save.visited_zones, save.params.inventory))
+        .map(|save| (save.position, save.yaw, save.pitch, save.visited_zones, save.inventory))
         .unwrap_or_else(|| {
             (
                 Vec3::ZERO,
