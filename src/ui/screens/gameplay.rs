@@ -16,14 +16,13 @@ use bevy::{
 };
 use delta_slayers_ui::{
     CarbonButtonTone, CarbonIcon, CarbonTheme, action_button, eyebrow_text, gear_slot,
-    key_hint, muted_text, page_header, page_title, panel, section_header,
+    item_art_tile, key_hint, muted_text, page_header, page_title, panel, section_header,
 };
 
 use crate::{
     app::state::AppState,
     gameplay::{
         exploration::{ExplorationPortal, ExplorationTravelRequest, PortalAction},
-        inventory::{InventoryAction, InventoryActionRequest, ItemKind, ResourceKind},
         zones::{FastTravelRequest, ZoneKind},
     },
     ui::{
@@ -36,7 +35,7 @@ use crate::{
             PopupConfirmRequested, PopupRoot,
             SettingsPanelRoot,
         },
-        inventory::{InventoryCapacityText, InventoryItemsText, InventoryResourcesText, InventoryRoot, InventoryStatusText},
+        inventory::{InventoryCapacityText, InventoryResourcesText, InventoryRoot, InventoryStatusText},
         stack::{UiLayer, UiStack},
     },
 };
@@ -903,8 +902,6 @@ fn inventory_scene() -> impl Scene {
                     }
                     Children [
                         @inventory_items()
-                        --
-                        @inventory_test_controls()
                     ]
                 ]
             ]
@@ -986,90 +983,27 @@ fn inventory_items() -> impl Scene {
         Children [
             @section_header(CarbonIcon::Inventory, "Carried items")
             --
-            Text("Evil pup\nMaurice\nSalad\nScooby\nTheo")
-            InventoryItemsText
-            TextFont { font_size: px(13) }
-            template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().ink)))
-            --
-            @muted_text("Items are individual instances. Reordering them does not change capacity.", 11.0)
-            --
             Node {
                 width: percent(100),
+                min_width: px(0),
+                min_height: px(112),
                 flex_direction: FlexDirection::Row,
                 flex_wrap: FlexWrap::Wrap,
+                align_content: AlignContent::Start,
+                align_items: AlignItems::Start,
                 column_gap: px(8),
                 row_gap: px(8),
             }
             Children [
-                @action_button("Move last to front", CarbonIcon::Back, CarbonButtonTone::Secondary)
-                on(|_activate: On<Activate>, mut request: ResMut<InventoryActionRequest>| {
-                    request.0 = Some(InventoryAction::MoveLastItemToFront);
-                })
+                @item_art_tile("items/evil-pup.png", "Evil pup", None)
                 --
-                @action_button("Leave last item", CarbonIcon::Close, CarbonButtonTone::Secondary)
-                on(|_activate: On<Activate>, mut request: ResMut<InventoryActionRequest>| {
-                    request.0 = Some(InventoryAction::LeaveLastItem);
-                })
-            ]
-        ]
-    }
-}
-
-fn inventory_test_controls() -> impl Scene {
-    bsn! {
-        @panel(percent(100))
-        Children [
-            @section_header(CarbonIcon::Settings, "Inventory test controls")
-            --
-            @muted_text("Temporary controls for testing capacity before world pickups and resource sources exist.", 11.0)
-            --
-            Node {
-                width: percent(100),
-                flex_direction: FlexDirection::Row,
-                flex_wrap: FlexWrap::Wrap,
-                column_gap: px(8),
-                row_gap: px(8),
-            }
-            Children [
-                @action_button("+10 wood", CarbonIcon::Add, CarbonButtonTone::Secondary)
-                on(|_activate: On<Activate>, mut request: ResMut<InventoryActionRequest>| {
-                    request.0 = Some(InventoryAction::AddResource { kind: ResourceKind::Wood, amount: 10 });
-                })
+                @item_art_tile("items/maurice.webp", "Maurice", None)
                 --
-                @action_button("+10 stone", CarbonIcon::Add, CarbonButtonTone::Secondary)
-                on(|_activate: On<Activate>, mut request: ResMut<InventoryActionRequest>| {
-                    request.0 = Some(InventoryAction::AddResource { kind: ResourceKind::Stone, amount: 10 });
-                })
+                @item_art_tile("items/salad.jpg", "Salad", None)
                 --
-                @action_button("+100 gold", CarbonIcon::Add, CarbonButtonTone::Secondary)
-                on(|_activate: On<Activate>, mut request: ResMut<InventoryActionRequest>| {
-                    request.0 = Some(InventoryAction::AddResource { kind: ResourceKind::Gold, amount: 100 });
-                })
+                @item_art_tile("items/scooby.webp", "Scooby", None)
                 --
-                @action_button("Add item", CarbonIcon::Add, CarbonButtonTone::Secondary)
-                on(|_activate: On<Activate>, mut request: ResMut<InventoryActionRequest>| {
-                    request.0 = Some(InventoryAction::AddItem(ItemKind::Salad));
-                })
-                --
-                @action_button("Auto pickup 10 wood", CarbonIcon::Add, CarbonButtonTone::Secondary)
-                on(|_activate: On<Activate>, mut request: ResMut<InventoryActionRequest>| {
-                    request.0 = Some(InventoryAction::TryAddResourceAutomatically { kind: ResourceKind::Wood, amount: 10 });
-                })
-                --
-                @action_button("Auto pickup Salad", CarbonIcon::Add, CarbonButtonTone::Secondary)
-                on(|_activate: On<Activate>, mut request: ResMut<InventoryActionRequest>| {
-                    request.0 = Some(InventoryAction::TryAddItemAutomatically(ItemKind::Salad));
-                })
-                --
-                @action_button("Overfill capacity", CarbonIcon::Add, CarbonButtonTone::Secondary)
-                on(|_activate: On<Activate>, mut request: ResMut<InventoryActionRequest>| {
-                    request.0 = Some(InventoryAction::AddResource { kind: ResourceKind::Stone, amount: 100 });
-                })
-                --
-                @action_button("Remove all resources", CarbonIcon::Back, CarbonButtonTone::Ghost)
-                on(|_activate: On<Activate>, mut request: ResMut<InventoryActionRequest>| {
-                    request.0 = Some(InventoryAction::ClearResources);
-                })
+                @item_art_tile("items/theo.jpg", "Theo", None)
             ]
         ]
     }
