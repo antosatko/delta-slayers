@@ -80,6 +80,7 @@ impl PickupRuntime {
 enum PickupResult {
     OnCooldown,
     Empty,
+    OverCapacity,
     Collected { depleted: bool },
 }
 
@@ -96,7 +97,11 @@ fn collect_one(
     }
 
     match pickup.action {
-        PickupAction::AddToInventory => inventory.add_item(pickup.item, 1),
+        PickupAction::AddToInventory => {
+            if !inventory.try_add_resource_automatically(pickup.item.into(), 1) {
+                return PickupResult::OverCapacity;
+            }
+        }
     }
 
     if !pickup.infinite {
@@ -280,13 +285,15 @@ pub(super) fn handle_pickup_request(
         }
         PickupResult::Collected { depleted: false }
         | PickupResult::OnCooldown
-        | PickupResult::Empty => {}
+        | PickupResult::Empty
+        | PickupResult::OverCapacity => {}
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::gameplay::inventory::ResourceKind;
 
     #[test]
     fn mesh_bounds_use_surface_distance_instead_of_object_origin() {
@@ -325,20 +332,20 @@ mod tests {
             collect_one(&pickup, &mut runtime, &mut inventory),
             PickupResult::Collected { depleted: false }
         );
-        assert_eq!(inventory.wood, 1);
+        assert_eq!(inventory.resource_amount(ResourceKind::Wood), 1);
         assert_eq!(runtime.remaining, 1);
 
         assert_eq!(
             collect_one(&pickup, &mut runtime, &mut inventory),
             PickupResult::Collected { depleted: true }
         );
-        assert_eq!(inventory.wood, 2);
+        assert_eq!(inventory.resource_amount(ResourceKind::Wood), 2);
         assert_eq!(runtime.remaining, 0);
         assert_eq!(
             collect_one(&pickup, &mut runtime, &mut inventory),
             PickupResult::Empty
         );
-        assert_eq!(inventory.wood, 2);
+        assert_eq!(inventory.resource_amount(ResourceKind::Wood), 2);
     }
 
     #[test]
@@ -360,7 +367,7 @@ mod tests {
             );
         }
 
-        assert_eq!(inventory.stone, 3);
+        assert_eq!(inventory.resource_amount(ResourceKind::Stone), 3);
         assert_eq!(runtime.remaining, 1);
     }
 
@@ -389,6 +396,27 @@ mod tests {
             collect_one(&pickup, &mut runtime, &mut inventory),
             PickupResult::Collected { depleted: true }
         );
-        assert_eq!(inventory.gold, 2);
+        assert_eq!(inventory.resource_amount(ResourceKind::Gold), 2);
     }
+    #[test]
+    fn automatic_pickup_is_rejected_when_it_would_exceed_capacity() {
+        let pickup = Pickup {
+            item: InventoryItem::Gold,
+            quantity: 2,
+            cooldown: 0.0,
+            ..default()
+        };
+        let mut runtime = PickupRuntime::from_config(&pickup);
+        let mut inventory = InventoryModel::default();
+        inventory.max_capacity_subunits = inventory.used_capacity_subunits();
+
+        assert_eq!(
+            collect_one(&pickup, &mut runtime, &mut inventory),
+            PickupResult::OverCapacity
+        );
+        assert_eq!(inventory.resource_amount(ResourceKind::Gold), 0);
+        assert_eq!(runtime.remaining, 2);
+        assert_eq!(runtime.cooldown_remaining, 0.0);
+    }
+
 }

@@ -73,6 +73,7 @@ impl Plugin for GameplayPlugin {
         .init_resource::<exploration::ActiveExplorationMap>()
         .init_resource::<exploration::ExplorationSession>()
         .init_resource::<inventory::InventoryModel>()
+        .init_resource::<inventory::InventoryActionRequest>()
         .init_resource::<pickups::NearbyPickup>()
         .init_resource::<pickups::PickupRequest>()
         .init_resource::<GameStartMode>()
@@ -81,6 +82,13 @@ impl Plugin for GameplayPlugin {
         .add_systems(Startup, environment::load_assets)
         .add_systems(Update, environment::collect_assets)
         .add_systems(OnEnter(AppState::Loading), world::setup_game)
+        .add_systems(
+            Update,
+            inventory::apply_inventory_action
+                .after(UiSet::Input)
+                .before(UiSet::Projection)
+                .run_if(in_state(AppState::InGame)),
+        )
         .add_systems(
             Update,
             spawning::apply_player_spawn_point
@@ -162,11 +170,14 @@ fn camera_input_enabled(ui_state: Res<UiStack>) -> bool {
 }
 
 fn gameplay_simulation_allowed(ui_state: &UiStack) -> bool {
-    !ui_state.paused() && !ui_state.game_menu_open() && !ui_state.exploration_setup_open()
+    !ui_state.paused()
+        && !ui_state.game_menu_open()
+        && !ui_state.exploration_setup_open()
+        && !ui_state.inventory_open()
 }
 
 fn camera_input_allowed(ui_state: &UiStack) -> bool {
-    gameplay_simulation_allowed(ui_state) && !ui_state.inventory_open()
+    gameplay_simulation_allowed(ui_state)
 }
 
 #[cfg(test)]
@@ -175,11 +186,11 @@ mod tests {
     use crate::ui::stack::UiLayer;
 
     #[test]
-    fn opening_inventory_does_not_pause_gameplay() {
+    fn opening_inventory_pauses_gameplay_and_camera_input() {
         let mut ui = UiStack::default();
         ui.push(UiLayer::Inventory);
 
-        assert!(gameplay_simulation_allowed(&ui));
+        assert!(!gameplay_simulation_allowed(&ui));
         assert!(!camera_input_allowed(&ui));
     }
 

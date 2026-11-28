@@ -5,6 +5,7 @@ use crate::{
     app::state::AppState,
     gameplay::{
         environment::EnvironmentAssets,
+        inventory::InventoryModel,
         npc::Npc,
         player::{self, PLAYER_VISUAL_HEIGHT, Player},
     },
@@ -26,7 +27,12 @@ pub(in crate::gameplay) fn detect_portal(
     portals: Query<(&GlobalTransform, &ExplorationPortal)>,
     return_portals: Query<&GlobalTransform, With<ExplorationReturnPortal>>,
     mut nearby: ResMut<NearbyExplorationPortal>,
+    inventory: Res<InventoryModel>,
 ) {
+    if !inventory.can_use_portal() {
+        nearby.0 = None;
+        return;
+    }
     let Ok(player) = player.single() else {
         nearby.0 = None;
         return;
@@ -64,10 +70,15 @@ pub(in crate::gameplay) fn process_travel_request(
     mut npcs: Query<&mut Transform, (With<Npc>, Without<Player>)>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    inventory: Res<InventoryModel>,
 ) {
     let Some(action) = request.0 else {
         return;
     };
+    if !inventory.can_use_portal() {
+        request.0 = None;
+        return;
+    }
     if matches!(action, PortalAction::Enter(_)) && !environment.is_ready() {
         return;
     }

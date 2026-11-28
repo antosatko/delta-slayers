@@ -41,7 +41,7 @@ Within those areas:
 | `gameplay/exploration/generation.rs` | Seeded tile generation, reachability, biome tile selection, authored object placement, and mesh-derived blockers |
 | `gameplay/exploration/terrain.rs` | Biome/noise sampling and smooth terrain elevation synchronization |
 | `gameplay/exploration/hex.rs` | Axial coordinates, hex layout, and neighbor geometry |
-| `gameplay/inventory.rs` | Authoritative inventory data |
+| `gameplay/inventory.rs` | Resource stacks, item instances, capacity accounting, inventory actions, and automatic-acquisition rules |
 | `gameplay/pickups.rs` | Blender-authored pickup configuration, proximity detection, cooldowns, and inventory actions |
 | `gameplay/world.rs` | In-game world setup and the world-ready transition |
 | `gameplay/npc.rs` | NPC movement that reuses the player collision resolver |
@@ -76,7 +76,7 @@ authoring assets directly rather than maintaining compatibility aliases.
 
 The main world export is `assets/worlds/town-map.glb`. Gameplay loads scene 0
 through `WorldAssetRoot` during `AppState::Loading`. The loading screen is a
-BSN scene owned by `ui/screens/loading.rs`; the `WorldInstanceReady` observer
+BSN scene owned by `ui/screens/loading.rs`, with centered artwork and an indeterminate loading bar; the `WorldInstanceReady` observer
 advances the app to `AppState::InGame`. World entities are tagged to survive
 the Loading-to-InGame transition and are cleaned up when leaving InGame. The
 GLB is required; there is no procedural world fallback.
@@ -154,9 +154,7 @@ the clicked destination. Both movement modes share a circular player footprint
 against Blender-authored `MovementBlocker` boxes. Movement advances in small
 steps to prevent tunnelling, and collision correction keeps the player against
 the wall while preserving tangential movement for wall sliding. Blockers affect
-continuous movement, not spawn placement or fast-travel teleports. The inventory
-does not pause gameplay: movement and world simulation continue behind it,
-while camera scrolling is reserved for the inventory UI. Pause and the game menu still suspend gameplay. Right-click opens
+continuous movement, not spawn placement or fast-travel teleports. Opening the inventory pauses player movement, NPC movement, portal detection, pickups, and other gameplay simulation while leaving inventory actions available. Overcapacity also blocks movement and portal/fast-travel use; automatic pickups are rejected only when the resulting inventory would exceed capacity. Manual inventory actions remain available so the player can resolve overflow. Right-click opens
 the inventory or dismisses the active overlay.
 Saved positions preserve their full world-space coordinates. Fast travel uses
 the selected trigger box's world-space X/Z position and offsets the exit along
@@ -270,9 +268,8 @@ relations, or NPC populations.
 
 ## Persistence
 
-The quick-save is stored in `save.txt` in the working directory. Version 2
-stores the player's full world position, yaw, camera pitch, and visited zone
-kinds. Versionless saves are treated as the previous format and have their
+The quick-save is stored in `save.txt` in the working directory. Version 3
+stores the player's full world position, yaw, camera pitch, visited zone kinds, inventory capacity, resource quantities, and individual item instances. Versionless saves are treated as the previous format and have their
 camera pitch migrated once when loaded. A valid save at world origin is still a
 save; absence or invalid content is represented separately from its position.
 Save read/write failures are logged rather than silently ignored.
@@ -284,8 +281,7 @@ Bevy:
 
 - Model: gameplay/domain resources and components. Examples include
   InventoryModel, VisitedZones, NearbyZone, and FastTravelRequest.
-- ViewModel: presentation-ready state derived from the model. InventoryViewModel
-  holds display labels for currency values. Add item summaries, equipment
+- ViewModel: presentation-ready state derived from the model. InventoryViewModel holds display labels for capacity, overload status, and resource quantities. Add item summaries, equipment
   labels, or sorting state here when a real feature needs them.
 - View: BSN scene functions under ui/screens/. A view describes hierarchy,
   layout, styling, assets, and event bindings.
@@ -413,6 +409,7 @@ standard dark `UiTheme` once at startup.
 - Shared panel surfaces use Feathers theme tokens and `ThemeContext`, while
   the Carbon palette remains available for game-specific art tiles, status
   treatments, minimap marks, and delayed hover cards.
+- `CarbonIcon` renders from the shared HUD atlas at `assets/ui/icons/hud-icons.png`; `assets/ui/icons/hud-icons.svg` is its editable vector source.
 - The exploration setup dialog uses `FeathersNumberInput` with hard limits,
   precision, and step sizes. Its values are synchronized with a UI ViewModel;
   only the Generate action sends a gameplay travel request.
@@ -458,9 +455,7 @@ projection remain in `src/ui/`.
 
 - `AppState` owns top-level application navigation, including Loading.
 - UiStack owns overlay navigation.
-- InventoryModel owns the current authoritative currency values. Item artwork
-  and equipment positions in the current inventory screen are still static
-  presentation placeholders, not persisted inventory data.
+- InventoryModel owns the capacity limit, resource stacks, and individual item instances. Equipment positions remain visual placeholders; item and resource capacity costs are provisional balancing values.
 - InventoryViewModel owns the formatted currency labels projected into the
   inventory view.
 - NearbyZone and VisitedZones are gameplay facts.

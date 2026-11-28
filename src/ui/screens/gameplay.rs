@@ -36,7 +36,7 @@ use crate::{
             PopupConfirmRequested, PopupRoot,
             SettingsPanelRoot,
         },
-        inventory::{CurrencyLabel, InventoryRoot},
+        inventory::{InventoryCapacityText, InventoryResourcesText, InventoryRoot, InventoryStatusText},
         stack::{UiLayer, UiStack},
     },
 };
@@ -811,8 +811,8 @@ fn inventory_scene() -> impl Scene {
             Children [
                 @page_header(
                     "Inventory",
-                    "Party inventory",
-                    "Review carried items, equipment, and party resources. Item tiles are visual inventory entries."
+                    "Carried inventory",
+                    "Resources are stored in stacks. Items are individual pieces of loot. Both contribute to capacity."
                 )
                 --
                 Node {
@@ -827,18 +827,34 @@ fn inventory_scene() -> impl Scene {
                 Children [
                     @key_hint("RMB", "Close inventory")
                     --
-                    Node {
-                        flex_direction: FlexDirection::Row,
-                        flex_wrap: FlexWrap::Wrap,
-                        align_items: AlignItems::Center,
-                        column_gap: px(8),
-                    }
-                    Children [
-                        @action_button("Close", CarbonIcon::Close, CarbonButtonTone::Secondary)
-                        on(|_activate: On<Activate>, mut ui: ResMut<UiStack>| {
-                            ui.remove(UiLayer::Inventory);
-                        })
-                    ]
+                    @action_button("Close", CarbonIcon::Close, CarbonButtonTone::Secondary)
+                    on(|_activate: On<Activate>, mut ui: ResMut<UiStack>| {
+                        ui.remove(UiLayer::Inventory);
+                    })
+                ]
+                --
+                Node {
+                    width: percent(100),
+                    padding: UiRect::all(px(12)),
+                    flex_direction: FlexDirection::Column,
+                    row_gap: px(6),
+                    border_radius: BorderRadius::all(px(7)),
+                }
+                template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().panel_alt)))
+                Children [
+                    Text("Capacity")
+                    TextFont { font_size: px(13) }
+                    template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().muted)))
+                    --
+                    Text("Capacity: 0.00 / 100.00")
+                    InventoryCapacityText
+                    TextFont { font_size: px(20) }
+                    template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().ink)))
+                    --
+                    Text("Within capacity")
+                    InventoryStatusText
+                    TextFont { font_size: px(12) }
+                    template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().muted)))
                 ]
                 --
                 Node {
@@ -847,45 +863,37 @@ fn inventory_scene() -> impl Scene {
                     min_width: px(0),
                     min_height: px(0),
                     overflow: Overflow::scroll(),
-                    flex_direction: FlexDirection::Column,
+                    flex_direction: FlexDirection::Row,
+                    flex_wrap: FlexWrap::Wrap,
+                    align_items: AlignItems::Start,
+                    column_gap: px(14),
+                    row_gap: px(14),
                 }
                 Children [
                     Node {
-                        width: percent(100),
-                        min_width: px(0),
-                        flex_direction: FlexDirection::Row,
-                        flex_wrap: FlexWrap::Wrap,
-                        align_content: AlignContent::Start,
-                        align_items: AlignItems::Stretch,
-                        column_gap: px(14),
-                        row_gap: px(14),
+                        width: px(260),
+                        flex_basis: px(240),
+                        min_width: px(190),
+                        flex_shrink: 1.0,
+                        flex_direction: FlexDirection::Column,
+                        row_gap: px(12),
                     }
                     Children [
-                        Node {
-                            width: px(250),
-                            flex_basis: px(240),
-                            min_width: px(190),
-                            flex_shrink: 1.0,
-                            flex_direction: FlexDirection::Column,
-                            row_gap: px(12),
-                        }
-                        Children [
-                            @character_panel()
-                            --
-                            @resources_panel()
-                        ]
+                        @character_panel()
                         --
-                        Node {
-                            flex_grow: 1.0,
-                            flex_basis: px(420),
-                            min_width: px(190),
-                            flex_shrink: 1.0,
-                            flex_direction: FlexDirection::Column,
-                            row_gap: px(12),
-                        }
-                        Children [
-                            @inventory_items()
-                        ]
+                        @resources_panel()
+                    ]
+                    --
+                    Node {
+                        flex_grow: 1.0,
+                        flex_basis: px(420),
+                        min_width: px(240),
+                        flex_shrink: 1.0,
+                        flex_direction: FlexDirection::Column,
+                        row_gap: px(12),
+                    }
+                    Children [
+                        @inventory_items()
                     ]
                 ]
             ]
@@ -913,6 +921,8 @@ fn character_panel() -> impl Scene {
             })
             --
             @section_header(CarbonIcon::Shield, "Equipment")
+            --
+            @muted_text("Equipment slots are visual placeholders until equipment rules are introduced.", 11.0)
             --
             Node {
                 width: percent(100),
@@ -949,20 +959,12 @@ fn resources_panel() -> impl Scene {
         Children [
             @section_header(CarbonIcon::Coin, "Resources")
             --
-            Text("Gold: 0")
-            CurrencyLabel::Gold
-            TextFont { font_size: px(12) }
+            Text("Gold: 0\nWood: 0\nStone: 0")
+            InventoryResourcesText
+            TextFont { font_size: px(13) }
             template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().muted)))
             --
-            Text("Wood: 0")
-            CurrencyLabel::Wood
-            TextFont { font_size: px(12) }
-            template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().muted)))
-            --
-            Text("Stone: 0")
-            CurrencyLabel::Stone
-            TextFont { font_size: px(12) }
-            template(|ctx| Ok(TextColor(ctx.resource::<CarbonTheme>().muted)))
+            @muted_text("Resources stack by type. Their quantities contribute to capacity.", 11.0)
         ]
     }
 }

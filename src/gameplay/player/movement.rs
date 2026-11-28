@@ -1,6 +1,6 @@
 use bevy::{prelude::*, ui::RelativeCursorPosition, window::PrimaryWindow};
 
-use crate::ui::stack::UiStack;
+use crate::{gameplay::inventory::InventoryModel, ui::stack::UiStack};
 
 use super::collision::{move_with_collisions, movement_collision_contact};
 use super::{GameplayCamera, MovementBlocker, Player, PlayerSettings};
@@ -87,8 +87,14 @@ pub(in crate::gameplay) fn set_move_target_from_cursor(
     mut target: ResMut<MovementTarget>,
     time: Res<Time>,
     ui_state: Res<UiStack>,
+    inventory: Res<InventoryModel>,
     ui_surfaces: Query<(&RelativeCursorPosition, &InheritedVisibility)>,
 ) {
+    if !inventory.can_move() {
+        target.clear();
+        return;
+    }
+
     let just_pressed = mouse.just_pressed(MouseButton::Left);
     let pressed = mouse.pressed(MouseButton::Left);
     let pointer_over_ui = ui_surfaces
@@ -139,11 +145,17 @@ pub(in crate::gameplay) fn move_player_to_target(
     input: Res<ButtonInput<KeyCode>>,
     mouse_input: Res<ButtonInput<MouseButton>>,
     time: Res<Time>,
+    inventory: Res<InventoryModel>,
 ) {
     let Ok(mut transform) = player.single_mut() else {
         target.clear();
         return;
     };
+
+    if !inventory.can_move() {
+        target.clear();
+        return;
+    }
 
     let sprinting = input.pressed(KeyCode::ShiftLeft) || input.pressed(KeyCode::ShiftRight);
     let speed = if sprinting {

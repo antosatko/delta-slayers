@@ -41,6 +41,10 @@ impl Plugin for UiPlugin {
             )
             .add_systems(OnEnter(AppState::Loading), screens::loading::scene.spawn())
             .add_systems(
+                Update,
+                screens::loading::animate_loading_bar.run_if(in_state(AppState::Loading)),
+            )
+            .add_systems(
                 OnEnter(AppState::InGame),
                 (screens::gameplay::scene.spawn(), systems::sync_cursor),
             )

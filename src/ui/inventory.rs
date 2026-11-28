@@ -1,57 +1,64 @@
 use bevy::prelude::*;
 
-use crate::gameplay::inventory::InventoryModel;
+use crate::gameplay::inventory::{
+    format_capacity, InventoryModel, ResourceKind,
+};
 
-#[derive(Resource, Clone, Debug)]
+#[derive(Resource, Clone, Debug, Default)]
 pub(super) struct InventoryViewModel {
-    gold_label: String,
-    wood_label: String,
-    stone_label: String,
-}
-
-impl Default for InventoryViewModel {
-    fn default() -> Self {
-        Self {
-            gold_label: "Gold: 0".to_owned(),
-            wood_label: "Wood: 0".to_owned(),
-            stone_label: "Stone: 0".to_owned(),
-        }
-    }
-}
-
-#[derive(Component, Clone, Copy, Debug, Default)]
-pub(super) enum CurrencyLabel {
-    #[default]
-    Gold,
-    Wood,
-    Stone,
+    pub(super) capacity_label: String,
+    pub(super) status_label: String,
+    pub(super) resources_label: String,
 }
 
 #[derive(Component, Default, Clone)]
 pub(super) struct InventoryRoot;
 
-/// Projects authoritative inventory values into presentation-ready labels.
-/// The view model changes only when the domain resource changes; text entities
-/// are still reconciled every frame so a newly spawned screen gets current data.
+#[derive(Component, Clone, Copy, Default)]
+pub(super) struct InventoryCapacityText;
+
+#[derive(Component, Clone, Copy, Default)]
+pub(super) struct InventoryStatusText;
+
+#[derive(Component, Clone, Copy, Default)]
+pub(super) struct InventoryResourcesText;
+
+/// Projects the gameplay inventory into presentation-only labels.
 pub(super) fn sync_inventory_view_model(
     model: Res<InventoryModel>,
     mut view_model: ResMut<InventoryViewModel>,
-    mut labels: Query<(&CurrencyLabel, &mut Text)>,
+    mut capacity_labels: Query<&mut Text, With<InventoryCapacityText>>,
+    mut status_labels: Query<&mut Text, (With<InventoryStatusText>, Without<InventoryCapacityText>)>,
+    mut resource_labels: Query<&mut Text, (With<InventoryResourcesText>, Without<InventoryCapacityText>, Without<InventoryStatusText>)>,
 ) {
-    if model.is_changed() {
-        view_model.gold_label = format!("Gold: {}", model.gold);
-        view_model.wood_label = format!("Wood: {}", model.wood);
-        view_model.stone_label = format!("Stone: {}", model.stone);
-    }
-
-    for (label, mut text) in &mut labels {
-        let value = match label {
-            CurrencyLabel::Gold => &view_model.gold_label,
-            CurrencyLabel::Wood => &view_model.wood_label,
-            CurrencyLabel::Stone => &view_model.stone_label,
-        };
-        if text.0 != *value {
-            text.0.clone_from(value);
+    let used = model.used_capacity_subunits();
+    let max = model.max_capacity_subunits;
+    view_model.capacity_label = format!("Capacity: {} / {}", format_capacity(used), format_capacity(max));
+    view_model.status_label = if model.is_over_capacity() {
+        format!("OVER CAPACITY by {}", format_capacity(used - max))
+    } else {
+        "Within capacity".to_owned()
+    };
+    view_model.resources_label = ResourceKind::ALL
+        .into_iter()
+        .map(|kind| format!("{}: {}", kind.name(), model.resource_amount(kind)))
+        .collect::<Vec<_>>()
+        .join("\n");
+    for mut text in &mut capacity_labels {
+        if text.0 != view_model.capacity_label {
+            text.0.clone_from(&view_model.capacity_label);
         }
     }
+    for mut text in &mut status_labels {
+        if text.0 != view_model.status_label {
+            text.0.clone_from(&view_model.status_label);
+        }
+    }
+    for mut text in &mut resource_labels {
+        if text.0 != view_model.resources_label {
+            text.0.clone_from(&view_model.resources_label);
+        }
+    }
+
 }
+

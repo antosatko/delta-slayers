@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="0" height="0" style="display:none" aria-hidden="true">
+  <defs>
+    <style>
+      .hud-stroke {
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 3.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .hud-tint {
+        fill: currentColor;
+        fill-opacity: 0.16;
+        stroke: currentColor;
+        stroke-width: 3.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .hud-solid {
+        fill: currentColor;
+        stroke: none;
+      }
+    </style>
+  </defs>
+  <symbol id="icon-health" viewBox="0 0 64 64">
+    <path class="hud-tint" d="M32 53 C32 53 12 40.5 12 25.5 C12 19 17 14 23.2 14 C27.3 14 30.5 16.2 32 19.2 C33.5 16.2 36.7 14 40.8 14 C47 14 52 19 52 25.5 C52 40.5 32 53 32 53 Z" />
+  </symbol>
+  <symbol id="icon-shield" viewBox="0 0 64 64">
+    <path class="hud-tint" d="M32 12 L48 18 V31 C48 42.5 40.8 50.2 32 54 C23.2 50.2 16 42.5 16 31 V18 Z" />
+    <path class="hud-stroke" d="M32 21 V43 M24 31 H40" />
+  </symbol>
+  <symbol id="icon-sword" viewBox="0 0 64 64">
+    <path class="hud-tint" d="M48 14 L31 31 L26 26 L43 9 H48 Z" />
+    <path class="hud-stroke" d="M23 29 L35 41 M28.5 34.5 L18 45 M14 41 L23 50 M13 51 L18 46" />
+  </symbol>
+  <symbol id="icon-mana" viewBox="0 0 64 64">
+    <path class="hud-tint" d="M32 11 L37.5 26.5 L53 32 L37.5 37.5 L32 53 L26.5 37.5 L11 32 L26.5 26.5 Z" />
+  </symbol>
+  <symbol id="icon-stamina" viewBox="0 0 64 64">
+    <path class="hud-tint" d="M36 11 L18 35 H31 L28 53 L46 29 H33 Z" />
+  </symbol>
+  <symbol id="icon-skull" viewBox="0 0 64 64">
+    <path class="hud-tint" d="M32 12 C21.5 12 15 18.5 15 28 C15 34.5 18.5 39 23 41.5 V50 H41 V41.5 C45.5 39 49 34.5 49 28 C49 18.5 42.5 12 32 12 Z" />
+    <circle class="hud-solid" cx="25.5" cy="29" r="3" />
+    <circle class="hud-solid" cx="38.5" cy="29" r="3" />
+    <path class="hud-stroke" d="M27 50 V44 M32 50 V44 M37 50 V44" />
+  </symbol>
+  <symbol id="icon-potion" viewBox="0 0 64 64">
+    <path class="hud-stroke" d="M27 12 H37 M29 12 V21 L19 34 C16.5 37.5 16.5 43 19.5 46.5 C21.5 48.8 24.5 50 28 50 H36 C39.5 50 42.5 48.8 44.5 46.5 C47.5 43 47.5 37.5 45 34 L35 21 V12" />
+    <path class="hud-tint" d="M22.5 34 H41.5 L43.5 37 C45.2 39.5 45.2 43 43.2 45.2 C41.5 47 39 48 36 48 H28 C25 48 22.5 47 20.8 45.2 C18.8 43 18.8 39.5 20.5 37 Z" />
+  </symbol>
+  <symbol id="icon-coin" viewBox="0 0 64 64">
+    <circle class="hud-tint" cx="32" cy="32" r="19" />
+    <path class="hud-stroke" d="M32 21 V43 M27.5 26.5 C27.5 24.2 29.5 22.5 32 22.5 C34.5 22.5 36.5 24.2 36.5 26.2 C36.5 28.5 34.5 29.8 32 30.8 C29.5 31.8 27.5 33.2 27.5 35.8 C27.5 38 29.5 39.5 32 39.5 C34.5 39.5 36.5 37.8 36.5 35.5" />
+  </symbol>
+  <symbol id="icon-chest" viewBox="0 0 64 64">
+    <path class="hud-tint" d="M14 22 C14 17.5 17.5 14 22 14 H42 C46.5 14 50 17.5 50 22 V48 H14 Z" />
+    <path class="hud-stroke" d="M14 31 H50" />
+    <rect class="hud-solid" x="29" y="27" width="6" height="8" rx="1.5" />
+  </symbol>
+  <symbol id="icon-key" viewBox="0 0 64 64">
+    <circle class="hud-tint" cx="21" cy="32" r="9" />
+    <path class="hud-stroke" d="M30 32 H51 M44 32 V40 M50 32 V39" />
+  </symbol>
+  <symbol id="icon-quest" viewBox="0 0 64 64">
+    <path class="hud-tint" d="M32 12 L49 32 L32 52 L15 32 Z" />
+    <path class="hud-stroke" d="M32 22 V34" />
+    <circle class="hud-solid" cx="32" cy="40.5" r="2.2" />
+  </symbol>
+  <symbol id="icon-lock" viewBox="0 0 64 64">
+    <path class="hud-stroke" d="M23 28 V21 C23 16 27 12 32 12 C37 12 41 16 41 21 V28" />
+    <rect class="hud-tint" x="17" y="28" width="30" height="22" rx="5" />
+    <circle class="hud-solid" cx="32" cy="39" r="2.5" />
+  </symbol>
+  <symbol id="icon-nav-back" viewBox="0 0 64 64">
+    <path class="hud-stroke" d="M40 16 L23 32 L40 48" />
+  </symbol>
+  <symbol id="icon-nav-forward" viewBox="0 0 64 64">
+    <path class="hud-stroke" d="M24 16 L41 32 L24 48" />
+  </symbol>
+  <symbol id="icon-nav-confirm" viewBox="0 0 64 64">
+    <path class="hud-stroke" d="M15 34 L27 46 L49 20" />
+  </symbol>
+  <symbol id="icon-nav-cancel" viewBox="0 0 64 64">
+    <path class="hud-stroke" d="M18 18 L46 46 M46 18 L18 46" />
+  </symbol>
+  <symbol id="icon-nav-menu" viewBox="0 0 64 64">
+    <path class="hud-stroke" d="M15 20 H49 M15 32 H49 M15 44 H49" />
+  </symbol>
+  <symbol id="icon-nav-settings" viewBox="0 0 64 64">
+    <path class="hud-tint" d="M29 12 H35 L36.2 17.2 C38 17.8 39.7 18.8 41.1 20 L46.2 18.2 L49.2 23.4 L45.3 27.1 C45.6 28.7 45.6 30.3 45.3 31.9 L49.2 35.6 L46.2 40.8 L41.1 39 C39.7 40.2 38 41.2 36.2 41.8 L35 47 H29 L27.8 41.8 C26 41.2 24.3 40.2 22.9 39 L17.8 40.8 L14.8 35.6 L18.7 31.9 C18.4 30.3 18.4 28.7 18.7 27.1 L14.8 23.4 L17.8 18.2 L22.9 20 C24.3 18.8 26 17.8 27.8 17.2 Z" />
+    <circle class="hud-stroke" cx="32" cy="29.5" r="5.5" />
+  </symbol>
+  <symbol id="icon-contracts" viewBox="0 0 64 64">
+    <path class="hud-tint" d="M18 11 H39 L47 19 V52 H18 Z" />
+    <path class="hud-stroke" d="M39 11 V19 H47 M25 28 H40 M25 36 H40 M25 44 H36" />
+  </symbol>
+  <symbol id="icon-character" viewBox="0 0 64 64">
+    <circle class="hud-tint" cx="32" cy="22" r="10" />
+    <path class="hud-tint" d="M13 52 C14.5 40.5 21.5 35 32 35 C42.5 35 49.5 40.5 51 52 Z" />
+  </symbol>
+  <symbol id="icon-book" viewBox="0 0 64 64">
+    <path class="hud-tint" d="M10 17 C19 13 26 15 32 20 C38 15 45 13 54 17 V49 C45 45 38 47 32 52 C26 47 19 45 10 49 Z" />
+    <path class="hud-stroke" d="M32 20 V52 M17 25 C22 24 26 25 28 27 M17 34 C22 33 26 34 28 36 M47 25 C42 24 38 25 36 27 M47 34 C42 33 38 34 36 36" />
+  </symbol>
+  <symbol id="icon-map" viewBox="0 0 64 64">
+    <path class="hud-tint" d="M9 19 L25 13 L40 19 L55 13 V45 L40 51 L25 45 L9 51 Z" />
+    <path class="hud-stroke" d="M25 13 V45 M40 19 V51 M17 27 L20 25 M46 29 L50 27" />
+  </symbol>
+  <symbol id="icon-trade" viewBox="0 0 64 64">
+    <path class="hud-stroke" d="M12 23 H50 L42 15 M50 23 L42 31 M52 41 H14 L22 33 M14 41 L22 49" />
+  </symbol>
+  <symbol id="icon-anvil" viewBox="0 0 64 64">
+    <path class="hud-tint" d="M10 26 H27 L33 19 H46 L54 27 L47 34 H40 L36 43 H47 V50 H16 V43 H25 L28 34 H16 Z" />
+    <path class="hud-stroke" d="M16 43 H48" />
+  </symbol>
+  <symbol id="icon-search" viewBox="0 0 64 64">
+    <circle class="hud-tint" cx="27" cy="27" r="14" />
+    <path class="hud-stroke" d="M37 37 L52 52" />
+  </symbol>
+  <symbol id="icon-add" viewBox="0 0 64 64">
+    <circle class="hud-tint" cx="32" cy="32" r="20" />
+    <path class="hud-stroke" d="M32 21 V43 M21 32 H43" />
+  </symbol>
+  <symbol id="icon-compass" viewBox="0 0 64 64">
+    <circle class="hud-tint" cx="32" cy="32" r="21" />
+    <path class="hud-stroke" d="M39 23 L35 35 L23 41 L29 29 Z M32 9 V13 M32 51 V55 M9 32 H13 M51 32 H55" />
+  </symbol>
+</svg>
