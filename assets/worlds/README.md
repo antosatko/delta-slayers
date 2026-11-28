@@ -94,8 +94,8 @@ set a seed explicitly; leave it empty when each visit should be different.
 In the setup dialog, **Randomize seed** chooses a fresh explicit seed while
 preserving the other settings; seed 0 continues to generate a new seed on each
 map entry. In debug builds, entering the map opens a dismissible on-screen
-readout of the actual seed and effective generation parameters. The generated map uses the supplied `assets/tiles/1.glb` and
-`assets/tiles/2.glb` models instead of constructing replacement hex meshes.
+readout of the actual seed and effective generation parameters. The generated map uses the supplied `assets/tiles/1.gltf` and
+`assets/tiles/2.gltf` models instead of constructing replacement hex meshes.
 Tile 1 is the base cylinder; tile 2 adds a raised feature with a Skein-authored
 `MovementBlocker`. Generation favours tile 2 in highlands and uses it
 occasionally elsewhere. Meshes are scaled from their 5 m source radius to the
