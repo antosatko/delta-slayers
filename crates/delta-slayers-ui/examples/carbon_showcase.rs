@@ -309,7 +309,7 @@ fn items_page() -> impl Scene {
                         template(|ctx| {
                             let rect = CarbonIcon::Flask
                                 .atlas_rect()
-                                .unwrap_or(Rect::new(0.0, 0.0, 64.0, 64.0));
+                                .unwrap_or(Rect::new(0.0, 0.0, 32.0, 32.0));
                             Ok(ImageNode::new(
                                 ctx.resource::<AssetServer>().load(CARBON_ICON_ATLAS_PATH),
                             )

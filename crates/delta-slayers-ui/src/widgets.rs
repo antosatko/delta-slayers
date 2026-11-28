@@ -17,7 +17,7 @@ use crate::{
 };
 
 pub const CARBON_ICON_ATLAS_PATH: &str = "ui/icons/hud-icons.png";
-const CARBON_ICON_ATLAS_CELL_SIZE: f32 = 64.0;
+const CARBON_ICON_ATLAS_CELL_SIZE: f32 = 32.0;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum CarbonIcon {
