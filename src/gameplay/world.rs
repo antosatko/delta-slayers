@@ -21,42 +21,44 @@ use crate::{
     ui::stack::UiStack,
 };
 
-pub(super) fn setup_game(
-    mut commands: Commands,
-    start_mode: Res<super::GameStartMode>,
-    mut nearby: ResMut<NearbyZone>,
-    mut request: ResMut<FastTravelRequest>,
-    mut nearby_portal: ResMut<NearbyExplorationPortal>,
-    mut travel_request: ResMut<ExplorationTravelRequest>,
-    mut active_map: ResMut<ActiveExplorationMap>,
-    mut exploration_session: ResMut<ExplorationSession>,
-    mut visited: ResMut<VisitedZones>,
-    mut ui_state: ResMut<UiStack>,
-    asset_server: Res<AssetServer>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-    mut startup: ResMut<WorldStartup>,
-    mut movement_target: ResMut<player::MovementTarget>,
-    mut inventory: ResMut<InventoryModel>,
-    mut inventory_action: ResMut<InventoryActionRequest>,
-) {
-    nearby.0 = None;
-    movement_target.clear();
-    ui_state.reset();
-    request.0 = None;
-    nearby_portal.0 = None;
-    travel_request.0 = None;
-    active_map.0 = None;
-    exploration_session.0 = None;
+#[derive(SystemParam)]
+struct GameSetupParams<'w> {
+    start_mode: Res<'w, super::GameStartMode>,
+    nearby: ResMut<'w, NearbyZone>,
+    request: ResMut<'w, FastTravelRequest>,
+    nearby_portal: ResMut<'w, NearbyExplorationPortal>,
+    travel_request: ResMut<'w, ExplorationTravelRequest>,
+    active_map: ResMut<'w, ActiveExplorationMap>,
+    exploration_session: ResMut<'w, ExplorationSession>,
+    visited: ResMut<'w, VisitedZones>,
+    ui_state: ResMut<'w, UiStack>,
+    asset_server: Res<'w, AssetServer>,
+    meshes: ResMut<'w, Assets<Mesh>>,
+    materials: ResMut<'w, Assets<StandardMaterial>>,
+    startup: ResMut<'w, WorldStartup>,
+    movement_target: ResMut<'w, player::MovementTarget>,
+    inventory: ResMut<'w, InventoryModel>,
+    inventory_action: ResMut<'w, InventoryActionRequest>,
+}
 
-    let loaded_game = match *start_mode {
+pub(super) fn setup_game(mut commands: Commands, mut params: GameSetupParams) {
+    params.nearby.0 = None;
+    params.movement_target.clear();
+    params.ui_state.reset();
+    params.request.0 = None;
+    params.nearby_portal.0 = None;
+    params.travel_request.0 = None;
+    params.active_map.0 = None;
+    params.exploration_session.0 = None;
+
+    let loaded_game = match *params.start_mode {
         super::GameStartMode::QuickLoad => load_game(),
         super::GameStartMode::NewGame => None,
     };
-    startup.spawn_point_applied = loaded_game.is_some();
+    params.startup.spawn_point_applied = loaded_game.is_some();
 
     let (spawn_pos, saved_yaw, initial_pitch, saved_visited, saved_inventory) = loaded_game
-        .map(|save| (save.position, save.yaw, save.pitch, save.visited_zones, save.inventory))
+        .map(|save| (save.position, save.yaw, save.pitch, save.visited_zones, save.params.inventory))
         .unwrap_or_else(|| {
             (
                 Vec3::ZERO,
@@ -66,9 +68,9 @@ pub(super) fn setup_game(
                 InventoryModel::default(),
             )
         });
-    visited.0 = saved_visited;
-    *inventory = saved_inventory;
-    inventory_action.0 = None;
+    params.visited.0 = saved_visited;
+    *params.inventory = saved_inventory;
+    params.inventory_action.0 = None;
 
     commands.spawn((
         DirectionalLight {
@@ -109,9 +111,9 @@ pub(super) fn setup_game(
         DespawnOnExit::<AppState>(AppState::InGame),
     ));
 
-    let player_mesh = meshes.add(Rectangle::new(0.95, 1.68));
-    let player_material = materials.add(StandardMaterial {
-        base_color_texture: Some(asset_server.load("character/portrait.png")),
+    let player_mesh = params.meshes.add(Rectangle::new(0.95, 1.68));
+    let player_material = params.materials.add(StandardMaterial {
+        base_color_texture: Some(params.asset_server.load("character/portrait.png")),
         alpha_mode: AlphaMode::Blend,
         unlit: true,
         ..default()
@@ -129,7 +131,7 @@ pub(super) fn setup_game(
     commands
         .spawn((
             WorldAssetRoot(
-                asset_server.load(GltfAssetLabel::Scene(0).from_asset("worlds/town-map.glb")),
+                params.asset_server.load(GltfAssetLabel::Scene(0).from_asset("worlds/town-map.glb")),
             ),
             DespawnOnExit::<AppState>(AppState::InGame),
         ))
