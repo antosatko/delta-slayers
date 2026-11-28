@@ -9,7 +9,6 @@ pub(super) struct InventoryViewModel {
     pub(super) capacity_label: String,
     pub(super) status_label: String,
     pub(super) resources_label: String,
-    pub(super) items_label: String,
 }
 
 #[derive(Component, Default, Clone)]
@@ -24,9 +23,6 @@ pub(super) struct InventoryStatusText;
 #[derive(Component, Clone, Copy, Default)]
 pub(super) struct InventoryResourcesText;
 
-#[derive(Component, Clone, Copy, Default)]
-pub(super) struct InventoryItemsText;
-
 /// Projects the gameplay inventory into presentation-only labels.
 pub(super) fn sync_inventory_view_model(
     model: Res<InventoryModel>,
@@ -34,7 +30,6 @@ pub(super) fn sync_inventory_view_model(
     mut capacity_labels: Query<&mut Text, With<InventoryCapacityText>>,
     mut status_labels: Query<&mut Text, (With<InventoryStatusText>, Without<InventoryCapacityText>)>,
     mut resource_labels: Query<&mut Text, (With<InventoryResourcesText>, Without<InventoryCapacityText>, Without<InventoryStatusText>)>,
-    mut item_labels: Query<&mut Text, (With<InventoryItemsText>, Without<InventoryCapacityText>, Without<InventoryStatusText>, Without<InventoryResourcesText>)>,
 ) {
     let used = model.used_capacity_subunits();
     let max = model.max_capacity_subunits;
@@ -49,17 +44,6 @@ pub(super) fn sync_inventory_view_model(
         .map(|kind| format!("{}: {}", kind.name(), model.resource_amount(kind)))
         .collect::<Vec<_>>()
         .join("\n");
-    view_model.items_label = if model.items().is_empty() {
-        "No carried items".to_owned()
-    } else {
-        model.items()
-            .iter()
-            .enumerate()
-            .map(|(index, item)| format!("{}. {}  ·  {} capacity", index + 1, item.kind.name(), format_capacity(item.kind.capacity_subunits())))
-            .collect::<Vec<_>>()
-            .join("\n")
-    };
-
     for mut text in &mut capacity_labels {
         if text.0 != view_model.capacity_label {
             text.0.clone_from(&view_model.capacity_label);
@@ -75,10 +59,6 @@ pub(super) fn sync_inventory_view_model(
             text.0.clone_from(&view_model.resources_label);
         }
     }
-    for mut text in &mut item_labels {
-        if text.0 != view_model.items_label {
-            text.0.clone_from(&view_model.items_label);
-        }
-    }
+
 }
 
