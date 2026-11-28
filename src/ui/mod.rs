@@ -92,12 +92,23 @@ impl Plugin for UiPlugin {
 fn close_loading_preview_on_input(
     keyboard: Res<ButtonInput<KeyCode>>,
     mouse: Res<ButtonInput<MouseButton>>,
+    gamepad: Res<ButtonInput<GamepadButton>>,
+    mut mouse_motion: MessageReader<MouseMotion>,
+    mut mouse_wheel: MessageReader<MouseWheel>,
     mut next_state: ResMut<NextState<AppState>>,
 ) {
     let keyboard_input = keyboard.get_just_pressed().next().is_some();
-    let mouse_input = mouse.get_just_pressed().next().is_some();
+    let mouse_button_input = mouse.get_just_pressed().next().is_some();
+    let gamepad_input = gamepad.get_just_pressed().next().is_some();
+    let mouse_motion_input = mouse_motion.read().next().is_some();
+    let mouse_wheel_input = mouse_wheel.read().next().is_some();
 
-    if keyboard_input || mouse_input {
+    if keyboard_input
+        || mouse_button_input
+        || gamepad_input
+        || mouse_motion_input
+        || mouse_wheel_input
+    {
         next_state.set(AppState::MainMenu);
     }
 }
