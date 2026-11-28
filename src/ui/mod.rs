@@ -49,6 +49,11 @@ impl Plugin for UiPlugin {
             )
             .add_systems(
                 Update,
+                screens::loading::animate_loading_bar
+                    .run_if(screens::loading::loading_screen_active),
+            )
+            .add_systems(
+                Update,
                 close_loading_preview_on_input.run_if(in_state(AppState::LoadingPreview)),
             )
             .add_systems(
