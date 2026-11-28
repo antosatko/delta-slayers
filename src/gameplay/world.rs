@@ -23,7 +23,7 @@ use crate::{
 };
 
 #[derive(SystemParam)]
-struct GameSetupParams<'w> {
+pub(super) struct GameSetupParams<'w> {
     start_mode: Res<'w, super::GameStartMode>,
     nearby: ResMut<'w, NearbyZone>,
     request: ResMut<'w, FastTravelRequest>,
