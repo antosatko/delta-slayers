@@ -151,7 +151,7 @@ the same collision resolver as player movement, so Blender-authored
 `MovementBlocker` volumes block both. The town remains the existing
 Blender-authored scene, while an `ExplorationPortal` can create a separate
 procedural hex map at runtime. The generated tile heights position the
-imported `assets/tiles/1.glb` and `assets/tiles/2.glb` models, while a
+imported `assets/tiles/1.gltf` and `assets/tiles/2.gltf` models, while a
 smoothstep-weighted triangular height field keeps the player and NPC elevation
 continuous between neighboring hex centers. The full-depth cylinder sides
 remain visible at tile seams. Neighboring tiles can be crossed only when their
