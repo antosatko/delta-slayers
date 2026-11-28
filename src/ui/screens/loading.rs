@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use delta_slayers_ui::CarbonTheme;
 use std::{
     collections::hash_map::RandomState,
     hash::{BuildHasher, Hash, Hasher},
@@ -15,6 +16,9 @@ const LOADING_CAPTIONS: [&str; 6] = [
     "From each according to his loading speed, to each according to his patience.",
     "Resurrecting the class struggle…",
 ];
+
+#[derive(Component, Clone, Copy, Default)]
+struct LoadingBarSegment;
 
 /// Shown while gameplay loads the Blender-authored world.
 pub(in crate::ui) fn scene() -> impl SceneList {
@@ -48,46 +52,99 @@ fn loading_content() -> impl Scene {
             height: percent(100),
             min_width: px(0),
             min_height: px(0),
+            padding: UiRect::axes(px(20), px(24)),
+            flex_direction: FlexDirection::Column,
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+            row_gap: px(18),
         }
-        template(|ctx| {
-            let image = ctx.resource::<AssetServer>().load("ui/loading.png");
-            Ok(ImageNode::new(image).with_mode(NodeImageMode::Stretch))
-        })
+        template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().page)))
         Children [
+            // Keep the source image's 640:542 aspect ratio inside a framed viewport.
             Node {
-                width: percent(100),
-                height: percent(100),
-                position_type: PositionType::Absolute,
-                left: px(0),
-                right: px(0),
-                top: px(0),
-                bottom: px(0),
+                width: Val::Vw(54.0),
+                max_width: px(760),
+                max_height: Val::Vh(56.0),
+                min_width: px(240),
+                aspect_ratio: Some(640.0 / 542.0),
+                padding: UiRect::all(px(8)),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                border_radius: BorderRadius::all(px(10)),
+                overflow: Overflow::clip(),
             }
-            template(|_| Ok(BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 0.16))))
+            template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().surface_deep)))
+            Children [
+                Node {
+                    width: percent(100),
+                    height: percent(100),
+                    min_width: px(0),
+                    min_height: px(0),
+                }
+                template(|ctx| {
+                    let image = ctx.resource::<AssetServer>().load("ui/loading.png");
+                    Ok(ImageNode::new(image).with_mode(NodeImageMode::Stretch))
+                })
+            ]
             --
             Node {
                 width: percent(92),
-                max_width: px(1160),
-                position_type: PositionType::Absolute,
-                left: px(0),
-                right: px(0),
-                bottom: px(44),
-                margin: UiRect::horizontal(auto()),
-                padding: UiRect::axes(px(24), px(18)),
+                max_width: px(760),
                 align_items: AlignItems::Center,
-                justify_content: JustifyContent::Center,
-                border_radius: BorderRadius::all(px(8)),
             }
-            template(|_| Ok(BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 0.68))))
             Children [
                 Text(caption)
                 TextFont {
-                    font_size: px(28),
+                    font_size: px(24),
                 }
                 TextColor(Color::WHITE)
                 TextLayout::justify(Justify::Center)
+                --
+                Node {
+                    width: px(280),
+                    height: px(7),
+                    margin: UiRect::top(px(14)),
+                    border_radius: BorderRadius::all(px(4)),
+                    overflow: Overflow::clip(),
+                }
+                template(|_| Ok(BackgroundColor(Color::srgba(1.0, 1.0, 1.0, 0.22))))
+                Children [
+                    Node {
+                        position_type: PositionType::Absolute,
+                        left: percent(0),
+                        top: px(0),
+                        bottom: px(0),
+                        width: percent(30),
+                        border_radius: BorderRadius::all(px(4)),
+                    }
+                    LoadingBarSegment
+                    template(|ctx| Ok(BackgroundColor(ctx.resource::<CarbonTheme>().accent)))
+                ]
             ]
         ]
+    }
+}
+
+/// Runs for both the actual loading screen and the standalone preview.
+pub(in crate::ui) fn loading_screen_active(state: Res<State<AppState>>) -> bool {
+    matches!(*state.get(), AppState::Loading | AppState::LoadingPreview)
+}
+
+/// Moves an indeterminate segment across the loading track.
+pub(in crate::ui) fn animate_loading_bar(
+    time: Res<Time>,
+    mut phase: Local<f32>,
+    mut segments: Query<&mut Node, With<LoadingBarSegment>>,
+) {
+    *phase = (*phase + time.delta_secs() * 0.8) % 2.0;
+    let progress = if *phase <= 1.0 {
+        *phase
+    } else {
+        2.0 - *phase
+    };
+
+    for mut node in &mut segments {
+        node.left = percent(progress * 70.0);
     }
 }
 
