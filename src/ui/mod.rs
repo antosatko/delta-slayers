@@ -95,14 +95,16 @@ impl Plugin for UiPlugin {
 fn close_loading_preview_on_input(
     keyboard: Res<ButtonInput<KeyCode>>,
     mouse: Res<ButtonInput<MouseButton>>,
-    gamepad: Res<ButtonInput<GamepadButton>>,
+    gamepad: Option<Res<ButtonInput<GamepadButton>>>,
     mouse_motion: Res<AccumulatedMouseMotion>,
     mouse_scroll: Res<AccumulatedMouseScroll>,
     mut next_state: ResMut<NextState<AppState>>,
 ) {
     let keyboard_input = keyboard.get_just_pressed().next().is_some();
     let mouse_button_input = mouse.get_just_pressed().next().is_some();
-    let gamepad_input = gamepad.get_just_pressed().next().is_some();
+    let gamepad_input = gamepad
+        .as_ref()
+        .is_some_and(|gamepad| gamepad.get_just_pressed().next().is_some());
     let mouse_motion_input = mouse_motion.delta != Vec2::ZERO;
     let mouse_scroll_input = mouse_scroll.delta != Vec2::ZERO;
 
