@@ -18,7 +18,7 @@ const LOADING_CAPTIONS: [&str; 6] = [
 ];
 
 #[derive(Component, Clone, Copy, Default)]
-struct LoadingBarSegment;
+pub(in crate::ui) struct LoadingBarSegment;
 
 /// Shown while gameplay loads the Blender-authored world.
 pub(in crate::ui) fn scene() -> impl SceneList {
