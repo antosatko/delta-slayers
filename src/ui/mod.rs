@@ -41,6 +41,14 @@ impl Plugin for UiPlugin {
             )
             .add_systems(OnEnter(AppState::Loading), screens::loading::scene.spawn())
             .add_systems(
+                OnEnter(AppState::LoadingPreview),
+                screens::loading::preview_scene.spawn(),
+            )
+            .add_systems(
+                Update,
+                close_loading_preview_on_input.run_if(in_state(AppState::LoadingPreview)),
+            )
+            .add_systems(
                 OnEnter(AppState::InGame),
                 (screens::gameplay::scene.spawn(), systems::sync_cursor),
             )
@@ -78,5 +86,18 @@ impl Plugin for UiPlugin {
                     .in_set(UiSet::Projection)
                     .run_if(in_state(AppState::InGame)),
             );
+    }
+}
+
+fn close_loading_preview_on_input(
+    keyboard: Res<ButtonInput<KeyCode>>,
+    mouse: Res<ButtonInput<MouseButton>>,
+    mut next_state: ResMut<NextState<AppState>>,
+) {
+    let keyboard_input = keyboard.get_just_pressed().next().is_some();
+    let mouse_input = mouse.get_just_pressed().next().is_some();
+
+    if keyboard_input || mouse_input {
+        next_state.set(AppState::MainMenu);
     }
 }
