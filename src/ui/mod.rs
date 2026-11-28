@@ -5,7 +5,10 @@ mod systems;
 
 pub mod stack;
 
-use bevy::prelude::*;
+use bevy::{
+    input::mouse::{AccumulatedMouseMotion, AccumulatedMouseScroll},
+    prelude::*,
+};
 
 use crate::app::state::AppState;
 
